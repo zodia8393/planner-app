@@ -2,7 +2,8 @@
 Smoke tests for all 3 planner apps (JM, My, Work).
 
 Uses httpx.AsyncClient + ASGITransport to test each FastAPI app
-without starting a real server.
+without starting a real server. Each app runs against an isolated
+temporary DB so production data is never touched.
 
 Run:  cd /workspace/planners && python3 -m pytest tests/smoke_test.py -v
 """
@@ -10,29 +11,51 @@ Run:  cd /workspace/planners && python3 -m pytest tests/smoke_test.py -v
 import sys
 import importlib
 import asyncio
+import atexit
+import tempfile
+import shutil
+from pathlib import Path
+
 import httpx
 import pytest
 import pytest_asyncio
 
 # ---------------------------------------------------------------------------
-# Import each app under a unique module name to avoid conflicts
+# Import each app with an isolated temporary DB
 # ---------------------------------------------------------------------------
 
-def _import_app(path: str, alias: str):
-    """Import main.py from *path*, call init_db(), return the app.
+_cleanup_dirs: list[Path] = []
 
-    Each module is stored under a unique *alias* in sys.modules so
-    subsequent imports don't collide.
-    """
+
+@atexit.register
+def _cleanup_temp_dbs():
+    for d in _cleanup_dirs:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+def _import_app(path: str, alias: str):
+    """Import main.py from *path* with DB redirected to a temp directory."""
     if path not in sys.path:
         sys.path.insert(0, path)
+
     mod = importlib.import_module("main")
-    # Re-register under a unique alias so next import gets a fresh module
     sys.modules[alias] = mod
     sys.modules.pop("main", None)
     if path in sys.path:
         sys.path.remove(path)
-    # Manually call init_db — httpx ASGITransport does not send lifespan events
+
+    tmp = Path(tempfile.mkdtemp(prefix=f"smoke_{alias}_"))
+    _cleanup_dirs.append(tmp)
+    tmp_db = tmp / "test.db"
+    mod.DB_PATH = tmp_db
+
+    if hasattr(mod, "UPLOAD_DIR"):
+        mod.UPLOAD_DIR = tmp / "uploads"
+        mod.UPLOAD_DIR.mkdir(exist_ok=True)
+    if hasattr(mod, "WORKLOG_IMG_DIR"):
+        mod.WORKLOG_IMG_DIR = tmp / "worklog_images"
+        mod.WORKLOG_IMG_DIR.mkdir(exist_ok=True)
+
     mod.init_db()
     return mod.app
 
@@ -95,7 +118,6 @@ class TestJM:
 
     @pytest.mark.asyncio
     async def test_sse_streaming(self, jm: httpx.AsyncClient):
-        """SSE endpoint should return a streaming response with event-stream content type."""
         async def _check():
             req = jm.build_request("GET", "/sse")
             r = await jm.send(req, stream=True)
@@ -105,11 +127,10 @@ class TestJM:
         try:
             await asyncio.wait_for(_check(), timeout=3)
         except (asyncio.TimeoutError, asyncio.CancelledError):
-            pass  # Expected — SSE never closes; timeout is success
+            pass
 
     @pytest.mark.asyncio
     async def test_post_without_csrf_origin_returns_403(self, jm: httpx.AsyncClient):
-        """POST with a foreign Origin header should be blocked by CSRF middleware."""
         r = await jm.post(
             "/todos",
             data={"title": "test"},
@@ -119,14 +140,12 @@ class TestJM:
 
     @pytest.mark.asyncio
     async def test_post_todo_with_valid_origin(self, jm: httpx.AsyncClient):
-        """POST a todo with matching origin should succeed (or redirect)."""
         r = await jm.post(
             "/todos",
             data={"title": "smoke test todo"},
             headers={"origin": "http://test", "host": "test"},
             follow_redirects=False,
         )
-        # Successful creation redirects (303) or returns HTML fragment
         assert r.status_code in (200, 303)
 
     @pytest.mark.asyncio
@@ -168,7 +187,6 @@ class TestMy:
 
     @pytest.mark.asyncio
     async def test_sse_streaming(self, my: httpx.AsyncClient):
-        """SSE endpoint should return a streaming response with event-stream content type."""
         async def _check():
             req = my.build_request("GET", "/sse")
             r = await my.send(req, stream=True)
@@ -178,7 +196,7 @@ class TestMy:
         try:
             await asyncio.wait_for(_check(), timeout=3)
         except (asyncio.TimeoutError, asyncio.CancelledError):
-            pass  # Expected — SSE never closes
+            pass
 
     @pytest.mark.asyncio
     async def test_post_without_csrf_origin_returns_403(self, my: httpx.AsyncClient):
@@ -191,7 +209,6 @@ class TestMy:
 
     @pytest.mark.asyncio
     async def test_setup_creates_profile(self, my: httpx.AsyncClient):
-        """POST /setup with name should create profile and redirect to /."""
         r = await my.post(
             "/setup",
             data={"name": "TestUser"},
@@ -200,21 +217,17 @@ class TestMy:
         )
         assert r.status_code == 303
         assert r.headers.get("location") in ("/", "http://test/")
-        # Cookie should be set
         cookie_header = r.headers.get("set-cookie", "")
         assert "planner_profile" in cookie_header
 
     @pytest.mark.asyncio
     async def test_dashboard_with_cookie_returns_200(self, my: httpx.AsyncClient):
-        """After creating a profile, dashboard should return 200."""
-        # Create a profile — this returns a Set-Cookie header
         r = await my.post(
             "/setup",
             data={"name": "DashUser"},
             headers={"origin": "http://test", "host": "test"},
             follow_redirects=False,
         )
-        # Extract cookie token from set-cookie header
         cookie_header = r.headers.get("set-cookie", "")
         token = None
         for part in cookie_header.split(";"):
@@ -224,7 +237,6 @@ class TestMy:
                 break
         assert token is not None, "planner_profile cookie not found"
 
-        # Create a new client with the cookie pre-set
         transport = httpx.ASGITransport(app=my_app)
         async with httpx.AsyncClient(
             transport=transport,
@@ -236,8 +248,6 @@ class TestMy:
 
     @pytest.mark.asyncio
     async def test_nonexistent_todo_returns_404(self, my: httpx.AsyncClient):
-        """Requesting a nonexistent todo edit should 404 (with valid profile)."""
-        # Create profile first
         r = await my.post(
             "/setup",
             data={"name": "ErrorUser"},
@@ -291,7 +301,6 @@ class TestWork:
 
     @pytest.mark.asyncio
     async def test_sse_streaming(self, work: httpx.AsyncClient):
-        """SSE endpoint should return a streaming response with event-stream content type."""
         async def _check():
             req = work.build_request("GET", "/sse")
             r = await work.send(req, stream=True)
@@ -301,7 +310,7 @@ class TestWork:
         try:
             await asyncio.wait_for(_check(), timeout=3)
         except (asyncio.TimeoutError, asyncio.CancelledError):
-            pass  # Expected — SSE never closes
+            pass
 
     @pytest.mark.asyncio
     async def test_post_without_csrf_origin_returns_403(self, work: httpx.AsyncClient):
@@ -314,18 +323,15 @@ class TestWork:
 
     @pytest.mark.asyncio
     async def test_create_profile_and_select(self, work: httpx.AsyncClient):
-        """POST /profiles to create, then POST /select-profile to select."""
-        # Create a profile
         r = await work.post(
             "/profiles",
-            data={"name": "SmokeTester", "emoji": "🧪"},
+            data={"name": "SmokeTester", "emoji": "T"},
             headers={"origin": "http://test", "host": "test"},
             follow_redirects=False,
         )
         assert r.status_code == 303
         assert "/select-profile" in r.headers.get("location", "")
 
-        # Select the profile (id=1 since it's the first one)
         r2 = await work.post(
             "/select-profile",
             data={"profile_id": "1"},
@@ -338,38 +344,22 @@ class TestWork:
 
     @pytest.mark.asyncio
     async def test_dashboard_with_cookie_returns_200(self):
-        """After setting profile cookie, dashboard should return 200."""
         transport = httpx.ASGITransport(app=work_app)
         async with httpx.AsyncClient(
             transport=transport,
             base_url="http://test",
             cookies={"work_profile": "1"},
         ) as client:
-            # Ensure a profile with id=1 exists
-            await client.post(
-                "/profiles",
-                data={"name": "DashTester", "emoji": "T"},
-                headers={"origin": "http://test", "host": "test"},
-                follow_redirects=False,
-            )
             r = await client.get("/")
             assert r.status_code == 200
 
     @pytest.mark.asyncio
     async def test_nonexistent_todo_returns_404(self):
-        """Nonexistent todo edit should 404."""
         transport = httpx.ASGITransport(app=work_app)
         async with httpx.AsyncClient(
             transport=transport,
             base_url="http://test",
             cookies={"work_profile": "1"},
         ) as client:
-            # Ensure a profile with id=1 exists
-            await client.post(
-                "/profiles",
-                data={"name": "ErrTester", "emoji": "X"},
-                headers={"origin": "http://test", "host": "test"},
-                follow_redirects=False,
-            )
             r = await client.get("/todos/99999/edit")
             assert r.status_code == 404
