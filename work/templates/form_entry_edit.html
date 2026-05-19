@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}{{ tpl.name }} {{ '편집' if mode == 'edit' else '작성' }} - Work Planner{% endblock %}
+{% block page_title %}{{ tpl.name }}{% endblock %}
+{% block page_subtitle %}{{ '기록 편집' if mode == 'edit' else '새 기록 작성' }}{% endblock %}
+
+{% block content %}
+<form {% if mode == 'edit' %}hx-put="/forms/{{ tpl.id }}/entries/{{ entry.id }}" hx-target="body"{% else %}action="/forms/{{ tpl.id }}/entries" method="POST"{% endif %}>
+    <div class="work-card rounded-xl p-4 mb-4 space-y-3">
+        <!-- Date -->
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">날짜</label>
+            <input type="date" name="entry_date"
+                   value="{{ entry.entry_date if entry else current_date }}"
+                   class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400"
+                   style="color-scheme: light dark">
+        </div>
+
+        <!-- Dynamic fields -->
+        {% for field in tpl.fields %}
+        {% set val = entry.data.get(field.label, '') if entry else (field_defaults.get(field.label, '') if field_defaults else '') %}
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                {{ field.label }}{% if field.required %} *{% endif %}
+            </label>
+
+            {% if field.type == 'text' %}
+            <input type="text" name="field_{{ loop.index0 }}" value="{{ val }}"
+                   {% if field.required %}required{% endif %}
+                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+
+            {% elif field.type == 'textarea' %}
+            <textarea name="field_{{ loop.index0 }}" rows="3"
+                      {% if field.required %}required{% endif %}
+                      class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 resize-none">{{ val }}</textarea>
+
+            {% elif field.type == 'number' %}
+            <input type="number" name="field_{{ loop.index0 }}" value="{{ val }}" step="any"
+                   {% if field.required %}required{% endif %}
+                   class="w-40 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+
+            {% elif field.type == 'dropdown' %}
+            <select name="field_{{ loop.index0 }}"
+                    {% if field.required %}required{% endif %}
+                    class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <option value="">선택하세요</option>
+                {% for opt in field.get('options', []) %}
+                <option value="{{ opt }}" {% if opt == val %}selected{% endif %}>{{ opt }}</option>
+                {% endfor %}
+            </select>
+
+            {% elif field.type == 'date' %}
+            <input type="date" name="field_{{ loop.index0 }}" value="{{ val }}"
+                   {% if field.required %}required{% endif %}
+                   class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400"
+                   style="color-scheme: light dark">
+
+            {% elif field.type == 'checkbox' %}
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="field_{{ loop.index0 }}"
+                       {% if val %}checked{% endif %}
+                       class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-400">
+                <span class="text-sm text-slate-600 dark:text-slate-300">{{ field.label }}</span>
+            </label>
+
+            {% elif field.type == 'table' %}
+            <input type="hidden" name="field_{{ loop.index0 }}" id="field_{{ loop.index0 }}_json">
+            <div class="overflow-x-auto border border-slate-200 dark:border-slate-600 rounded-lg">
+                <table class="w-full text-sm" id="table_{{ loop.index0 }}">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-700">
+                            {% for col in field.get('columns', []) %}
+                            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-600">{{ col }}</th>
+                            {% endfor %}
+                            <th class="w-10 border-b border-slate-200 dark:border-slate-600"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table_{{ loop.index0 }}_body"></tbody>
+                </table>
+            </div>
+            <button type="button" onclick="addTableRow({{ loop.index0 }})"
+                    class="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 transition-colors">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                행 추가
+            </button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors text-sm">
+            {{ '저장' if mode == 'edit' else '기록하기' }}
+        </button>
+        <a href="/forms/{{ tpl.id }}/entries" class="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium">
+            취소
+        </a>
+    </div>
+</form>
+
+<script>
+const TABLE_FIELDS = {};
+{% for field in tpl.fields %}
+{% if field.type == 'table' %}
+TABLE_FIELDS[{{ loop.index0 }}] = {
+    columns: {{ field.get('columns', []) | tojson }},
+    data: {{ (entry.data.get(field.label, []) if entry else []) | tojson }}
+};
+{% endif %}
+{% endfor %}
+
+function initTables() {
+    for (const [idx, cfg] of Object.entries(TABLE_FIELDS)) {
+        const rows = cfg.data.length ? cfg.data : [{}];
+        rows.forEach(row => addTableRow(parseInt(idx), row));
+    }
+}
+
+function addTableRow(fieldIdx, rowData) {
+    const cfg = TABLE_FIELDS[fieldIdx];
+    if (!cfg) return;
+    const tbody = document.getElementById(`table_${fieldIdx}_body`);
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-100 dark:border-slate-700';
+    let html = '';
+    cfg.columns.forEach(col => {
+        const val = (rowData && rowData[col]) || '';
+        html += `<td class="px-1 py-1"><input type="text" value="${escHtml(val)}" data-col="${escHtml(col)}"
+                    class="w-full px-2 py-1.5 text-sm bg-transparent border-0 focus:ring-1 focus:ring-indigo-400 rounded"
+                    oninput="syncTable(${fieldIdx})"></td>`;
+    });
+    html += `<td class="px-1 py-1 text-center"><button type="button" onclick="removeTableRow(this, ${fieldIdx})"
+                class="p-0.5 text-slate-400 hover:text-red-500"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></td>`;
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+    syncTable(fieldIdx);
+}
+
+function removeTableRow(btn, fieldIdx) {
+    const tbody = document.getElementById(`table_${fieldIdx}_body`);
+    btn.closest('tr').remove();
+    if (tbody.children.length === 0) addTableRow(fieldIdx);
+    syncTable(fieldIdx);
+}
+
+function syncTable(fieldIdx) {
+    const cfg = TABLE_FIELDS[fieldIdx];
+    const tbody = document.getElementById(`table_${fieldIdx}_body`);
+    const rows = [];
+    tbody.querySelectorAll('tr').forEach(tr => {
+        const row = {};
+        tr.querySelectorAll('input[data-col]').forEach(inp => {
+            row[inp.dataset.col] = inp.value;
+        });
+        rows.push(row);
+    });
+    document.getElementById(`field_${fieldIdx}_json`).value = JSON.stringify(rows);
+}
+
+function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML.replace(/"/g, '&quot;');
+}
+
+initTables();
+</script>
+{% endblock %}

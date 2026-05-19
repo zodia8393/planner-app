@@ -1,0 +1,45 @@
+<div class="work-card rounded-xl p-5 fade-in border-2 border-indigo-300 dark:border-indigo-600" id="todo-{{ todo.id }}">
+    <form hx-put="/todos/{{ todo.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML" class="space-y-3">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-sm text-indigo-600 dark:text-indigo-400">편집</h4>
+            <a href="/todos" class="text-xs text-slate-400 hover:text-slate-600">취소</a>
+        </div>
+        <input type="text" name="title" value="{{ todo.title }}" required
+               class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        <textarea name="description" rows="2" placeholder="설명"
+                  class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">{{ todo.description }}</textarea>
+        <div class="flex flex-wrap gap-2">
+            <input type="date" name="due_date" value="{{ todo.due_date or '' }}"
+                   class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            <select name="priority" class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                {% for pk, pv in priority_map.items() %}
+                <option value="{{ pk }}" {% if pk == todo.priority %}selected{% endif %}>{{ pv.label }}</option>
+                {% endfor %}
+            </select>
+            <select name="category_id" class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <option value="">카테고리</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if cat.id == todo.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="repeat_type" class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                {% for rk, rv in repeat_map.items() %}
+                <option value="{{ rk }}" {% if rk == todo.repeat_type %}selected{% endif %}>{{ rv }}</option>
+                {% endfor %}
+            </select>
+            <select name="energy_level" class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <option value="1" {% if todo.energy_level == 1 %}selected{% endif %}>🟢 저에너지</option>
+                <option value="2" {% if not todo.energy_level or todo.energy_level == 2 %}selected{% endif %}>🔵 보통</option>
+                <option value="3" {% if todo.energy_level == 3 %}selected{% endif %}>🔥 고에너지</option>
+            </select>
+        </div>
+        <input type="text" name="tags" value="{{ (todo.tags|parse_tags)|join(', ') }}" placeholder="태그 (쉼표 구분)"
+               class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+        <input type="text" name="assignee" value="{{ todo.assignee or '' }}" placeholder="담당자"
+               class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+        <div class="flex justify-end gap-2">
+            <a href="/todos" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">취소</a>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-medium text-sm rounded-lg hover:bg-indigo-700 transition-colors">저장</button>
+        </div>
+    </form>
+</div>

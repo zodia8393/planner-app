@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN 설정 - Work Planner</title>
+    <link rel="stylesheet" href="/static/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f1f5f9 100%); }
+        .pin-input { letter-spacing: 0.5em; text-align: center; font-size: 1.5rem; font-weight: 700; }
+        .pin-input:focus { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center">
+    <div class="w-full max-w-sm mx-4">
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 text-center border border-slate-200/60">
+            <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/30">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-slate-800 mb-2">PIN 설정</h1>
+            <p class="text-sm text-slate-400 mb-6">보안을 위해 4자리 이상 PIN을 설정해주세요</p>
+
+            {% if error %}
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ error }}</div>
+            {% endif %}
+
+            <form action="/auth/setup-pin" method="POST" id="pinForm">
+                <input type="password" name="pin" id="pinInput" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required autofocus
+                       class="pin-input w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-all mb-4"
+                       placeholder="····">
+
+                <input type="password" name="pin_confirm" id="pinConfirm" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required
+                       class="pin-input w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-all mb-2"
+                       placeholder="····">
+                <p id="matchError" class="text-xs text-red-500 mb-4 hidden">PIN이 일치하지 않습니다</p>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-lg shadow-indigo-500/30">
+                    설정 완료
+                </button>
+            </form>
+
+            <a href="/" class="inline-block mt-4 text-xs text-slate-400 hover:text-slate-600 transition-colors">나중에 설정하기</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('pinForm').addEventListener('submit', function(e) {
+            const pin = document.getElementById('pinInput').value;
+            const confirm = document.getElementById('pinConfirm').value;
+            if (pin !== confirm) {
+                e.preventDefault();
+                document.getElementById('matchError').classList.remove('hidden');
+                document.getElementById('pinConfirm').classList.add('border-red-400');
+                return;
+            }
+        });
+        document.getElementById('pinConfirm').addEventListener('input', function() {
+            document.getElementById('matchError').classList.add('hidden');
+            this.classList.remove('border-red-400');
+        });
+    </script>
+</body>
+</html>

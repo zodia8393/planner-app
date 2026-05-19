@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}설정 - Work Planner{% endblock %}
+{% block page_title %}설정{% endblock %}
+{% block page_subtitle %}카테고리, 테마 관리{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Category management -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">카테고리 관리</h4>
+
+        <form action="/settings/categories" method="POST" class="flex gap-2 items-end mb-4">
+            <div class="flex-1">
+                <label class="text-xs text-slate-500 mb-1 block">이름</label>
+                <input type="text" name="name" placeholder="카테고리 이름" required
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            </div>
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">색상</label>
+                <input type="color" name="color" value="#6366f1"
+                       class="w-14 h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
+            </div>
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">추가</button>
+        </form>
+
+        <div class="space-y-2">
+            {% for cat in categories %}
+            <div class="flex items-center justify-between px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 group" data-cat-id="{{ cat.id }}">
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 rounded-full" style="background: {{ cat.color }}"></div>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ cat.name }}</span>
+                </div>
+                <button onclick="fetch('/settings/categories/{{ cat.id }}',{method:'DELETE'}).then(()=>location.reload())"
+                        class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all"
+                        title="삭제">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            {% else %}
+            <p class="text-sm text-slate-400 text-center py-4">카테고리가 없습니다</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Time Budget Settings -->
+    <div class="work-card rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-slate-800 dark:text-white">주간 시간 예산</h4>
+            <a href="/settings/time-budgets" class="text-xs text-indigo-500 hover:underline">설정</a>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">카테고리별 주간 시간 한도를 설정합니다.</p>
+        <form action="/settings/time-budgets" method="POST">
+            <div class="space-y-2">
+                {% for cat in time_budget_cats|default([]) %}
+                <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:{{ cat.color }}"></span>
+                    <span class="text-sm flex-1 text-slate-700 dark:text-slate-200">{{ cat.name }}</span>
+                    <input type="hidden" name="category_id" value="{{ cat.id }}">
+                    <input type="number" name="weekly_hours" value="{{ cat.budget_hours or '' }}" step="0.5" min="0" max="168" placeholder="0"
+                           class="w-20 px-2 py-1 text-sm text-right bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <span class="text-xs text-slate-400 w-12">시간/주</span>
+                </div>
+                {% else %}
+                <p class="text-sm text-slate-400 text-center py-4">카테고리를 먼저 추가하세요</p>
+                {% endfor %}
+            </div>
+            {% if time_budget_cats|default([])|length > 0 %}
+            <button type="submit" class="mt-3 w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">저장</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Theme toggle -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">테마</h4>
+        <p class="text-xs text-slate-400 mb-4">화면 테마를 전환합니다.</p>
+        <button onclick="toggleDarkMode()"
+                class="w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm">
+            <span class="dark:hidden">🌙 다크 모드로 전환</span>
+            <span class="hidden dark:inline">☀️ 라이트 모드로 전환</span>
+        </button>
+    </div>
+
+    <!-- Background Settings -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">배경 설정</h4>
+        <p class="text-xs text-slate-400 mb-4">배경 이미지 또는 그라데이션을 설정합니다.</p>
+
+        <form action="/settings/background" method="POST" enctype="multipart/form-data" id="bgForm">
+            <!-- Background type selection -->
+            <div class="space-y-3 mb-5">
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <input type="radio" name="type" value="none" {% if current_bg_type == 'none' %}checked{% endif %}
+                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">기본 (배경 없음)</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <input type="radio" name="type" value="preset" {% if current_bg_type == 'preset' %}checked{% endif %}
+                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">프리셋 그라데이션</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                    <input type="radio" name="type" value="upload" {% if current_bg_type == 'upload' %}checked{% endif %}
+                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">사진 업로드</span>
+                </label>
+            </div>
+
+            <!-- Preset gradients -->
+            <div id="presetSection" class="mb-5 {% if current_bg_type != 'preset' %}hidden{% endif %}">
+                <label class="text-xs text-slate-500 mb-2 block font-medium">그라데이션 선택</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-1" class="sr-only peer" {% if current_bg_preset == 'gradient-1' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Sunset</p>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-2" class="sr-only peer" {% if current_bg_preset == 'gradient-2' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Ocean</p>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-3" class="sr-only peer" {% if current_bg_preset == 'gradient-3' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Forest</p>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-4" class="sr-only peer" {% if current_bg_preset == 'gradient-4' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Warm</p>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-5" class="sr-only peer" {% if current_bg_preset == 'gradient-5' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #0c0d2e 0%, #1a1b4b 50%, #3b1d6e 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Night Sky</p>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="preset" value="gradient-6" class="sr-only peer" {% if current_bg_preset == 'gradient-6' %}checked{% endif %}>
+                        <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                             style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ee9ca7 100%)"></div>
+                        <p class="text-[11px] text-center mt-1 text-slate-500">Rose Gold</p>
+                    </label>
+                </div>
+            </div>
+
+            <!-- File upload -->
+            <div id="uploadSection" class="mb-5 {% if current_bg_type != 'upload' %}hidden{% endif %}">
+                <label class="text-xs text-slate-500 mb-2 block font-medium">이미지 업로드 (최대 5MB, jpg/png/webp)</label>
+                <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp"
+                       class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-300">
+                {% if bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
+                <p class="mt-2 text-xs text-green-600 dark:text-green-400">현재 업로드된 이미지: {{ bg_setting.image }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Opacity slider -->
+            <div id="opacitySection" class="mb-5 {% if current_bg_type == 'none' %}hidden{% endif %}">
+                <label class="text-xs text-slate-500 mb-2 block font-medium">오버레이 투명도: <span id="opacityValue">{{ current_bg_opacity }}</span></label>
+                <input type="range" name="opacity" min="0.3" max="0.95" step="0.05" value="{{ current_bg_opacity }}"
+                       class="w-full h-2 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                       oninput="document.getElementById('opacityValue').textContent=this.value">
+                <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                    <span>투명 (0.3)</span>
+                    <span>불투명 (0.95)</span>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                배경 저장
+            </button>
+        </form>
+    </div>
+
+    <script>
+    function updateBgPreview() {
+        const type = document.querySelector('input[name="type"]:checked')?.value || 'none';
+        document.getElementById('presetSection').classList.toggle('hidden', type !== 'preset');
+        document.getElementById('uploadSection').classList.toggle('hidden', type !== 'upload');
+        document.getElementById('opacitySection').classList.toggle('hidden', type === 'none');
+    }
+    </script>
+
+    <!-- Google Calendar Integration -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">Google 캘린더 연동</h4>
+        <p class="text-xs text-slate-400 mb-4">Google 계정의 캘린더 일정을 플래너에 가져와 함께 표시합니다.</p>
+        {% if not gcal_configured %}
+        <div class="p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg">
+            <p class="text-xs text-amber-700 dark:text-amber-400">환경변수 <code>GCAL_CLIENT_ID</code>, <code>GCAL_CLIENT_SECRET</code>을 설정하세요.</p>
+        </div>
+        {% elif gcal_connected %}
+        <div class="p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/30 rounded-lg mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-xs font-medium text-green-700 dark:text-green-400">연동됨</span>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">캘린더 선택</label>
+                <div class="flex gap-2">
+                    <select id="gcalSelect" class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        <option value="primary">기본 캘린더</option>
+                    </select>
+                    <button onclick="fetch('/api/gcal/calendars').then(r=>r.json()).then(cals=>{const s=document.getElementById('gcalSelect');s.innerHTML='';cals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.summary;s.appendChild(o)})})"
+                            class="px-3 py-2 text-xs bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                        목록 불러오기
+                    </button>
+                </div>
+                <form action="/settings/gcal/calendar-id" method="POST" class="mt-2">
+                    <input type="hidden" name="calendar_id" id="gcalIdInput" value="{{ gcal_calendar_id }}">
+                    <button type="submit" onclick="document.getElementById('gcalIdInput').value=document.getElementById('gcalSelect').value"
+                            class="w-full py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                        캘린더 저장
+                    </button>
+                </form>
+            </div>
+            <form action="/settings/gcal/disconnect" method="POST">
+                <button type="submit"
+                        class="w-full py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors">
+                    연동 해제
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <a href="/settings/gcal/connect" hx-boost="false"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            <span class="text-sm font-medium text-slate-700">Google 계정 연결</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Calendar Subscription (outgoing iCal) -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">캘린더 내보내기</h4>
+        <p class="text-xs text-slate-400 mb-4">아래 URL을 외부 캘린더에 등록하면 플래너 일정이 자동 동기화됩니다.</p>
+        <div class="flex gap-2 items-center">
+            <input type="text" id="icalUrl" readonly
+                   value="{{ request.url.scheme }}://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
+                   class="flex-1 px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 font-mono">
+            <button onclick="navigator.clipboard.writeText(document.getElementById('icalUrl').value).then(()=>{this.textContent='복사됨!';setTimeout(()=>this.textContent='복사',1500)})"
+                    class="px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm whitespace-nowrap">
+                복사
+            </button>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <a href="https://calendar.google.com/calendar/r?cid=webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
+               target="_blank"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition-colors">
+                Google Calendar에 추가
+            </a>
+            <a href="webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 transition-colors">
+                Apple Calendar에 추가
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

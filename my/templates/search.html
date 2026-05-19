@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}검색 - My Planner{% endblock %}
+{% block page_title %}검색{% endblock %}
+{% block page_subtitle %}{% if q %}"{{ q }}" 검색 결과 {{ total }}건{% endif %}{% endblock %}
+
+{% block content %}
+<form action="/search" method="GET" class="mb-4">
+    <div class="flex gap-2">
+        <input type="text" name="q" value="{{ q }}" placeholder="할일, 일정, 메모, 공지, 업무일지 검색..." autofocus
+               class="flex-1 px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-400">
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors text-sm">검색</button>
+    </div>
+</form>
+
+{% if q and total == 0 %}
+<div class="py-12 text-center text-sm text-slate-400">검색 결과가 없습니다</div>
+{% endif %}
+
+{% if results.todos %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">할일 ({{ results.todos|length }})</h3>
+    {% for t in results.todos %}
+    <a href="/todos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        {{ t.title }} <span class="text-xs text-slate-400">{{ t.due_date or '' }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if results.events %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">일정 ({{ results.events|length }})</h3>
+    {% for e in results.events %}
+    <a href="/calendar" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        {{ e.title }} <span class="text-xs text-slate-400">{{ e.start_time[:10] if e.start_time else '' }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if results.memos %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">메모 ({{ results.memos|length }})</h3>
+    {% for m in results.memos %}
+    <a href="/memos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        {{ m.content[:100] }} <span class="text-xs text-slate-400">{{ m.created_at[:10] }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if results.notices %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">공지 ({{ results.notices|length }})</h3>
+    {% for n in results.notices %}
+    <a href="/notices" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        {{ n.title }} <span class="text-xs text-slate-400">{{ n.created_at[:10] if n.created_at else '' }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if results.worklogs %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">업무일지 ({{ results.worklogs|length }})</h3>
+    {% for w in results.worklogs %}
+    <a href="/worklogs" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        {{ w.content[:100] }} <span class="text-xs text-slate-400">{{ w.log_date }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if results.entries %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">양식 기록 ({{ results.entries|length }})</h3>
+    {% for e in results.entries %}
+    <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
+        [{{ e.tpl_name }}] {{ e.entry_date }} <span class="text-xs text-slate-400">{{ e.values_json[:80] }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

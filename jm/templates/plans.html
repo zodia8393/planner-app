@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}플랜 - Work Planner{% endblock %}
+{% block page_title %}주간/월간 플랜{% endblock %}
+{% block page_subtitle %}{{ nav_label }}{% endblock %}
+
+{% block content %}
+<!-- View toggle tabs -->
+<div class="flex items-center gap-2 mb-4">
+    <a href="/plans?view=week&offset=0"
+       class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+              {% if view == 'week' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300{% endif %}">
+        주간
+    </a>
+    <a href="/plans?view=month&offset=0"
+       class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+              {% if view == 'month' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-300{% endif %}">
+        월간
+    </a>
+    <div class="flex-1"></div>
+    <!-- Summary badge -->
+    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <span class="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">
+            전체 <span class="font-bold text-slate-700 dark:text-slate-200">{{ total_count }}</span>
+        </span>
+        <span class="px-2 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/20">
+            완료 <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ done_count }}</span>
+        </span>
+        {% if total_count > 0 %}
+        <span class="px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-900/20">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ ((done_count / total_count) * 100)|round|int }}%</span>
+        </span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="flex items-center justify-center gap-3 mb-5">
+    <a href="/plans?view={{ view }}&offset={{ offset - 1 }}"
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+    </a>
+    <h3 class="text-base font-bold text-slate-800 dark:text-white text-center min-w-[200px]">{{ nav_label }}</h3>
+    <a href="/plans?view={{ view }}&offset={{ offset + 1 }}"
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+    </a>
+    {% if offset != 0 %}
+    <a href="/plans?view={{ view }}&offset=0"
+       class="ml-2 px-3 py-1.5 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
+        {{ reset_label }}
+    </a>
+    {% endif %}
+</div>
+
+{% if view == 'week' %}
+<!-- ==================== WEEK VIEW ==================== -->
+<div class="grid grid-cols-1 lg:grid-cols-7 gap-3">
+    {% for day in week_days %}
+    <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
+         style="animation-delay: {{ loop.index0 * 40 }}ms">
+        <!-- Day header -->
+        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between
+                    {% if day.is_today %}bg-indigo-50 dark:bg-indigo-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% else %}bg-white dark:bg-slate-800{% endif %}">
+            <div class="flex items-center gap-2">
+                {% if day.is_today %}
+                <span class="w-7 h-7 bg-indigo-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {{ day.date.day }}
+                </span>
+                {% else %}
+                <span class="text-sm font-bold {% if day.is_weekend %}text-red-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">
+                    {{ day.date.day }}
+                </span>
+                {% endif %}
+                <span class="text-xs font-medium {% if day.is_today %}text-indigo-600 dark:text-indigo-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    {{ day.short_label }}
+                </span>
+            </div>
+            {% if day.todos|length > 0 %}
+            <span class="text-xs font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
+            </span>
+            {% endif %}
+        </div>
+        <!-- Day todos -->
+        <div class="p-2 space-y-1.5 min-h-[60px] lg:min-h-[100px]">
+            {% for todo in day.todos %}
+            <div class="flex items-start gap-2 px-2 py-1.5 rounded-lg group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                <form action="/todos/{{ todo.id }}/toggle" method="POST" class="flex-shrink-0 mt-0.5">
+                    <button type="submit" class="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
+                                {% if todo.completed %}bg-indigo-500 border-indigo-500{% else %}border-slate-300 dark:border-slate-500 hover:border-indigo-400{% endif %}">
+                        {% if todo.completed %}
+                        <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        {% endif %}
+                    </button>
+                </form>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
+                        <span class="text-xs {% if todo.completed %}line-through text-slate-400 dark:text-slate-500{% else %}text-slate-700 dark:text-slate-200{% endif %} truncate">
+                            {{ todo.title }}
+                        </span>
+                    </div>
+                    {% if todo.category_name %}
+                    <span class="inline-block mt-0.5 text-[11px] font-medium px-1.5 py-0.5 rounded"
+                          style="background: {{ todo.category_color }}15; color: {{ todo.category_color }}">
+                        {{ todo.category_name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="flex items-center justify-center h-full min-h-[48px]">
+                <span class="text-xs text-slate-300 dark:text-slate-600">일정 없음</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- ==================== MONTH VIEW ==================== -->
+<div class="work-card rounded-xl overflow-hidden">
+    <!-- Weekday header -->
+    <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+        {% for wn in weekday_names %}
+        <div class="py-2.5 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ wn }}</div>
+        {% endfor %}
+    </div>
+    <!-- Calendar grid -->
+    <div class="grid grid-cols-7">
+        {% for week in cal_weeks %}
+        {% for cell_date in week %}
+        {% if cell_date %}
+        {% set ds = cell_date.isoformat() %}
+        {% set cell_todos = todos_by_date.get(ds, []) %}
+        {% set is_today = cell_date == today %}
+        {% set weekday = cell_date.weekday() %}
+        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 lg:p-2
+                    {% if is_today %}bg-indigo-50/50 dark:bg-indigo-900/10{% endif %}">
+            <!-- Date number -->
+            <div class="flex items-center justify-between mb-1">
+                <span class="text-xs lg:text-sm font-medium
+                    {% if is_today %}bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center
+                    {% elif weekday == 6 %}text-red-400
+                    {% elif weekday == 5 %}text-blue-400
+                    {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ cell_date.day }}</span>
+                {% if cell_todos|length > 0 %}
+                <span class="text-[11px] font-medium px-1 py-0.5 rounded
+                       {% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400
+                       {% else %}bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400{% endif %}">
+                    {{ cell_todos|length }}
+                </span>
+                {% endif %}
+            </div>
+            <!-- Todo previews -->
+            {% for todo in cell_todos[:3] %}
+            <div class="flex items-center gap-1 mb-0.5">
+                <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
+                <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through text-slate-400 dark:text-slate-500{% else %}text-slate-600 dark:text-slate-300{% endif %}">
+                    {{ todo.title }}
+                </span>
+            </div>
+            {% endfor %}
+            {% if cell_todos|length > 3 %}
+            <span class="text-[11px] text-slate-400 dark:text-slate-500 pl-2">+{{ cell_todos|length - 3 }}개</span>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30"></div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

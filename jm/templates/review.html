@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}리뷰{% endblock %}
+{% block page_title %}{{ label }} 리뷰{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+    <div class="flex gap-2">
+        <a href="/review?period=week&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='week' %}bg-indigo-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700{% endif %}">주간</a>
+        <a href="/review?period=month&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='month' %}bg-indigo-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700{% endif %}">월간</a>
+    </div>
+    <div class="flex gap-2">
+        <a href="/review?period={{ period }}&offset={{ offset - 1 }}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">이전</a>
+        <a href="/review?period={{ period }}&offset=0" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">이번 {{ '주' if period=='week' else '달' }}</a>
+        {% if offset < 0 %}
+        <a href="/review?period={{ period }}&offset={{ offset + 1 }}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">다음</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="work-card rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-indigo-600">{{ completion_rate }}%</div>
+        <div class="text-xs text-slate-400 mt-1">완료율</div>
+    </div>
+    <div class="work-card rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-slate-700 dark:text-slate-200">{{ completed_todos }}/{{ total_todos }}</div>
+        <div class="text-xs text-slate-400 mt-1">할일 완료</div>
+    </div>
+    <div class="work-card rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-green-600">{{ total_hours }}h</div>
+        <div class="text-xs text-slate-400 mt-1">총 투자 시간</div>
+    </div>
+    <div class="work-card rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-slate-700 dark:text-slate-200">{{ log_count }}</div>
+        <div class="text-xs text-slate-400 mt-1">업무일지</div>
+    </div>
+</div>
+
+{% if cat_stats %}
+<div class="work-card rounded-xl p-4 mb-4">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">카테고리별 완료 현황</h3>
+    <div class="space-y-2">
+        {% for cat in cat_stats %}
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full" style="background:{{ cat.color or '#94a3b8' }}"></span>
+                    {{ cat.name or '미분류' }}
+                </span>
+                <span class="text-slate-400">{{ cat.done }}/{{ cat.total }}</span>
+            </div>
+            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 rounded-full" style="width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if hours_by_cat %}
+<div class="work-card rounded-xl p-4 mb-4">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">카테고리별 시간 투자</h3>
+    <div class="space-y-2">
+        {% for h in hours_by_cat %}
+        <div class="flex justify-between items-center text-sm">
+            <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full" style="background:{{ h.color or '#94a3b8' }}"></span>
+                {{ h.name or '미분류' }}
+            </span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">{{ h.hours|round(1) }}h</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if daily_completed %}
+<div class="work-card rounded-xl p-4">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">일별 완료 추이</h3>
+    <canvas id="dailyChart" height="120"></canvas>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if daily_completed %}
+<script>
+new Chart(document.getElementById('dailyChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ daily_completed|map(attribute='d')|list|tojson }},
+        datasets: [{
+            data: {{ daily_completed|map(attribute='cnt')|list|tojson }},
+            backgroundColor: 'rgba(99,102,241,0.5)',
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { ticks: { font: { size: 10 } } }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}링크 - My Planner{% endblock %}
+{% block page_title %}링크{% endblock %}
+{% block page_subtitle %}자주 쓰는 링크 관리{% endblock %}
+
+{% block content %}
+<details class="mb-4 group">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+        사용법
+    </summary>
+    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+        <p><b class="text-slate-700 dark:text-slate-300">링크 추가</b> -- 제목, URL, 카테고리를 입력하여 자주 사용하는 링크를 저장합니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">카테고리 필터</b> -- 상단 탭으로 카테고리별 필터링이 가능합니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">삭제</b> -- 카드에 마우스를 올리면 삭제 버튼이 나타납니다</p>
+    </div>
+</details>
+
+<!-- Add link form -->
+<div class="work-card rounded-xl p-5 mb-6">
+    <form action="/links" method="POST" class="flex flex-wrap gap-2 items-end">
+        <div class="flex-1 min-w-40">
+            <label class="text-xs text-slate-500 mb-1 block">제목</label>
+            <input type="text" name="title" placeholder="링크 제목" required
+                   class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div class="flex-1 min-w-48">
+            <label class="text-xs text-slate-500 mb-1 block">URL</label>
+            <input type="url" name="url" placeholder="https://..." required
+                   class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div class="w-32">
+            <label class="text-xs text-slate-500 mb-1 block">카테고리</label>
+            <input type="text" name="category" placeholder="분류"
+                   list="link-cats"
+                   class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <datalist id="link-cats">
+                {% for cat in link_categories %}<option value="{{ cat }}">{% endfor %}
+            </datalist>
+        </div>
+        <div class="flex-1 min-w-32">
+            <label class="text-xs text-slate-500 mb-1 block">설명</label>
+            <input type="text" name="description" placeholder="간단한 설명"
+                   class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">추가</button>
+    </form>
+</div>
+
+<!-- Category filter tabs -->
+{% if link_categories %}
+<div class="flex flex-wrap gap-1.5 mb-4" id="linkFilter">
+    <button onclick="filterLinks('')" class="link-filter-btn active px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 transition-colors">전체</button>
+    {% for cat in link_categories %}
+    <button onclick="filterLinks('{{ cat }}')" class="link-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">{{ cat }}</button>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Links grid -->
+<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="linksGrid">
+    {% for link in links %}
+    <div class="work-card rounded-xl p-4 card-hover group relative link-card" data-link-id="{{ link.id }}" data-category="{{ link.category }}">
+        <button hx-delete="/links/{{ link.id }}" hx-target="closest [data-link-id]" hx-swap="outerHTML"
+                hx-confirm="삭제할까요?"
+                class="absolute top-3 right-3 lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <a href="{{ link.url }}" target="_blank" rel="noopener" class="block">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-slate-800 dark:text-white truncate">{{ link.title }}</p>
+                    <p class="text-xs text-slate-400 truncate">{{ link.url }}</p>
+                </div>
+            </div>
+            {% if link.description %}
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">{{ link.description }}</p>
+            {% endif %}
+            {% if link.category %}
+            <span class="inline-block px-2 py-0.5 text-[11px] font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded">{{ link.category }}</span>
+            {% endif %}
+        </a>
+    </div>
+    {% else %}
+    <div class="col-span-full py-16 text-center" id="emptyLinks">
+        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-3xl">🔗</span>
+        </div>
+        <p class="text-slate-400 font-medium">저장된 링크가 없습니다</p>
+        <p class="text-xs text-slate-400 mt-1">위에서 자주 쓰는 링크를 추가해보세요</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterLinks(cat) {
+    document.querySelectorAll('.link-card').forEach(function(card) {
+        if (!cat || card.dataset.category === cat) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    document.querySelectorAll('.link-filter-btn').forEach(function(btn) {
+        btn.classList.remove('active', 'bg-indigo-100', 'text-indigo-700', 'dark:bg-indigo-900/30', 'dark:text-indigo-400');
+        btn.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+    });
+    event.target.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+    event.target.classList.add('active', 'bg-indigo-100', 'text-indigo-700', 'dark:bg-indigo-900/30', 'dark:text-indigo-400');
+}
+</script>
+{% endblock %}

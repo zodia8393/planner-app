@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}자동화 - My Planner{% endblock %}
+{% block page_title %}자동화 규칙{% endblock %}
+{% block page_subtitle %}{{ rules|length }}개{% endblock %}
+
+{% block content %}
+<div class="work-card rounded-xl p-4 mb-4">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">새 규칙 만들기</h3>
+    <form action="/automations" method="POST" id="automationForm">
+        <input type="text" name="name" placeholder="규칙 이름 (예: 매주 월요일 회의 준비)" required
+               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-3">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">트리거</label>
+                <select id="triggerType" onchange="updateTriggerUI()"
+                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="daily">매일</option>
+                    <option value="weekly" selected>매주</option>
+                    <option value="monthly">매월</option>
+                </select>
+            </div>
+            <div id="triggerExtra">
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">요일</label>
+                <select id="triggerWeekday"
+                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="0">월요일</option>
+                    <option value="1">화요일</option>
+                    <option value="2">수요일</option>
+                    <option value="3">목요일</option>
+                    <option value="4">금요일</option>
+                    <option value="5">토요일</option>
+                    <option value="6">일요일</option>
+                </select>
+                <select id="triggerDay" style="display:none"
+                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    {% for d in range(1, 29) %}
+                    <option value="{{ d }}">{{ d }}일</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 mb-3">
+            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">생성할 할일</label>
+            <input type="text" id="actionTitle" placeholder="할일 제목" required
+                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-2">
+            <div class="grid grid-cols-2 gap-2">
+                <select id="actionPriority"
+                        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="1">긴급</option>
+                    <option value="2" selected>보통</option>
+                    <option value="3">낮음</option>
+                </select>
+                <select id="actionCategory"
+                        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="">카테고리 없음</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <input type="hidden" name="trigger_type" id="hiddenTriggerType" value="weekly">
+        <input type="hidden" name="trigger_config" id="hiddenTriggerConfig" value='{"weekday":0}'>
+        <input type="hidden" name="action_config" id="hiddenActionConfig" value="{}">
+
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">저장</button>
+    </form>
+</div>
+
+{% for rule in rules %}
+<div class="work-card rounded-xl p-4 mb-3">
+    <div class="flex items-center justify-between">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 truncate">{{ rule.name }}</h3>
+                {% if rule.enabled %}
+                <span class="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">활성</span>
+                {% else %}
+                <span class="px-1.5 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 rounded">비활성</span>
+                {% endif %}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+                {% if rule.trigger_type == 'daily' %}매일
+                {% elif rule.trigger_type == 'weekly' %}매주 {{ ['월','화','수','목','금','토','일'][rule._tc.get('weekday', 0)] }}요일
+                {% elif rule.trigger_type == 'monthly' %}매월 {{ rule._tc.get('day', 1) }}일
+                {% endif %}
+                &rarr; "{{ rule._ac.get('title', '') }}" 생성
+            </div>
+            {% if rule.last_run %}
+            <div class="text-[10px] text-slate-400 mt-0.5">마지막 실행: {{ rule.last_run }}</div>
+            {% endif %}
+        </div>
+        <div class="flex items-center gap-2 ml-3">
+            <form action="/automations/{{ rule.id }}/toggle" method="POST">
+                <button type="submit" class="px-3 py-1.5 text-xs border rounded-lg
+                    {% if rule.enabled %}text-amber-600 border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-900/30
+                    {% else %}text-green-600 border-green-200 hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/30{% endif %}">
+                    {% if rule.enabled %}비활성{% else %}활성{% endif %}
+                </button>
+            </form>
+            <button hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
+                    class="px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/30">삭제</button>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="py-12 text-center text-sm text-slate-400">등록된 자동화 규칙이 없습니다</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+var WEEKDAYS = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+
+function updateTriggerUI() {
+    var type = document.getElementById('triggerType').value;
+    var weekdaySel = document.getElementById('triggerWeekday');
+    var daySel = document.getElementById('triggerDay');
+    var extraLabel = document.querySelector('#triggerExtra label');
+    if (type === 'daily') {
+        weekdaySel.style.display = 'none';
+        daySel.style.display = 'none';
+        extraLabel.textContent = '';
+    } else if (type === 'weekly') {
+        weekdaySel.style.display = '';
+        daySel.style.display = 'none';
+        extraLabel.textContent = '요일';
+    } else if (type === 'monthly') {
+        weekdaySel.style.display = 'none';
+        daySel.style.display = '';
+        extraLabel.textContent = '날짜';
+    }
+}
+
+document.getElementById('automationForm').addEventListener('submit', function() {
+    var type = document.getElementById('triggerType').value;
+    document.getElementById('hiddenTriggerType').value = type;
+    var tc = {};
+    if (type === 'weekly') tc = {weekday: parseInt(document.getElementById('triggerWeekday').value)};
+    else if (type === 'monthly') tc = {day: parseInt(document.getElementById('triggerDay').value)};
+    document.getElementById('hiddenTriggerConfig').value = JSON.stringify(tc);
+
+    var ac = {
+        title: document.getElementById('actionTitle').value.trim(),
+        priority: parseInt(document.getElementById('actionPriority').value),
+        category_id: document.getElementById('actionCategory').value ? parseInt(document.getElementById('actionCategory').value) : null,
+        description: '',
+        tags: ''
+    };
+    document.getElementById('hiddenActionConfig').value = JSON.stringify(ac);
+});
+</script>
+{% endblock %}

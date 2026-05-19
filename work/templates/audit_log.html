@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}감사 로그 - Work Planner{% endblock %}
+{% block page_title %}감사 로그{% endblock %}
+{% block page_subtitle %}변경 이력 추적{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Filter bar -->
+    <div class="work-card rounded-2xl p-4">
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-sm font-medium text-slate-500 dark:text-slate-400 mr-1">필터:</span>
+            <a href="/audit-log"
+               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if not entity_type %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
+                전체
+            </a>
+            <a href="/audit-log?entity_type=todo"
+               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'todo' %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
+                할일
+            </a>
+            <a href="/audit-log?entity_type=event"
+               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'event' %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
+                일정
+            </a>
+            <a href="/audit-log?entity_type=memo"
+               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'memo' %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
+                메모
+            </a>
+        </div>
+    </div>
+
+    <!-- Log list -->
+    <div class="space-y-2" id="log-list">
+        {% if logs %}
+        {% for log in logs %}
+        <div class="work-card rounded-xl p-4 fade-in">
+            <div class="flex items-start gap-3">
+                <!-- Action badge -->
+                <div class="flex-shrink-0 mt-0.5">
+                    {% if log.action == 'create' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">생성</span>
+                    {% elif log.action == 'update' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">수정</span>
+                    {% elif log.action == 'complete' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">완료</span>
+                    {% elif log.action == 'uncomplete' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">미완료</span>
+                    {% elif log.action == 'delete' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">삭제</span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">{{ log.action }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Entity type badge -->
+                        {% if log.entity_type == 'todo' %}
+                        <span class="text-xs font-medium text-indigo-600 dark:text-indigo-400">할일 #{{ log.entity_id }}</span>
+                        {% elif log.entity_type == 'event' %}
+                        <span class="text-xs font-medium text-purple-600 dark:text-purple-400">일정 #{{ log.entity_id }}</span>
+                        {% elif log.entity_type == 'memo' %}
+                        <span class="text-xs font-medium text-teal-600 dark:text-teal-400">메모 #{{ log.entity_id }}</span>
+                        {% else %}
+                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ log.entity_type }} #{{ log.entity_id }}</span>
+                        {% endif %}
+
+                        <!-- Title from changes -->
+                        {% if log.changes.get('title') is mapping %}
+                        <span class="text-sm text-slate-700 dark:text-slate-200 truncate">{{ log.changes.title.new }}</span>
+                        {% elif log.changes.get('title') is string %}
+                        <span class="text-sm text-slate-700 dark:text-slate-200 truncate">{{ log.changes.title }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Changes detail -->
+                    {% if log.changes and log.action == 'update' %}
+                    <div class="mt-2 space-y-1">
+                        {% for field, val in log.changes.items() %}
+                        {% if val is mapping and val.get('old') is defined %}
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                            <span class="font-medium">{{ field }}:</span>
+                            <span class="line-through text-red-400">{{ val.old or '(empty)' }}</span>
+                            <span class="mx-1">-></span>
+                            <span class="text-green-600 dark:text-green-400">{{ val.new or '(empty)' }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Timestamp -->
+                <div class="flex-shrink-0 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                    {{ log.created_at[5:16] if log.created_at else '' }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="work-card rounded-xl p-8 text-center">
+            <p class="text-slate-400 dark:text-slate-500 text-sm">아직 기록된 변경 이력이 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

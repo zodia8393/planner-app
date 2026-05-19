@@ -1,0 +1,56 @@
+<div id="editEventModal" class="fixed inset-0 z-50">
+    <div class="modal-backdrop absolute inset-0" onclick="document.getElementById('editEventContainer').innerHTML=''"></div>
+    <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 relative">
+            <button onclick="document.getElementById('editEventContainer').innerHTML=''" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">일정 편집</h3>
+            <form hx-put="/events/{{ event.id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
+                <input type="text" name="title" value="{{ event.title }}" required
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500 mb-1 block">시작</label>
+                        <input type="datetime-local" name="start_time" value="{{ event.start_time }}"
+                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 mb-1 block">종료</label>
+                        <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}"
+                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-500 mb-1 block">색상</label>
+                        <input type="color" name="color" value="{{ event.color or '#6366f1' }}"
+                               class="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 mb-1 block">카테고리</label>
+                        <select name="category_id" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                            <option value="">없음</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if cat.id == event.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <textarea name="memo" placeholder="메모" rows="2"
+                          class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">{{ event.memo or '' }}</textarea>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                        저장
+                    </button>
+                    <button type="button" onclick="if(confirm('삭제할까요?')){fetch('/events/{{ event.id }}',{method:'DELETE'}).then(()=>location.reload())}"
+                            class="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm">
+                        삭제
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

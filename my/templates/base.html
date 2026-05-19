@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <script>
+    (function(){var t=localStorage.getItem('theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
+    </script>
+    <style>html.dark{background:#0f172a;color-scheme:dark}html:not(.dark){background:#f8fafc;color-scheme:light}</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{% block title %}My Planner{% endblock %}</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/static/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <script src="/static/htmx.min.js"></script>
+    <script src="/static/chart.umd.min.js"></script>
+    <script src="/static/sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+    <style>
+        /* Memo markdown rendering */
+        .memo-content h1 { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0; }
+        .memo-content h2 { font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0; }
+        .memo-content h3 { font-size: 1rem; font-weight: 600; margin: 0.25rem 0; }
+        .memo-content strong { font-weight: 700; }
+        .memo-content em { font-style: italic; }
+        .memo-content ul, .memo-content ol { padding-left: 1.5rem; margin: 0.25rem 0; }
+        .memo-content ul { list-style: disc; }
+        .memo-content ol { list-style: decimal; }
+        .memo-content code { background: rgba(99,102,241,0.1); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.85em; }
+        .memo-content pre { background: rgba(0,0,0,0.05); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
+        .memo-content pre code { background: none; padding: 0; }
+        .memo-content blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; color: #64748b; margin: 0.5rem 0; }
+        .memo-content a { color: #6366f1; text-decoration: underline; }
+        .memo-content p { margin: 0.25rem 0; }
+        .dark .memo-content pre { background: rgba(255,255,255,0.05); }
+        .dark .memo-content blockquote { color: #94a3b8; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+
+        .todo-check { transition: all 0.2s ease; }
+        .todo-check:checked { background-color: #4f46e5; border-color: #4f46e5; }
+
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(71, 85, 105, 0.12); }
+
+        .nav-active { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white !important; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .nav-active svg { color: white !important; }
+
+        .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+
+        .cal-cell { min-height: 100px; transition: background 0.15s; }
+        .cal-cell:hover { background: rgba(99, 102, 241, 0.06); }
+        .dark .cal-cell:hover { background: rgba(99, 102, 241, 0.1); }
+
+        .progress-bar { transition: width 0.8s ease-in-out; }
+
+        .sortable-ghost { opacity: 0.4; background: #e0e7ff !important; }
+        .sortable-chosen { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2); }
+
+        .badge-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .main-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
+            position: relative;
+        }
+        .main-bg::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(71, 85, 105, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dark .main-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .dark .main-bg::before {
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(71, 85, 105, 0.04) 0%, transparent 50%);
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%);
+        }
+        .dark .sidebar-gradient {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .work-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .dark .work-card {
+            background: #1e293b;
+            border-color: rgba(100, 116, 139, 0.3);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.08);
+            transform: translateX(2px);
+        }
+        .nav-item { transition: all 0.2s ease; }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.88);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 1px 12px rgba(71, 85, 105, 0.04);
+        }
+        .dark .glass-header {
+            background: rgba(30, 41, 59, 0.88);
+            border-bottom-color: rgba(100, 116, 139, 0.3);
+        }
+
+        .date-badge {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: #4338ca;
+            font-weight: 600;
+        }
+        .dark .date-badge {
+            background: linear-gradient(135deg, #312e81, #3730a3);
+            color: #a5b4fc;
+        }
+
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        html, body { overflow-x: hidden; }
+
+        .mobile-tab-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 40;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(226,232,240,0.8);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .dark .mobile-tab-bar {
+            background: rgba(30,41,59,0.97);
+            border-top-color: rgba(100,116,139,0.3);
+        }
+        .mobile-tab-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 6px 4px 4px; font-size: 10px; font-weight: 500; color: #94a3b8;
+            text-decoration: none; transition: color 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 48px; min-height: 48px;
+        }
+        .mobile-tab-item.active { color: #4f46e5; }
+        .mobile-tab-item span.tab-icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
+
+        @media (max-width: 1023px) {
+            html { font-size: 14px; }
+            .group-hover\:opacity-100 { opacity: 1 !important; }
+            .mobile-pad-bottom { padding-bottom: 80px; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+            .overflow-x-auto::-webkit-scrollbar { display: none; }
+            .cal-cell { min-height: 72px; }
+        }
+        @media (max-width: 380px) {
+            html { font-size: 13px; }
+            .mobile-tab-item { min-width: 42px; font-size: 9px; }
+            .mobile-tab-item span.tab-icon { font-size: 18px; }
+            .cal-cell { min-height: 60px; }
+        }
+        @media (min-width: 1024px) {
+            .mobile-tab-bar { display: none !important; }
+        }
+
+        @media (max-width: 1023px) {
+            button, [role="button"] { min-height: 40px; }
+            a.nav-item, a.mobile-tab-item { min-height: 40px; display: flex; align-items: center; }
+            input, textarea, select { font-size: 16px !important; }
+        }
+        @media (hover: none) {
+            .card-hover:active { transform: scale(0.98); }
+            .nav-item:active { background: rgba(99,102,241,0.12); }
+            .mobile-tab-item:active { color: #4f46e5; transform: scale(0.95); }
+        }
+        .htmx-request .htmx-indicator { display: inline-block; }
+        .htmx-indicator { display: none; }
+        .loading-spinner { animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .sheet-cell input, .sheet-cell select, .sheet-cell textarea { padding: 10px 8px; }
+            .sheet-cell { min-width: 80px; }
+        }
+
+        /* Background layer */
+        #bgLayer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+        #bgLayer .bg-image {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #bgLayer .bg-overlay {
+            position: absolute;
+            inset: 0;
+        }
+        body.has-custom-bg.main-bg {
+            background: transparent !important;
+        }
+        body.has-custom-bg.main-bg::before {
+            display: none;
+        }
+        body.has-custom-bg .sidebar-gradient {
+            background: rgba(255,255,255,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        .dark body.has-custom-bg .sidebar-gradient {
+            background: rgba(15,23,42,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        body.has-custom-bg .glass-header {
+            background: rgba(255,255,255,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        .dark body.has-custom-bg .glass-header {
+            background: rgba(30,41,59,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Toast notification system */
+        .toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+        .toast {
+            pointer-events: auto;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            animation: toastSlideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 320px;
+            will-change: transform, opacity;
+        }
+        .toast.toast-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .toast.toast-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .toast.toast-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .dark .toast.toast-success { background: #064e3b; color: #a7f3d0; border-color: #065f46; }
+        .dark .toast.toast-error { background: #7f1d1d; color: #fecaca; border-color: #991b1b; }
+        .dark .toast.toast-info { background: #1e3a5f; color: #bfdbfe; border-color: #1e40af; }
+        .toast.toast-hide { animation: toastSlideOut 0.3s ease-in forwards; }
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+
+        /* Page transition */
+        .page-transition { animation: pageFade 0.2s ease-out; }
+        @keyframes pageFade { from { opacity: 0.6; } to { opacity: 1; } }
+
+        /* Better focus styles */
+        *:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; border-radius: 4px; }
+
+        /* Smooth skeleton loading */
+        .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* Ripple effect on buttons */
+        .ripple { position: relative; overflow: hidden; }
+        .ripple::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%); transform: scale(10); opacity: 0; transition: transform 0.5s, opacity 0.5s; }
+        .ripple:active::after { transform: scale(0); opacity: 1; transition: 0s; }
+    </style>
+</head>
+<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true">
+
+<!-- Background Layer -->
+<div id="bgLayer">
+    {% if bg_setting and bg_setting.type == 'preset' %}
+    <div class="bg-image" style="background: {{ {
+        'gradient-1': 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        'gradient-2': 'linear-gradient(135deg, #0077b6 0%, #0096c7 40%, #48cae4 100%)',
+        'gradient-3': 'linear-gradient(135deg, #2d6a4f 0%, #40916c 50%, #95d5b2 100%)',
+        'gradient-4': 'linear-gradient(135deg, #e85d04 0%, #f48c06 40%, #ffba08 100%)',
+        'gradient-5': 'linear-gradient(135deg, #0d1b2a 0%, #1b263b 40%, #415a77 100%)',
+        'gradient-6': 'linear-gradient(135deg, #b5838d 0%, #e5989b 50%, #ffccd5 100%)',
+    }.get(bg_setting.preset, 'transparent') }};"></div>
+    {% elif bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
+    <div class="bg-image" style="background-image: url('{{ bg_setting.image }}');"></div>
+    {% endif %}
+    {% if bg_setting and bg_setting.type != 'none' %}
+    <div class="bg-overlay bg-overlay-light" style="background: rgba(255,255,255,{{ bg_setting.opacity }});"></div>
+    <div class="bg-overlay bg-overlay-dark hidden" style="background: rgba(15,23,42,{{ bg_setting.opacity }});"></div>
+    {% endif %}
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="flex h-full">
+    <!-- Sidebar (desktop) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-200/60 dark:border-slate-700 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-800 dark:to-slate-800">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold bg-gradient-to-r from-indigo-700 to-slate-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-slate-300">My Planner</h1>
+                <p class="text-xs text-slate-400 font-medium">
+                    {% if active_profile %}{{ active_profile.name }}{% else %}Plan your day{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+            <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'dashboard' %}nav-active{% endif %}">
+                <span class="text-lg">📊</span> 대시보드
+            </a>
+            <a href="/todos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'todos' %}nav-active{% endif %}">
+                <span class="text-lg">✅</span> 할 일
+            </a>
+            <a href="/calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'calendar' %}nav-active{% endif %}">
+                <span class="text-lg">📅</span> 캘린더
+            </a>
+            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">업무</p></div>
+            <a href="/worklogs" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'worklogs' %}nav-active{% endif %}">
+                <span class="text-lg">📋</span> 업무일지
+            </a>
+            <a href="/memos" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'memos' %}nav-active{% endif %}">
+                <span class="text-lg">📝</span> 메모
+            </a>
+            <a href="/forms" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'forms' %}nav-active{% endif %}">
+                <span class="text-lg">📑</span> 양식
+            </a>
+            <a href="/notices" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'notices' %}nav-active{% endif %}">
+                <span class="text-lg">📢</span> 공지사항
+            </a>
+            <a href="/files" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'files' %}nav-active{% endif %}">
+                <span class="text-lg">📁</span> 공유폴더
+            </a>
+            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">도구</p></div>
+            <a href="/todo-templates" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'todo-templates' %}nav-active{% endif %}">
+                <span class="text-lg">📋</span> 할일 템플릿
+            </a>
+            <a href="/automations" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'automations' %}nav-active{% endif %}">
+                <span class="text-lg">⚡</span> 자동화
+            </a>
+            <a href="/ddays" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'ddays' %}nav-active{% endif %}">
+                <span class="text-lg">🎯</span> D-day
+            </a>
+            <a href="/links" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'links' %}nav-active{% endif %}">
+                <span class="text-lg">🔗</span> 링크
+            </a>
+            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">분석</p></div>
+            <a href="/stats" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'stats' %}nav-active{% endif %}">
+                <span class="text-lg">📈</span> 통계
+            </a>
+            <a href="/review" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'review' %}nav-active{% endif %}">
+                <span class="text-lg">📊</span> 리뷰
+            </a>
+            <a href="/search" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'search' %}nav-active{% endif %}">
+                <span class="text-lg">🔍</span> 검색
+            </a>
+            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">관리</p></div>
+            <a href="/audit-log" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'audit-log' %}nav-active{% endif %}">
+                <span class="text-lg">📜</span> 감사 로그
+            </a>
+            <a href="/settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'settings' %}nav-active{% endif %}">
+                <span class="text-lg">⚙️</span> 설정
+            </a>
+        </nav>
+
+        <!-- Bottom: dark mode -->
+        <div class="px-4 py-4 pb-20 lg:pb-4 border-t border-slate-200/60 dark:border-slate-700">
+            <button id="themeToggleBtn" onclick="toggleDarkMode()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                <svg id="themeIconSun" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+                <svg id="themeIconMoon" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+                <svg id="themeIconAuto" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+                </svg>
+                <span id="themeLabel">시스템 설정</span>
+            </button>
+            <div class="mt-2 px-3 text-xs text-slate-400 font-medium">My Planner v1.0</div>
+        </div>
+    </aside>
+
+    <!-- Mobile overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Main content -->
+    <main class="flex-1 overflow-y-auto lg:ml-0">
+        <!-- Top bar -->
+        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl">
+            <div class="flex items-center justify-between px-4 lg:px-8 py-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-white">{% block page_title %}대시보드{% endblock %}</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{% block page_subtitle %}{% endblock %}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Notification bell -->
+                    <div class="relative">
+                        <button onclick="toggleNotifPanel()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative" title="알림">
+                            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                            </svg>
+                            <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none">0</span>
+                        </button>
+                        <!-- Notification dropdown -->
+                        <div id="notifPanel" class="hidden absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50">
+                            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <span class="text-sm font-bold text-slate-800 dark:text-white">알림</span>
+                                <span id="notifPermStatus" class="text-[11px] text-slate-400"></span>
+                            </div>
+                            <div id="notifList" class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <p class="p-4 text-sm text-slate-400 text-center">알림이 없습니다</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="date-badge px-2.5 py-1.5 rounded-xl text-xs sm:text-sm whitespace-nowrap">
+                        {{ today.strftime('%m월 %d일') }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-4 lg:p-8 max-w-7xl mx-auto mobile-pad-bottom">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<!-- Mobile tab bar -->
+<nav class="mobile-tab-bar lg:hidden safe-bottom">
+    <div class="flex justify-around items-center px-2 py-1">
+        <a href="/" class="mobile-tab-item {% if page == 'dashboard' %}active{% endif %}">
+            <span class="tab-icon">📊</span>
+            <span>대시보드</span>
+        </a>
+        <a href="/todos" class="mobile-tab-item {% if page == 'todos' %}active{% endif %}">
+            <span class="tab-icon">✅</span>
+            <span>할 일</span>
+        </a>
+        <a href="/calendar" class="mobile-tab-item {% if page == 'calendar' %}active{% endif %}">
+            <span class="tab-icon">📅</span>
+            <span>캘린더</span>
+        </a>
+        <a href="/worklogs" class="mobile-tab-item {% if page == 'worklogs' %}active{% endif %}">
+            <span class="tab-icon">📋</span>
+            <span>업무일지</span>
+        </a>
+        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','forms','notices','files','search','settings','ddays','links','stats','review'] %}active{% endif %}">
+            <span class="tab-icon">&#8943;</span>
+            <span>더보기</span>
+        </button>
+    </div>
+</nav>
+
+<!-- More menu overlay -->
+<div id="moreMenu" class="fixed inset-0 z-50 hidden lg:hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="toggleMoreMenu()"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl p-4 safe-bottom transform transition-transform">
+        <div class="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mb-4"></div>
+        <div class="grid grid-cols-4 gap-2 mb-4">
+            <a href="/memos" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📝</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">메모</span>
+            </a>
+            <a href="/forms" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📑</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">양식</span>
+            </a>
+            <a href="/notices" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📢</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">공지사항</span>
+            </a>
+            <a href="/files" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📁</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">공유폴더</span>
+            </a>
+            <a href="/ddays" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">🎯</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">D-day</span>
+            </a>
+            <a href="/links" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">🔗</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">링크</span>
+            </a>
+            <a href="/stats" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📈</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">통계</span>
+            </a>
+            <a href="/review" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">📊</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">리뷰</span>
+            </a>
+            <a href="/search" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">🔍</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">검색</span>
+            </a>
+            <a href="/settings" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <span class="text-2xl">⚙️</span>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">설정</span>
+            </a>
+        </div>
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex gap-2">
+            <button onclick="toggleDarkMode();toggleMoreMenu()" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300">
+                테마 전환
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dark mode init — 3-mode: light / dark / auto
+    function applyTheme() {
+        var mode = localStorage.getItem('theme') || 'auto';
+        var html = document.documentElement;
+        if (mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+        updateThemeIcon(mode);
+    }
+    function updateThemeIcon(mode) {
+        var btn = document.getElementById('themeToggleBtn');
+        var label = document.getElementById('themeLabel');
+        var iconSun = document.getElementById('themeIconSun');
+        var iconMoon = document.getElementById('themeIconMoon');
+        var iconAuto = document.getElementById('themeIconAuto');
+        if (!btn) return;
+        if (iconSun) iconSun.classList.add('hidden');
+        if (iconMoon) iconMoon.classList.add('hidden');
+        if (iconAuto) iconAuto.classList.add('hidden');
+        if (mode === 'light') { if (iconSun) iconSun.classList.remove('hidden'); if (label) label.textContent = '라이트 모드'; }
+        else if (mode === 'dark') { if (iconMoon) iconMoon.classList.remove('hidden'); if (label) label.textContent = '다크 모드'; }
+        else { if (iconAuto) iconAuto.classList.remove('hidden'); if (label) label.textContent = '시스템 설정'; }
+    }
+    function toggleDarkMode() {
+        document.documentElement.style.transition = 'background 0.3s, color 0.3s';
+        document.body.style.transition = 'background 0.3s, color 0.3s';
+        var mode = localStorage.getItem('theme') || 'auto';
+        var next = mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light';
+        localStorage.setItem('theme', next);
+        applyTheme();
+        updateBgOverlay();
+        setTimeout(function(){ document.documentElement.style.transition = ''; document.body.style.transition = ''; }, 350);
+    }
+    // Migrate old darkMode key
+    if (localStorage.getItem('darkMode') !== null && !localStorage.getItem('theme')) {
+        localStorage.setItem('theme', localStorage.getItem('darkMode') === 'true' ? 'dark' : 'light');
+        localStorage.removeItem('darkMode');
+    }
+    applyTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        if ((localStorage.getItem('theme') || 'auto') === 'auto') applyTheme();
+    });
+
+    // Background overlay for dark/light
+    function updateBgOverlay() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const light = document.querySelector('.bg-overlay-light');
+        const dark = document.querySelector('.bg-overlay-dark');
+        if (light) { light.classList.toggle('hidden', isDark); }
+        if (dark) { dark.classList.toggle('hidden', !isDark); }
+    }
+    updateBgOverlay();
+
+    function toggleMoreMenu() {
+        document.getElementById('moreMenu').classList.toggle('hidden');
+    }
+
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('sidebarOverlay');
+        sb.classList.toggle('-translate-x-full');
+        ov.classList.toggle('hidden');
+    }
+
+    // Toast notification system
+    function showToast(message, type) {
+        type = type || 'success';
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        var icons = { success: '✅', error: '❌', info: 'ℹ️' };
+        toast.innerHTML = '<span>' + (icons[type] || '') + '</span><span>' + message + '</span>';
+        container.appendChild(toast);
+        setTimeout(function() {
+            toast.classList.add('toast-hide');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 3000);
+    }
+
+    // SSE with exponential backoff reconnection
+    var sseRetries = 0;
+    function connectSSE() {
+        var evtSource = new EventSource('/sse');
+        evtSource.onopen = function() { sseRetries = 0; };
+        evtSource.onerror = function() {
+            evtSource.close();
+            var delay = Math.min(1000 * Math.pow(2, sseRetries), 30000);
+            sseRetries++;
+            setTimeout(connectSSE, delay);
+        };
+        evtSource.addEventListener('sync', function(e) {
+            var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
+            if (cnt > 0) { sessionStorage.setItem('_sseSkip', String(cnt - 1)); return; }
+            var currentPage = window.location.pathname.split('/')[1] || 'dashboard';
+            if (e.data === currentPage || e.data === 'dashboard') {
+                if (document.querySelector('[hx-get]')) {
+                    htmx.trigger(document.body, 'sse-refresh');
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+    connectSSE();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName) !== -1) return;
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'k' || e.key === 'K') { e.preventDefault(); location.href = '/search'; return; }
+        }
+        switch(e.key) {
+            case 'n': case 'N': location.href = '/todos'; break;
+            case 'c': case 'C': location.href = '/calendar'; break;
+            case 'm': case 'M': location.href = '/memos'; break;
+            case 'w': case 'W': location.href = '/worklogs'; break;
+            case 'f': case 'F': location.href = '/forms'; break;
+            case 'd': case 'D': location.href = '/'; break;
+            case '?': showShortcutsHelp(); break;
+        }
+    });
+
+    function showShortcutsHelp() {
+        var modal = document.createElement('div');
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+        modal.innerHTML = '<div class="absolute inset-0 bg-black/50" onclick="this.parentElement.remove()"></div>' +
+            '<div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-700">' +
+            '<h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">키보드 단축키</h3>' +
+            '<div class="space-y-2 text-sm">' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">대시보드</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">D</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">할일</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">N</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">캘린더</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">C</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">메모</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">M</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">업무일지</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">W</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">양식</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">F</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">검색</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">Ctrl+K</kbd></div>' +
+            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">도움말</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">?</kbd></div>' +
+            '</div>' +
+            '<button onclick="this.closest(\'.fixed\').remove()" class="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">닫기</button>' +
+            '</div>';
+        document.body.appendChild(modal);
+    }
+
+    // HTMX: page transition effect
+    document.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail && e.detail.target) {
+            e.detail.target.classList.add('page-transition');
+        }
+    });
+
+    // HTMX: close mobile sidebar before navigation
+    document.addEventListener('htmx:beforeRequest', function(e) {
+        if (window.innerWidth < 1024) {
+            var sb = document.getElementById('sidebar');
+            var ov = document.getElementById('sidebarOverlay');
+            if (!sb.classList.contains('-translate-x-full')) {
+                sb.classList.add('-translate-x-full');
+                ov.classList.add('hidden');
+            }
+        }
+        var verb = (e.detail.requestConfig || {}).verb;
+        if (verb && verb !== 'get') {
+            var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
+            sessionStorage.setItem('_sseSkip', String(cnt + 1));
+        }
+    });
+
+    // HTMX: form submission feedback
+    document.addEventListener('htmx:afterRequest', function(e) {
+        if (!e.detail || !e.detail.requestConfig || e.detail.requestConfig.verb === 'get') return;
+        var verb = e.detail.requestConfig.verb;
+        if (e.detail.successful) {
+            showToast(verb === 'delete' ? '삭제되었습니다' : '저장되었습니다', 'success');
+        } else {
+            showToast('오류가 발생했습니다', 'error');
+        }
+    });
+
+    // Network error handling
+    document.addEventListener('htmx:sendError', function() {
+        showToast('네트워크 오류: 연결을 확인해주세요', 'error');
+    });
+
+    // Global drag-drop file upload
+    (function() {
+        var dragCounter = 0;
+        var overlay = document.createElement('div');
+        overlay.id = 'dropOverlay';
+        overlay.className = 'fixed inset-0 z-[9999] bg-indigo-500/10 border-4 border-dashed border-indigo-400 hidden items-center justify-center pointer-events-none';
+        overlay.innerHTML = '<div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl px-8 py-6 text-center pointer-events-none"><svg class="w-12 h-12 text-indigo-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p class="text-indigo-600 dark:text-indigo-400 font-medium">파일을 놓으면 업로드합니다</p></div>';
+        document.body.appendChild(overlay);
+
+        document.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            dragCounter++;
+            if (e.dataTransfer.types.indexOf('Files') !== -1) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+        });
+        document.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        });
+        document.addEventListener('dragover', function(e) { e.preventDefault(); });
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dragCounter = 0;
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+
+            var files = e.dataTransfer.files;
+            if (!files.length) return;
+
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) formData.append('files', files[i]);
+
+            fetch('/files', { method: 'POST', body: formData }).then(function(res) {
+                if (res.ok) {
+                    showToast('파일 업로드 완료', 'success');
+                    if (location.pathname.indexOf('/files') === 0) location.reload();
+                } else {
+                    showToast('업로드 실패', 'error');
+                }
+            }).catch(function() {
+                showToast('업로드 실패', 'error');
+            });
+        });
+    })();
+
+    // Render memo markdown on page load
+    function renderMemoMarkdown() {
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+            document.querySelectorAll('.memo-content').forEach(function(el) {
+                if (el.dataset.rendered) return;
+                el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
+                el.dataset.rendered = '1';
+            });
+        }
+    }
+    renderMemoMarkdown();
+    document.addEventListener('htmx:afterSwap', function() { renderMemoMarkdown(); });
+    document.addEventListener('htmx:afterSettle', function() { renderMemoMarkdown(); });
+</script>
+<!-- Notification & PWA system -->
+<script>
+    // Notification panel toggle
+    function toggleNotifPanel() {
+        var panel = document.getElementById('notifPanel');
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+            refreshNotifPanel();
+        }
+    }
+    // Close panel on outside click
+    document.addEventListener('click', function(e) {
+        var panel = document.getElementById('notifPanel');
+        if (panel && !panel.classList.contains('hidden') && !e.target.closest('#notifPanel') && !e.target.closest('[onclick*="toggleNotifPanel"]')) {
+            panel.classList.add('hidden');
+        }
+    });
+
+    // Refresh notification panel content
+    function refreshNotifPanel() {
+        var status = document.getElementById('notifPermStatus');
+        if ('Notification' in window) {
+            var perm = Notification.permission;
+            status.textContent = perm === 'granted' ? '허용됨' : perm === 'denied' ? '차단됨' : '미설정';
+        }
+        fetch('/api/reminders').then(function(r) { return r.json(); }).then(function(items) {
+            var list = document.getElementById('notifList');
+            var badge = document.getElementById('notifBadge');
+            if (!items.length) {
+                list.innerHTML = '<p class="p-4 text-sm text-slate-400 text-center">알림이 없습니다</p>';
+                badge.classList.add('hidden');
+                return;
+            }
+            badge.textContent = items.length;
+            badge.classList.remove('hidden');
+            var icons = { overdue: '🔴', today: '🟡', event: '🔵' };
+            var html = '';
+            function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+            items.forEach(function(item) {
+                html += '<a href="' + escHtml(item.url) + '" class="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">';
+                html += '<span class="text-base mt-0.5">' + (icons[item.type] || '📌') + '</span>';
+                html += '<div class="flex-1 min-w-0"><p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">' + escHtml(item.title) + '</p>';
+                html += '<p class="text-xs text-slate-400">' + escHtml(item.body) + '</p></div></a>';
+            });
+            list.innerHTML = html;
+        }).catch(function() {});
+    }
+
+    // Browser notification system
+    (function() {
+        if (!('Notification' in window)) return;
+
+        var NOTIF_KEY = 'planner_notified';
+        var notified = JSON.parse(sessionStorage.getItem(NOTIF_KEY) || '{}');
+
+        function checkReminders() {
+            if (Notification.permission !== 'granted') return;
+            fetch('/api/reminders').then(function(r) { return r.json(); }).then(function(items) {
+                items.forEach(function(item) {
+                    var key = item.type + '_' + item.id;
+                    if (notified[key]) return;
+                    var n = new Notification(item.title, {
+                        body: item.body,
+                        icon: '/static/icon-192.png',
+                        tag: key
+                    });
+                    n.onclick = function() {
+                        window.focus();
+                        window.location.href = item.url;
+                        n.close();
+                    };
+                    notified[key] = true;
+                    sessionStorage.setItem(NOTIF_KEY, JSON.stringify(notified));
+                });
+                // Update badge
+                var badge = document.getElementById('notifBadge');
+                if (badge) {
+                    if (items.length > 0) { badge.textContent = items.length; badge.classList.remove('hidden'); }
+                    else { badge.classList.add('hidden'); }
+                }
+            }).catch(function() {});
+        }
+
+        if (Notification.permission === 'granted') {
+            setTimeout(checkReminders, 3000);
+            setInterval(checkReminders, 300000);
+        }
+    })();
+
+    // PWA Service Worker registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function() {});
+    }
+</script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        window.location.href = '/search';
+    }
+});
+</script>
+<!-- Focus mode timer -->
+<div id="focusBtn" onclick="document.getElementById('focusModal').classList.remove('hidden')"
+     class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-all hover:scale-110"
+     title="집중 모드 (Pomodoro)">
+    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+</div>
+<div id="focusModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center modal-backdrop">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-80 max-w-[90vw]" onclick="event.stopPropagation()">
+        <div id="focusSetup">
+            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center">집중 모드</h3>
+            <div class="flex justify-center gap-2 mb-4">
+                <button onclick="_focusStart(25)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">25분</button>
+                <button onclick="_focusStart(45)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">45분</button>
+                <button onclick="_focusStart(60)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">60분</button>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <input type="number" id="focusCustomMin" placeholder="분" min="1" max="480" value="25" class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-center">
+                <button onclick="_focusStart(parseInt(document.getElementById('focusCustomMin').value)||25)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">시작</button>
+            </div>
+            <input type="text" id="focusTitle" placeholder="작업 내용 (선택)" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-2">
+            <button onclick="document.getElementById('focusModal').classList.add('hidden')" class="w-full text-xs text-slate-400 hover:text-slate-600 py-1">닫기</button>
+        </div>
+        <div id="focusRunning" class="hidden text-center">
+            <div id="focusTime" class="text-5xl font-bold text-indigo-600 dark:text-indigo-400 mb-2 font-mono">25:00</div>
+            <div id="focusLabel" class="text-sm text-slate-500 mb-4"></div>
+            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
+                <div id="focusProgress" class="h-full bg-indigo-500 rounded-full transition-all" style="width:0%"></div>
+            </div>
+            <div class="flex gap-2 justify-center">
+                <button onclick="_focusStop(false)" class="px-4 py-2 text-sm text-slate-500 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">취소</button>
+                <button onclick="_focusStop(true)" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 기록</button>
+            </div>
+        </div>
+        <div id="focusDone" class="hidden text-center">
+            <div class="text-4xl mb-2">&#127881;</div>
+            <p class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-1">집중 완료!</p>
+            <p id="focusDoneMsg" class="text-sm text-slate-500 mb-4"></p>
+            <button onclick="_focusReset()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">확인</button>
+        </div>
+    </div>
+</div>
+<script>
+var _focusTimer=null,_focusTotalSec=0,_focusRemain=0;
+function _focusStart(min){
+    _focusTotalSec=min*60;_focusRemain=_focusTotalSec;
+    localStorage.setItem('focus_end',Date.now()+_focusTotalSec*1000);
+    localStorage.setItem('focus_total',_focusTotalSec);
+    localStorage.setItem('focus_title',document.getElementById('focusTitle').value);
+    document.getElementById('focusSetup').classList.add('hidden');
+    document.getElementById('focusRunning').classList.remove('hidden');
+    document.getElementById('focusDone').classList.add('hidden');
+    document.getElementById('focusLabel').textContent=localStorage.getItem('focus_title')||min+'분 집중';
+    document.getElementById('focusBtn').classList.add('hidden');
+    _focusTick();
+    _focusTimer=setInterval(_focusTick,1000);
+}
+function _focusTick(){
+    var end=parseInt(localStorage.getItem('focus_end')||'0');
+    _focusRemain=Math.max(0,Math.round((end-Date.now())/1000));
+    var m=Math.floor(_focusRemain/60),s=_focusRemain%60;
+    document.getElementById('focusTime').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    var total=parseInt(localStorage.getItem('focus_total')||'1');
+    document.getElementById('focusProgress').style.width=((total-_focusRemain)/total*100)+'%';
+    if(_focusRemain<=0){clearInterval(_focusTimer);_focusStop(true);}
+}
+function _focusStop(save){
+    clearInterval(_focusTimer);
+    var total=parseInt(localStorage.getItem('focus_total')||'0');
+    var elapsed=total-_focusRemain;
+    var min=Math.max(1,Math.round(elapsed/60));
+    if(save&&min>=1){
+        fetch('/focus/complete',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({minutes:min,title:localStorage.getItem('focus_title')||''})
+        }).then(function(){
+            document.getElementById('focusDoneMsg').textContent=min+'분 업무일지에 기록됨';
+            document.getElementById('focusRunning').classList.add('hidden');
+            document.getElementById('focusDone').classList.remove('hidden');
+        });
+    } else { _focusReset(); }
+}
+function _focusReset(){
+    localStorage.removeItem('focus_end');localStorage.removeItem('focus_total');localStorage.removeItem('focus_title');
+    document.getElementById('focusSetup').classList.remove('hidden');
+    document.getElementById('focusRunning').classList.add('hidden');
+    document.getElementById('focusDone').classList.add('hidden');
+    document.getElementById('focusBtn').classList.remove('hidden');
+    document.getElementById('focusModal').classList.add('hidden');
+}
+(function(){
+    var end=parseInt(localStorage.getItem('focus_end')||'0');
+    if(end>Date.now()){
+        _focusTotalSec=parseInt(localStorage.getItem('focus_total')||'0');
+        _focusRemain=Math.round((end-Date.now())/1000);
+        document.getElementById('focusSetup').classList.add('hidden');
+        document.getElementById('focusRunning').classList.remove('hidden');
+        document.getElementById('focusLabel').textContent=localStorage.getItem('focus_title')||'집중 중';
+        document.getElementById('focusBtn').classList.add('hidden');
+        document.getElementById('focusModal').classList.remove('hidden');
+        _focusTick();_focusTimer=setInterval(_focusTick,1000);
+    }
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="300">
+<title>Planner Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'media',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f172a; }
+  }
+</style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 min-h-screen text-slate-800 dark:text-slate-200">
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Header -->
+  <header class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Planner Hub</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+      {{ today_str }} ({{ day_of_week }}) {{ now_str }} 기준
+    </p>
+  </header>
+
+  <!-- Today's Overview -->
+  <section class="mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <!-- Pending -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center text-xl">&#x1F4CB;</div>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">미완료 할 일</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_pending }}</p>
+      </div>
+      <!-- Completed Today -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-xl flex items-center justify-center text-xl">&#x2705;</div>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">오늘 완료</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_completed_today }}</p>
+      </div>
+      <!-- Completion Rate -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center text-xl">&#x1F4CA;</div>
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">오늘 완료율</span>
+        </div>
+        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ completion_rate }}%</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Per-planner Cards -->
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">플래너별 현황</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {% for key, p in planners.items() %}
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+        <!-- Card Header -->
+        <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between
+          {% if p.color == 'indigo' %}bg-indigo-50 dark:bg-indigo-950/30{% elif p.color == 'pink' %}bg-pink-50 dark:bg-pink-950/30{% else %}bg-emerald-50 dark:bg-emerald-950/30{% endif %}">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">{{ p.icon }}</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ p.name }}</span>
+          </div>
+          {% if p.online %}
+          <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> 온라인
+          </span>
+          {% else %}
+          <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-500">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span> 오프라인
+          </span>
+          {% endif %}
+        </div>
+        <!-- Card Body -->
+        <div class="p-5">
+          {% if p.online %}
+          <div class="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
+            <div>
+              <span class="text-slate-500 dark:text-slate-400">미완료</span>
+              <p class="text-xl font-bold text-slate-900 dark:text-white">{{ p.pending }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 dark:text-slate-400">오늘 완료</span>
+              <p class="text-xl font-bold text-slate-900 dark:text-white">{{ p.completed_today }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 dark:text-slate-400">7일내 일정</span>
+              <p class="text-xl font-bold text-slate-900 dark:text-white">{{ p.events_7d }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 dark:text-slate-400">오늘 근무</span>
+              <p class="text-xl font-bold text-slate-900 dark:text-white">{{ p.hours_today }}h</p>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-4">데이터베이스에 접근할 수 없습니다</p>
+          {% endif %}
+        </div>
+        <!-- Card Footer: Link -->
+        <div class="px-5 pb-4">
+          {% if p.url %}
+          <a href="{{ p.url }}" target="_blank" rel="noopener"
+             class="block text-center text-sm font-medium py-2 rounded-lg transition-colors
+               {% if p.color == 'indigo' %}bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/50 dark:text-indigo-300 dark:hover:bg-indigo-800/50
+               {% elif p.color == 'pink' %}bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/50 dark:text-pink-300 dark:hover:bg-pink-800/50
+               {% else %}bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-800/50{% endif %}">
+            바로가기 &#x2197;
+          </a>
+          {% if p.url_healthy is defined %}
+          <p class="text-xs text-center mt-1 {% if p.url_healthy %}text-green-500{% else %}text-red-400{% endif %}">
+            {% if p.url_healthy %}&#x2705; 터널 연결됨{% else %}&#x26A0; 터널 끊김{% endif %}
+          </p>
+          {% endif %}
+          {% else %}
+          <span class="block text-center text-sm text-slate-400 dark:text-slate-500 py-2">URL 미설정</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Bottom Grid: Events + Weekly Hours -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+
+    <!-- Upcoming Events (2 cols) -->
+    <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">
+        &#x1F4C5; 향후 7일 일정
+      </h2>
+      {% if all_events %}
+      <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+        {% for ev in all_events %}
+        <li class="py-3 flex items-center gap-3">
+          <span class="w-2 h-8 rounded-full flex-shrink-0
+            {% if ev.color == 'indigo' %}bg-indigo-400{% elif ev.color == 'pink' %}bg-pink-400{% else %}bg-emerald-400{% endif %}"></span>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{{ ev.title }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              {{ ev.start_time[:10] }}
+              {% if not ev.all_day and ev.start_time|length > 10 %} {{ ev.start_time[11:] }}{% endif %}
+              {% if ev.all_day %} (종일){% endif %}
+              &middot; {{ ev.source_name }}
+            </p>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-8">예정된 일정이 없습니다</p>
+      {% endif %}
+    </div>
+
+    <!-- Weekly Hours (1 col) -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">
+        &#x23F1; 이번 주 근무시간
+      </h2>
+      <div class="flex flex-col items-center justify-center py-4">
+        <p class="text-5xl font-bold text-slate-900 dark:text-white">{{ total_week_hours }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">시간</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-3">{{ week_start }} ~ {{ week_end }}</p>
+      </div>
+      <div class="mt-4 space-y-2">
+        {% for key, p in planners.items() %}
+        {% if p.online %}
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-600 dark:text-slate-400">{{ p.icon }} {{ p.name }}</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-200">{{ p.week_hours|default(0) }}h</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center text-xs text-slate-400 dark:text-slate-600 pb-4">
+    5분마다 자동 새로고침 &middot; Planner Hub
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+app = 'hj-planner-hub'
+primary_region = 'nrt'
+
+[build]
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'suspend'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[mounts]
+  source = 'hub_data'
+  destination = '/data'

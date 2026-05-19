@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}업무 - Work Planner{% endblock %}
+{% block page_title %}할 일 관리{% endblock %}
+{% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
+
+{% block content %}
+<details class="mb-4 group">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+        사용법
+    </summary>
+    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+        <p><b class="text-slate-700 dark:text-slate-300">업무 추가</b> — 제목 입력 후 마감일, 우선순위, 카테고리, 반복주기, 태그 설정 가능. "+ 설명" 버튼으로 상세 내용 추가</p>
+        <p><b class="text-slate-700 dark:text-slate-300">완료 체크</b> — 업무 왼쪽 체크박스 클릭으로 완료/미완료 전환</p>
+        <p><b class="text-slate-700 dark:text-slate-300">필터</b> — 전체/미완료/완료 상태 필터 + 카테고리별 필터 조합 가능</p>
+        <p><b class="text-slate-700 dark:text-slate-300">수정/삭제</b> — 업무 항목에 마우스를 올리면 편집, 삭제 버튼 표시</p>
+        <p><b class="text-slate-700 dark:text-slate-300">정렬</b> — 드래그 핸들(≡)을 잡고 끌어서 순서 변경</p>
+    </div>
+</details>
+<!-- Filters -->
+<div class="flex flex-wrap items-center gap-1.5 mb-3 overflow-x-auto pb-1">
+    {% set filters = [("all", "전체"), ("active", "미완료"), ("completed", "완료")] %}
+    {% for fk, fl in filters %}
+    <a href="/todos?filter={{ fk }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+              {% if current_filter == fk %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        {{ fl }}
+    </a>
+    {% endfor %}
+    <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
+    <a href="/todos?filter={{ current_filter }}"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+              {% if not current_category_id %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        전체
+    </a>
+    {% for cat in categories %}
+    <a href="/todos?filter={{ current_filter }}&category_id={{ cat.id }}"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5
+              {% if current_category_id == cat.id %}text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}"
+       {% if current_category_id == cat.id %}style="background:{{ cat.color }}"{% endif %}>
+        <span class="w-2 h-2 rounded-full flex-shrink-0 {% if current_category_id != cat.id %}block{% else %}hidden{% endif %}" style="background:{{ cat.color }}"></span>
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+    <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
+    <button onclick="bulkModeOn()" id="bulkToggle" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+        일괄
+    </button>
+</div>
+
+<!-- Energy filter -->
+<div class="flex items-center gap-1.5 mb-3">
+    <span class="text-xs text-slate-400">에너지:</span>
+    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+              {% if not current_energy %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        전체
+    </a>
+    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=1"
+       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+              {% if current_energy == 1 %}bg-green-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        🟢 저
+    </a>
+    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=2"
+       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+              {% if current_energy == 2 %}bg-blue-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        🔵 중
+    </a>
+    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=3"
+       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+              {% if current_energy == 3 %}bg-red-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        🔥 고
+    </a>
+</div>
+
+<!-- Add form -->
+<div class="work-card rounded-xl p-4 mb-3" id="addForm">
+    <form action="/todos" method="POST">
+        <div class="flex gap-2 mb-2">
+            <input type="text" name="title" placeholder="새 업무 추가..." required
+                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                추가
+            </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+            <input type="date" name="due_date" value="{{ today.isoformat() }}"
+                   class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <select name="priority" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                {% for pk, pv in priority_map.items() %}
+                <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
+                {% endfor %}
+            </select>
+            <select name="category_id" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                <option value="">카테고리</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="repeat_type" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                {% for rk, rv in repeat_map.items() %}
+                <option value="{{ rk }}">{{ rv }}</option>
+                {% endfor %}
+            </select>
+            <select name="energy_level" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                <option value="1">🟢 저에너지</option>
+                <option value="2" selected>🔵 보통</option>
+                <option value="3">🔥 고에너지</option>
+            </select>
+            <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
+                   class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 flex-1 min-w-24">
+            <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="text-xs text-indigo-500 hover:underline whitespace-nowrap">+ 설명</button>
+        </div>
+        <textarea name="description" placeholder="설명 (선택)" rows="2"
+                  class="w-full mt-2 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 hidden" id="descField"></textarea>
+    </form>
+</div>
+
+<!-- Bulk action bar -->
+<div id="bulkBar" class="hidden mb-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/40 rounded-xl flex items-center gap-3 text-sm">
+    <span class="text-indigo-700 dark:text-indigo-300 font-medium"><span id="bulkCount">0</span>개 선택</span>
+    <button onclick="bulkSelectAll()" class="px-3 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
+    <div class="flex-1"></div>
+    <button onclick="bulkAction('complete')" class="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
+    <button onclick="bulkAction('delete')" class="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
+    <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">취소</button>
+</div>
+
+<!-- Todo list grouped by date -->
+<div id="todoList" class="space-y-4">
+    {% for date_key, todos in todo_groups.items() %}
+    <div>
+        <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold
+                {% if date_key == today.isoformat() %}bg-indigo-600 text-white
+                {% elif date_key and date_key < today.isoformat() %}bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400
+                {% elif date_key %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300
+                {% else %}bg-slate-50 dark:bg-slate-800/50 text-slate-400{% endif %}">
+                {% if date_key == today.isoformat() %}
+                    오늘 <span class="font-normal ml-1 opacity-80">{{ date_key }}</span>
+                {% elif date_key %}
+                    {{ date_key|relative_date }} <span class="font-normal ml-1 opacity-60">{{ date_key }}</span>
+                {% else %}
+                    날짜 없음
+                {% endif %}
+            </div>
+            <span class="text-[11px] text-slate-400">{{ todos|length }}건</span>
+            <div class="flex-1 border-t border-slate-200 dark:border-slate-700/50"></div>
+        </div>
+        <div class="space-y-2">
+            {% for todo in todos %}
+            {% include "partials/todo_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="py-16 text-center">
+        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-3xl">📋</span>
+        </div>
+        <p class="text-slate-400 font-medium">업무가 없습니다</p>
+        <p class="text-xs text-slate-400 mt-1">위에서 새 업무를 추가해보세요</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const list = document.getElementById('todoList');
+    if (list && typeof Sortable !== 'undefined') {
+        Sortable.create(list, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                const items = list.querySelectorAll('[data-todo-id]');
+                const order = Array.from(items).map(el => el.dataset.todoId);
+                fetch('/todos/reorder', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({order: order})
+                });
+            }
+        });
+    }
+});
+
+var _bulkSelected = new Set();
+function _updateBulkUI() {
+    document.getElementById('bulkCount').textContent = _bulkSelected.size;
+}
+function bulkModeOn() {
+    _bulkSelected.clear();
+    document.getElementById('bulkBar').classList.remove('hidden');
+    document.getElementById('bulkToggle').classList.add('hidden');
+    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', _bulkToggleItem);
+    });
+    _updateBulkUI();
+}
+function bulkModeOff() {
+    _bulkSelected.clear();
+    document.getElementById('bulkBar').classList.add('hidden');
+    document.getElementById('bulkToggle').classList.remove('hidden');
+    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+        el.style.cursor = '';
+        el.classList.remove('ring-2', 'ring-indigo-400');
+        el.removeEventListener('click', _bulkToggleItem);
+    });
+}
+function _bulkToggleItem(e) {
+    if (e.target.closest('button, a, input, form')) return;
+    var id = this.dataset.todoId;
+    if (_bulkSelected.has(id)) {
+        _bulkSelected.delete(id);
+        this.classList.remove('ring-2', 'ring-indigo-400');
+    } else {
+        _bulkSelected.add(id);
+        this.classList.add('ring-2', 'ring-indigo-400');
+    }
+    _updateBulkUI();
+}
+function bulkSelectAll() {
+    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+        _bulkSelected.add(el.dataset.todoId);
+        el.classList.add('ring-2', 'ring-indigo-400');
+    });
+    _updateBulkUI();
+}
+function bulkAction(action) {
+    if (_bulkSelected.size === 0) return;
+    var msg = action === 'delete' ? _bulkSelected.size + '개 항목을 삭제할까요?' : _bulkSelected.size + '개 항목을 완료 처리할까요?';
+    if (!confirm(msg)) return;
+    fetch('/todos/bulk', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
+    }).then(function() { location.reload(); });
+}
+</script>
+{% endblock %}
