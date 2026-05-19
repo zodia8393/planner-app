@@ -21,6 +21,7 @@
     <script src="/static/chart.umd.min.js"></script>
     <script src="/static/sortable.min.js"></script>
     <script src="/static/notifications.js" defer></script>
+    <script src="/static/shortcuts.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <style>
@@ -370,7 +371,7 @@
         }
     </style>
 </head>
-<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true">
+<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true" data-accent="indigo" data-fontsize="medium">
 
 <!-- Background Layer -->
 <div id="bgLayer">
@@ -384,11 +385,16 @@
 </div>
 
 <!-- Toast Container -->
-<div id="toastContainer"></div>
+<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Skip to content link for accessibility -->
+<a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm">
+    본문으로 건너뛰기
+</a>
 
 <div class="flex h-full">
     <!-- Sidebar (desktop) -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
+    <aside id="sidebar" role="complementary" aria-label="사이드바 내비게이션" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
         <!-- Logo -->
         <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-200/60 dark:border-slate-700 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-800 dark:to-slate-800">
             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
@@ -405,7 +411,7 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" role="navigation" aria-label="메인 내비게이션">
             <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'dashboard' %}nav-active{% endif %}">
                 <span class="text-lg">📊</span> 대시보드
             </a>
@@ -462,7 +468,7 @@
 
         <!-- Bottom: dark mode + profile -->
         <div class="px-4 py-4 pb-20 lg:pb-4 border-t border-slate-200/60 dark:border-slate-700">
-            <button id="themeToggleBtn" onclick="toggleDarkMode()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+            <button id="themeToggleBtn" onclick="toggleDarkMode()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all" aria-label="테마 전환" tabindex="0">
                 <svg id="themeIconSun" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                 </svg>
@@ -482,13 +488,13 @@
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
 
     <!-- Main content -->
-    <main class="flex-1 overflow-y-auto lg:ml-0">
+    <main class="flex-1 overflow-y-auto lg:ml-0" role="main">
         <!-- Top bar -->
-        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl">
+        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl" role="banner">
             <div class="flex items-center justify-between px-4 lg:px-8 py-3">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
-                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="사이드바 열기" tabindex="0">
+                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
@@ -500,8 +506,8 @@
                 <div class="flex items-center gap-2 sm:gap-3">
                     <!-- Notification bell -->
                     <div class="relative">
-                        <button onclick="toggleNotifPanel()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative" title="알림">
-                            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <button onclick="toggleNotifPanel()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative" title="알림" aria-label="알림 패널 열기" aria-haspopup="true" tabindex="0">
+                            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                             </svg>
                             <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none">0</span>
@@ -525,33 +531,33 @@
         </header>
 
         <!-- Content -->
-        <div class="p-4 lg:p-8 max-w-7xl mx-auto mobile-pad-bottom">
+        <div id="mainContent" class="p-4 lg:p-8 max-w-7xl mx-auto mobile-pad-bottom" aria-live="polite">
             {% block content %}{% endblock %}
         </div>
     </main>
 </div>
 
 <!-- Mobile tab bar -->
-<nav class="mobile-tab-bar lg:hidden safe-bottom">
+<nav class="mobile-tab-bar lg:hidden safe-bottom" role="navigation" aria-label="모바일 내비게이션" id="mobileTabBar">
     <div class="flex justify-around items-center px-2 py-1">
-        <a href="/" class="mobile-tab-item {% if page == 'dashboard' %}active{% endif %}">
-            <span class="tab-icon">📊</span>
-            <span>대시보드</span>
+        <a href="/" class="mobile-tab-item {% if page == 'dashboard' %}active{% endif %}" aria-label="대시보드" {% if page == 'dashboard' %}aria-current="page"{% endif %}>
+            <span class="tab-icon" aria-hidden="true">📊</span>
+            <span>홈</span>
         </a>
-        <a href="/todos" class="mobile-tab-item {% if page == 'todos' %}active{% endif %}">
-            <span class="tab-icon">✅</span>
-            <span>할 일</span>
+        <a href="/todos" class="mobile-tab-item {% if page == 'todos' %}active{% endif %}" aria-label="할 일" {% if page == 'todos' %}aria-current="page"{% endif %}>
+            <span class="tab-icon" aria-hidden="true">✅</span>
+            <span>할일</span>
         </a>
-        <a href="/calendar" class="mobile-tab-item {% if page == 'calendar' %}active{% endif %}">
-            <span class="tab-icon">📅</span>
+        <a href="/calendar" class="mobile-tab-item {% if page == 'calendar' %}active{% endif %}" aria-label="캘린더" {% if page == 'calendar' %}aria-current="page"{% endif %}>
+            <span class="tab-icon" aria-hidden="true">📅</span>
             <span>캘린더</span>
         </a>
-        <a href="/worklogs" class="mobile-tab-item {% if page == 'worklogs' %}active{% endif %}">
-            <span class="tab-icon">📋</span>
-            <span>업무일지</span>
+        <a href="/memos" class="mobile-tab-item {% if page == 'memos' %}active{% endif %}" aria-label="메모" {% if page == 'memos' %}aria-current="page"{% endif %}>
+            <span class="tab-icon" aria-hidden="true">📝</span>
+            <span>메모</span>
         </a>
-        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','forms','notices','settings','search','ddays','links','stats','review'] %}active{% endif %}">
-            <span class="tab-icon">⋯</span>
+        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['worklogs','forms','notices','settings','search','ddays','links','stats','review'] %}active{% endif %}" aria-label="더보기 메뉴 열기" aria-haspopup="true" tabindex="0">
+            <span class="tab-icon" aria-hidden="true">⋯</span>
             <span>더보기</span>
         </button>
     </div>
@@ -724,52 +730,7 @@
         });
     })();
 
-    // ── Keyboard shortcuts ──
-    document.addEventListener('keydown', function(e) {
-        // Escape → close modals/menus (always works)
-        if (e.key === 'Escape') {
-            var moreMenu = document.getElementById('moreMenu');
-            if (moreMenu && !moreMenu.classList.contains('hidden')) { toggleMoreMenu(); }
-            var sb = document.getElementById('sidebar');
-            if (sb && window.innerWidth < 1024 && !sb.classList.contains('-translate-x-full')) { toggleSidebar(); }
-            return;
-        }
-        // Skip if user is typing in an input/textarea/select
-        if (['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName) !== -1) return;
-        if (e.ctrlKey || e.metaKey) {
-            if (e.key === 'k' || e.key === 'K') { e.preventDefault(); location.href = '/search'; return; }
-        }
-        switch(e.key) {
-            case 'n': case 'N': location.href = '/todos'; break;
-            case 'c': case 'C': location.href = '/calendar'; break;
-            case 'm': case 'M': location.href = '/memos'; break;
-            case 'w': case 'W': location.href = '/worklogs'; break;
-            case 'f': case 'F': location.href = '/forms'; break;
-            case 'd': case 'D': location.href = '/'; break;
-            case '?': showShortcutsHelp(); break;
-        }
-    });
-
-    function showShortcutsHelp() {
-        var modal = document.createElement('div');
-        modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
-        modal.innerHTML = '<div class="absolute inset-0 bg-black/50" onclick="this.parentElement.remove()"></div>' +
-            '<div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-700">' +
-            '<h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">키보드 단축키</h3>' +
-            '<div class="space-y-2 text-sm">' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">대시보드</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">D</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">할일</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">N</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">캘린더</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">C</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">메모</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">M</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">업무일지</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">W</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">양식</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">F</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">검색</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">Ctrl+K</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">도움말</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">?</kbd></div>' +
-            '</div>' +
-            '<button onclick="this.closest(\'.fixed\').remove()" class="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">닫기</button>' +
-            '</div>';
-        document.body.appendChild(modal);
-    }
+    // Keyboard shortcuts are now in /static/shortcuts.js
 
     // ── HTMX page transition ──
     document.addEventListener('htmx:beforeSwap', function(e) {
@@ -978,18 +939,10 @@
     document.addEventListener('htmx:afterSwap', function() { renderMemoMarkdown(); });
     document.addEventListener('htmx:afterSettle', function() { renderMemoMarkdown(); });
 </script>
-<script>
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        window.location.href = '/search';
-    }
-});
-</script>
 <!-- Focus mode timer -->
 <div id="focusBtn" onclick="document.getElementById('focusModal').classList.remove('hidden')"
      class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-all hover:scale-110"
-     title="집중 모드 (Pomodoro)">
+     title="집중 모드 (Pomodoro)" role="button" aria-label="집중 모드 시작" tabindex="0">
     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
@@ -1088,6 +1041,62 @@ function _focusReset(){
         document.getElementById('focusModal').classList.remove('hidden');
         _focusTick();_focusTimer=setInterval(_focusTick,1000);
     }
+})();
+</script>
+<!-- Theme customization: accent color + font size -->
+<script>
+(function() {
+    // Accent color: apply saved preference
+    var accent = localStorage.getItem('accent_color') || 'indigo';
+    document.body.dataset.accent = accent;
+
+    // Font size: apply saved preference
+    var fontSize = localStorage.getItem('font_size') || 'medium';
+    document.body.dataset.fontsize = fontSize;
+    var fontSizeMap = { small: '13px', medium: '14px', large: '16px' };
+    document.documentElement.style.fontSize = fontSizeMap[fontSize] || '14px';
+
+    // Mobile tab bar: hide on scroll down, show on scroll up
+    var lastScrollY = 0;
+    var tabBar = document.getElementById('mobileTabBar');
+    var focusBtn = document.getElementById('focusBtn');
+    if (tabBar) {
+        var mainEl = document.querySelector('main[role="main"]');
+        if (mainEl) {
+            mainEl.addEventListener('scroll', function() {
+                var currentY = mainEl.scrollTop;
+                if (currentY > lastScrollY && currentY > 60) {
+                    tabBar.style.transform = 'translateY(100%)';
+                    tabBar.style.transition = 'transform 0.3s ease';
+                    if (focusBtn) { focusBtn.style.bottom = '1rem'; focusBtn.style.transition = 'bottom 0.3s ease'; }
+                } else {
+                    tabBar.style.transform = 'translateY(0)';
+                    if (focusBtn) { focusBtn.style.bottom = ''; }
+                }
+                lastScrollY = currentY;
+            }, { passive: true });
+        }
+    }
+
+    // Pull-to-refresh for mobile
+    var pullStart = 0;
+    var pulling = false;
+    document.addEventListener('touchstart', function(e) {
+        var mainEl = document.querySelector('main[role="main"]');
+        if (mainEl && mainEl.scrollTop === 0) {
+            pullStart = e.touches[0].clientY;
+            pulling = true;
+        }
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        if (!pulling) return;
+        var pullDist = e.touches[0].clientY - pullStart;
+        if (pullDist > 120) {
+            pulling = false;
+            location.reload();
+        }
+    }, { passive: true });
+    document.addEventListener('touchend', function() { pulling = false; }, { passive: true });
 })();
 </script>
 {% block scripts %}{% endblock %}

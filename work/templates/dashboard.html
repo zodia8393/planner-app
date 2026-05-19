@@ -91,6 +91,92 @@
     </div>
 </div>
 
+<!-- Today + Quick Stats + Upcoming + Focus widgets -->
+<div data-widget="widget-row" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6"
+     hx-get="/api/widgets/today" hx-trigger="load" hx-swap="none"
+     id="widgetRow">
+    {# Today Widget #}
+    <div data-widget="today" class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today.strftime('%m월 %d일') }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}</p>
+            </div>
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900/30 dark:to-indigo-800/20 rounded-xl flex items-center justify-center">
+                <span class="text-xl" aria-hidden="true">☀️</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-medium">
+                <span aria-hidden="true">✅</span> 할일 {{ stats.total_today }}개
+            </span>
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
+                <span aria-hidden="true">📅</span> 일정 {{ stats.week_events }}개
+            </span>
+            {% if stats.overdue > 0 %}
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium badge-pulse">
+                <span aria-hidden="true">🔴</span> 지연 {{ stats.overdue }}개
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Weekly completion mini card #}
+    <div data-widget="quick-stats" class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">주간 완료율</span>
+            <span class="text-lg" aria-hidden="true">📈</span>
+        </div>
+        <div class="flex items-baseline gap-1 mb-2">
+            <span class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.week_rate }}%</span>
+        </div>
+        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
+            <div class="h-full rounded-full progress-bar {% if stats.week_rate >= 80 %}bg-emerald-500{% elif stats.week_rate >= 50 %}bg-amber-500{% else %}bg-indigo-500{% endif %}"
+                 style="width: {{ stats.week_rate }}%" role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
+        </div>
+        <p class="text-xs text-slate-400">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
+    </div>
+
+    {# Overdue + upcoming mini card #}
+    <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">지연 업무</span>
+            <span class="text-lg" aria-hidden="true">⚠️</span>
+        </div>
+        <div class="flex items-baseline gap-1">
+            <span class="text-2xl font-bold {% if stats.overdue > 0 %}text-red-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.overdue }}</span>
+            <span class="text-xs text-slate-400">건</span>
+        </div>
+        {% if stats.overdue > 0 %}
+        <a href="/todos?filter=overdue" class="text-xs text-red-500 hover:underline mt-1 inline-block">확인하기</a>
+        {% else %}
+        <p class="text-xs text-emerald-500 mt-1">지연 없음</p>
+        {% endif %}
+    </div>
+
+    {# Focus quick start card #}
+    <div data-widget="focus-quick" class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">집중 모드</span>
+            <span class="text-lg" aria-hidden="true">🎯</span>
+        </div>
+        <div class="flex gap-2 mb-2">
+            <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
+                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="25분 집중">25분</button>
+            <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
+                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="45분 집중">45분</button>
+            <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
+                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="60분 집중">60분</button>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>오늘: <strong class="text-slate-700 dark:text-slate-200">{{ today_work_hours|default(0)|round(1) }}h</strong></span>
+        </div>
+    </div>
+</div>
+
 <div data-widget="heatmap" class="work-card rounded-xl p-4 mb-4">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">연간 완료 히트맵</h3>
     <div class="overflow-x-auto">
@@ -459,9 +545,9 @@
 (function() {
 /* ── Feature 1: Widget Customization ── */
 var WIDGET_KEY = 'dashboard_widgets';
-var DEFAULT_WIDGETS = ['stat-cards','heatmap','quick-add','plan-view','time-budgets','notices','worklogs','events','memos','progress'];
+var DEFAULT_WIDGETS = ['widget-row','stat-cards','heatmap','quick-add','plan-view','time-budgets','notices','worklogs','events','memos','progress'];
 var WIDGET_LABELS = {
-    'stat-cards':'통계 카드','heatmap':'완료 히트맵','quick-add':'빠른 추가','plan-view':'플랜 뷰','time-budgets':'시간 예산',
+    'widget-row':'오늘 위젯','stat-cards':'통계 카드','heatmap':'완료 히트맵','quick-add':'빠른 추가','plan-view':'플랜 뷰','time-budgets':'시간 예산',
     'notices':'공지','worklogs':'업무일지','events':'일정','memos':'메모','progress':'진행률'
 };
 

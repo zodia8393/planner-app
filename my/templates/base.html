@@ -21,6 +21,7 @@
     <script src="/static/chart.umd.min.js"></script>
     <script src="/static/sortable.min.js"></script>
     <script src="/static/notifications.js" defer></script>
+    <script src="/static/shortcuts.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <style>
@@ -292,7 +293,7 @@
         .ripple:active::after { transform: scale(0); opacity: 1; transition: 0s; }
     </style>
 </head>
-<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true">
+<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true" data-accent="indigo" data-fontsize="medium">
 
 <!-- Background Layer -->
 <div id="bgLayer">
@@ -315,11 +316,12 @@
 </div>
 
 <!-- Toast Container -->
-<div id="toastContainer" class="toast-container"></div>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm">본문으로 건너뛰기</a>
 
 <div class="flex h-full">
     <!-- Sidebar (desktop) -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
+    <aside id="sidebar" role="complementary" aria-label="사이드바 내비게이션" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
         <!-- Logo -->
         <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-200/60 dark:border-slate-700 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-800 dark:to-slate-800">
             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
@@ -336,7 +338,7 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" role="navigation" aria-label="메인 내비게이션">
             <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'dashboard' %}nav-active{% endif %}">
                 <span class="text-lg">📊</span> 대시보드
             </a>
@@ -416,13 +418,13 @@
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
 
     <!-- Main content -->
-    <main class="flex-1 overflow-y-auto lg:ml-0">
+    <main class="flex-1 overflow-y-auto lg:ml-0" role="main">
         <!-- Top bar -->
-        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl">
+        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl" role="banner">
             <div class="flex items-center justify-between px-4 lg:px-8 py-3">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
-                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="사이드바 열기">
+                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
@@ -459,7 +461,7 @@
         </header>
 
         <!-- Content -->
-        <div class="p-4 lg:p-8 max-w-7xl mx-auto mobile-pad-bottom">
+        <div id="mainContent" class="p-4 lg:p-8 max-w-7xl mx-auto mobile-pad-bottom" aria-live="polite">
             {% block content %}{% endblock %}
         </div>
     </main>
@@ -654,43 +656,7 @@
     }
     connectSSE();
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (['INPUT','TEXTAREA','SELECT'].indexOf(document.activeElement.tagName) !== -1) return;
-        if (e.ctrlKey || e.metaKey) {
-            if (e.key === 'k' || e.key === 'K') { e.preventDefault(); location.href = '/search'; return; }
-        }
-        switch(e.key) {
-            case 'n': case 'N': location.href = '/todos'; break;
-            case 'c': case 'C': location.href = '/calendar'; break;
-            case 'm': case 'M': location.href = '/memos'; break;
-            case 'w': case 'W': location.href = '/worklogs'; break;
-            case 'f': case 'F': location.href = '/forms'; break;
-            case 'd': case 'D': location.href = '/'; break;
-            case '?': showShortcutsHelp(); break;
-        }
-    });
-
-    function showShortcutsHelp() {
-        var modal = document.createElement('div');
-        modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
-        modal.innerHTML = '<div class="absolute inset-0 bg-black/50" onclick="this.parentElement.remove()"></div>' +
-            '<div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-700">' +
-            '<h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">키보드 단축키</h3>' +
-            '<div class="space-y-2 text-sm">' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">대시보드</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">D</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">할일</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">N</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">캘린더</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">C</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">메모</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">M</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">업무일지</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">W</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">양식</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">F</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">검색</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">Ctrl+K</kbd></div>' +
-            '<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">도움말</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">?</kbd></div>' +
-            '</div>' +
-            '<button onclick="this.closest(\'.fixed\').remove()" class="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">닫기</button>' +
-            '</div>';
-        document.body.appendChild(modal);
-    }
+    // Keyboard shortcuts are now in /static/shortcuts.js
 
     // HTMX: page transition effect
     document.addEventListener('htmx:afterSwap', function(e) {
@@ -873,14 +839,6 @@
         navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function() {});
     }
 </script>
-<script>
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        window.location.href = '/search';
-    }
-});
-</script>
 <!-- Focus mode timer -->
 <div id="focusBtn" onclick="document.getElementById('focusModal').classList.remove('hidden')"
      class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-all hover:scale-110"
@@ -983,6 +941,62 @@ function _focusReset(){
         document.getElementById('focusModal').classList.remove('hidden');
         _focusTick();_focusTimer=setInterval(_focusTick,1000);
     }
+})();
+</script>
+<!-- Theme customization: accent color + font size -->
+<script>
+(function() {
+    // Accent color: apply saved preference
+    var accent = localStorage.getItem('accent_color') || 'indigo';
+    document.body.dataset.accent = accent;
+
+    // Font size: apply saved preference
+    var fontSize = localStorage.getItem('font_size') || 'medium';
+    document.body.dataset.fontsize = fontSize;
+    var fontSizeMap = { small: '13px', medium: '14px', large: '16px' };
+    document.documentElement.style.fontSize = fontSizeMap[fontSize] || '14px';
+
+    // Mobile tab bar: hide on scroll down, show on scroll up
+    var lastScrollY = 0;
+    var tabBar = document.getElementById('mobileTabBar');
+    var focusBtn = document.getElementById('focusBtn');
+    if (tabBar) {
+        var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+        if (mainEl) {
+            mainEl.addEventListener('scroll', function() {
+                var currentY = mainEl.scrollTop;
+                if (currentY > lastScrollY && currentY > 60) {
+                    tabBar.style.transform = 'translateY(100%)';
+                    tabBar.style.transition = 'transform 0.3s ease';
+                    if (focusBtn) { focusBtn.style.bottom = '1rem'; focusBtn.style.transition = 'bottom 0.3s ease'; }
+                } else {
+                    tabBar.style.transform = 'translateY(0)';
+                    if (focusBtn) { focusBtn.style.bottom = ''; }
+                }
+                lastScrollY = currentY;
+            }, { passive: true });
+        }
+    }
+
+    // Pull-to-refresh for mobile
+    var pullStart = 0;
+    var pulling = false;
+    document.addEventListener('touchstart', function(e) {
+        var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+        if (mainEl && mainEl.scrollTop === 0) {
+            pullStart = e.touches[0].clientY;
+            pulling = true;
+        }
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        if (!pulling) return;
+        var pullDist = e.touches[0].clientY - pullStart;
+        if (pullDist > 120) {
+            pulling = false;
+            location.reload();
+        }
+    }, { passive: true });
+    document.addEventListener('touchend', function() { pulling = false; }, { passive: true });
 })();
 </script>
 {% block scripts %}{% endblock %}

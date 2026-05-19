@@ -135,6 +135,77 @@
         </button>
     </div>
 
+    <!-- Accent Color Picker -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">액센트 색상</h4>
+        <p class="text-xs text-slate-400 mb-4">앱의 강조 색상을 선택합니다.</p>
+        <div class="flex gap-3" id="accentPicker">
+            <button onclick="setAccentColor('indigo')" data-color="indigo" class="w-10 h-10 rounded-xl bg-indigo-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="인디고 색상"></button>
+            <button onclick="setAccentColor('emerald')" data-color="emerald" class="w-10 h-10 rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="에메랄드 색상"></button>
+            <button onclick="setAccentColor('rose')" data-color="rose" class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="로즈 색상"></button>
+            <button onclick="setAccentColor('amber')" data-color="amber" class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="앰버 색상"></button>
+            <button onclick="setAccentColor('sky')" data-color="sky" class="w-10 h-10 rounded-xl bg-sky-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="스카이 색상"></button>
+        </div>
+    </div>
+
+    <!-- Font Size Toggle -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">글꼴 크기</h4>
+        <p class="text-xs text-slate-400 mb-4">화면의 글꼴 크기를 조정합니다.</p>
+        <div class="flex gap-2" id="fontSizePicker">
+            <button onclick="setFontSize('small')" data-size="small" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+                <span class="text-xs">가</span> 작게
+            </button>
+            <button onclick="setFontSize('medium')" data-size="medium" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+                <span class="text-sm">가</span> 보통
+            </button>
+            <button onclick="setFontSize('large')" data-size="large" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+                <span class="text-base">가</span> 크게
+            </button>
+        </div>
+    </div>
+
+    <script>
+    function setAccentColor(color) {
+        localStorage.setItem('accent_color', color);
+        document.body.dataset.accent = color;
+        updateAccentUI();
+        if (typeof showToast === 'function') showToast('액센트 색상이 변경되었습니다', 'success');
+    }
+    function setFontSize(size) {
+        localStorage.setItem('font_size', size);
+        document.body.dataset.fontsize = size;
+        var fontSizeMap = { small: '13px', medium: '14px', large: '16px' };
+        document.documentElement.style.fontSize = fontSizeMap[size] || '14px';
+        updateFontSizeUI();
+        if (typeof showToast === 'function') showToast('글꼴 크기가 변경되었습니다', 'success');
+    }
+    function updateAccentUI() {
+        var current = localStorage.getItem('accent_color') || 'indigo';
+        document.querySelectorAll('#accentPicker button').forEach(function(btn) {
+            if (btn.dataset.color === current) {
+                btn.classList.add('ring-2', 'ring-offset-2', 'ring-slate-400');
+            } else {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-slate-400');
+            }
+        });
+    }
+    function updateFontSizeUI() {
+        var current = localStorage.getItem('font_size') || 'medium';
+        document.querySelectorAll('#fontSizePicker button').forEach(function(btn) {
+            if (btn.dataset.size === current) {
+                btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-600');
+            } else {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-600');
+            }
+        });
+    }
+    updateAccentUI();
+    updateFontSizeUI();
+    </script>
+
     <!-- Background Settings -->
     <div class="work-card rounded-xl p-6">
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">배경 설정</h4>

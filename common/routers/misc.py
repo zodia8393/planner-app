@@ -400,6 +400,170 @@ async def parse_date_api(request: Request, text: str = ""):
     })
 
 
+@router.get("/api/widgets/today")
+async def widget_today_data(request: Request):
+    """Return JSON data for dashboard widgets (HTMX lazy loading)."""
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    today_str = date.today().isoformat()
+    now = datetime.now()
+
+    # Korean day names
+    day_names = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
+    today_date = date.today()
+    today_display = f"{today_date.month}월 {today_date.day}일"
+    today_weekday = day_names[today_date.weekday()]
+
+    with S.get_db() as conn:
+        # Today counts
+        today_todo_count = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND due_date=? AND completed=0",
+            (pid, today_str),
+        ).fetchone()[0]
+        today_event_count = conn.execute(
+            "SELECT COUNT(*) FROM events WHERE profile_id=? AND date(start_time)=?",
+            (pid, today_str),
+        ).fetchone()[0]
+        overdue_count = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND completed=0 AND due_date<? AND due_date IS NOT NULL AND due_date != ''",
+            (pid, today_str),
+        ).fetchone()[0]
+
+        # Streak: consecutive days with completed todos
+        streak_days = 0
+        check_date = today_date
+        while True:
+            check_str = check_date.isoformat()
+            done_count = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND completed=1 AND date(completed_at)=?",
+                (pid, check_str),
+            ).fetchone()[0]
+            if done_count > 0:
+                streak_days += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+            if streak_days > 365:
+                break
+
+        # Upcoming 5 items
+        upcoming_items = []
+        # Upcoming todos with due dates
+        upcoming_todos = conn.execute(
+            "SELECT id, title, due_date FROM todos WHERE profile_id=? AND completed=0 AND due_date>=? AND due_date IS NOT NULL ORDER BY due_date LIMIT 5",
+            (pid, today_str),
+        ).fetchall()
+        for t in upcoming_todos:
+            upcoming_items.append({
+                "title": t["title"],
+                "type": "todo",
+                "due": t["due_date"],
+                "relative_time": _relative_time(t["due_date"], now),
+            })
+        # Upcoming events
+        now_str = now.strftime("%Y-%m-%d %H:%M")
+        upcoming_events = conn.execute(
+            "SELECT id, title, start_time FROM events WHERE profile_id=? AND start_time>=? ORDER BY start_time LIMIT 5",
+            (pid, now_str),
+        ).fetchall()
+        for ev in upcoming_events:
+            upcoming_items.append({
+                "title": ev["title"],
+                "type": "event",
+                "due": ev["start_time"],
+                "relative_time": _relative_time(ev["start_time"], now),
+            })
+        # Sort by due time
+        upcoming_items.sort(key=lambda x: x["due"])
+        upcoming_items = upcoming_items[:5]
+
+        # Today focus hours (defensive: work_logs table may not exist or lack profile_id)
+        today_focus = 0
+        try:
+            today_focus = conn.execute(
+                "SELECT COALESCE(SUM(hours), 0) FROM work_logs WHERE profile_id=? AND log_date=? AND title LIKE '%집중 모드%'",
+                (pid, today_str),
+            ).fetchone()[0]
+        except Exception:
+            pass
+
+        # Week stats
+        week_start = today_date - timedelta(days=today_date.weekday())
+        week_end = week_start + timedelta(days=6)
+        week_total = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE due_date BETWEEN ? AND ? AND profile_id=?",
+            (week_start.isoformat(), week_end.isoformat(), pid),
+        ).fetchone()[0]
+        week_completed = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE due_date BETWEEN ? AND ? AND completed=1 AND profile_id=?",
+            (week_start.isoformat(), week_end.isoformat(), pid),
+        ).fetchone()[0]
+        week_rate = round(week_completed / week_total * 100) if week_total > 0 else 0
+
+        # Category budgets
+        category_budgets = []
+        cats = S.get_categories(conn, pid)
+        for cat in cats:
+            c = dict(cat)
+            total = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE category_id=? AND profile_id=?",
+                (c["id"], pid),
+            ).fetchone()[0]
+            done = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE category_id=? AND profile_id=? AND completed=1",
+                (c["id"], pid),
+            ).fetchone()[0]
+            if total > 0:
+                category_budgets.append({
+                    "name": c["name"], "color": c["color"],
+                    "pct": round(done / total * 100),
+                })
+
+    return JSONResponse({
+        "today_display": today_display,
+        "today_weekday": today_weekday,
+        "today_todo_count": today_todo_count,
+        "today_event_count": today_event_count,
+        "overdue_count": overdue_count,
+        "streak_days": streak_days,
+        "week_rate": week_rate,
+        "week_completed": week_completed,
+        "week_total": week_total,
+        "upcoming_items": upcoming_items,
+        "today_focus_hours": round(today_focus, 1),
+        "category_budgets": category_budgets,
+    })
+
+
+def _relative_time(dt_str: str, now: datetime) -> str:
+    """Convert a date/datetime string to Korean relative time."""
+    if not dt_str:
+        return ""
+    try:
+        if "T" in dt_str or " " in dt_str:
+            target = datetime.fromisoformat(dt_str.replace(" ", "T")[:19])
+        else:
+            target = datetime.strptime(dt_str, "%Y-%m-%d").replace(hour=23, minute=59)
+    except (ValueError, TypeError):
+        return dt_str
+    diff = target - now
+    total_seconds = diff.total_seconds()
+    if total_seconds < 0:
+        return "지남"
+    minutes = total_seconds / 60
+    hours = minutes / 60
+    days = hours / 24
+    if minutes < 60:
+        return f"{int(minutes)}분 후"
+    if hours < 24:
+        return f"{int(hours)}시간 후"
+    if days < 2:
+        return "내일"
+    if days < 7:
+        return f"{int(days)}일 후"
+    return dt_str[:10]
+
+
 @router.get("/health")
 async def health(request: Request):
     S = request.app.state
