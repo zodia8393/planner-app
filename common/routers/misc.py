@@ -446,7 +446,7 @@ def _format_ical_dt(dt_str: str) -> tuple[str, str]:
     if "T" in clean:
         parts = clean.split("T", 1)
         date_part = parts[0][:8]
-        time_part = parts[1][:6]
+        time_part = parts[1][:6].ljust(6, "0")
         return "", f"{date_part}T{time_part}"
     return ";VALUE=DATE", clean[:8]
 

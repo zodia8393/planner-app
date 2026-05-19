@@ -137,11 +137,15 @@ async def sync_status(request: Request):
         })
 
     with S.get_db() as conn:
-        # Check if gcal tokens exist
-        gcal_row = conn.execute(
-            "SELECT token_expiry FROM gcal_tokens WHERE profile_id=?", (pid,)
-        ).fetchone()
-        gcal_connected = gcal_row is not None
+        # Check if gcal tokens exist (table may not exist yet)
+        gcal_connected = False
+        try:
+            gcal_row = conn.execute(
+                "SELECT token_expiry FROM gcal_tokens WHERE profile_id=?", (pid,)
+            ).fetchone()
+            gcal_connected = gcal_row is not None
+        except Exception:
+            pass
 
         # Count pending changes and conflicts
         pending = 0
