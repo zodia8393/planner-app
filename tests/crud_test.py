@@ -427,6 +427,45 @@ class TestCategoryCRUD:
 # Edge cases / boundary tests
 # ═══════════════════════════════════════════════════════════════════════════
 
+class TestBulkActions:
+
+    @pytest.mark.asyncio
+    async def test_jm_bulk_complete(self, jm: httpx.AsyncClient):
+        for i in range(3):
+            await jm.post("/todos", data={"title": f"bulk{i}", "due_date": "2026-06-01"}, headers=ORIGIN, follow_redirects=False)
+        r = await jm.get("/todos")
+        import re
+        ids = re.findall(r'data-todo-id="(\d+)"', r.text)
+        assert len(ids) >= 3
+        pick = ids[-3:]
+        r = await jm.post("/todos/bulk", json={"action": "complete", "ids": pick})
+        assert r.status_code == 200
+        data = r.json()
+        assert data["ok"] is True
+
+    @pytest.mark.asyncio
+    async def test_jm_bulk_delete(self, jm: httpx.AsyncClient):
+        await jm.post("/todos", data={"title": "delme1", "due_date": "2026-06-01"}, headers=ORIGIN, follow_redirects=False)
+        await jm.post("/todos", data={"title": "delme2", "due_date": "2026-06-01"}, headers=ORIGIN, follow_redirects=False)
+        r = await jm.get("/todos")
+        import re
+        ids = re.findall(r'data-todo-id="(\d+)"', r.text)
+        pick = ids[-2:]
+        r = await jm.post("/todos/bulk", json={"action": "delete", "ids": pick})
+        assert r.status_code == 200
+        assert r.json()["ok"] is True
+
+    @pytest.mark.asyncio
+    async def test_bulk_invalid_action(self, jm: httpx.AsyncClient):
+        r = await jm.post("/todos/bulk", json={"action": "nope", "ids": ["1"]})
+        assert r.json()["ok"] is False
+
+    @pytest.mark.asyncio
+    async def test_bulk_empty_ids(self, jm: httpx.AsyncClient):
+        r = await jm.post("/todos/bulk", json={"action": "complete", "ids": []})
+        assert r.json()["ok"] is False
+
+
 class TestEdgeCases:
 
     @pytest.mark.asyncio
