@@ -22,6 +22,13 @@ else
     echo "==> Tests passed, proceeding with deploy"
 fi
 
+# Build Tailwind CSS
+echo "==> Building Tailwind CSS for $APP..."
+cd "$SCRIPT_DIR"
+sed -i "s|content: \[.*\]|content: ['./$APP/templates/**/*.html']|" tailwind.config.js
+npx tailwindcss@3.4.17 -i input.css -o "$APP_DIR/static/tailwind.css" --minify
+echo "==> Tailwind CSS built ($(wc -c < "$APP_DIR/static/tailwind.css") bytes)"
+
 cp -r "$SCRIPT_DIR/common" "$APP_DIR/common"
 trap 'rm -rf "$APP_DIR/common"' EXIT
 
