@@ -505,9 +505,9 @@ def init_db():
                 conn.execute(f"ALTER TABLE {tbl} ADD COLUMN role TEXT DEFAULT ''")
             except sqlite3.OperationalError:
                 pass
-        for tbl in ("todos", "events", "memos"):
+        for tbl in ("todos", "events", "memos", "work_logs", "notices", "categories"):
             try:
-                conn.execute(f"ALTER TABLE {tbl} ADD COLUMN profile_id INTEGER NOT NULL DEFAULT 0")
+                conn.execute(f"ALTER TABLE {tbl} ADD COLUMN profile_id INTEGER NOT NULL DEFAULT 1")
             except sqlite3.OperationalError:
                 pass
 
