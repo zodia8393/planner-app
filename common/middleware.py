@@ -3,14 +3,41 @@
 import asyncio
 import uuid
 
+import starlette.formparsers as _fp
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+
+from .utils import fix_mojibake
 
 __all__ = [
     "EventBus",
     "CSRFMiddleware",
     "SyncBroadcastMiddleware",
+    "patch_formparser_utf8",
 ]
+
+_formparser_patched = False
+
+
+def patch_formparser_utf8():
+    """Patch Starlette FormParser to fix latin-1 → UTF-8 mojibake."""
+    global _formparser_patched
+    if _formparser_patched:
+        return
+    _orig_parse = _fp.FormParser.parse
+
+    async def _utf8_parse(self) -> _fp.FormData:
+        fd = await _orig_parse(self)
+        fixed = []
+        for k, v in fd.multi_items():
+            if isinstance(v, str):
+                v = fix_mojibake(v)
+            k = fix_mojibake(k)
+            fixed.append((k, v))
+        return _fp.FormData(fixed)
+
+    _fp.FormParser.parse = _utf8_parse
+    _formparser_patched = True
 
 
 class EventBus:
