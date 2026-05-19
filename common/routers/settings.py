@@ -27,12 +27,23 @@ async def settings_page(request: Request):
         if pid:
             profile_table = getattr(S, "profile_table", "work_profiles")
             profile = conn.execute(f"SELECT * FROM {profile_table} WHERE id=?", (pid,)).fetchone()
+        gcal_row = None
+        try:
+            gcal_row = conn.execute(
+                "SELECT * FROM gcal_tokens WHERE profile_id=?", (pid,)
+            ).fetchone()
+        except Exception:
+            pass
     budget_map = {b["category_id"]: b["weekly_hours"] for b in budgets}
     time_budget_cats = [dict(c) | {"budget_hours": budget_map.get(c["id"], 0)} for c in categories]
+    gcal_client_id = getattr(S, "gcal_client_id", "") or os.environ.get("GCAL_CLIENT_ID", "")
     ctx = {
         "page": "settings",
         "categories": [dict(c) for c in categories],
         "time_budget_cats": time_budget_cats,
+        "gcal_configured": bool(gcal_client_id),
+        "gcal_connected": gcal_row is not None,
+        "gcal_calendar_id": gcal_row["calendar_id"] if gcal_row else "primary",
     }
     if profile:
         ctx["profile"] = dict(profile)
