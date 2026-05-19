@@ -5,7 +5,6 @@ RFC 5545 RRULE strings (e.g. 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR').
 """
 
 import calendar as cal_mod
-import re
 from datetime import date, timedelta
 from typing import Optional
 

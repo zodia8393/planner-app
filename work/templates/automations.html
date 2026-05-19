@@ -18,6 +18,7 @@
                     <option value="daily">매일</option>
                     <option value="weekly" selected>매주</option>
                     <option value="monthly">매월</option>
+                    <option value="rrule">사용자정의 (RRULE)</option>
                 </select>
             </div>
             <div id="triggerExtra">
@@ -38,6 +39,31 @@
                     <option value="{{ d }}">{{ d }}일</option>
                     {% endfor %}
                 </select>
+            </div>
+        </div>
+        <!-- RRULE custom trigger panel -->
+        <div id="rruleTriggerPanel" style="display:none" class="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2 mb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500">매</span>
+                <input type="number" id="rruleInterval" value="1" min="1" max="99"
+                       class="w-16 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <select id="rruleFreq" onchange="updateRruleExtra()"
+                        class="px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="DAILY">일</option>
+                    <option value="WEEKLY" selected>주</option>
+                    <option value="MONTHLY">개월</option>
+                </select>
+            </div>
+            <div id="rruleBydayRow" class="flex flex-wrap gap-1">
+                {% for code, label in rrule_day_options %}
+                <label class="flex items-center gap-0.5 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                    <input type="checkbox" class="rrule-byday-auto" value="{{ code }}"> {{ label }}
+                </label>
+                {% endfor %}
+            </div>
+            <div id="rruleBymonthdayRow" style="display:none">
+                <input type="text" id="rruleBymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+                       class="w-full px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
             </div>
         </div>
 
@@ -86,6 +112,7 @@
                 {% if rule.trigger_type == 'daily' %}매일
                 {% elif rule.trigger_type == 'weekly' %}매주 {{ ['월','화','수','목','금','토','일'][rule._tc.get('weekday', 0)] }}요일
                 {% elif rule.trigger_type == 'monthly' %}매월 {{ rule._tc.get('day', 1) }}일
+                {% elif rule.trigger_type == 'rrule' %}{{ rule._trigger_desc or 'RRULE' }}
                 {% endif %}
                 &rarr; "{{ rule._ac.get('title', '') }}" 생성
             </div>
@@ -120,19 +147,33 @@ function updateTriggerUI() {
     var weekdaySel = document.getElementById('triggerWeekday');
     var daySel = document.getElementById('triggerDay');
     var extraLabel = document.querySelector('#triggerExtra label');
+    var rrulePanel = document.getElementById('rruleTriggerPanel');
     if (type === 'daily') {
         weekdaySel.style.display = 'none';
         daySel.style.display = 'none';
+        rrulePanel.style.display = 'none';
         extraLabel.textContent = '';
     } else if (type === 'weekly') {
         weekdaySel.style.display = '';
         daySel.style.display = 'none';
+        rrulePanel.style.display = 'none';
         extraLabel.textContent = '요일';
     } else if (type === 'monthly') {
         weekdaySel.style.display = 'none';
         daySel.style.display = '';
+        rrulePanel.style.display = 'none';
         extraLabel.textContent = '날짜';
+    } else if (type === 'rrule') {
+        weekdaySel.style.display = 'none';
+        daySel.style.display = 'none';
+        rrulePanel.style.display = '';
+        extraLabel.textContent = '';
     }
+}
+function updateRruleExtra() {
+    var freq = document.getElementById('rruleFreq').value;
+    document.getElementById('rruleBydayRow').style.display = (freq === 'WEEKLY') ? '' : 'none';
+    document.getElementById('rruleBymonthdayRow').style.display = (freq === 'MONTHLY') ? '' : 'none';
 }
 
 document.getElementById('automationForm').addEventListener('submit', function() {
@@ -141,6 +182,20 @@ document.getElementById('automationForm').addEventListener('submit', function() 
     var tc = {};
     if (type === 'weekly') tc = {weekday: parseInt(document.getElementById('triggerWeekday').value)};
     else if (type === 'monthly') tc = {day: parseInt(document.getElementById('triggerDay').value)};
+    else if (type === 'rrule') {
+        var freq = document.getElementById('rruleFreq').value;
+        var interval = parseInt(document.getElementById('rruleInterval').value) || 1;
+        var parts = ['FREQ=' + freq];
+        if (interval > 1) parts.push('INTERVAL=' + interval);
+        if (freq === 'WEEKLY') {
+            var days = Array.from(document.querySelectorAll('.rrule-byday-auto:checked')).map(function(c) { return c.value; });
+            if (days.length) parts.push('BYDAY=' + days.join(','));
+        } else if (freq === 'MONTHLY') {
+            var md = document.getElementById('rruleBymonthday').value.trim();
+            if (md) parts.push('BYMONTHDAY=' + md);
+        }
+        tc = {rrule: parts.join(';')};
+    }
     document.getElementById('hiddenTriggerConfig').value = JSON.stringify(tc);
 
     var ac = {
