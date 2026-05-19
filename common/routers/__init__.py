@@ -8,5 +8,6 @@ Each app injects dependencies via app.state before including these routers:
     app.state.redirect        — (Request, url) -> Response
     app.state.templates       — Jinja2Templates
     app.state.audit_log       — (conn, entity_type, entity_id, action, changes, profile_id?) -> None
+    app.state.event_bus       — EventBus (broadcast + emit for SSE)
     app.state.get_categories  — (conn, pid) -> list[Row]
 """

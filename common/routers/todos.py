@@ -238,6 +238,7 @@ async def create_todo(request: Request,
         """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, max_order + 1, pid, energy_level))
         S.audit_log(conn, "todo", cur.lastrowid, "create", {"title": title}, str(pid))
 
+    S.event_bus.emit("todo", {"action": "created", "title": title})
     return S.redirect(request, "/todos")
 
 
@@ -269,6 +270,8 @@ async def toggle_todo(request: Request, todo_id: int):
                 """, (todo["title"], todo["description"], nxt,
                       todo["priority"], todo["category_id"], todo["tags"],
                       todo["repeat_type"], rec_end, todo["assignee"], max_order + 1, todo["profile_id"]))
+
+    S.event_bus.emit("todo", {"action": "toggled", "id": todo_id, "completed": new_status})
 
     if request.headers.get("HX-Request"):
         with S.get_db() as conn:
@@ -386,6 +389,7 @@ async def update_todo(request: Request, todo_id: int,
                 changes["priority"] = {"old": old["priority"], "new": priority}
         S.audit_log(conn, "todo", todo_id, "update", changes, str(pid))
 
+    S.event_bus.emit("todo", {"action": "updated", "id": todo_id, "title": title})
     return S.redirect(request, "/todos")
 
 
@@ -397,6 +401,7 @@ async def delete_todo(request: Request, todo_id: int):
         old = conn.execute("SELECT title FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         conn.execute("DELETE FROM todos WHERE id=? AND profile_id=?", (todo_id, pid))
         S.audit_log(conn, "todo", todo_id, "delete", {"title": old["title"]} if old else {}, str(pid))
+    S.event_bus.emit("todo", {"action": "deleted", "id": todo_id})
     if request.headers.get("HX-Request"):
         return HTMLResponse("")
     return S.redirect(request, "/todos")

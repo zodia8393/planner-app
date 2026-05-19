@@ -544,6 +544,12 @@ def init_db():
         if "energy_level" not in todo_cols:
             conn.execute("ALTER TABLE todos ADD COLUMN energy_level INTEGER DEFAULT 2")
 
+        # Migration: add gcal sync columns to events
+        if "gcal_sync_status" not in ev_cols:
+            conn.execute("ALTER TABLE events ADD COLUMN gcal_sync_status TEXT DEFAULT ''")
+        if "gcal_last_synced" not in ev_cols:
+            conn.execute("ALTER TABLE events ADD COLUMN gcal_last_synced TEXT DEFAULT ''")
+
         existing = conn.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
         if existing == 0:
             conn.executemany(
@@ -926,6 +932,7 @@ from common.routers import memos as _r_memos, notices as _r_notices
 from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos, forms as _r_forms
 from common.routers import settings as _r_settings, misc as _r_misc
+from common.routers import sse as _r_sse
 
 app.state.get_db = get_db
 app.state.get_profile_id = get_profile_id
@@ -950,6 +957,7 @@ app.include_router(_r_todos.router)
 app.include_router(_r_forms.router)
 app.include_router(_r_settings.router)
 app.include_router(_r_misc.router)
+app.include_router(_r_sse.router)
 
 
 

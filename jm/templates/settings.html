@@ -72,6 +72,33 @@
         </form>
     </div>
 
+    <!-- Notification Settings -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">알림 설정</h4>
+        <p class="text-xs text-slate-400 mb-4">브라우저 알림으로 마감 할일과 예정 일정을 받아보세요.</p>
+
+        <div class="space-y-3">
+            <div class="flex items-center justify-between px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+                <div>
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200">알림 권한</p>
+                    <p id="settingsNotifStatus" class="text-xs text-slate-400 mt-0.5">확인 중...</p>
+                </div>
+                <button id="settingsNotifBtn" onclick="requestNotifPermission()"
+                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                    알림 허용하기
+                </button>
+            </div>
+            <div class="px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    허용하면 5분마다 다음 항목을 확인합니다:<br>
+                    - 오늘 마감인 미완료 할 일<br>
+                    - 30분 이내 시작 예정 일정<br>
+                    - 마감일이 지난 할 일 (세션당 1회)
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Theme toggle -->
     <div class="work-card rounded-xl p-6">
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">테마</h4>

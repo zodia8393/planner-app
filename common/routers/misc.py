@@ -320,7 +320,9 @@ async def focus_complete(request: Request):
 async def get_reminders(request: Request):
     S = request.app.state
     pid = S.get_profile_id(request)
+    now = datetime.now()
     today_str = date.today().isoformat()
+    tomorrow_str = (date.today() + timedelta(days=1)).isoformat()
     reminders = []
     with S.get_db() as conn:
         # Overdue todos
@@ -329,14 +331,39 @@ async def get_reminders(request: Request):
             (pid, today_str),
         ).fetchall()
         for t in overdue:
-            reminders.append({"type": "overdue", "id": t["id"], "title": t["title"], "due_date": t["due_date"]})
+            reminders.append({
+                "type": "overdue", "id": t["id"], "title": t["title"],
+                "body": f"마감일: {t['due_date']}", "url": "/todos?filter=overdue",
+                "time": t["due_date"] + "T09:00:00",
+            })
         # Today's todos
         today_todos = conn.execute(
             "SELECT id, title FROM todos WHERE profile_id=? AND completed=0 AND due_date=? ORDER BY priority, sort_order LIMIT 10",
             (pid, today_str),
         ).fetchall()
         for t in today_todos:
-            reminders.append({"type": "today", "id": t["id"], "title": t["title"]})
+            reminders.append({
+                "type": "today", "id": t["id"], "title": t["title"],
+                "body": "오늘 마감", "url": "/todos",
+                "time": today_str + "T09:00:00",
+            })
+        # Upcoming events within next 24 hours
+        now_str = now.strftime("%Y-%m-%d %H:%M")
+        tomorrow_dt_str = (now + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M")
+        upcoming_events = conn.execute(
+            "SELECT id, title, start_time, memo FROM events "
+            "WHERE profile_id=? AND start_time >= ? AND start_time <= ? "
+            "ORDER BY start_time LIMIT 10",
+            (pid, now_str, tomorrow_dt_str),
+        ).fetchall()
+        for ev in upcoming_events:
+            st = ev["start_time"] or ""
+            display_time = st[11:16] if len(st) >= 16 else st[:10]
+            reminders.append({
+                "type": "event", "id": ev["id"], "title": ev["title"],
+                "body": f"시작: {display_time}", "url": "/calendar",
+                "time": st if "T" in st else st.replace(" ", "T"),
+            })
     return JSONResponse(reminders)
 
 
@@ -382,69 +409,157 @@ async def health(request: Request):
     return JSONResponse(data)
 
 
-@router.get("/cal/{profile_id}.ics")
-async def ical_feed(request: Request, profile_id: int):
-    S = request.app.state
-    pid = profile_id
-    with S.get_db() as conn:
-        events = conn.execute(
-            "SELECT * FROM events WHERE profile_id=? ORDER BY start_time", (pid,)
-        ).fetchall()
-        todos = conn.execute(
-            "SELECT * FROM todos WHERE profile_id=? AND due_date IS NOT NULL AND due_date != ''",
-            (pid,),
-        ).fetchall()
-        form_entries = conn.execute(
-            "SELECT fe.id, fe.entry_date, fe.values_json, ft.name as tpl_name "
-            "FROM form_entries fe JOIN form_templates ft ON fe.template_id=ft.id "
-            "WHERE fe.profile_id=? AND fe.entry_date IS NOT NULL", (pid,)
-        ).fetchall()
+def _ical_escape(s: str) -> str:
+    """Escape text for iCalendar RFC 5545 compliance."""
+    return str(s).replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace("\n", "\\n")
+
+
+def _ical_fold(line: str) -> str:
+    """Fold long lines per RFC 5545 (max 75 octets per line)."""
+    encoded = line.encode("utf-8")
+    if len(encoded) <= 75:
+        return line
+    parts = []
+    while len(encoded) > 75:
+        cut = 75 if not parts else 74
+        while cut > 0 and (encoded[cut] & 0xC0) == 0x80:
+            cut -= 1
+        parts.append(encoded[:cut].decode("utf-8", errors="replace"))
+        encoded = encoded[cut:]
+    if encoded:
+        parts.append(encoded.decode("utf-8", errors="replace"))
+    return "\r\n ".join(parts)
+
+
+def _format_ical_dt(dt_str: str) -> tuple[str, str]:
+    """Convert a datetime/date string to iCal property params and value.
+
+    Returns (property_params, value).
+    Date-only: (";VALUE=DATE", "20260519")
+    Datetime:  ("", "20260519T140000")
+    """
+    if not dt_str:
+        return "", ""
+    clean = dt_str.replace("-", "").replace(":", "").replace(" ", "T")
+    if len(clean) == 8:
+        return ";VALUE=DATE", clean
+    if "T" in clean:
+        parts = clean.split("T", 1)
+        date_part = parts[0][:8]
+        time_part = parts[1][:6]
+        return "", f"{date_part}T{time_part}"
+    return ";VALUE=DATE", clean[:8]
+
+
+def _priority_to_ical(priority: int) -> int:
+    """Map app priority (1=high, 2=medium, 3=low) to iCal (1-9)."""
+    return {1: 1, 2: 5, 3: 9}.get(priority, 5)
+
+
+def _build_ical_feed(conn, pid: int, app_name: str = "Planner") -> str:
+    """Build RFC 5545 compliant VCALENDAR content for a profile."""
+    events = conn.execute(
+        "SELECT * FROM events WHERE profile_id=? ORDER BY start_time", (pid,)
+    ).fetchall()
+    todos = conn.execute(
+        "SELECT * FROM todos WHERE profile_id=? AND due_date IS NOT NULL AND due_date != ''",
+        (pid,),
+    ).fetchall()
+    form_entries = conn.execute(
+        "SELECT fe.id, fe.entry_date, fe.values_json, ft.name as tpl_name "
+        "FROM form_entries fe JOIN form_templates ft ON fe.template_id=ft.id "
+        "WHERE fe.profile_id=? AND fe.entry_date IS NOT NULL", (pid,)
+    ).fetchall()
+
+    now_stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+    esc = _ical_escape
 
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//Planner//iCal//KR",
+        f"PRODID:-//{app_name}//iCal Export//KR",
         "CALSCALE:GREGORIAN",
         "METHOD:PUBLISH",
+        f"X-WR-CALNAME:{app_name}",
+        "X-WR-TIMEZONE:Asia/Seoul",
     ]
 
-    def esc(s):
-        return str(s).replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace("\n", "\\n")
-
-    for ev in events:
+    for row in events:
+        ev = dict(row)
         uid = f"event-{ev['id']}@planner"
         lines.append("BEGIN:VEVENT")
         lines.append(f"UID:{uid}")
-        st = ev["start_time"].replace("-", "").replace(":", "").replace(" ", "T")
-        if len(st) == 8:
-            lines.append(f"DTSTART;VALUE=DATE:{st}")
-        else:
-            lines.append(f"DTSTART:{st}")
-        if ev["end_time"]:
-            et = ev["end_time"].replace("-", "").replace(":", "").replace(" ", "T")
-            lines.append(f"DTEND:{et}")
-        lines.append(f"SUMMARY:{esc(ev['title'])}")
-        if ev["memo"]:
-            lines.append(f"DESCRIPTION:{esc(ev['memo'])}")
+        lines.append(f"DTSTAMP:{now_stamp}")
+
+        st_params, st_val = _format_ical_dt(ev["start_time"])
+        if st_val:
+            lines.append(f"DTSTART{st_params}:{st_val}")
+        if ev.get("end_time"):
+            et_params, et_val = _format_ical_dt(ev["end_time"])
+            if et_val:
+                lines.append(f"DTEND{et_params}:{et_val}")
+
+        lines.append(_ical_fold(f"SUMMARY:{esc(ev['title'])}"))
+        if ev.get("memo"):
+            lines.append(_ical_fold(f"DESCRIPTION:{esc(ev['memo'])}"))
+        if ev.get("created_at"):
+            cr_params, cr_val = _format_ical_dt(ev["created_at"])
+            if cr_val:
+                lines.append(f"CREATED:{cr_val}")
+
+        # RRULE for recurring events
+        recurrence = ev.get("recurrence", "")
+        if recurrence and recurrence != "none":
+            from common.recurrence import normalize_rrule
+            rrule_str = normalize_rrule(recurrence)
+            if rrule_str:
+                lines.append(f"RRULE:{rrule_str}")
+
+        # VALARM: 15-minute reminder for timed events
+        if ev["start_time"] and "T" in ev["start_time"]:
+            lines.append("BEGIN:VALARM")
+            lines.append("TRIGGER:-PT15M")
+            lines.append("ACTION:DISPLAY")
+            lines.append(f"DESCRIPTION:{esc(ev['title'])}")
+            lines.append("END:VALARM")
+
         lines.append("END:VEVENT")
 
-    for td in todos:
+    for row in todos:
+        td = dict(row)
         uid = f"todo-{td['id']}@planner"
         lines.append("BEGIN:VTODO")
         lines.append(f"UID:{uid}")
+        lines.append(f"DTSTAMP:{now_stamp}")
         dd = td["due_date"].replace("-", "")
         lines.append(f"DUE;VALUE=DATE:{dd}")
-        lines.append(f"SUMMARY:{esc(td['title'])}")
-        if td["completed"]:
+        lines.append(_ical_fold(f"SUMMARY:{esc(td['title'])}"))
+        if td.get("description"):
+            lines.append(_ical_fold(f"DESCRIPTION:{esc(td['description'])}"))
+        lines.append(f"PRIORITY:{_priority_to_ical(td.get('priority', 2))}")
+        if td.get("completed"):
             lines.append("STATUS:COMPLETED")
+            if td.get("completed_at"):
+                cp_params, cp_val = _format_ical_dt(td["completed_at"])
+                if cp_val:
+                    lines.append(f"COMPLETED:{cp_val}")
         else:
             lines.append("STATUS:NEEDS-ACTION")
+
+        repeat_type = td.get("repeat_type", "none")
+        if repeat_type and repeat_type != "none":
+            from common.recurrence import normalize_rrule
+            rrule_str = normalize_rrule(repeat_type)
+            if rrule_str:
+                lines.append(f"RRULE:{rrule_str}")
+
         lines.append("END:VTODO")
 
     for fe in form_entries:
         uid = f"form-{fe['id']}@planner"
         lines.append("BEGIN:VEVENT")
         lines.append(f"UID:{uid}")
+        lines.append(f"DTSTAMP:{now_stamp}")
         dd = fe["entry_date"].replace("-", "")
         lines.append(f"DTSTART;VALUE=DATE:{dd}")
         try:
@@ -453,13 +568,291 @@ async def ical_feed(request: Request, profile_id: int):
             summary = f"[{fe['tpl_name']}] {' / '.join(summary_parts)}"
         except (json.JSONDecodeError, TypeError):
             summary = f"[{fe['tpl_name']}] {fe['entry_date']}"
-        lines.append(f"SUMMARY:{esc(summary[:100])}")
+        lines.append(_ical_fold(f"SUMMARY:{esc(summary[:100])}"))
         lines.append("END:VEVENT")
 
     lines.append("END:VCALENDAR")
-    ical_content = "\r\n".join(lines)
+    return "\r\n".join(lines)
+
+
+@router.get("/cal/{profile_id}.ics")
+async def ical_feed(request: Request, profile_id: int, token: str = ""):
+    """RFC 5545 compliant iCal feed.
+
+    Supports token-based access for calendar subscription clients.
+    Use ?token=<profile_token> to bypass cookie auth.
+    """
+    S = request.app.state
+    pid = profile_id
+
+    # Token-based auth (if ical_tokens table exists)
+    if token:
+        with S.get_db() as conn:
+            try:
+                row = conn.execute(
+                    "SELECT profile_id FROM ical_tokens WHERE profile_id=? AND token=?",
+                    (pid, token),
+                ).fetchone()
+                if not row:
+                    return Response("Forbidden", status_code=403)
+            except Exception:
+                pass  # Table may not exist in jm/my planners
+
+    app_name = getattr(S, "app_name", "Planner")
+
+    with S.get_db() as conn:
+        ical_content = _build_ical_feed(conn, pid, app_name)
+
     return Response(
         content=ical_content.encode("utf-8"),
         media_type="text/calendar; charset=utf-8",
         headers={"Content-Disposition": f'inline; filename="calendar_{profile_id}.ics"'},
     )
+
+
+# ── iCal Import ──
+
+def _parse_ical_content(content: str) -> list[dict]:
+    """Parse iCal content into a list of component dicts.
+
+    Handles VEVENT and VTODO. Supports line unfolding per RFC 5545.
+    No external dependencies.
+    """
+    # Unfold continuation lines
+    unfolded_lines = []
+    for line in content.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        if line.startswith((" ", "\t")) and unfolded_lines:
+            unfolded_lines[-1] += line[1:]
+        else:
+            unfolded_lines.append(line)
+
+    components = []
+    current = None
+    in_alarm = False
+
+    for line in unfolded_lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        if stripped == "BEGIN:VALARM":
+            in_alarm = True
+            continue
+        if stripped == "END:VALARM":
+            in_alarm = False
+            continue
+        if in_alarm:
+            continue
+
+        if stripped in ("BEGIN:VEVENT", "BEGIN:VTODO"):
+            current = {"_type": "event" if "VEVENT" in stripped else "todo"}
+            continue
+        if stripped in ("END:VEVENT", "END:VTODO"):
+            if current:
+                components.append(current)
+            current = None
+            continue
+
+        if current is None:
+            continue
+
+        if ":" not in stripped:
+            continue
+        prop_part, value = stripped.split(":", 1)
+        prop_name = prop_part.split(";")[0].upper()
+        params = {}
+        if ";" in prop_part:
+            for param in prop_part.split(";")[1:]:
+                if "=" in param:
+                    pk, pv = param.split("=", 1)
+                    params[pk.upper()] = pv
+
+        # Unescape
+        value = value.replace("\\n", "\n").replace("\\,", ",").replace("\\;", ";").replace("\\\\", "\\")
+
+        if prop_name == "UID":
+            current["uid"] = value
+        elif prop_name == "SUMMARY":
+            current["summary"] = value
+        elif prop_name == "DESCRIPTION":
+            current["description"] = value
+        elif prop_name == "DTSTART":
+            current["dtstart"] = value
+            current["dtstart_date_only"] = params.get("VALUE") == "DATE"
+        elif prop_name == "DTEND":
+            current["dtend"] = value
+        elif prop_name == "DUE":
+            current["due"] = value
+            current["due_date_only"] = params.get("VALUE") == "DATE"
+        elif prop_name == "RRULE":
+            current["rrule"] = value
+        elif prop_name == "STATUS":
+            current["status"] = value.upper()
+        elif prop_name == "PRIORITY":
+            try:
+                current["priority"] = int(value)
+            except ValueError:
+                pass
+        elif prop_name == "COMPLETED":
+            current["completed_dt"] = value
+
+    return components
+
+
+def _ical_dt_to_iso(value: str, date_only: bool = False) -> str:
+    """Convert iCal datetime to ISO format ('2026-05-19T14:00' or '2026-05-19')."""
+    if not value:
+        return ""
+    value = value.rstrip("Z")
+    if "T" in value and not date_only:
+        date_part = value.split("T")[0]
+        time_part = value.split("T")[1][:6]
+        if len(date_part) >= 8 and len(time_part) >= 4:
+            return (
+                f"{date_part[:4]}-{date_part[4:6]}-{date_part[6:8]}"
+                f"T{time_part[:2]}:{time_part[2:4]}"
+            )
+    clean = value.replace("-", "").replace("T", "")[:8]
+    if len(clean) >= 8:
+        return f"{clean[:4]}-{clean[4:6]}-{clean[6:8]}"
+    return ""
+
+
+def _ical_priority_to_app(ical_priority: int) -> int:
+    """Map iCal priority (1-9) to app priority (1=high, 2=medium, 3=low)."""
+    if ical_priority <= 0:
+        return 2
+    if ical_priority <= 3:
+        return 1
+    if ical_priority <= 6:
+        return 2
+    return 3
+
+
+@router.post("/ical/import")
+async def ical_import(request: Request):
+    """Import events and todos from an uploaded .ics file.
+
+    Parses VEVENT and VTODO. Handles duplicates by UID.
+    Returns JSON summary of imported items.
+    """
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    if not pid:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    form = await request.form()
+    file = form.get("file")
+    if not file or not hasattr(file, "read"):
+        return JSONResponse({"error": "No file provided"}, status_code=400)
+
+    content = await file.read()
+    if isinstance(content, bytes):
+        try:
+            text = content.decode("utf-8")
+        except UnicodeDecodeError:
+            text = content.decode("latin-1")
+    else:
+        text = content
+
+    if "BEGIN:VCALENDAR" not in text:
+        return JSONResponse({"error": "Invalid iCal file"}, status_code=400)
+
+    components = _parse_ical_content(text)
+
+    events_imported = 0
+    events_skipped = 0
+    todos_imported = 0
+    todos_skipped = 0
+
+    with S.get_db() as conn:
+        for comp in components:
+            uid = comp.get("uid", "")
+
+            if comp["_type"] == "event":
+                if uid:
+                    existing = conn.execute(
+                        "SELECT id FROM events WHERE profile_id=? AND gcal_event_id=?",
+                        (pid, uid),
+                    ).fetchone()
+                    if existing:
+                        events_skipped += 1
+                        continue
+
+                title = comp.get("summary", "")
+                if not title:
+                    events_skipped += 1
+                    continue
+
+                start = _ical_dt_to_iso(
+                    comp.get("dtstart", ""),
+                    comp.get("dtstart_date_only", False),
+                )
+                end = _ical_dt_to_iso(comp.get("dtend", ""), False)
+                description = comp.get("description", "")
+                rrule = comp.get("rrule", "")
+
+                if not start:
+                    events_skipped += 1
+                    continue
+
+                conn.execute("""
+                    INSERT INTO events (title, start_time, end_time, memo, profile_id,
+                                       gcal_event_id, recurrence)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (title, start, end, description, pid, uid, rrule))
+                events_imported += 1
+
+            elif comp["_type"] == "todo":
+                title = comp.get("summary", "")
+                if not title:
+                    todos_skipped += 1
+                    continue
+
+                due = _ical_dt_to_iso(
+                    comp.get("due", comp.get("dtstart", "")),
+                    comp.get("due_date_only", comp.get("dtstart_date_only", True)),
+                )
+
+                if uid:
+                    existing = conn.execute(
+                        "SELECT id FROM todos WHERE profile_id=? AND title=? AND due_date=?",
+                        (pid, title, due),
+                    ).fetchone()
+                    if existing:
+                        todos_skipped += 1
+                        continue
+
+                description = comp.get("description", "")
+                priority = _ical_priority_to_app(comp.get("priority", 0))
+                completed = 1 if comp.get("status") == "COMPLETED" else 0
+                completed_at = ""
+                if completed and comp.get("completed_dt"):
+                    completed_at = _ical_dt_to_iso(comp["completed_dt"])
+                elif completed:
+                    completed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                rrule = comp.get("rrule", "")
+                repeat_type = rrule if rrule else "none"
+
+                max_order = conn.execute(
+                    "SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?",
+                    (pid,),
+                ).fetchone()[0]
+
+                conn.execute("""
+                    INSERT INTO todos (title, description, due_date, priority, completed,
+                                       completed_at, repeat_type, sort_order, profile_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (title, description, due, priority, completed, completed_at,
+                      repeat_type, max_order + 1, pid))
+                todos_imported += 1
+
+    return JSONResponse({
+        "ok": True,
+        "events_imported": events_imported,
+        "events_skipped": events_skipped,
+        "todos_imported": todos_imported,
+        "todos_skipped": todos_skipped,
+        "total_imported": events_imported + todos_imported,
+    })

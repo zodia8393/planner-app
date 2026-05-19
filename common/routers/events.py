@@ -149,6 +149,7 @@ async def create_event(request: Request,
                 VALUES (?, ?, 2, ?, 'none', ?, ?)
             """, (title, due, cat_id, max_order + 1, pid))
 
+    S.event_bus.emit("event", {"action": "created", "title": title})
     return S.redirect(request, "/calendar")
 
 
@@ -199,6 +200,7 @@ async def update_event(request: Request, event_id: int,
     if gcal_update and gcal_id:
         await gcal_update(pid, gcal_id, title, start_time, end_time or "")
 
+    S.event_bus.emit("event", {"action": "updated", "id": event_id, "title": title})
     return S.redirect(request, "/calendar")
 
 
@@ -215,6 +217,7 @@ async def delete_event(request: Request, event_id: int):
     if gcal_delete and gcal_id:
         await gcal_delete(pid, gcal_id)
 
+    S.event_bus.emit("event", {"action": "deleted", "id": event_id})
     if request.headers.get("HX-Request"):
         return HTMLResponse("")
     return S.redirect(request, "/calendar")

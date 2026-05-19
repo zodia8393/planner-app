@@ -20,6 +20,7 @@
     <script src="/static/htmx.min.js"></script>
     <script src="/static/chart.umd.min.js"></script>
     <script src="/static/sortable.min.js"></script>
+    <script src="/static/notifications.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <style>
@@ -846,46 +847,26 @@
         }).catch(function() {});
     }
 
-    // Browser notification system
-    (function() {
-        if (!('Notification' in window)) return;
+    // Browser notifications handled by /static/notifications.js
 
-        var NOTIF_KEY = 'planner_notified';
-        var notified = JSON.parse(sessionStorage.getItem(NOTIF_KEY) || '{}');
-
-        function checkReminders() {
-            if (Notification.permission !== 'granted') return;
-            fetch('/api/reminders').then(function(r) { return r.json(); }).then(function(items) {
-                items.forEach(function(item) {
-                    var key = item.type + '_' + item.id;
-                    if (notified[key]) return;
-                    var n = new Notification(item.title, {
-                        body: item.body,
-                        icon: '/static/icon-192.png',
-                        tag: key
-                    });
-                    n.onclick = function() {
-                        window.focus();
-                        window.location.href = item.url;
-                        n.close();
-                    };
-                    notified[key] = true;
-                    sessionStorage.setItem(NOTIF_KEY, JSON.stringify(notified));
-                });
-                // Update badge
-                var badge = document.getElementById('notifBadge');
-                if (badge) {
-                    if (items.length > 0) { badge.textContent = items.length; badge.classList.remove('hidden'); }
-                    else { badge.classList.add('hidden'); }
-                }
-            }).catch(function() {});
+    // Offline form queuing: intercept failed form submissions
+    document.addEventListener('htmx:sendError', function(e) {
+        if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+        var cfg = e.detail || {};
+        var requestConfig = cfg.requestConfig || {};
+        if (requestConfig.verb && requestConfig.verb !== 'get') {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'QUEUE_FORM',
+                url: requestConfig.path || window.location.pathname,
+                method: (requestConfig.verb || 'post').toUpperCase(),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: requestConfig.parameters || ''
+            });
+            if (typeof showToast === 'function') {
+                showToast('오프라인: 연결 복구 시 자동 전송됩니다', 'warning');
+            }
         }
-
-        if (Notification.permission === 'granted') {
-            setTimeout(checkReminders, 3000);
-            setInterval(checkReminders, 300000);
-        }
-    })();
+    });
 
     // PWA Service Worker registration
     if ('serviceWorker' in navigator) {

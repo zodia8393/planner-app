@@ -57,6 +57,17 @@ class EventBus:
         for q in self._subscribers.values():
             q.put_nowait(page)
 
+    def emit(self, event_type: str, data: dict):
+        """Emit a typed event to all SSE subscribers.
+
+        Args:
+            event_type: Event category (e.g. 'todo', 'event', 'memo', 'presence').
+            data: Payload dict; 'type' key is injected automatically.
+        """
+        msg = {"type": event_type, **data}
+        for q in self._subscribers.values():
+            q.put_nowait(msg)
+
 
 class CSRFMiddleware(BaseHTTPMiddleware):
     SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}

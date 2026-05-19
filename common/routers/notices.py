@@ -45,6 +45,7 @@ async def create_notice(request: Request,
         """, params)
         S.audit_log(conn, "notice", conn.execute("SELECT last_insert_rowid()").fetchone()[0],
                     "create", {"title": title}, str(pid))
+    S.event_bus.emit("notice", {"action": "created", "title": title})
     return S.redirect(request, "/notices")
 
 

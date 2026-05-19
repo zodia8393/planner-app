@@ -49,6 +49,7 @@ async def create_memo(request: Request,
             "INSERT INTO memos (author, content, title, category_id, profile_id) VALUES (?, ?, ?, ?, ?)",
             (author, content, title, cat_id, pid),
         )
+    S.event_bus.emit("memo", {"action": "created", "title": title})
     return S.redirect(request, "/memos")
 
 

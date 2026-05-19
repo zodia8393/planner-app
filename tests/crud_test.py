@@ -307,7 +307,7 @@ class TestEventCRUD:
 
         # Find the event ID by probing edit endpoints
         eid = None
-        for probe_id in range(1, 50):
+        for probe_id in range(1, 200):
             r = await c.get(f"/events/{probe_id}/edit")
             if r.status_code == 200:
                 eid = probe_id
