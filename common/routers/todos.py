@@ -5,8 +5,10 @@ from datetime import date, datetime
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
-from common.recurrence import next_occurrence, build_rrule, rrule_to_korean
+from common.nlp_date import extract_date_from_text
+from common.recurrence import next_occurrence, build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str
+from common.filters import parse_tags
 
 router = APIRouter()
 
@@ -83,6 +85,100 @@ async def todos_page(request: Request, filter: str = "all",
     })
 
 
+def _classify_kanban_column(todo: dict) -> str:
+    """Determine kanban column from todo state and tags."""
+    if todo.get("completed"):
+        return "done"
+    tags = parse_tags(todo.get("tags", "[]"))
+    if "진행중" in tags:
+        return "in_progress"
+    return "todo"
+
+
+@router.get("/todos/kanban", response_class=HTMLResponse)
+async def kanban_page(request: Request, group_by: str = ""):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    with S.get_db() as conn:
+        todos = conn.execute("""
+            SELECT t.*, c.name as category_name, c.color as category_color
+            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+            WHERE t.profile_id = ?
+            ORDER BY t.priority ASC, t.sort_order ASC
+        """, (pid,)).fetchall()
+        categories = S.get_categories(conn, pid)
+
+        columns = OrderedDict([
+            ("todo", {"label": "할 일", "todos": []}),
+            ("in_progress", {"label": "진행중", "todos": []}),
+            ("done", {"label": "완료", "todos": []}),
+        ])
+        for t in todos:
+            td = dict(t)
+            col = _classify_kanban_column(td)
+            columns[col]["todos"].append(td)
+
+        swimlanes = {}
+        if group_by == "category":
+            for col_key, col_data in columns.items():
+                grouped = OrderedDict()
+                grouped["미분류"] = []
+                for cat in categories:
+                    grouped[dict(cat)["name"]] = []
+                for item in col_data["todos"]:
+                    cat_name = item.get("category_name") or "미분류"
+                    grouped.setdefault(cat_name, []).append(item)
+                swimlanes[col_key] = grouped
+
+    return S.render(request, "kanban.html", {
+        "page": "todos",
+        "columns": columns,
+        "swimlanes": swimlanes if group_by == "category" else {},
+        "group_by": group_by,
+        "categories": [dict(c) for c in categories],
+        "priority_map": PRIORITY_MAP,
+        "todo_count": sum(len(c["todos"]) for c in columns.values()),
+    })
+
+
+@router.post("/todos/{todo_id}/move", response_class=HTMLResponse)
+async def move_todo(request: Request, todo_id: int, column: str = Form(...)):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    if column not in ("todo", "in_progress", "done"):
+        raise HTTPException(400, "Invalid column")
+    with S.get_db() as conn:
+        todo = conn.execute(
+            "SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)
+        ).fetchone()
+        if not todo:
+            raise HTTPException(404)
+
+        tags = parse_tags(todo["tags"])
+
+        if column == "todo":
+            tags = [t for t in tags if t != "진행중"]
+            new_completed = 0
+            completed_at = None
+        elif column == "in_progress":
+            if "진행중" not in tags:
+                tags.append("진행중")
+            new_completed = 0
+            completed_at = None
+        else:  # done
+            tags = [t for t in tags if t != "진행중"]
+            new_completed = 1
+            completed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        conn.execute(
+            "UPDATE todos SET completed=?, completed_at=?, tags=?, updated_at=datetime('now','localtime') WHERE id=? AND profile_id=?",
+            (new_completed, completed_at, json.dumps(tags), todo_id, pid),
+        )
+        S.audit_log(conn, "todo", todo_id, "move", {"column": column}, str(pid))
+
+    return S.redirect(request, "/todos/kanban")
+
+
 @router.post("/todos", response_class=HTMLResponse)
 async def create_todo(request: Request,
                       title: str = Form(...),
@@ -113,6 +209,13 @@ async def create_todo(request: Request,
     due_date = validate_date_str(due_date)
     recurrence_end = validate_date_str(recurrence_end) or ""
     energy_level = max(1, min(3, energy_level))
+
+    # NLP date extraction: if no explicit due_date, try parsing from title
+    if not due_date:
+        nlp_date, remaining_title = extract_date_from_text(title)
+        if nlp_date and remaining_title:
+            due_date = nlp_date.isoformat()
+            title = remaining_title
 
     # Build RRULE from custom fields if repeat_type is 'custom'
     if repeat_type == "custom" and rrule_freq:
@@ -187,6 +290,20 @@ async def toggle_todo(request: Request, todo_id: int):
     return S.redirect(request, "/todos")
 
 
+def _enrich_todo_rrule(td: dict) -> dict:
+    """Add parsed RRULE helper fields to a todo dict for template rendering."""
+    rt = td.get("repeat_type", "")
+    if rt and rt.startswith("FREQ="):
+        params = parse_rrule(rt)
+        td["_rrule_freq"] = params["freq"]
+        td["_rrule_interval"] = params["interval"]
+        td["_rrule_byday"] = params["byday"]
+        td["_rrule_bymonthday_str"] = ",".join(str(d) for d in params["bymonthday"])
+        td["_rrule_count"] = params["count"]
+        td["_rrule_until"] = params["until"].isoformat() if params["until"] else ""
+    return td
+
+
 @router.get("/todos/{todo_id}/edit", response_class=HTMLResponse)
 async def edit_todo_form(request: Request, todo_id: int):
     S = request.app.state
@@ -196,8 +313,9 @@ async def edit_todo_form(request: Request, todo_id: int):
         if not todo:
             raise HTTPException(404)
         categories = S.get_categories(conn, pid)
+    td = _enrich_todo_rrule(dict(todo))
     return S.render(request, "partials/todo_edit_form.html", {
-        "todo": dict(todo),
+        "todo": td,
         "categories": [dict(c) for c in categories],
         "priority_map": PRIORITY_MAP,
         "repeat_map": REPEAT_MAP,

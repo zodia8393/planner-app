@@ -5,6 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from common.constants import RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
+from common.nlp_date import parse_korean_date, extract_date_from_text, format_date_display
 from common.recurrence import build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, fix_mojibake, validate_date_str
 from common.search import search_fts
@@ -270,7 +271,14 @@ async def quick_add_todo(request: Request,
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
-    due_date = validate_date_str(due_date) or date.today().isoformat()
+    due_date = validate_date_str(due_date)
+    # NLP date extraction: if no explicit due_date, try parsing from title
+    if not due_date:
+        nlp_date, remaining_title = extract_date_from_text(title)
+        if nlp_date and remaining_title:
+            due_date = nlp_date.isoformat()
+            title = remaining_title
+    due_date = due_date or date.today().isoformat()
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
         conn.execute("""
@@ -348,6 +356,21 @@ async def service_worker(request: Request):
         media_type="application/javascript",
         headers={"Service-Worker-Allowed": "/"},
     )
+
+
+@router.get("/api/parse-date")
+async def parse_date_api(request: Request, text: str = ""):
+    """Parse Korean natural language date text and return the result as JSON."""
+    if not text.strip():
+        return JSONResponse({"ok": False})
+    parsed = parse_korean_date(text.strip())
+    if parsed is None:
+        return JSONResponse({"ok": False})
+    return JSONResponse({
+        "ok": True,
+        "date": parsed.isoformat(),
+        "display": format_date_display(parsed),
+    })
 
 
 @router.get("/health")

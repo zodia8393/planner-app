@@ -171,8 +171,10 @@ def _empty_results() -> dict:
 def _escape_fts_query(raw: str) -> str:
     """Convert user input to a safe FTS5 query.
 
-    Strategy: strip FTS5 operators, wrap each token in double quotes
-    so Korean text and special characters are treated as literal strings.
+    Strategy: strip FTS5 operators, then use prefix matching (token*)
+    so partial Korean words match. For example, searching '회의' matches
+    the token '회의에서' because unicode61 tokenizes Korean by spaces,
+    not by morpheme boundaries.
     """
     # Remove FTS5 syntax characters
     cleaned = raw.replace('"', " ")
@@ -181,8 +183,8 @@ def _escape_fts_query(raw: str) -> str:
     tokens = cleaned.split()
     if not tokens:
         return ""
-    # Quote each token and join with implicit AND
-    return " ".join(f'"{t}"' for t in tokens)
+    # Use prefix matching for each token (token* matches any token starting with it)
+    return " ".join(f'"{t}"*' for t in tokens)
 
 
 def _query_fts(

@@ -17,6 +17,20 @@
         <p><b class="text-slate-700 dark:text-slate-300">정렬</b> — 드래그 핸들(≡)을 잡고 끌어서 순서 변경</p>
     </div>
 </details>
+<!-- View toggle -->
+<div class="flex items-center gap-2 mb-3">
+    <a href="/todos"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
+        목록 보기
+    </a>
+    <a href="/todos/kanban"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+        칸반 보기
+    </a>
+</div>
+
 <!-- Filters -->
 <div class="flex flex-wrap items-center gap-1.5 mb-3 overflow-x-auto pb-1">
     {% set filters = [("all", "전체"), ("active", "미완료"), ("completed", "완료")] %}
@@ -97,7 +111,8 @@
                 <option value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
             </select>
-            <select name="repeat_type" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
+                    class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
                 {% for rk, rv in repeat_map.items() %}
                 <option value="{{ rk }}">{{ rv }}</option>
                 {% endfor %}
@@ -111,6 +126,47 @@
                    class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 flex-1 min-w-24">
             <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="text-xs text-indigo-500 hover:underline whitespace-nowrap">+ 설명</button>
         </div>
+        <!-- Custom RRULE builder for add form -->
+        <div id="addRrulePanel" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 whitespace-nowrap">매</span>
+                <input type="number" name="rrule_interval" value="1" min="1" max="99"
+                       class="w-16 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <select name="rrule_freq" id="addRruleFreq" onchange="toggleAddRruleExtra()"
+                        class="px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="DAILY">일</option>
+                    <option value="WEEKLY" selected>주</option>
+                    <option value="MONTHLY">개월</option>
+                    <option value="YEARLY">년</option>
+                </select>
+            </div>
+            <div id="addBydayRow" class="flex flex-wrap gap-1">
+                {% for code, label in rrule_day_options %}
+                <label class="flex items-center gap-0.5 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                    <input type="checkbox" class="rrule-byday-add" value="{{ code }}"> {{ label }}
+                </label>
+                {% endfor %}
+            </div>
+            <div id="addBymonthdayRow" class="hidden">
+                <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+                       class="w-full px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 whitespace-nowrap">종료:</span>
+                <select name="rrule_end_type" id="addRruleEndType" onchange="toggleAddEndFields()"
+                        class="px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <option value="never">무제한</option>
+                    <option value="count">횟수</option>
+                    <option value="until">날짜</option>
+                </select>
+                <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
+                       class="hidden w-20 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <input type="date" name="rrule_until" id="addRruleUntil"
+                       class="hidden px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            </div>
+            <div id="addRrulePreview" class="text-[11px] text-indigo-500"></div>
+        </div>
+        <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
         <textarea name="description" placeholder="설명 (선택)" rows="2"
                   class="w-full mt-2 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 hidden" id="descField"></textarea>
     </form>
@@ -168,6 +224,30 @@
 
 {% block scripts %}
 <script>
+/* RRULE panel controls for add form */
+function toggleAddRrule() {
+    var sel = document.getElementById('addRepeatType');
+    var panel = document.getElementById('addRrulePanel');
+    if (sel.value === 'custom') { panel.classList.remove('hidden'); } else { panel.classList.add('hidden'); }
+}
+function toggleAddRruleExtra() {
+    var freq = document.getElementById('addRruleFreq').value;
+    document.getElementById('addBydayRow').classList.toggle('hidden', freq !== 'WEEKLY');
+    document.getElementById('addBymonthdayRow').classList.toggle('hidden', freq !== 'MONTHLY');
+}
+function toggleAddEndFields() {
+    var et = document.getElementById('addRruleEndType').value;
+    document.getElementById('addRruleCount').classList.toggle('hidden', et !== 'count');
+    document.getElementById('addRruleUntil').classList.toggle('hidden', et !== 'until');
+}
+document.addEventListener('submit', function(e) {
+    if (e.target.closest('#addForm')) {
+        var checks = document.querySelectorAll('.rrule-byday-add:checked');
+        var vals = Array.from(checks).map(function(c) { return c.value; });
+        document.getElementById('addRruleByday').value = vals.join(',');
+    }
+}, true);
+
 document.addEventListener('DOMContentLoaded', function() {
     const list = document.getElementById('todoList');
     if (list && typeof Sortable !== 'undefined') {

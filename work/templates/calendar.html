@@ -153,6 +153,23 @@
                 </div>
                 <textarea name="memo" placeholder="메모" rows="2"
                           class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400"></textarea>
+                <div>
+                    <label class="text-xs text-slate-500 mb-1 block">반복</label>
+                    <select name="recurrence" id="eventRecurrence" onchange="toggleEventRrule()"
+                            class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        <option value="">없음</option>
+                        <option value="daily">매일</option>
+                        <option value="weekdays">주중 매일</option>
+                        <option value="weekly">매주</option>
+                        <option value="monthly">매월</option>
+                        <option value="yearly">매년</option>
+                    </select>
+                </div>
+                <div id="eventRecurrenceEnd" class="hidden">
+                    <label class="text-xs text-slate-500 mb-1 block">반복 종료일</label>
+                    <input type="date" name="recurrence_end"
+                           class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                </div>
                 <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
                     저장
                 </button>
@@ -168,6 +185,11 @@
 
 {% block scripts %}
 <script>
+function toggleEventRrule() {
+    var sel = document.getElementById('eventRecurrence');
+    var endPanel = document.getElementById('eventRecurrenceEnd');
+    if (sel.value && sel.value !== '') { endPanel.classList.remove('hidden'); } else { endPanel.classList.add('hidden'); }
+}
 function openEventModal(dateStr) {
     document.getElementById('eventModal').classList.remove('hidden');
     document.getElementById('eventStartTime').value = dateStr + 'T09:00';

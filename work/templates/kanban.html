@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}칸반 보드 - Work Planner{% endblock %}
+{% block page_title %}칸반 보드{% endblock %}
+{% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
+
+{% block content %}
+<!-- View toggle + group_by -->
+<div class="flex flex-wrap items-center gap-2 mb-4">
+    <a href="/todos"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
+        목록 보기
+    </a>
+    <a href="/todos/kanban"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+        칸반 보기
+    </a>
+    <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
+    <a href="/todos/kanban{% if group_by != 'category' %}?group_by=category{% endif %}"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+              {% if group_by == 'category' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        카테고리별 그룹
+    </a>
+</div>
+
+<!-- Kanban Board -->
+<div id="kanbanBoard" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {% for col_key, col in columns.items() %}
+    <div class="kanban-column flex flex-col min-h-[200px]" data-column="{{ col_key }}">
+        <!-- Column Header -->
+        <div class="flex items-center gap-2 mb-3 px-1">
+            <div class="w-3 h-3 rounded-full flex-shrink-0
+                {% if col_key == 'todo' %}bg-slate-400
+                {% elif col_key == 'in_progress' %}bg-blue-500
+                {% else %}bg-green-500{% endif %}"></div>
+            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ col.label }}</h3>
+            <span class="text-xs text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{{ col.todos|length }}</span>
+        </div>
+
+        <!-- Drop Zone -->
+        <div class="kanban-drop-zone flex-1 rounded-xl border-2 border-dashed border-transparent p-2 space-y-2 transition-colors min-h-[120px]
+                    bg-slate-50/50 dark:bg-slate-800/30"
+             data-column="{{ col_key }}"
+             ondragover="kanbanDragOver(event)" ondragleave="kanbanDragLeave(event)" ondrop="kanbanDrop(event)">
+
+            {% if swimlanes and swimlanes[col_key] is defined %}
+                {# Grouped by category #}
+                {% for lane_name, lane_items in swimlanes[col_key].items() %}
+                {% if lane_items %}
+                <div class="mb-2">
+                    <div class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide px-1 mb-1">{{ lane_name }}</div>
+                    {% for todo in lane_items %}
+                    {% set pmap = priority_map[todo.priority] %}
+                    <div class="kanban-card work-card rounded-xl p-3 mb-2 cursor-grab active:cursor-grabbing transition-all hover:shadow-md"
+                         draggable="true" data-todo-id="{{ todo.id }}"
+                         ondragstart="kanbanDragStart(event)" ondragend="kanbanDragEnd(event)">
+                        <div class="flex items-start gap-2">
+                            <div class="w-1 h-8 rounded-full flex-shrink-0 mt-0.5 {{ pmap.dot }}"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate {% if todo.completed %}line-through text-slate-400 dark:text-slate-500{% endif %}">{{ todo.title }}</p>
+                                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                    <span class="text-[11px] px-1.5 py-0.5 rounded {{ pmap.bg }} {{ pmap.text }}">{{ pmap.label }}</span>
+                                    {% if todo.category_name %}
+                                    <span class="inline-flex items-center gap-1 text-[11px] text-slate-400">
+                                        <span class="w-1.5 h-1.5 rounded-full" style="background:{{ todo.category_color }}"></span>
+                                        {{ todo.category_name }}
+                                    </span>
+                                    {% endif %}
+                                    {% if todo.due_date %}
+                                    <span class="text-[11px] text-slate-400">{{ todo.due_date|relative_date }}</span>
+                                    {% endif %}
+                                </div>
+                                {% set tags = todo.tags|parse_tags %}
+                                {% if tags %}
+                                <div class="flex flex-wrap gap-1 mt-1.5">
+                                    {% for tag in tags %}
+                                    {% if tag != "진행중" %}
+                                    <span class="text-[11px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded">{{ tag }}</span>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            {% else %}
+                {# Flat list #}
+                {% for todo in col.todos %}
+                {% set pmap = priority_map[todo.priority] %}
+                <div class="kanban-card work-card rounded-xl p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md"
+                     draggable="true" data-todo-id="{{ todo.id }}"
+                     ondragstart="kanbanDragStart(event)" ondragend="kanbanDragEnd(event)">
+                    <div class="flex items-start gap-2">
+                        <div class="w-1 h-8 rounded-full flex-shrink-0 mt-0.5 {{ pmap.dot }}"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate {% if todo.completed %}line-through text-slate-400 dark:text-slate-500{% endif %}">{{ todo.title }}</p>
+                            <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <span class="text-[11px] px-1.5 py-0.5 rounded {{ pmap.bg }} {{ pmap.text }}">{{ pmap.label }}</span>
+                                {% if todo.category_name %}
+                                <span class="inline-flex items-center gap-1 text-[11px] text-slate-400">
+                                    <span class="w-1.5 h-1.5 rounded-full" style="background:{{ todo.category_color }}"></span>
+                                    {{ todo.category_name }}
+                                </span>
+                                {% endif %}
+                                {% if todo.due_date %}
+                                <span class="text-[11px] text-slate-400">{{ todo.due_date|relative_date }}</span>
+                                {% endif %}
+                            </div>
+                            {% set tags = todo.tags|parse_tags %}
+                            {% if tags %}
+                            <div class="flex flex-wrap gap-1 mt-1.5">
+                                {% for tag in tags %}
+                                {% if tag != "진행중" %}
+                                <span class="text-[11px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded">{{ tag }}</span>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if not col.todos %}
+            <div class="flex items-center justify-center h-20 text-xs text-slate-400">
+                항목 없음
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var _draggedId = null;
+
+function kanbanDragStart(e) {
+    _draggedId = e.target.closest('[data-todo-id]').dataset.todoId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', _draggedId);
+    e.target.closest('[data-todo-id]').style.opacity = '0.4';
+}
+
+function kanbanDragEnd(e) {
+    e.target.closest('[data-todo-id]').style.opacity = '1';
+    document.querySelectorAll('.kanban-drop-zone').forEach(function(z) {
+        z.classList.remove('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        z.classList.add('border-transparent');
+    });
+    _draggedId = null;
+}
+
+function kanbanDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var zone = e.target.closest('.kanban-drop-zone');
+    if (zone) {
+        zone.classList.add('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        zone.classList.remove('border-transparent');
+    }
+}
+
+function kanbanDragLeave(e) {
+    var zone = e.target.closest('.kanban-drop-zone');
+    if (zone && !zone.contains(e.relatedTarget)) {
+        zone.classList.remove('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        zone.classList.add('border-transparent');
+    }
+}
+
+function kanbanDrop(e) {
+    e.preventDefault();
+    var zone = e.target.closest('.kanban-drop-zone');
+    if (!zone || !_draggedId) return;
+    var column = zone.dataset.column;
+    var form = new FormData();
+    form.append('column', column);
+    fetch('/todos/' + _draggedId + '/move', {
+        method: 'POST',
+        body: form
+    }).then(function(resp) {
+        if (resp.ok) {
+            window.location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}
