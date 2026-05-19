@@ -14,3 +14,4 @@ my/worklog_images/
 work/worklog_images/
 hub/data/
 .git.bak.flyio/
+*.bak
