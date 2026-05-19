@@ -4,7 +4,10 @@ from typing import Optional
 
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, Response
+from common.constants import RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
+from common.recurrence import build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, fix_mojibake, validate_date_str
+from common.search import search_fts
 
 router = APIRouter()
 
@@ -106,8 +109,16 @@ async def automations_page(request: Request):
     for ru in rules:
         ru["_tc"] = json.loads(ru.get("trigger_config") or "{}")
         ru["_ac"] = json.loads(ru.get("action_config") or "{}")
+        # Generate human-readable description for RRULE triggers
+        if ru["trigger_type"] == "rrule":
+            ru["_trigger_desc"] = rrule_to_korean(ru["_tc"].get("rrule", ""))
+        else:
+            ru["_trigger_desc"] = ""
     return S.render(request, "automations.html", {
         "page": "automations", "rules": rules, "categories": categories,
+        "rrule_freq_options": RRULE_FREQ_OPTIONS,
+        "rrule_day_options": RRULE_DAY_OPTIONS,
+        "rrule_to_korean": rrule_to_korean,
     })
 
 
@@ -274,29 +285,8 @@ async def search_page(request: Request, q: str = ""):
     pid = S.get_profile_id(request)
     results: dict = {"todos": [], "events": [], "memos": [], "notices": [], "worklogs": [], "entries": []}
     if q and len(q) >= 2:
-        like = f"%{q}%"
         with S.get_db() as conn:
-            results["todos"] = [dict(r) for r in conn.execute(
-                "SELECT id, title, due_date FROM todos WHERE profile_id=? AND (title LIKE ? OR description LIKE ?) LIMIT 20",
-                (pid, like, like)).fetchall()]
-            results["events"] = [dict(r) for r in conn.execute(
-                "SELECT id, title, start_time FROM events WHERE profile_id=? AND (title LIKE ? OR memo LIKE ?) ORDER BY start_time DESC LIMIT 20",
-                (pid, like, like)).fetchall()]
-            results["memos"] = [dict(r) for r in conn.execute(
-                "SELECT id, content, created_at FROM memos WHERE profile_id=? AND content LIKE ? ORDER BY created_at DESC LIMIT 20",
-                (pid, like)).fetchall()]
-            results["notices"] = [dict(r) for r in conn.execute(
-                "SELECT id, title, created_at FROM notices WHERE profile_id=? AND (title LIKE ? OR content LIKE ?) ORDER BY created_at DESC LIMIT 20",
-                (pid, like, like)).fetchall()]
-            results["worklogs"] = [dict(r) for r in conn.execute(
-                "SELECT id, content, log_date FROM work_logs WHERE profile_id=? AND content LIKE ? ORDER BY log_date DESC LIMIT 20",
-                (pid, like)).fetchall()]
-            form_entries = conn.execute(
-                "SELECT fe.id, fe.entry_date, fe.values_json, ft.name as tpl_name, ft.id as tpl_id "
-                "FROM form_entries fe JOIN form_templates ft ON fe.template_id=ft.id "
-                "WHERE fe.profile_id=? AND fe.values_json LIKE ? ORDER BY fe.entry_date DESC LIMIT 20",
-                (pid, like)).fetchall()
-            results["entries"] = [dict(r) for r in form_entries]
+            results = search_fts(conn, q, pid, limit=50)
 
     total = sum(len(v) for v in results.values())
     return S.render(request, "search.html", {"page": "search", "q": q, "results": results, "total": total})

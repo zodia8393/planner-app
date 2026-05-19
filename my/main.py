@@ -531,6 +531,11 @@ def init_db():
         if "energy_level" not in todo_cols:
             conn.execute("ALTER TABLE todos ADD COLUMN energy_level INTEGER DEFAULT 2")
 
+    # Initialize FTS5 full-text search indexes
+    from common.search import init_fts
+    with get_db() as fts_conn:
+        init_fts(fts_conn)
+
     _seed_form_presets()
 
 

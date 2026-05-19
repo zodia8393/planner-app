@@ -4,8 +4,8 @@ from datetime import date, datetime
 
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
-from common.constants import PRIORITY_MAP, REPEAT_MAP
-from common.recurrence import next_occurrence
+from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
+from common.recurrence import next_occurrence, build_rrule, rrule_to_korean
 from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str
 
 router = APIRouter()
@@ -77,6 +77,9 @@ async def todos_page(request: Request, filter: str = "all",
         "current_energy": energy,
         "priority_map": PRIORITY_MAP,
         "repeat_map": REPEAT_MAP,
+        "rrule_freq_options": RRULE_FREQ_OPTIONS,
+        "rrule_day_options": RRULE_DAY_OPTIONS,
+        "rrule_to_korean": rrule_to_korean,
     })
 
 
@@ -91,7 +94,14 @@ async def create_todo(request: Request,
                       repeat_type: str = Form("none"),
                       recurrence_end: str = Form(""),
                       assignee: str = Form(""),
-                      energy_level: int = Form(2)):
+                      energy_level: int = Form(2),
+                      rrule_freq: str = Form(""),
+                      rrule_interval: int = Form(1),
+                      rrule_byday: str = Form(""),
+                      rrule_bymonthday: str = Form(""),
+                      rrule_end_type: str = Form("never"),
+                      rrule_count: int = Form(0),
+                      rrule_until: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
@@ -103,6 +113,16 @@ async def create_todo(request: Request,
     due_date = validate_date_str(due_date)
     recurrence_end = validate_date_str(recurrence_end) or ""
     energy_level = max(1, min(3, energy_level))
+
+    # Build RRULE from custom fields if repeat_type is 'custom'
+    if repeat_type == "custom" and rrule_freq:
+        byday = [d.strip() for d in rrule_byday.split(",") if d.strip()] if rrule_byday else []
+        bymonthday_list = [int(d.strip()) for d in rrule_bymonthday.split(",") if d.strip().isdigit()] if rrule_bymonthday else []
+        count_val = rrule_count if rrule_end_type == "count" and rrule_count > 0 else None
+        until_val = validate_date_str(rrule_until) if rrule_end_type == "until" else None
+        repeat_type = build_rrule(rrule_freq, rrule_interval, byday, bymonthday_list, count_val, until_val)
+        if not repeat_type:
+            repeat_type = "none"
 
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
     cat_id = int(category_id) if category_id else None
@@ -156,7 +176,7 @@ async def toggle_todo(request: Request, todo_id: int):
             if updated:
                 td = dict(updated)
                 td["subtasks"] = [dict(s) for s in conn.execute("SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)).fetchall()]
-                return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "today": date.today()})
+                return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean, "today": date.today()})
         return HTMLResponse("")
 
     referer = request.headers.get("HX-Current-URL") or request.headers.get("referer") or ""
@@ -181,6 +201,9 @@ async def edit_todo_form(request: Request, todo_id: int):
         "categories": [dict(c) for c in categories],
         "priority_map": PRIORITY_MAP,
         "repeat_map": REPEAT_MAP,
+        "rrule_freq_options": RRULE_FREQ_OPTIONS,
+        "rrule_day_options": RRULE_DAY_OPTIONS,
+        "rrule_to_korean": rrule_to_korean,
     })
 
 
@@ -195,7 +218,14 @@ async def update_todo(request: Request, todo_id: int,
                       repeat_type: str = Form("none"),
                       recurrence_end: str = Form(""),
                       assignee: str = Form(""),
-                      energy_level: int = Form(2)):
+                      energy_level: int = Form(2),
+                      rrule_freq: str = Form(""),
+                      rrule_interval: int = Form(1),
+                      rrule_byday: str = Form(""),
+                      rrule_bymonthday: str = Form(""),
+                      rrule_end_type: str = Form("never"),
+                      rrule_count: int = Form(0),
+                      rrule_until: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
@@ -205,6 +235,17 @@ async def update_todo(request: Request, todo_id: int,
     due_date = validate_date_str(due_date)
     recurrence_end = validate_date_str(recurrence_end) or ""
     energy_level = max(1, min(3, energy_level))
+
+    # Build RRULE from custom fields if repeat_type is 'custom'
+    if repeat_type == "custom" and rrule_freq:
+        byday = [d.strip() for d in rrule_byday.split(",") if d.strip()] if rrule_byday else []
+        bymonthday_list = [int(d.strip()) for d in rrule_bymonthday.split(",") if d.strip().isdigit()] if rrule_bymonthday else []
+        count_val = rrule_count if rrule_end_type == "count" and rrule_count > 0 else None
+        until_val = validate_date_str(rrule_until) if rrule_end_type == "until" else None
+        repeat_type = build_rrule(rrule_freq, rrule_interval, byday, bymonthday_list, count_val, until_val)
+        if not repeat_type:
+            repeat_type = "none"
+
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
     cat_id = int(category_id) if category_id else None
 
@@ -310,7 +351,7 @@ async def toggle_subtask(request: Request, sub_id: int):
                 if updated:
                     td = dict(updated)
                     td["subtasks"] = [dict(s) for s in conn.execute("SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)).fetchall()]
-                    return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "today": date.today()})
+                    return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean, "today": date.today()})
     return S.redirect(request, "/todos")
 
 

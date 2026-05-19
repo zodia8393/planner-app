@@ -564,6 +564,11 @@ def init_db():
                 ],
             )
 
+    # Initialize FTS5 full-text search indexes
+    from common.search import init_fts
+    with get_db() as fts_conn:
+        init_fts(fts_conn)
+
     _seed_form_presets()
 
 

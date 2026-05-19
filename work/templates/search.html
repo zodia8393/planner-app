@@ -20,8 +20,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">할일 ({{ results.todos|length }})</h3>
     {% for t in results.todos %}
-    <a href="/todos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        {{ t.title }} <span class="text-xs text-slate-400">{{ t.due_date or '' }}</span>
+    <a href="/todos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="font-medium">{{ t.title }}</span> <span class="text-xs text-slate-400">{{ t.due_date or '' }}</span>
+        {% if t.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ t.snippet|safe }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>
@@ -31,8 +32,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">일정 ({{ results.events|length }})</h3>
     {% for e in results.events %}
-    <a href="/calendar" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        {{ e.title }} <span class="text-xs text-slate-400">{{ e.start_time[:10] if e.start_time else '' }}</span>
+    <a href="/calendar" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="font-medium">{{ e.title }}</span> <span class="text-xs text-slate-400">{{ e.start_time[:10] if e.start_time else '' }}</span>
+        {% if e.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ e.snippet|safe }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>
@@ -42,8 +44,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">메모 ({{ results.memos|length }})</h3>
     {% for m in results.memos %}
-    <a href="/memos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        {{ m.content[:100] }} <span class="text-xs text-slate-400">{{ m.created_at[:10] }}</span>
+    <a href="/memos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="text-xs text-slate-400">{{ m.created_at[:10] }}</span>
+        {% if m.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ m.snippet|safe }}</div>{% else %}<div class="truncate">{{ m.content[:100] }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>
@@ -53,8 +56,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">공지 ({{ results.notices|length }})</h3>
     {% for n in results.notices %}
-    <a href="/notices" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        {{ n.title }} <span class="text-xs text-slate-400">{{ n.created_at[:10] if n.created_at else '' }}</span>
+    <a href="/notices" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="font-medium">{{ n.title }}</span> <span class="text-xs text-slate-400">{{ n.created_at[:10] if n.created_at else '' }}</span>
+        {% if n.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ n.snippet|safe }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>
@@ -64,8 +68,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">업무일지 ({{ results.worklogs|length }})</h3>
     {% for w in results.worklogs %}
-    <a href="/worklogs" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        {{ w.content[:100] }} <span class="text-xs text-slate-400">{{ w.log_date }}</span>
+    <a href="/worklogs" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="text-xs text-slate-400">{{ w.log_date }}</span>
+        {% if w.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ w.snippet|safe }}</div>{% else %}<div class="truncate">{{ w.content[:100] }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>
@@ -75,8 +80,9 @@
 <div class="work-card rounded-xl p-4 mb-3">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">양식 기록 ({{ results.entries|length }})</h3>
     {% for e in results.entries %}
-    <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500 truncate">
-        [{{ e.tpl_name }}] {{ e.entry_date }} <span class="text-xs text-slate-400">{{ e.values_json[:80] }}</span>
+    <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-500">
+        <span class="font-medium">[{{ e.tpl_name }}]</span> <span class="text-xs text-slate-400">{{ e.entry_date }}</span>
+        {% if e.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ e.snippet|safe }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>

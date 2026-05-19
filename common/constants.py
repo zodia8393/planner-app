@@ -14,7 +14,21 @@ REPEAT_MAP = {
     "weekly": "매주",
     "monthly": "매월",
     "yearly": "매년",
+    "custom": "사용자정의",
 }
+
+# RRULE frequency options for custom recurrence UI
+RRULE_FREQ_OPTIONS = {
+    "DAILY": "일",
+    "WEEKLY": "주",
+    "MONTHLY": "개월",
+    "YEARLY": "년",
+}
+
+RRULE_DAY_OPTIONS = [
+    ("MO", "월"), ("TU", "화"), ("WE", "수"), ("TH", "목"),
+    ("FR", "금"), ("SA", "토"), ("SU", "일"),
+]
 
 WEEKDAY_NAMES = ["월", "화", "수", "목", "금", "토", "일"]
 
