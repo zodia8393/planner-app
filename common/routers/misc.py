@@ -25,7 +25,7 @@ async def todo_templates_page(request: Request):
         ).fetchall()]
         categories = [dict(r) for r in S.get_categories(conn, pid)]
     for t in tpls:
-        t["items"] = json.loads(t["items_json"])
+        t["tpl_items"] = json.loads(t["items_json"])
     return S.render(request, "todo_templates.html", {
         "page": "todo-templates", "templates": tpls, "categories": categories,
     })

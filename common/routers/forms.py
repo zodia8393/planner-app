@@ -292,10 +292,12 @@ async def export_form_json(request: Request, form_id: int):
         "fields": fields,
     }
     content = json.dumps(data, ensure_ascii=False, indent=2)
+    from urllib.parse import quote
+    safe_name = quote(tpl["name"], safe="")
     return Response(
         content=content,
         media_type="application/json",
-        headers={"Content-Disposition": f'attachment; filename="{tpl["name"]}.json"'},
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{safe_name}.json"},
     )
 
 

@@ -41,7 +41,7 @@
         </div>
     </div>
     <div class="space-y-1">
-        {% for item in tpl.items %}
+        {% for item in tpl.tpl_items %}
         <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
             <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
             {{ item.title }}
@@ -50,7 +50,7 @@
         </div>
         {% endfor %}
     </div>
-    <div class="text-xs text-slate-400 mt-2">{{ tpl.items|length }}개 항목</div>
+    <div class="text-xs text-slate-400 mt-2">{{ tpl.tpl_items|length }}개 항목</div>
 </div>
 {% else %}
 <div class="py-12 text-center text-sm text-slate-400">저장된 템플릿이 없습니다</div>

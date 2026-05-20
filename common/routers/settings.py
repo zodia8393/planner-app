@@ -89,14 +89,21 @@ async def time_budgets_page(request: Request):
         budgets = conn.execute(
             "SELECT category_id, weekly_hours FROM time_budgets WHERE profile_id=?", (pid,)
         ).fetchall()
+        profile = None
+        if pid:
+            profile_table = getattr(S, "profile_table", "work_profiles")
+            profile = conn.execute(f"SELECT * FROM {profile_table} WHERE id=?", (pid,)).fetchone()
     budget_map = {b["category_id"]: b["weekly_hours"] for b in budgets}
     cats = [dict(c) | {"budget_hours": budget_map.get(c["id"], 0)} for c in categories]
-    return S.render(request, "settings.html", {
+    ctx = {
         "page": "settings",
         "categories": [dict(c) for c in categories],
         "time_budget_cats": cats,
         "show_time_budgets": True,
-    })
+    }
+    if profile:
+        ctx["profile"] = dict(profile)
+    return S.render(request, "settings.html", ctx)
 
 
 @router.post("/settings/time-budgets", response_class=HTMLResponse)
