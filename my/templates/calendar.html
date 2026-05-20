@@ -204,7 +204,7 @@ function editEvent(eventId) {
         const container = document.getElementById('editEventContainer');
         container.innerHTML = html;
         htmx.process(container);
-    });
+    }).catch(function(){});
 }
 function editGcalEvent(gcalId) {
     fetch('/events/gcal/' + encodeURIComponent(gcalId) + '/edit', { headers: {'HX-Request': 'true'} })
@@ -213,7 +213,7 @@ function editGcalEvent(gcalId) {
         const container = document.getElementById('editEventContainer');
         container.innerHTML = html;
         htmx.process(container);
-    });
+    }).catch(function(){});
 }
 </script>
 {% endblock %}

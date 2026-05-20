@@ -44,7 +44,7 @@
                onchange="if(this.files.length){document.getElementById('uploadSpinner').classList.remove('hidden');document.getElementById('uploadSpinner').classList.add('inline-flex');this.form.submit()}">
     </form>
     <input type="file" id="jsonImport" accept=".json" class="hidden"
-           onchange="if(this.files.length){const f=this.files[0];const fd=new FormData();fd.append('file',f);fetch('/forms/import-json',{method:'POST',body:fd}).then(r=>{if(r.ok)location.reload();else r.text().then(t=>alert('가져오기 실패: '+t))});this.value=''}">
+           onchange="if(this.files.length){const f=this.files[0];const fd=new FormData();fd.append('file',f);fetch('/forms/import-json',{method:'POST',body:fd}).then(r=>{if(r.ok)location.reload();else r.text().then(t=>alert('가져오기 실패: '+t))}).catch(function(){alert('가져오기 실패')});this.value=''}">
     <span id="uploadSpinner" class="hidden items-center gap-2 px-4 py-2.5 text-sm text-slate-500">
         <svg class="w-4 h-4 loading-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
         업로드 중...
@@ -95,7 +95,7 @@
                             </svg>
                         </button>
                     </form>
-                    <button onclick="event.stopPropagation(); event.preventDefault(); fetch('/forms/{{ tpl.id }}/export-json').then(function(r){if(!r.ok)throw new Error();return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='export.json';document.body.appendChild(a);a.click();a.remove()}).catch(function(){alert('내보내기 실패')})"
+                    <button onclick="event.stopPropagation(); event.preventDefault(); fetch('/forms/{{ tpl.id }}/export-json').then(function(r){if(!r.ok)throw new Error();var cd=r.headers.get('content-disposition')||'';var fn='export.json';var m=cd.match(/filename\*=UTF-8''([^;]+)/);if(m)fn=decodeURIComponent(m[1]);return r.blob().then(function(b){return{b:b,fn:fn}})}).then(function(d){var a=document.createElement('a');a.href=URL.createObjectURL(d.b);a.download=d.fn;document.body.appendChild(a);a.click();a.remove()}).catch(function(){alert('내보내기 실패')})"
                             class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all"
                             title="JSON 내보내기">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

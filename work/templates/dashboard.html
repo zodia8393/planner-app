@@ -679,11 +679,13 @@ function handleQuickAdd(e) {
 
 /* ── Feature: Dashboard Todo Toggle (no page navigation) ── */
 async function toggleDashTodo(btn, todoId) {
+    try {
     const res = await fetch('/todos/' + todoId + '/toggle', {
         method: 'POST',
         headers: {'X-No-Redirect': '1'}
     });
     if (!res.ok) return;
+    } catch(e) { return; }
 
     const wasCompleted = btn.dataset.completed === 'true';
     btn.dataset.completed = wasCompleted ? 'false' : 'true';

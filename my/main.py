@@ -258,12 +258,21 @@ async def server_error_handler(request: Request, exc):
     return HTMLResponse(render_error_page(500, "서버 오류가 발생했습니다"), status_code=500)
 
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    messages = {
+        400: "잘못된 요청입니다",
+        403: "접근 권한이 없습니다",
+        404: "페이지를 찾을 수 없습니다",
+        405: "허용되지 않는 요청입니다",
+        422: "입력값이 올바르지 않습니다",
+    }
+    msg = exc.detail if isinstance(exc.detail, str) and exc.detail != "Not Found" else messages.get(exc.status_code, "오류가 발생했습니다")
+    return HTMLResponse(render_error_page(exc.status_code, msg), status_code=exc.status_code)
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    if isinstance(exc, HTTPException):
-        if exc.status_code == 404:
-            return HTMLResponse(render_error_page(404, "페이지를 찾을 수 없습니다"), status_code=404)
-        raise exc
     return HTMLResponse(render_error_page(500, "서버 오류가 발생했습니다"), status_code=500)
 
 register_filters(templates)

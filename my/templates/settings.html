@@ -357,7 +357,7 @@
                     <select id="gcalSelect" class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                         <option value="primary">기본 캘린더</option>
                     </select>
-                    <button onclick="fetch('/api/gcal/calendars').then(r=>r.json()).then(cals=>{const s=document.getElementById('gcalSelect');s.innerHTML='';cals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.summary;s.appendChild(o)})})"
+                    <button onclick="fetch('/api/gcal/calendars').then(r=>r.json()).then(cals=>{const s=document.getElementById('gcalSelect');s.innerHTML='';cals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.summary;s.appendChild(o)})}).catch(function(){alert('캘린더 목록을 불러올 수 없습니다')})"
                             class="px-3 py-2 text-xs bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
                         목록 불러오기
                     </button>
@@ -430,7 +430,7 @@
             var u=document.getElementById('qrUrl');
             u.textContent=d.url;
             u.classList.remove('hidden');
-        });
+        }).catch(function(){ document.getElementById('qrLoading').textContent='QR 생성 실패'; });
         </script>
     </div>
 

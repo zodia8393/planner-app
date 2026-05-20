@@ -203,7 +203,7 @@ function editEvent(eventId) {
         const container = document.getElementById('editEventContainer');
         container.innerHTML = html;
         htmx.process(container);
-    });
+    }).catch(function(){});
 }
 </script>
 {% endblock %}

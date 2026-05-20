@@ -882,7 +882,7 @@
             var perm = Notification.permission;
             status.textContent = perm === 'granted' ? '허용됨' : perm === 'denied' ? '차단됨' : '미설정';
         }
-        fetch('/api/reminders').then(function(r) { return r.json(); }).then(function(items) {
+        fetch('/api/reminders').then(function(r) { return r.json(); }).catch(function(){ return []; }).then(function(items) {
             var list = document.getElementById('notifList');
             var badge = document.getElementById('notifBadge');
             if (!items.length) {
@@ -1082,6 +1082,9 @@ function _focusStop(save){
             body:JSON.stringify({minutes:min,title:localStorage.getItem('focus_title')||''})
         }).then(function(){
             document.getElementById('focusDoneMsg').textContent=min+'분 업무일지에 기록됨';
+        }).catch(function(){
+            document.getElementById('focusDoneMsg').textContent=min+'분 집중 완료 (기록 실패)';
+        }).finally(function(){
             document.getElementById('focusRunning').classList.add('hidden');
             document.getElementById('focusDone').classList.remove('hidden');
         });

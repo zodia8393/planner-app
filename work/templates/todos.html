@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({order: order})
-                });
+                }).catch(function(){});
             }
         });
     }
@@ -321,7 +321,7 @@ function bulkAction(action) {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
-    }).then(function() { location.reload(); });
+    }).finally(function() { location.reload(); });
 }
 </script>
 {% endblock %}

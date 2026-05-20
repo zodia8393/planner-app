@@ -201,7 +201,7 @@ function kanbanDrop(e) {
         if (resp.ok) {
             window.location.reload();
         }
-    });
+    }).catch(function(){});
 }
 </script>
 {% endblock %}
