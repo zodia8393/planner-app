@@ -369,6 +369,72 @@
         .dark .card-hover:hover {
             box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.4);
         }
+
+        /* ── Responsive UI/UX enhancements ── */
+
+        /* Responsive typography — page titles & subtitles */
+        .page-title, h2.text-lg { transition: font-size 0.2s ease; }
+        @media (max-width: 640px) {
+            h2.text-lg.font-bold { font-size: 1.25rem !important; }
+            .page-subtitle, h2.text-lg + p.text-xs { font-size: 0.75rem !important; }
+        }
+        @media (min-width: 1536px) {
+            h2.text-lg.font-bold { font-size: 2rem !important; }
+            .page-subtitle, h2.text-lg + p.text-xs { font-size: 1rem !important; }
+        }
+
+        /* Calendar cells — better mobile sizing & text */
+        @media (max-width: 640px) {
+            .cal-cell { min-height: 60px; padding: 2px !important; }
+            .cal-cell .text-xs { font-size: 10px; }
+        }
+        @media (min-width: 1024px) {
+            .cal-cell { min-height: 100px; }
+        }
+
+        /* Work cards — reduced padding on mobile */
+        @media (max-width: 640px) {
+            .work-card { padding: 0.75rem !important; }
+            .work-card.rounded-xl { border-radius: 0.75rem !important; }
+        }
+
+        /* Touch targets — 44px minimum on mobile for accessibility */
+        @media (max-width: 640px) {
+            button, a.inline-flex, [role="button"], .nav-item { min-height: 44px; }
+        }
+
+        /* Form inputs — 16px on iOS to prevent auto-zoom */
+        @media (max-width: 640px) {
+            input[type="text"], input[type="number"], input[type="date"],
+            input[type="datetime-local"], select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Table responsiveness — horizontal scroll with fade indicators */
+        @media (max-width: 768px) {
+            .table-responsive, .overflow-x-auto {
+                position: relative;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-responsive::after, .overflow-x-auto[data-scroll-hint]::after {
+                content: '';
+                position: absolute;
+                top: 0; right: 0; bottom: 0;
+                width: 24px;
+                background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+                pointer-events: none;
+                z-index: 1;
+            }
+            .dark .table-responsive::after, .dark .overflow-x-auto[data-scroll-hint]::after {
+                background: linear-gradient(to left, rgba(15,23,42,0.9), transparent);
+            }
+        }
+
+        /* Dashboard grid — force single column on narrow mobile */
+        @media (max-width: 480px) {
+            .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" hx-boost="true" data-accent="indigo" data-fontsize="medium">

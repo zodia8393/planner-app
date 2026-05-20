@@ -71,6 +71,11 @@
                     <div class="flex items-center gap-3 mt-2">
                         <span class="text-xs text-slate-400">{{ field_counts.get(tpl.id, 0) }}개 필드</span>
                         <span class="text-xs text-slate-400">{{ entry_counts.get(tpl.id, 0) }}건 작성</span>
+                        {% if tpl.frequency and tpl.frequency != 'daily' %}
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500">
+                            {{ {'weekly': '주간', 'monthly': '월간', 'yearly': '연간'}.get(tpl.frequency, '') }}
+                        </span>
+                        {% endif %}
                         <span class="text-xs text-slate-400">{{ tpl.updated_at[:10] }}</span>
                     </div>
                 </div>

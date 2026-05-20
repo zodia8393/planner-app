@@ -543,6 +543,8 @@ def init_db():
             conn.execute("ALTER TABLE form_templates ADD COLUMN emoji TEXT DEFAULT '📝'")
         if "color" not in ft_cols:
             conn.execute("ALTER TABLE form_templates ADD COLUMN color TEXT DEFAULT '#6366f1'")
+        if "frequency" not in ft_cols:
+            conn.execute("ALTER TABLE form_templates ADD COLUMN frequency TEXT DEFAULT 'daily'")
 
         # Migration: add recurrence columns to todos and events
         todo_cols = [r[1] for r in conn.execute("PRAGMA table_info(todos)").fetchall()]

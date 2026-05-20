@@ -1,4 +1,5 @@
 import json
+import calendar
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -9,6 +10,44 @@ from common.utils import clamp_text, fix_mojibake, validate_date_str
 from common.excel import parse_excel_with_merges, infer_field_type
 
 router = APIRouter()
+
+
+def _period_range(anchor: str, freq: str):
+    """Return (start_date, end_date, prev_anchor, next_anchor, label) for the period."""
+    d = datetime.strptime(anchor, "%Y-%m-%d").date()
+    if freq == "weekly":
+        mon = d - timedelta(days=d.weekday())  # Monday
+        sun = mon + timedelta(days=6)
+        prev = (mon - timedelta(days=7)).isoformat()
+        nxt = (mon + timedelta(days=7)).isoformat()
+        label = f"{mon.month}/{mon.day}~{sun.month}/{sun.day}"
+        return mon.isoformat(), sun.isoformat(), prev, nxt, label
+    elif freq == "monthly":
+        start = d.replace(day=1)
+        last_day = calendar.monthrange(d.year, d.month)[1]
+        end = d.replace(day=last_day)
+        if d.month == 1:
+            prev = date(d.year - 1, 12, 1).isoformat()
+        else:
+            prev = date(d.year, d.month - 1, 1).isoformat()
+        if d.month == 12:
+            nxt = date(d.year + 1, 1, 1).isoformat()
+        else:
+            nxt = date(d.year, d.month + 1, 1).isoformat()
+        label = f"{d.year}년 {d.month}월"
+        return start.isoformat(), end.isoformat(), prev, nxt, label
+    elif freq == "yearly":
+        start = date(d.year, 1, 1)
+        end = date(d.year, 12, 31)
+        prev = date(d.year - 1, 1, 1).isoformat()
+        nxt = date(d.year + 1, 1, 1).isoformat()
+        label = f"{d.year}년"
+        return start.isoformat(), end.isoformat(), prev, nxt, label
+    else:  # daily
+        prev = (d - timedelta(days=1)).isoformat()
+        nxt = (d + timedelta(days=1)).isoformat()
+        label = anchor
+        return anchor, anchor, prev, nxt, label
 
 
 @router.get("/forms", response_class=HTMLResponse)
@@ -139,6 +178,9 @@ async def create_form_template(request: Request):
     description = clamp_text(fix_mojibake(form.get("description", "")), 500)
     emoji = clamp_text(fix_mojibake(form.get("emoji", "")), 2) or "\U0001f4dd"
     color = form.get("color", "#6366f1") or "#6366f1"
+    frequency = form.get("frequency", "daily")
+    if frequency not in ("daily", "weekly", "monthly", "yearly"):
+        frequency = "daily"
     if not name:
         raise HTTPException(400, "양식 이름은 필수입니다")
     fields = _parse_form_fields(form)
@@ -146,8 +188,8 @@ async def create_form_template(request: Request):
         raise HTTPException(400, "최소 1개 필드가 필요합니다")
     with S.get_db() as conn:
         conn.execute(
-            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color) VALUES (?, ?, ?, ?, ?, ?)",
-            (pid, name, description, json.dumps(fields, ensure_ascii=False), emoji, color),
+            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color, frequency) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (pid, name, description, json.dumps(fields, ensure_ascii=False), emoji, color, frequency),
         )
     return S.redirect(request, "/forms")
 
@@ -164,6 +206,7 @@ async def form_builder_edit(request: Request, tpl_id: int):
             raise HTTPException(404)
     tpl_dict = dict(tpl)
     tpl_dict["fields"] = json.loads(tpl_dict["fields"])
+    tpl_dict.setdefault("frequency", "daily")
     return S.render(request, "form_builder.html", {
         "page": "forms",
         "mode": "edit",
@@ -180,6 +223,9 @@ async def update_form_template(request: Request, tpl_id: int):
     description = clamp_text(fix_mojibake(form.get("description", "")), 500)
     emoji = clamp_text(fix_mojibake(form.get("emoji", "")), 2) or "\U0001f4dd"
     color = form.get("color", "#6366f1") or "#6366f1"
+    frequency = form.get("frequency", "daily")
+    if frequency not in ("daily", "weekly", "monthly", "yearly"):
+        frequency = "daily"
     if not name:
         raise HTTPException(400, "양식 이름은 필수입니다")
     fields = _parse_form_fields(form)
@@ -192,8 +238,8 @@ async def update_form_template(request: Request, tpl_id: int):
         if not existing:
             raise HTTPException(404)
         conn.execute(
-            "UPDATE form_templates SET name=?, description=?, fields=?, emoji=?, color=?, updated_at=datetime('now','localtime') WHERE id=? AND profile_id=?",
-            (name, description, json.dumps(fields, ensure_ascii=False), emoji, color, tpl_id, pid),
+            "UPDATE form_templates SET name=?, description=?, fields=?, emoji=?, color=?, frequency=?, updated_at=datetime('now','localtime') WHERE id=? AND profile_id=?",
+            (name, description, json.dumps(fields, ensure_ascii=False), emoji, color, frequency, tpl_id, pid),
         )
     return S.redirect(request, "/forms")
 
@@ -209,8 +255,8 @@ async def clone_form_template(request: Request, tpl_id: int):
         if not tpl:
             raise HTTPException(404)
         conn.execute(
-            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color) VALUES (?, ?, ?, ?, ?, ?)",
-            (pid, f"{tpl['name']} (복사)", tpl["description"], tpl["fields"], tpl["emoji"], tpl["color"]),
+            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color, frequency) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (pid, f"{tpl['name']} (복사)", tpl["description"], tpl["fields"], tpl["emoji"], tpl["color"], tpl.get("frequency") or "daily"),
         )
     return S.redirect(request, "/forms")
 
@@ -242,6 +288,7 @@ async def export_form_json(request: Request, form_id: int):
         "description": tpl["description"] or "",
         "emoji": tpl.get("emoji") or "",
         "color": tpl.get("color") or "",
+        "frequency": tpl.get("frequency") or "daily",
         "fields": fields,
     }
     content = json.dumps(data, ensure_ascii=False, indent=2)
@@ -269,6 +316,9 @@ async def import_form_json(request: Request, file: UploadFile = File(...)):
     description = clamp_text(str(data.get("description", "")), 500)
     emoji = str(data.get("emoji", ""))[:2]
     color = str(data.get("color", "#6366f1"))[:20]
+    frequency = str(data.get("frequency", "daily"))
+    if frequency not in ("daily", "weekly", "monthly", "yearly"):
+        frequency = "daily"
     valid_types = {"text", "textarea", "number", "dropdown", "date", "checkbox", "table"}
     fields = []
     for f in data["fields"]:
@@ -292,8 +342,8 @@ async def import_form_json(request: Request, file: UploadFile = File(...)):
         raise HTTPException(400, "유효한 필드가 없습니다")
     with S.get_db() as conn:
         conn.execute(
-            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color) VALUES (?, ?, ?, ?, ?, ?)",
-            (pid, name, description, json.dumps(fields, ensure_ascii=False), emoji, color),
+            "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color, frequency) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (pid, name, description, json.dumps(fields, ensure_ascii=False), emoji, color, frequency),
         )
     return S.redirect(request, "/forms")
 
@@ -312,11 +362,15 @@ async def form_entries_page(request: Request, tpl_id: int, date_param: str = Que
             raise HTTPException(404)
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
+        freq = tpl.get("frequency") or "daily"
+        tpl_dict["frequency"] = freq
 
         today_str = date_param if validate_date_str(date_param or "") else date.today().isoformat()
+        period_start, period_end, prev_anchor, next_anchor, period_label = _period_range(today_str, freq)
+
         entries = conn.execute(
-            "SELECT * FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date=? ORDER BY created_at DESC",
-            (tpl_id, pid, today_str),
+            "SELECT * FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date BETWEEN ? AND ? ORDER BY entry_date, created_at DESC",
+            (tpl_id, pid, period_start, period_end),
         ).fetchall()
         parsed_entries = []
         for e in entries:
@@ -324,17 +378,17 @@ async def form_entries_page(request: Request, tpl_id: int, date_param: str = Que
             ed["data"] = json.loads(ed["values_json"])
             parsed_entries.append(ed)
 
-        # Fetch yesterday's last entry for copy_prev defaults
-        yesterday = (datetime.strptime(today_str, "%Y-%m-%d").date() - timedelta(days=1)).isoformat()
+        # Fetch previous period's last entry for copy_prev defaults
+        prev_start, prev_end, _, _, _ = _period_range(prev_anchor, freq)
         prev_entry = conn.execute(
-            "SELECT values_json FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date=? ORDER BY created_at DESC LIMIT 1",
-            (tpl_id, pid, yesterday),
+            "SELECT values_json FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date BETWEEN ? AND ? ORDER BY entry_date DESC, created_at DESC LIMIT 1",
+            (tpl_id, pid, prev_start, prev_end),
         ).fetchone()
         prev_values = json.loads(prev_entry["values_json"]) if prev_entry else {}
 
-    current_date = datetime.strptime(today_str, "%Y-%m-%d").date()
-    prev_date = (current_date - timedelta(days=1)).isoformat()
-    next_date = (current_date + timedelta(days=1)).isoformat()
+    # Determine if today falls within the current period
+    today_iso = date.today().isoformat()
+    is_today = (period_start <= today_iso <= period_end)
 
     field_defaults = {}
     for f in tpl_dict["fields"]:
@@ -348,10 +402,14 @@ async def form_entries_page(request: Request, tpl_id: int, date_param: str = Que
         "tpl": tpl_dict,
         "entries": parsed_entries,
         "current_date": today_str,
-        "prev_date": prev_date,
-        "next_date": next_date,
-        "is_today": today_str == date.today().isoformat(),
+        "prev_date": prev_anchor,
+        "next_date": next_anchor,
+        "is_today": is_today,
         "field_defaults": field_defaults,
+        "frequency": freq,
+        "period_label": period_label,
+        "period_start": period_start,
+        "period_end": period_end,
     })
 
 
@@ -367,13 +425,16 @@ async def form_entry_new(request: Request, tpl_id: int, date_param: str = Query(
             raise HTTPException(404)
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
+        freq = tpl.get("frequency") or "daily"
+        tpl_dict["frequency"] = freq
         entry_date = date_param if validate_date_str(date_param or "") else date.today().isoformat()
 
-        # Fetch yesterday's last entry for copy_prev defaults
-        yesterday = (datetime.strptime(entry_date, "%Y-%m-%d").date() - timedelta(days=1)).isoformat()
+        # Fetch previous period's last entry for copy_prev defaults
+        _, _, prev_anchor, _, _ = _period_range(entry_date, freq)
+        prev_start, prev_end, _, _, _ = _period_range(prev_anchor, freq)
         prev_entry = conn.execute(
-            "SELECT values_json FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date=? ORDER BY created_at DESC LIMIT 1",
-            (tpl_id, pid, yesterday),
+            "SELECT values_json FROM form_entries WHERE template_id=? AND profile_id=? AND entry_date BETWEEN ? AND ? ORDER BY entry_date DESC, created_at DESC LIMIT 1",
+            (tpl_id, pid, prev_start, prev_end),
         ).fetchone()
         prev_values = json.loads(prev_entry["values_json"]) if prev_entry else {}
 
@@ -391,6 +452,7 @@ async def form_entry_new(request: Request, tpl_id: int, date_param: str = Query(
         "mode": "create",
         "current_date": entry_date,
         "field_defaults": field_defaults,
+        "frequency": freq,
     })
 
 
@@ -496,11 +558,14 @@ def _collect_export_data(conn, tpl_id, pid, date_filter=None):
     if not tpl:
         return None, None, None
     fields = json.loads(tpl["fields"])
+    freq = tpl.get("frequency") or "daily"
     where = "template_id=? AND profile_id=?"
     params: list = [tpl_id, pid]
     if date_filter:
-        where += " AND entry_date=?"
-        params.append(date_filter)
+        period_start, period_end, _, _, _ = _period_range(date_filter, freq)
+        where += " AND entry_date BETWEEN ? AND ?"
+        params.append(period_start)
+        params.append(period_end)
     entries = conn.execute(f"SELECT * FROM form_entries WHERE {where} ORDER BY entry_date, id", params).fetchall()
     return tpl, fields, entries
 
