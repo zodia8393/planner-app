@@ -1060,7 +1060,7 @@ async def select_profile_page(request: Request):
 
 
 @app.post("/select-profile", response_class=HTMLResponse)
-async def select_profile(request: Request, profile_id: int = Form(...)):
+async def select_profile(request: Request, profile_id: int = Form(0)):
     resp = RedirectResponse("/", status_code=303)
     resp.set_cookie(PROFILE_COOKIE, str(profile_id), max_age=86400 * 365, httponly=True, secure=request.url.scheme == "https", samesite="lax")
     return resp
@@ -1068,9 +1068,11 @@ async def select_profile(request: Request, profile_id: int = Form(...)):
 
 @app.post("/profiles", response_class=HTMLResponse)
 async def create_profile(request: Request,
-                         name: str = Form(...),
+                         name: str = Form(""),
                          emoji: str = Form("💼")):
     name = clamp_text(fix_mojibake(name), 50)
+    if not name:
+        return RedirectResponse("/select-profile", status_code=303)
     emoji = fix_mojibake(emoji) or "💼"
     with get_db() as conn:
         conn.execute("INSERT INTO work_profiles (name, emoji) VALUES (?, ?)", (name, emoji))
@@ -1092,7 +1094,7 @@ async def login_page(request: Request):
 
 
 @app.post("/login", response_class=HTMLResponse)
-async def login_submit(request: Request, pin: str = Form(...)):
+async def login_submit(request: Request, pin: str = Form("")):
     pid = get_profile_id(request)
     with get_db() as conn:
         profile = conn.execute("SELECT pin FROM work_profiles WHERE id=?", (pid,)).fetchone()
@@ -1124,7 +1126,7 @@ async def setup_pin_page(request: Request):
 
 
 @app.post("/auth/setup-pin")
-async def setup_pin(request: Request, pin: str = Form(...), pin_confirm: str = Form("")):
+async def setup_pin(request: Request, pin: str = Form(""), pin_confirm: str = Form("")):
     pid = get_profile_id(request)
     if pin != pin_confirm:
         return render(request, "setup_pin.html", {"page": "setup_pin", "error": "PIN이 일치하지 않습니다"})
@@ -1432,7 +1434,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
 
 
 @app.post("/settings/profile", response_class=HTMLResponse)
-async def settings_update_profile(request: Request, name: str = Form(...)):
+async def settings_update_profile(request: Request, name: str = Form("")):
     pid = get_profile_id(request)
     name = clamp_text(fix_mojibake(name), 50).strip()
     if not name:
@@ -1851,7 +1853,7 @@ async def upload_files(request: Request, path: str = ""):
 
 @app.post("/files/mkdir/{path:path}")
 @app.post("/files/mkdir")
-async def make_directory(request: Request, path: str = "", folder_name: str = Form(...)):
+async def make_directory(request: Request, path: str = "", folder_name: str = Form("")):
     target = safe_path(path)
     if not target.is_dir():
         raise HTTPException(400)

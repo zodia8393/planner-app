@@ -82,7 +82,7 @@
             {% for todo in day_todos %}
             {% if ns.shown < 4 %}
             <div class="flex items-center gap-1 px-1 mb-0.5">
-                <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
+                <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).finally(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
                     {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}border-slate-300{% endif %}">
                     {% if todo.completed %}
                     <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">

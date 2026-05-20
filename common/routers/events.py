@@ -108,8 +108,8 @@ async def calendar_page(request: Request, year: Optional[int] = None, month: Opt
 
 @router.post("/events", response_class=HTMLResponse)
 async def create_event(request: Request,
-                       title: str = Form(...),
-                       start_time: str = Form(...),
+                       title: str = Form(""),
+                       start_time: str = Form(""),
                        end_time: str = Form(""),
                        color: str = Form("#6366f1"),
                        category_id: str = Form(""),
@@ -160,7 +160,7 @@ async def edit_event_form(request: Request, event_id: int):
     with S.get_db() as conn:
         event = conn.execute("SELECT * FROM events WHERE id=? AND profile_id=?", (event_id, pid)).fetchone()
         if not event:
-            raise HTTPException(404)
+            return HTMLResponse("")
         categories = S.get_categories(conn, pid)
     return S.render(request, "partials/event_edit_form.html", {
         "event": dict(event),
@@ -170,8 +170,8 @@ async def edit_event_form(request: Request, event_id: int):
 
 @router.put("/events/{event_id}", response_class=HTMLResponse)
 async def update_event(request: Request, event_id: int,
-                       title: str = Form(...),
-                       start_time: str = Form(...),
+                       title: str = Form(""),
+                       start_time: str = Form(""),
                        end_time: str = Form(""),
                        color: str = Form("#6366f1"),
                        category_id: str = Form(""),

@@ -142,7 +142,7 @@ async def kanban_page(request: Request, group_by: str = ""):
 
 
 @router.post("/todos/{todo_id}/move", response_class=HTMLResponse)
-async def move_todo(request: Request, todo_id: int, column: str = Form(...)):
+async def move_todo(request: Request, todo_id: int, column: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     if column not in ("todo", "in_progress", "done"):
@@ -152,7 +152,7 @@ async def move_todo(request: Request, todo_id: int, column: str = Form(...)):
             "SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)
         ).fetchone()
         if not todo:
-            raise HTTPException(404)
+            return S.redirect(request, "/todos")
 
         tags = parse_tags(todo["tags"])
 
@@ -181,7 +181,7 @@ async def move_todo(request: Request, todo_id: int, column: str = Form(...)):
 
 @router.post("/todos", response_class=HTMLResponse)
 async def create_todo(request: Request,
-                      title: str = Form(...),
+                      title: str = Form(""),
                       description: str = Form(""),
                       due_date: str = Form(""),
                       priority: int = Form(2),
@@ -249,7 +249,7 @@ async def toggle_todo(request: Request, todo_id: int):
     with S.get_db() as conn:
         todo = conn.execute("SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not todo:
-            raise HTTPException(404)
+            return S.redirect(request, "/todos")
         new_status = 0 if todo["completed"] else 1
         completed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if new_status else None
         conn.execute(
@@ -314,7 +314,7 @@ async def edit_todo_form(request: Request, todo_id: int):
     with S.get_db() as conn:
         todo = conn.execute("SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not todo:
-            raise HTTPException(404)
+            return HTMLResponse("")
         categories = S.get_categories(conn, pid)
     td = _enrich_todo_rrule(dict(todo))
     return S.render(request, "partials/todo_edit_form.html", {
@@ -330,7 +330,7 @@ async def edit_todo_form(request: Request, todo_id: int):
 
 @router.put("/todos/{todo_id}", response_class=HTMLResponse)
 async def update_todo(request: Request, todo_id: int,
-                      title: str = Form(...),
+                      title: str = Form(""),
                       description: str = Form(""),
                       due_date: str = Form(""),
                       priority: int = Form(2),
@@ -441,14 +441,14 @@ async def bulk_todo_action(request: Request):
 # ── Subtasks ──
 
 @router.post("/todos/{todo_id}/subtasks", response_class=HTMLResponse)
-async def add_subtask(request: Request, todo_id: int, title: str = Form(...)):
+async def add_subtask(request: Request, todo_id: int, title: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
     with S.get_db() as conn:
         parent = conn.execute("SELECT id FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not parent:
-            raise HTTPException(404)
+            return S.redirect(request, "/todos")
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM subtasks WHERE todo_id=?", (todo_id,)).fetchone()[0]
         conn.execute("INSERT INTO subtasks (todo_id, title, sort_order) VALUES (?,?,?)", (todo_id, title, max_order + 1))
     return S.redirect(request, "/todos")

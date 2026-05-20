@@ -33,7 +33,7 @@ async def memos_page(request: Request, category_id: Optional[int] = None):
 
 @router.post("/memos", response_class=HTMLResponse)
 async def create_memo(request: Request,
-                      content: str = Form(...),
+                      content: str = Form(""),
                       title: str = Form(""),
                       category_id: str = Form("")):
     S = request.app.state
@@ -64,7 +64,7 @@ async def view_memo_card(request: Request, memo_id: int):
             (memo_id, pid),
         ).fetchone()
         if not memo:
-            raise HTTPException(404)
+            return HTMLResponse("")
     return S.templates.TemplateResponse(request, "partials/memo_card.html", {"memo": dict(memo)})
 
 
@@ -79,7 +79,7 @@ async def edit_memo_form(request: Request, memo_id: int):
             (memo_id, pid),
         ).fetchone()
         if not memo:
-            raise HTTPException(404)
+            return HTMLResponse("")
         categories = S.get_categories(conn, pid)
     return S.templates.TemplateResponse(request, "partials/memo_edit_form.html", {
         "memo": dict(memo), "categories": [dict(c) for c in categories],
@@ -88,7 +88,7 @@ async def edit_memo_form(request: Request, memo_id: int):
 
 @router.put("/memos/{memo_id}", response_class=HTMLResponse)
 async def update_memo(request: Request, memo_id: int,
-                      title: str = Form(""), content: str = Form(...),
+                      title: str = Form(""), content: str = Form(""),
                       category_id: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)

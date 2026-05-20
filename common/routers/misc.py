@@ -266,11 +266,13 @@ async def plans_redirect(request: Request, view: str = "week", offset: int = 0):
 
 @router.post("/quick-todo", response_class=HTMLResponse)
 async def quick_add_todo(request: Request,
-                         title: str = Form(...),
+                         title: str = Form(""),
                          due_date: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
+    if not title:
+        return S.redirect(request, "/")
     due_date = validate_date_str(due_date)
     # NLP date extraction: if no explicit due_date, try parsing from title
     if not due_date:

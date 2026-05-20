@@ -871,7 +871,7 @@ async def setup_page(request: Request):
 
 
 @app.post("/setup", response_class=HTMLResponse)
-async def create_profile(request: Request, name: str = Form(...)):
+async def create_profile(request: Request, name: str = Form("")):
     """Create a new profile and set cookie."""
     name = clamp_text(fix_mojibake(name), 50).strip()
     if not name:
@@ -1284,12 +1284,14 @@ async def edit_gcal_event_form(request: Request, gcal_id: str):
 
 @app.put("/events/gcal/{gcal_id:path}", response_class=HTMLResponse)
 async def update_gcal_event(request: Request, gcal_id: str,
-                            title: str = Form(...),
-                            start_time: str = Form(...),
+                            title: str = Form(""),
+                            start_time: str = Form(""),
                             end_time: str = Form(""),
                             memo: str = Form("")):
     pid = require_profile(request)
     title = clamp_text(fix_mojibake(title), 200)
+    if not title or not start_time:
+        return redirect(request, "/calendar")
     memo = clamp_text(fix_mojibake(memo), 2000)
     import httpx
     token = await _gcal_refresh_token(pid)
@@ -1354,7 +1356,7 @@ async def delete_gcal_event(request: Request, gcal_id: str):
 
 
 @app.post("/settings/profile", response_class=HTMLResponse)
-async def settings_update_profile(request: Request, name: str = Form(...)):
+async def settings_update_profile(request: Request, name: str = Form("")):
     pid = require_profile(request)
     name = clamp_text(fix_mojibake(name), 50).strip()
     if not name:
@@ -1865,8 +1867,10 @@ async def ddays_page(request: Request):
 
 
 @app.post("/ddays", response_class=HTMLResponse)
-async def create_dday(request: Request, title: str = Form(...), target_date: str = Form(...), icon: str = Form("\U0001f3af")):
+async def create_dday(request: Request, title: str = Form(""), target_date: str = Form(""), icon: str = Form("\U0001f3af")):
     pid = require_profile(request)
+    if not title or not target_date:
+        return redirect(request, "/ddays")
     with get_db() as conn:
         conn.execute(
             "INSERT INTO ddays (profile_id, title, target_date, icon) VALUES (?,?,?,?)",
@@ -1905,9 +1909,11 @@ async def links_page(request: Request):
 
 
 @app.post("/links", response_class=HTMLResponse)
-async def create_link(request: Request, title: str = Form(...), url: str = Form(...),
+async def create_link(request: Request, title: str = Form(""), url: str = Form(""),
                       category: str = Form(""), description: str = Form("")):
     pid = require_profile(request)
+    if not title or not url:
+        return redirect(request, "/links")
     with get_db() as conn:
         conn.execute(
             "INSERT INTO links (profile_id, title, url, category, description) VALUES (?,?,?,?,?)",

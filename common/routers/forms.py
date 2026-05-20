@@ -203,7 +203,7 @@ async def form_builder_edit(request: Request, tpl_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
     tpl_dict = dict(tpl)
     tpl_dict["fields"] = json.loads(tpl_dict["fields"])
     tpl_dict.setdefault("frequency", "daily")
@@ -236,7 +236,7 @@ async def update_form_template(request: Request, tpl_id: int):
             "SELECT id FROM form_templates WHERE id=? AND profile_id=?", (tpl_id, pid)
         ).fetchone()
         if not existing:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         conn.execute(
             "UPDATE form_templates SET name=?, description=?, fields=?, emoji=?, color=?, frequency=?, updated_at=datetime('now','localtime') WHERE id=? AND profile_id=?",
             (name, description, json.dumps(fields, ensure_ascii=False), emoji, color, frequency, tpl_id, pid),
@@ -253,7 +253,7 @@ async def clone_form_template(request: Request, tpl_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         conn.execute(
             "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color, frequency) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (pid, f"{tpl['name']} (복사)", tpl["description"], tpl["fields"], tpl["emoji"], tpl["color"], dict(tpl).get("frequency") or "daily"),
@@ -281,7 +281,7 @@ async def export_form_json(request: Request, form_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (form_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
     fields = json.loads(tpl["fields"])
     data = {
         "name": tpl["name"],
@@ -361,7 +361,7 @@ async def form_entries_page(request: Request, tpl_id: int, date_param: str = Que
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
         freq = tpl_dict.get("frequency") or "daily"
@@ -424,7 +424,7 @@ async def form_entry_new(request: Request, tpl_id: int, date_param: str = Query(
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
         freq = tpl_dict.get("frequency") or "daily"
@@ -469,7 +469,7 @@ async def create_form_entry(request: Request, tpl_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         fields = json.loads(tpl["fields"])
         values = _collect_entry_values(form, fields)
         cur = conn.execute(
@@ -491,13 +491,13 @@ async def form_entry_edit(request: Request, tpl_id: int, entry_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         entry = conn.execute(
             "SELECT * FROM form_entries WHERE id=? AND template_id=? AND profile_id=?",
             (entry_id, tpl_id, pid),
         ).fetchone()
         if not entry:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
     tpl_dict = dict(tpl)
     tpl_dict["fields"] = json.loads(tpl_dict["fields"])
     entry_dict = dict(entry)
@@ -521,13 +521,13 @@ async def update_form_entry(request: Request, tpl_id: int, entry_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         entry = conn.execute(
             "SELECT * FROM form_entries WHERE id=? AND template_id=? AND profile_id=?",
             (entry_id, tpl_id, pid),
         ).fetchone()
         if not entry:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         fields = json.loads(tpl["fields"])
         values = _collect_entry_values(form, fields)
         conn.execute(
@@ -579,7 +579,7 @@ async def export_entries(request: Request, tpl_id: int, date: Optional[str] = No
     with S.get_db() as conn:
         tpl, fields, entries = _collect_export_data(conn, tpl_id, pid, date)
     if not tpl:
-        raise HTTPException(404)
+        return S.redirect(request, "/forms")
 
     non_table_fields = [f for f in fields if f["type"] != "table"]
     has_date_field = any(f["type"] == "date" for f in non_table_fields)
@@ -668,7 +668,7 @@ async def form_entries_stats(request: Request, tpl_id: int):
             "SELECT * FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid)
         ).fetchone()
         if not tpl:
-            raise HTTPException(404)
+            return S.redirect(request, "/forms")
         total = conn.execute(
             "SELECT COUNT(*) FROM form_entries WHERE template_id=? AND profile_id=?",
             (tpl_id, pid),

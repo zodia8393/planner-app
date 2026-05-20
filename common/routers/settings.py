@@ -52,7 +52,7 @@ async def settings_page(request: Request):
 
 @router.post("/settings/categories", response_class=HTMLResponse)
 async def create_category(request: Request,
-                          name: str = Form(...),
+                          name: str = Form(""),
                           color: str = Form("#6366f1")):
     S = request.app.state
     pid = S.get_profile_id(request)

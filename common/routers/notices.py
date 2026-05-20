@@ -23,12 +23,14 @@ async def notices_page(request: Request):
 
 @router.post("/notices", response_class=HTMLResponse)
 async def create_notice(request: Request,
-                        title: str = Form(...),
+                        title: str = Form(""),
                         content: str = Form(""),
                         priority: int = Form(0)):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
+    if not title:
+        return S.redirect(request, "/notices")
     content = clamp_text(fix_mojibake(content), 5000)
     priority = max(0, min(1, priority))
     with S.get_db() as conn:
@@ -59,7 +61,7 @@ async def edit_notice_form(request: Request, notice_id: int):
             (notice_id, pid),
         ).fetchone()
         if not notice:
-            raise HTTPException(404)
+            return HTMLResponse("")
     return S.templates.TemplateResponse(request, "partials/notice_edit_form.html", {
         "notice": dict(notice),
     })
@@ -67,7 +69,7 @@ async def edit_notice_form(request: Request, notice_id: int):
 
 @router.put("/notices/{notice_id}", response_class=HTMLResponse)
 async def update_notice(request: Request, notice_id: int,
-                        title: str = Form(...),
+                        title: str = Form(""),
                         content: str = Form(""),
                         priority: int = Form(0)):
     S = request.app.state
@@ -94,7 +96,9 @@ async def delete_notice(request: Request, notice_id: int):
             (notice_id, pid),
         ).fetchone()
         if not notice:
-            raise HTTPException(403)
+            if request.headers.get("HX-Request"):
+                return HTMLResponse("")
+            return S.redirect(request, "/notices")
         conn.execute("DELETE FROM notices WHERE id=? AND profile_id=?", (notice_id, pid))
     if request.headers.get("HX-Request"):
         return HTMLResponse("")
@@ -111,7 +115,7 @@ async def toggle_pin_notice(request: Request, notice_id: int):
             (notice_id, pid),
         ).fetchone()
         if not notice:
-            raise HTTPException(404)
+            return S.redirect(request, "/notices")
         new_pinned = 0 if notice["pinned"] else 1
         conn.execute("UPDATE notices SET pinned=? WHERE id=?", (new_pinned, notice_id))
     return S.redirect(request, "/notices")

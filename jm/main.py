@@ -1170,12 +1170,14 @@ async def edit_gcal_event_form(request: Request, gcal_id: str):
 
 @app.put("/events/gcal/{gcal_id:path}", response_class=HTMLResponse)
 async def update_gcal_event(request: Request, gcal_id: str,
-                            title: str = Form(...),
-                            start_time: str = Form(...),
+                            title: str = Form(""),
+                            start_time: str = Form(""),
                             end_time: str = Form(""),
                             memo: str = Form("")):
     pid = get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
+    if not title or not start_time:
+        return redirect(request, "/calendar")
     memo = clamp_text(fix_mojibake(memo), 2000)
     import httpx
     token = await _gcal_refresh_token(pid)
@@ -1528,8 +1530,10 @@ async def ddays_page(request: Request):
 
 
 @app.post("/ddays", response_class=HTMLResponse)
-async def create_dday(request: Request, title: str = Form(...), target_date: str = Form(...), icon: str = Form("\U0001f3af")):
+async def create_dday(request: Request, title: str = Form(""), target_date: str = Form(""), icon: str = Form("\U0001f3af")):
     pid = get_profile_id(request)
+    if not title or not target_date:
+        return redirect(request, "/ddays")
     with get_db() as conn:
         conn.execute(
             "INSERT INTO ddays (profile_id, title, target_date, icon) VALUES (?,?,?,?)",
@@ -1583,11 +1587,13 @@ async def links_page(request: Request):
 
 
 @app.post("/links", response_class=HTMLResponse)
-async def create_link(request: Request, title: str = Form(...), url: str = Form(...),
+async def create_link(request: Request, title: str = Form(""), url: str = Form(""),
                       category: str = Form(""), description: str = Form("")):
-    if not url.startswith(('http://', 'https://', '/')):
-        raise HTTPException(400, detail="유효하지 않은 URL입니다")
     pid = get_profile_id(request)
+    if not title or not url:
+        return redirect(request, "/links")
+    if not url.startswith(('http://', 'https://', '/')):
+        return redirect(request, "/links")
     with get_db() as conn:
         conn.execute(
             "INSERT INTO links (profile_id, title, url, category, description) VALUES (?,?,?,?,?)",

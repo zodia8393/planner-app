@@ -108,7 +108,7 @@ async def worklogs_page(request: Request,
 
 @router.post("/worklogs", response_class=HTMLResponse)
 async def create_worklog(request: Request,
-                         title: str = Form(...),
+                         title: str = Form(""),
                          content: str = Form(""),
                          hours: float = Form(0),
                          category_id: str = Form(""),
@@ -116,6 +116,8 @@ async def create_worklog(request: Request,
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
+    if not title:
+        return S.redirect(request, f"/worklogs?date={log_date or date.today().isoformat()}")
     content = clamp_text(fix_mojibake(content), 5000)
     hours = max(0.0, min(24.0, hours))
     cat_id = int(category_id) if category_id else None
@@ -158,7 +160,7 @@ async def edit_worklog_form(request: Request, log_id: int):
             "SELECT * FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid)
         ).fetchone()
         if not log:
-            raise HTTPException(404)
+            return HTMLResponse("")
         categories = S.get_categories(conn, pid)
     return S.templates.TemplateResponse(request, "partials/worklog_edit_form.html", {
         "log": dict(log),
@@ -168,7 +170,7 @@ async def edit_worklog_form(request: Request, log_id: int):
 
 @router.put("/worklogs/{log_id}", response_class=HTMLResponse)
 async def update_worklog(request: Request, log_id: int,
-                         title: str = Form(...),
+                         title: str = Form(""),
                          content: str = Form(""),
                          hours: float = Form(0),
                          category_id: str = Form("")):
@@ -181,7 +183,7 @@ async def update_worklog(request: Request, log_id: int,
     with S.get_db() as conn:
         log = conn.execute("SELECT log_date FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid)).fetchone()
         if not log:
-            raise HTTPException(404)
+            return S.redirect(request, "/worklogs")
         conn.execute("""
             UPDATE work_logs SET title=?, content=?, hours=?, category_id=?,
                    updated_at=datetime('now','localtime')
