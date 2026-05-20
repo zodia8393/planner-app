@@ -266,7 +266,7 @@ async def delete_form_template(request: Request, tpl_id: int):
     S = request.app.state
     pid = S.get_profile_id(request)
     with S.get_db() as conn:
-        conn.execute("DELETE FROM form_templates WHERE id=? AND profile_id=?", (tpl_id, pid))
+        conn.execute("DELETE FROM form_templates WHERE id=? AND profile_id IN (?, 0)", (tpl_id, pid))
     if request.headers.get("HX-Request"):
         return HTMLResponse("")
     return S.redirect(request, "/forms")
