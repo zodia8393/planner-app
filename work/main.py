@@ -248,6 +248,11 @@ async def not_found_handler(request: Request, exc):
     return HTMLResponse(render_error_page(404, "페이지를 찾을 수 없습니다"), status_code=404)
 
 
+@app.exception_handler(405)
+async def method_not_allowed_handler(request: Request, exc):
+    return HTMLResponse(render_error_page(405, "허용되지 않는 요청입니다"), status_code=405)
+
+
 @app.exception_handler(500)
 async def server_error_handler(request: Request, exc):
     return HTMLResponse(render_error_page(500, "서버 오류가 발생했습니다"), status_code=500)
