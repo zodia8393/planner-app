@@ -422,6 +422,22 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_form_entries_template ON form_entries(template_id);
         CREATE INDEX IF NOT EXISTS idx_form_entries_date ON form_entries(entry_date);
         CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_log(entity_type, entity_id);
+
+        CREATE TABLE IF NOT EXISTS meal_places (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL DEFAULT 0,
+            name TEXT NOT NULL,
+            address TEXT DEFAULT '',
+            category TEXT DEFAULT '',
+            lat REAL,
+            lng REAL,
+            naver_id TEXT DEFAULT '',
+            visited_count INTEGER DEFAULT 0,
+            last_visited TEXT,
+            excluded INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_meal_profile ON meal_places(profile_id);
         """)
 
         for tbl in ("work_profiles", ):
@@ -489,6 +505,14 @@ def init_db():
                 "INSERT INTO work_profiles (name, emoji, role) VALUES (?, ?, ?)",
                 ("정미", "💼", ""),
             )
+
+    # One-time cleanup: remove duplicate focus mode worklog entries
+    with get_db() as conn:
+        conn.execute("""
+            DELETE FROM work_logs WHERE id NOT IN (
+                SELECT MIN(id) FROM work_logs WHERE title LIKE '집중 모드 %' GROUP BY profile_id, log_date, title, hours
+            ) AND title LIKE '집중 모드 %'
+        """)
 
     # Initialize FTS5 full-text search indexes
     from common.search import init_fts
@@ -858,6 +882,11 @@ app.state.audit_log = _audit_log
 app.state.event_bus = event_bus
 app.state.base_dir = BASE_DIR
 app.state.app_name = "jm-planner"
+app.state.gcal_client_id = GCAL_CLIENT_ID
+app.state.gcal_fetch_events = _gcal_fetch_events
+app.state.gcal_push_event = _gcal_push_event
+app.state.gcal_update_event = _gcal_update_event
+app.state.gcal_delete_event = _gcal_delete_event
 app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
     "SELECT * FROM categories ORDER BY sort_order").fetchall()
@@ -1669,6 +1698,25 @@ async def stats_page(request: Request):
 
 
 # ── Health check ──
+
+
+
+# ── QR Code Access ──
+
+@app.get("/api/qr-code")
+async def jm_qr_code_api(request: Request):
+    import qrcode, io as _io, base64
+    host = request.headers.get("host", "localhost:8002")
+    scheme = "https" if request.url.scheme == "https" or "fly.dev" in host else "http"
+    url = f"{scheme}://{host}"
+    qr = qrcode.QRCode(version=1, box_size=8, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    return JSONResponse({"qr_base64": b64, "url": url})
 
 
 if __name__ == "__main__":

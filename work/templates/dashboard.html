@@ -11,10 +11,11 @@
             사용법
         </summary>
         <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간/월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
-            <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 업무 제목 입력 후 추가 버튼으로 오늘 날짜 업무 즉시 등록</p>
-            <p><b class="text-slate-700 dark:text-slate-300">체크 표시</b> — 주간 뷰에서 각 업무의 체크박스를 눌러 완료/미완료 전환</p>
-            <p><b class="text-slate-700 dark:text-slate-300">하단 카드</b> — 이번 주 일정, 최근 메모, 프로젝트 진행률 한눈에 확인</p>
+            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간·월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
+            <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 "내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
+            <p><b class="text-slate-700 dark:text-slate-300">위젯 설정</b> — 우측 상단 슬라이더 아이콘으로 표시할 위젯 선택/해제</p>
+            <p><b class="text-slate-700 dark:text-slate-300">집중 모드</b> — 우측 하단 시계 버튼으로 포모도로 타이머 시작, 완료 시 업무일지에 자동 기록</p>
+            <p><b class="text-slate-700 dark:text-slate-300">시간 예산</b> — 설정에서 카테고리별 주간 목표 시간을 설정하면 대시보드에서 진행률 확인</p>
         </div>
     </details>
     <button onclick="toggleWidgetConfig()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors" title="위젯 설정">
@@ -34,7 +35,7 @@
 </div>
 
 <!-- Stat cards -->
-<div data-widget="stat-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+<div data-widget="stat-cards" class="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
     <div class="work-card rounded-xl p-4 card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">오늘 업무</span>
@@ -48,33 +49,6 @@
         <div class="mt-2 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
             <div class="h-full bg-indigo-500 rounded-full progress-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
         </div>
-        {% endif %}
-    </div>
-
-    <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">주간 완료율</span>
-            <span class="text-lg">📈</span>
-        </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.week_rate }}%</span>
-        </div>
-        <p class="text-xs text-slate-400 mt-1">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
-    </div>
-
-    <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">지연 업무</span>
-            <span class="text-lg">⚠️</span>
-        </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold {% if stats.overdue > 0 %}text-red-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.overdue }}</span>
-            <span class="text-xs text-slate-400">건</span>
-        </div>
-        {% if stats.overdue > 0 %}
-        <a href="/todos?filter=overdue" class="text-xs text-red-500 hover:underline mt-1 inline-block">확인하기</a>
-        {% else %}
-        <p class="text-xs text-emerald-500 mt-1">지연 없음</p>
         {% endif %}
     </div>
 

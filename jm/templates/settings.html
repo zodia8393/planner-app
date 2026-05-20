@@ -4,6 +4,18 @@
 {% block page_subtitle %}카테고리, 테마 관리{% endblock %}
 
 {% block content %}
+<details class="mb-4 group">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+        사용법
+    </summary>
+    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+        <p><b class="text-slate-700 dark:text-slate-300">카테고리</b> — 할일·메모·일정에 사용할 카테고리와 색상을 관리합니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">시간 예산</b> — 카테고리별 주간 목표 시간을 설정하여 대시보드에서 추적</p>
+        <p><b class="text-slate-700 dark:text-slate-300">Google 캘린더</b> — Google 계정을 연결하면 일정이 자동으로 동기화됩니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">백업/복원</b> — 전체 데이터를 ZIP으로 백업하거나 이전 백업에서 복원합니다</p>
+    </div>
+</details>
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Category management -->
     <div class="work-card rounded-xl p-6">
@@ -361,6 +373,28 @@
                 Apple Calendar에 추가
             </a>
         </div>
+    </div>
+
+    <!-- QR Code Mobile Access -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 접속</h4>
+        <p class="text-xs text-slate-400 mb-4">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
+        <div id="qrSection" class="flex flex-col items-center gap-3">
+            <div id="qrLoading" class="text-xs text-slate-400">QR 코드 생성 중...</div>
+            <img id="qrImg" class="hidden rounded-lg border border-slate-200 dark:border-slate-600" width="200" height="200" alt="QR">
+            <p id="qrUrl" class="hidden text-sm font-mono text-indigo-600 dark:text-indigo-400"></p>
+        </div>
+        <script>
+        fetch('/api/qr-code').then(r=>r.json()).then(d=>{
+            document.getElementById('qrLoading').classList.add('hidden');
+            var img=document.getElementById('qrImg');
+            img.src='data:image/png;base64,'+d.qr_base64;
+            img.classList.remove('hidden');
+            var u=document.getElementById('qrUrl');
+            u.textContent=d.url;
+            u.classList.remove('hidden');
+        });
+        </script>
     </div>
 </div>
 {% endblock %}

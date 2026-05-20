@@ -458,9 +458,6 @@
                 <span class="text-lg">🔍</span> 검색
             </a>
             <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">관리</p></div>
-            <a href="/audit-log" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'audit-log' %}nav-active{% endif %}">
-                <span class="text-lg">📜</span> 감사 로그
-            </a>
             <a href="/settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'settings' %}nav-active{% endif %}">
                 <span class="text-lg">⚙️</span> 설정
             </a>
@@ -748,13 +745,14 @@
     // ── Form submission feedback ──
     document.addEventListener('htmx:afterRequest', function(e) {
         if (!e.detail || !e.detail.requestConfig || e.detail.requestConfig.verb === 'get') return;
-        var verb = e.detail.requestConfig.verb;
-        if (e.detail.successful) {
+        var xhr = e.detail.xhr;
+        var status = xhr ? xhr.status : 0;
+        if (status >= 200 && status < 400) {
+            var verb = e.detail.requestConfig.verb;
             showToast(verb === 'delete' ? '삭제되었습니다' : '저장되었습니다', 'success');
+        } else if (status >= 400) {
+            showToast('오류가 발생했습니다', 'error');
         }
-    });
-    document.addEventListener('htmx:responseError', function(e) {
-        showToast('오류가 발생했습니다', 'error');
     });
     document.addEventListener('htmx:sendError', function() {
         showToast('네트워크 연결을 확인해주세요', 'error');
@@ -983,7 +981,7 @@
     </div>
 </div>
 <script>
-var _focusTimer=null,_focusTotalSec=0,_focusRemain=0;
+var _focusTimer=null,_focusTotalSec=0,_focusRemain=0,_focusSaving=false;
 function _focusStart(min){
     _focusTotalSec=min*60;_focusRemain=_focusTotalSec;
     localStorage.setItem('focus_end',Date.now()+_focusTotalSec*1000);
@@ -1008,10 +1006,12 @@ function _focusTick(){
 }
 function _focusStop(save){
     clearInterval(_focusTimer);
+    if(save&&_focusSaving) return;
     var total=parseInt(localStorage.getItem('focus_total')||'0');
     var elapsed=total-_focusRemain;
     var min=Math.max(1,Math.round(elapsed/60));
     if(save&&min>=1){
+        _focusSaving=true;
         fetch('/focus/complete',{method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({minutes:min,title:localStorage.getItem('focus_title')||''})
         }).then(function(){
@@ -1022,6 +1022,7 @@ function _focusStop(save){
     } else { _focusReset(); }
 }
 function _focusReset(){
+    _focusSaving=false;
     localStorage.removeItem('focus_end');localStorage.removeItem('focus_total');localStorage.removeItem('focus_title');
     document.getElementById('focusSetup').classList.remove('hidden');
     document.getElementById('focusRunning').classList.add('hidden');
@@ -1029,9 +1030,10 @@ function _focusReset(){
     document.getElementById('focusBtn').classList.remove('hidden');
     document.getElementById('focusModal').classList.add('hidden');
 }
-(function(){
+function _focusRestore(){
     var end=parseInt(localStorage.getItem('focus_end')||'0');
     if(end>Date.now()){
+        clearInterval(_focusTimer);
         _focusTotalSec=parseInt(localStorage.getItem('focus_total')||'0');
         _focusRemain=Math.round((end-Date.now())/1000);
         document.getElementById('focusSetup').classList.add('hidden');
@@ -1041,7 +1043,9 @@ function _focusReset(){
         document.getElementById('focusModal').classList.remove('hidden');
         _focusTick();_focusTimer=setInterval(_focusTick,1000);
     }
-})();
+}
+_focusRestore();
+document.addEventListener('htmx:afterSettle',_focusRestore);
 </script>
 <!-- Theme customization: accent color + font size -->
 <script>

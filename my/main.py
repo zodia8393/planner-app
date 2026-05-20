@@ -98,7 +98,7 @@ class ProfileCheckMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         # Allow open paths
-        if path in OPEN_PATHS or path.startswith("/static") or path.startswith("/setup") or path.startswith("/worklog-images") or path.startswith("/backgrounds"):
+        if path in OPEN_PATHS or path.startswith("/static") or path.startswith("/setup") or path.startswith("/worklog-images") or path.startswith("/backgrounds") or path == "/api/qr-code" or path == "/sync-profile":
             return await call_next(request)
         # Check cookie
         cookie_val = request.cookies.get("planner_profile")
@@ -497,6 +497,22 @@ def init_db():
             profile_id TEXT
         );
         CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_log(entity_type, entity_id);
+
+        CREATE TABLE IF NOT EXISTS meal_places (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL DEFAULT 0,
+            name TEXT NOT NULL,
+            address TEXT DEFAULT '',
+            category TEXT DEFAULT '',
+            lat REAL,
+            lng REAL,
+            naver_id TEXT DEFAULT '',
+            visited_count INTEGER DEFAULT 0,
+            last_visited TEXT,
+            excluded INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_meal_profile ON meal_places(profile_id);
         """)
 
         # Migration: add token column if missing (existing DBs)
@@ -536,6 +552,14 @@ def init_db():
             conn.execute("ALTER TABLE events ADD COLUMN gcal_sync_status TEXT DEFAULT ''")
         if "gcal_last_synced" not in ev_cols:
             conn.execute("ALTER TABLE events ADD COLUMN gcal_last_synced TEXT DEFAULT ''")
+
+    # One-time cleanup: remove duplicate focus mode worklog entries
+    with get_db() as conn:
+        conn.execute("""
+            DELETE FROM work_logs WHERE id NOT IN (
+                SELECT MIN(id) FROM work_logs WHERE title LIKE '집중 모드 %' GROUP BY profile_id, log_date, title, hours
+            ) AND title LIKE '집중 모드 %'
+        """)
 
     # Initialize FTS5 full-text search indexes
     from common.search import init_fts
@@ -812,6 +836,7 @@ app.state.audit_log = _audit_log
 app.state.event_bus = event_bus
 app.state.base_dir = BASE_DIR
 app.state.app_name = "my-planner"
+app.state.gcal_client_id = GCAL_CLIENT_ID
 app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
     "SELECT * FROM categories WHERE profile_id=? ORDER BY sort_order", (pid,)).fetchall()
@@ -943,6 +968,10 @@ async def _gcal_delete_event(profile_id: int, gcal_id: str):
     cal_id = _gcal_get_calendar_id(profile_id)
     await gcal_delete_event(token, cal_id, gcal_id)
 
+app.state.gcal_fetch_events = _gcal_fetch_events
+app.state.gcal_push_event = _gcal_push_event
+app.state.gcal_update_event = _gcal_update_event
+app.state.gcal_delete_event = _gcal_delete_event
 
 
 
@@ -1979,6 +2008,44 @@ async def stats_page(request: Request):
 
 
 # ── Health check ──
+
+
+
+# ── QR Code Access ──
+
+@app.get("/api/qr-code")
+async def my_qr_code_api(request: Request):
+    import qrcode, io as _io, base64
+    host = request.headers.get("host", "localhost:8003")
+    scheme = "https" if request.url.scheme == "https" or "fly.dev" in host else "http"
+    token = request.cookies.get("planner_profile", "")
+    url = f"{scheme}://{host}/sync-profile?token={token}" if token else f"{scheme}://{host}"
+    qr = qrcode.QRCode(version=1, box_size=8, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    return JSONResponse({"qr_base64": b64, "url": url})
+
+@app.get("/sync-profile")
+async def my_sync_profile(request: Request, token: str = ""):
+    if not token:
+        return RedirectResponse("/setup", status_code=303)
+    with get_db() as conn:
+        row = conn.execute("SELECT id, name FROM profiles WHERE token=?", (token,)).fetchone()
+    if not row:
+        return RedirectResponse("/setup", status_code=303)
+    response = RedirectResponse("/", status_code=303)
+    response.set_cookie(
+        "planner_profile", token,
+        max_age=365 * 24 * 3600,
+        httponly=True,
+        secure=request.url.scheme == "https",
+        samesite="lax",
+    )
+    return response
 
 
 if __name__ == "__main__":

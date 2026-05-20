@@ -10,10 +10,11 @@
         사용법
     </summary>
     <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">일정 추가</b> — 날짜 칸을 클릭하면 일정 추가 팝업이 열립니다 (제목, 시간, 색상, 카테고리, 메모)</p>
-        <p><b class="text-slate-700 dark:text-slate-300">일정 수정</b> — 등록된 일정(색상 텍스트)을 클릭하면 수정 폼이 나타납니다</p>
-        <p><b class="text-slate-700 dark:text-slate-300">체크리스트</b> — 업무 마감일에 해당하는 할일이 체크박스로 표시되며, 직접 완료 처리 가능</p>
-        <p><b class="text-slate-700 dark:text-slate-300">월 이동</b> — 좌우 화살표로 이전/다음 달 이동</p>
+        <p><b class="text-slate-700 dark:text-slate-300">일정 추가</b> — 날짜 클릭으로 일정 추가 (제목, 시간, 색상, 카테고리, 메모, 반복 설정)</p>
+        <p><b class="text-slate-700 dark:text-slate-300">일정 수정</b> — 등록된 일정을 클릭하면 인라인 수정 폼이 나타납니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">할일 연동</b> — 마감일이 있는 할일이 캘린더에 체크박스로 표시, 직접 완료 처리 가능</p>
+        <p><b class="text-slate-700 dark:text-slate-300">Google 캘린더</b> — 설정에서 연동하면 Google 일정이 파란색으로 함께 표시됩니다</p>
+        <p><b class="text-slate-700 dark:text-slate-300">월 이동</b> — 좌우 화살표로 이전/다음 달 이동, "오늘" 버튼으로 복귀</p>
     </div>
 </details>
 <!-- Month navigation -->
@@ -80,16 +81,14 @@
             {% for todo in day_todos %}
             {% if ns.shown < 4 %}
             <div class="flex items-center gap-1 px-1 mb-0.5">
-                <form action="/todos/{{ todo.id }}/toggle" method="POST" class="flex-shrink-0">
-                    <button type="submit" onclick="event.stopPropagation()" class="w-3 h-3 rounded border flex items-center justify-center
-                        {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}border-slate-300{% endif %}">
-                        {% if todo.completed %}
-                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        {% endif %}
-                    </button>
-                </form>
+                <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
+                    {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}border-slate-300{% endif %}">
+                    {% if todo.completed %}
+                    <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    {% endif %}
+                </button>
                 <span class="text-xs truncate {% if todo.completed %}line-through text-slate-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ todo.title }}</span>
             </div>
             {% set ns.shown = ns.shown + 1 %}

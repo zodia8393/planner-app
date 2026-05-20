@@ -309,10 +309,16 @@ async def focus_complete(request: Request):
     hours = round(minutes / 60, 2)
     cat_id = body.get("category_id") or None
     title = clamp_text(body.get("title", ""), 200) or f"집중 모드 {minutes}분"
+    today_str = date.today().isoformat()
     with S.get_db() as conn:
+        dup = conn.execute(
+            "SELECT id FROM work_logs WHERE profile_id=? AND log_date=? AND title=? AND hours=? ORDER BY id DESC LIMIT 1",
+            (pid, today_str, title, hours)).fetchone()
+        if dup:
+            return JSONResponse({"ok": True, "hours": hours})
         conn.execute(
             "INSERT INTO work_logs (profile_id, log_date, title, content, hours, category_id) VALUES (?,?,?,?,?,?)",
-            (pid, date.today().isoformat(), title, f"집중 모드 {minutes}분 완료", hours, cat_id))
+            (pid, today_str, title, f"집중 모드 {minutes}분 완료", hours, cat_id))
     return JSONResponse({"ok": True, "hours": hours})
 
 

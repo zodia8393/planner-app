@@ -5,7 +5,7 @@ WORKDIR /app
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN pip install --no-cache-dir "fastapi>=0.115,<1" "uvicorn[standard]>=0.34,<1" "python-multipart>=0.0.18,<1" "jinja2>=3.1,<4" aiofiles "openpyxl>=3.1,<4" "httpx>=0.27,<1"
+RUN pip install --no-cache-dir "fastapi>=0.115,<1" "uvicorn[standard]>=0.34,<1" "python-multipart>=0.0.18,<1" "jinja2>=3.1,<4" aiofiles "openpyxl>=3.1,<4" "httpx>=0.27,<1" "qrcode[pil]>=7,<9"
 
 ARG CACHE_BUST=1
 COPY common/ common/

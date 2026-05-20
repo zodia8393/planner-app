@@ -104,7 +104,7 @@ def get_network_group(request: Request) -> str:
 
 
 # ── Middleware ──
-PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/cal", "/worklog-images", "/backgrounds"}
+PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/cal", "/worklog-images", "/backgrounds", "/api/qr-code", "/sync-profile"}
 
 
 class PinAuthMiddleware(BaseHTTPMiddleware):
@@ -498,6 +498,22 @@ def init_db():
             profile_id TEXT
         );
         CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_log(entity_type, entity_id);
+
+        CREATE TABLE IF NOT EXISTS meal_places (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL DEFAULT 0,
+            name TEXT NOT NULL,
+            address TEXT DEFAULT '',
+            category TEXT DEFAULT '',
+            lat REAL,
+            lng REAL,
+            naver_id TEXT DEFAULT '',
+            visited_count INTEGER DEFAULT 0,
+            last_visited TEXT,
+            excluded INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_meal_profile ON meal_places(profile_id);
         """)
 
         for tbl in ("work_profiles", ):
@@ -569,6 +585,14 @@ def init_db():
                     ("박준태", "🐯", "부장"),
                 ],
             )
+
+    # One-time cleanup: remove duplicate focus mode worklog entries
+    with get_db() as conn:
+        conn.execute("""
+            DELETE FROM work_logs WHERE id NOT IN (
+                SELECT MIN(id) FROM work_logs WHERE title LIKE '집중 모드 %' GROUP BY profile_id, log_date, title, hours
+            ) AND title LIKE '집중 모드 %'
+        """)
 
     # Initialize FTS5 full-text search indexes
     from common.search import init_fts
@@ -879,6 +903,61 @@ async def _gcal_fetch_events(profile_id: int, time_min: str, time_max: str) -> l
     return events
 
 
+def _gcal_get_cal_id(profile_id: int) -> str:
+    with get_db() as conn:
+        row = conn.execute("SELECT calendar_id FROM gcal_tokens WHERE profile_id=?", (profile_id,)).fetchone()
+    return row["calendar_id"] if row else "primary"
+
+
+async def _gcal_push_event(profile_id: int, title: str, start_time: str, end_time: str = "") -> str:
+    import httpx
+    token = await _gcal_refresh_token(profile_id)
+    if not token:
+        return ""
+    cal_id = _gcal_get_cal_id(profile_id)
+    body: dict = {"summary": title}
+    if "T" in start_time:
+        body["start"] = {"dateTime": start_time + ":00+09:00" if len(start_time) == 16 else start_time, "timeZone": "Asia/Seoul"}
+        body["end"] = {"dateTime": end_time + ":00+09:00" if end_time and "T" in end_time and len(end_time) == 16 else (end_time if end_time and "T" in end_time else start_time + ":00+09:00" if len(start_time) == 16 else start_time), "timeZone": "Asia/Seoul"}
+    else:
+        body["start"] = {"date": start_time[:10]}
+        body["end"] = {"date": end_time[:10] if end_time else start_time[:10]}
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{GCAL_API_BASE}/calendars/{cal_id}/events", json=body, headers={"Authorization": f"Bearer {token}"})
+    return resp.json().get("id", "") if resp.status_code in (200, 201) else ""
+
+
+async def _gcal_update_event(profile_id: int, gcal_id: str, title: str, start_time: str, end_time: str = ""):
+    import httpx
+    if not gcal_id:
+        return
+    token = await _gcal_refresh_token(profile_id)
+    if not token:
+        return
+    cal_id = _gcal_get_cal_id(profile_id)
+    body: dict = {"summary": title}
+    if "T" in start_time:
+        body["start"] = {"dateTime": start_time + ":00+09:00" if len(start_time) == 16 else start_time, "timeZone": "Asia/Seoul"}
+        body["end"] = {"dateTime": end_time + ":00+09:00" if end_time and "T" in end_time and len(end_time) == 16 else (end_time if end_time and "T" in end_time else start_time + ":00+09:00" if len(start_time) == 16 else start_time), "timeZone": "Asia/Seoul"}
+    else:
+        body["start"] = {"date": start_time[:10]}
+        body["end"] = {"date": end_time[:10] if end_time else start_time[:10]}
+    async with httpx.AsyncClient() as client:
+        await client.patch(f"{GCAL_API_BASE}/calendars/{cal_id}/events/{gcal_id}", json=body, headers={"Authorization": f"Bearer {token}"})
+
+
+async def _gcal_delete_event(profile_id: int, gcal_id: str):
+    import httpx
+    if not gcal_id:
+        return
+    token = await _gcal_refresh_token(profile_id)
+    if not token:
+        return
+    cal_id = _gcal_get_cal_id(profile_id)
+    async with httpx.AsyncClient() as client:
+        await client.delete(f"{GCAL_API_BASE}/calendars/{cal_id}/events/{gcal_id}", headers={"Authorization": f"Bearer {token}"})
+
+
 def calc_dday(target_date_str: str) -> int:
     try:
         target = datetime.strptime(target_date_str, "%Y-%m-%d").date()
@@ -944,6 +1023,11 @@ app.state.audit_log = _audit_log
 app.state.event_bus = event_bus
 app.state.base_dir = BASE_DIR
 app.state.app_name = "work-planner"
+app.state.gcal_client_id = GCAL_CLIENT_ID
+app.state.gcal_fetch_events = _gcal_fetch_events
+app.state.gcal_push_event = _gcal_push_event
+app.state.gcal_update_event = _gcal_update_event
+app.state.gcal_delete_event = _gcal_delete_event
 app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
     "SELECT * FROM categories ORDER BY sort_order").fetchall()
@@ -1808,6 +1892,41 @@ async def delete_file(request: Request, path: str):
 
 
 # ── Health check ──
+
+
+
+# ── QR Code Access ──
+
+@app.get("/api/qr-code")
+async def qr_code_api(request: Request):
+    import qrcode, io as _io, base64
+    host = request.headers.get("host", "192.168.0.29:8001")
+    scheme = "https" if request.url.scheme == "https" or "fly.dev" in host else "http"
+    profile_id = request.cookies.get(PROFILE_COOKIE, "")
+    session = request.cookies.get(SESSION_COOKIE, "")
+    url = f"{scheme}://{host}/sync-profile?pid={profile_id}&sid={session}" if profile_id else f"{scheme}://{host}"
+    qr = qrcode.QRCode(version=1, box_size=8, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = _io.BytesIO()
+    img.save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    return JSONResponse({"qr_base64": b64, "url": url})
+
+@app.get("/sync-profile")
+async def sync_profile(request: Request, pid: str = "", sid: str = ""):
+    if not pid:
+        return RedirectResponse("/select-profile", status_code=303)
+    with get_db() as conn:
+        row = conn.execute("SELECT id FROM work_profiles WHERE id=?", (int(pid),)).fetchone()
+    if not row:
+        return RedirectResponse("/select-profile", status_code=303)
+    response = RedirectResponse("/", status_code=303)
+    response.set_cookie(PROFILE_COOKIE, pid, max_age=365 * 24 * 3600, httponly=True, samesite="lax")
+    if sid:
+        response.set_cookie(SESSION_COOKIE, sid, max_age=365 * 24 * 3600, httponly=True, samesite="lax")
+    return response
 
 
 if __name__ == "__main__":

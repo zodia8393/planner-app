@@ -9,7 +9,8 @@ RUN pip install --no-cache-dir \
     "python-multipart>=0.0.18,<1" \
     "markupsafe>=3,<4" \
     "openpyxl>=3.1,<4" \
-    "httpx>=0.27,<1"
+    "httpx>=0.27,<1" \
+    "qrcode[pil]>=7,<9"
 
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

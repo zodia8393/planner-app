@@ -3,6 +3,16 @@
 {% block page_title %}{{ label }} 리뷰{% endblock %}
 
 {% block content %}
+<details class="mb-4 group">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+        사용법
+    </summary>
+    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+        <p><b class="text-slate-700 dark:text-slate-300">주간 리뷰</b> — 이번 주 완료 업무, 미완료 업무, 업무일지를 한눈에 확인</p>
+        <p><b class="text-slate-700 dark:text-slate-300">시간 분석</b> — 카테고리별 투자 시간과 생산성을 분석합니다</p>
+    </div>
+</details>
 <div class="flex items-center justify-between mb-4">
     <div class="flex gap-2">
         <a href="/review?period=week&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='week' %}bg-indigo-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700{% endif %}">주간</a>
