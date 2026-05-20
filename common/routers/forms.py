@@ -256,7 +256,7 @@ async def clone_form_template(request: Request, tpl_id: int):
             raise HTTPException(404)
         conn.execute(
             "INSERT INTO form_templates (profile_id, name, description, fields, emoji, color, frequency) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (pid, f"{tpl['name']} (복사)", tpl["description"], tpl["fields"], tpl["emoji"], tpl["color"], tpl.get("frequency") or "daily"),
+            (pid, f"{tpl['name']} (복사)", tpl["description"], tpl["fields"], tpl["emoji"], tpl["color"], dict(tpl).get("frequency") or "daily"),
         )
     return S.redirect(request, "/forms")
 
@@ -286,9 +286,9 @@ async def export_form_json(request: Request, form_id: int):
     data = {
         "name": tpl["name"],
         "description": tpl["description"] or "",
-        "emoji": tpl.get("emoji") or "",
-        "color": tpl.get("color") or "",
-        "frequency": tpl.get("frequency") or "daily",
+        "emoji": dict(tpl).get("emoji") or "",
+        "color": dict(tpl).get("color") or "",
+        "frequency": dict(tpl).get("frequency") or "daily",
         "fields": fields,
     }
     content = json.dumps(data, ensure_ascii=False, indent=2)
@@ -362,7 +362,7 @@ async def form_entries_page(request: Request, tpl_id: int, date_param: str = Que
             raise HTTPException(404)
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
-        freq = tpl.get("frequency") or "daily"
+        freq = tpl_dict.get("frequency") or "daily"
         tpl_dict["frequency"] = freq
 
         today_str = date_param if validate_date_str(date_param or "") else date.today().isoformat()
@@ -425,7 +425,7 @@ async def form_entry_new(request: Request, tpl_id: int, date_param: str = Query(
             raise HTTPException(404)
         tpl_dict = dict(tpl)
         tpl_dict["fields"] = json.loads(tpl_dict["fields"])
-        freq = tpl.get("frequency") or "daily"
+        freq = tpl_dict.get("frequency") or "daily"
         tpl_dict["frequency"] = freq
         entry_date = date_param if validate_date_str(date_param or "") else date.today().isoformat()
 
@@ -558,7 +558,7 @@ def _collect_export_data(conn, tpl_id, pid, date_filter=None):
     if not tpl:
         return None, None, None
     fields = json.loads(tpl["fields"])
-    freq = tpl.get("frequency") or "daily"
+    freq = dict(tpl).get("frequency") or "daily"
     where = "template_id=? AND profile_id=?"
     params: list = [tpl_id, pid]
     if date_filter:
