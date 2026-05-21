@@ -225,7 +225,7 @@ function dismissOnboarding(){
             <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
                    class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"
                    oninput="previewNaturalDate(this.value)">
-            <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
+            <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">
                 추가
             </button>
         </div>
@@ -443,7 +443,7 @@ function dismissOnboarding(){
             </div>
             {% else %}
             <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">공지사항이 없습니다</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">공지사항이 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -479,7 +479,7 @@ function dismissOnboarding(){
             </div>
             {% else %}
             <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">오늘 기록된 업무가 없습니다</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">오늘 기록된 업무가 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -504,7 +504,7 @@ function dismissOnboarding(){
             </div>
             {% else %}
             <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">이번 주 일정이 없습니다</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">이번 주 일정이 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -536,7 +536,7 @@ function dismissOnboarding(){
             </div>
             {% else %}
             <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">메모가 없습니다</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">메모가 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -564,7 +564,7 @@ function dismissOnboarding(){
             </div>
             {% else %}
             <div class="py-4 text-center">
-                <p class="text-xs text-slate-400">카테고리별 진행률이 표시됩니다</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">카테고리별 진행률이 표시됩니다</p>
             </div>
             {% endfor %}
         </div>

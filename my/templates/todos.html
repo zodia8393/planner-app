@@ -103,7 +103,7 @@
         <div class="flex gap-2 mb-2">
             <input type="text" name="title" placeholder="새 업무 추가..." required
                    class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            <button type="submit" class="px-4 py-2 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
+            <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">
                 추가
             </button>
         </div>
@@ -187,9 +187,9 @@
     <span class="text-amber-700 dark:text-amber-300 font-medium"><span id="bulkCount">0</span>개 선택</span>
     <button onclick="bulkSelectAll()" class="px-3 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
     <div class="flex-1"></div>
-    <button onclick="bulkAction('complete')" class="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
-    <button onclick="bulkAction('delete')" class="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
-    <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">취소</button>
+    <button onclick="bulkAction('complete')" class="btn-primary bg-green-600 text-white hover:bg-green-700 text-xs">완료 처리</button>
+    <button onclick="bulkAction('delete')" class="btn-danger bg-red-600 text-white hover:bg-red-700 text-xs">삭제</button>
+    <button onclick="bulkModeOff()" class="btn-secondary text-xs" style="color: var(--color-text-muted);">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->
@@ -226,8 +226,8 @@
             <path d="M34 36h28M34 48h20M34 60h24" stroke-linecap="round"/>
             <circle cx="27" cy="36" r="2.5"/><circle cx="27" cy="48" r="2.5"/><circle cx="27" cy="60" r="2.5"/>
         </svg>
-        <p class="text-slate-400 font-medium">업무가 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">위에서 새 업무를 추가해보세요</p>
+        <p class="text-base text-slate-600 dark:text-slate-400 font-medium">업무가 없습니다</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">위에서 새 업무를 추가해보세요</p>
     </div>
     {% endfor %}
 </div>

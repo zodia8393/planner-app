@@ -33,8 +33,8 @@
             --color-surface: #ffffff;
             --color-surface-elevated: #ffffff;
             --color-text: #1c1917;
-            --color-text-muted: #78716c;
-            --color-text-faint: #a8a29e;
+            --color-text-muted: #57534e;
+            --color-text-faint: #78716c;
             --color-border: #e7e5e4;
             --color-border-subtle: #f5f5f4;
             --color-accent: #d97706;
@@ -71,8 +71,8 @@
             --color-surface: #292524;
             --color-surface-elevated: #44403c;
             --color-text: #fafaf9;
-            --color-text-muted: #a8a29e;
-            --color-text-faint: #78716c;
+            --color-text-muted: #d6d3d1;
+            --color-text-faint: #a8a29e;
             --color-border: #44403c;
             --color-border-subtle: #292524;
             --color-accent: #f59e0b;
@@ -358,10 +358,10 @@
         }
         .mobile-tab-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 6px 4px 4px; font-size: 10px; font-weight: 500; color: var(--color-text-faint);
+            padding: 8px 4px 6px; font-size: 10px; font-weight: 500; color: var(--color-text-faint);
             text-decoration: none; transition: color var(--duration-fast) var(--ease-in-out);
             -webkit-tap-highlight-color: transparent;
-            min-width: 48px; min-height: 48px;
+            min-width: 48px; min-height: 52px;
         }
         .mobile-tab-item.active { color: var(--color-accent); }
         .mobile-tab-item span.tab-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
@@ -404,15 +404,29 @@
         @media (max-width: 640px) {
             .cal-cell { min-height: 60px; padding: 2px !important; }
             .cal-cell .text-xs { font-size: 10px; }
-            .work-card { padding: 0.75rem !important; }
+            .work-card { padding: 1rem !important; }
             .work-card.rounded-xl { border-radius: var(--radius-lg) !important; }
             button, a.inline-flex, [role="button"], .nav-item { min-height: 44px; }
             input[type="text"], input[type="number"], input[type="date"],
-            input[type="datetime-local"], select, textarea {
+            input[type="datetime-local"], input[type="email"], input[type="password"],
+            input[type="search"], input[type="tel"], input[type="url"],
+            select, textarea {
                 font-size: 16px !important;
+                min-height: 44px;
             }
-            h2.text-lg.font-bold { font-size: 1.25rem !important; }
+            input[type="checkbox"], input[type="radio"] {
+                width: 20px; height: 20px; min-width: 20px; min-height: 20px;
+            }
+            label:has(input[type="checkbox"]), label:has(input[type="radio"]) {
+                min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem;
+            }
+            h2.text-lg.font-bold { font-size: 1.25rem !important; font-weight: 700 !important; }
             .page-subtitle, h2.text-lg + p.text-xs { font-size: 0.75rem !important; }
+            .text-slate-400 { color: #94a3b8 !important; }
+            ::placeholder { color: #78716c !important; }
+            .dark ::placeholder { color: #a8a29e !important; }
+            #mainContent { padding-left: 1rem; padding-right: 1rem; }
+            .space-y-2 > * + * { margin-top: 0.75rem; }
         }
         @media (max-width: 480px) {
             .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
@@ -431,10 +445,41 @@
             .page-subtitle, h2.text-lg + p.text-xs { font-size: 1rem !important; }
         }
 
+        /* ── Mobile UI Polish: Button & Touch Styles ── */
+        .btn-touch { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-primary {
+            padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
+            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
+        }
+        .btn-primary:active { transform: scale(0.95); }
+        .btn-secondary {
+            padding: 0.625rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: var(--radius-md);
+            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid var(--color-border);
+            transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
+        }
+        .btn-secondary:active { transform: scale(0.95); }
+        .btn-danger {
+            padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
+            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
+        }
+        .btn-danger:active { transform: scale(0.95); }
+        .btn-icon {
+            width: 2.5rem; height: 2.5rem; min-width: 2.5rem; min-height: 2.5rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-md);
+            transition: transform var(--duration-fast) var(--ease-in-out), background var(--duration-fast);
+        }
+        .btn-icon:active { transform: scale(0.9); }
+        .press-feedback { transition: transform var(--duration-fast) var(--ease-in-out); }
+        .press-feedback:active { transform: scale(0.95); }
+
         @media (max-width: 1023px) {
-            button, [role="button"] { min-height: 40px; }
-            a.nav-item, a.mobile-tab-item { min-height: 40px; display: flex; align-items: center; }
-            input, textarea, select { font-size: 16px !important; }
+            button, [role="button"] { min-height: 44px; }
+            a.nav-item, a.mobile-tab-item { min-height: 44px; display: flex; align-items: center; }
+            input, textarea, select { font-size: 16px !important; min-height: 44px; }
         }
         @media (hover: none) {
             .card-hover:active { transform: scale(0.98); }

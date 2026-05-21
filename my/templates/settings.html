@@ -121,7 +121,7 @@
                     <p id="settingsNotifStatus" class="text-xs text-slate-400 mt-0.5">확인 중...</p>
                 </div>
                 <button id="settingsNotifBtn" onclick="requestNotifPermission()"
-                        class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
+                        class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">
                     알림 허용하기
                 </button>
             </div>
@@ -455,7 +455,7 @@
                 <label class="text-xs text-slate-500 mb-1 block">시간</label>
                 <input type="time" id="mbTime" value="08:00" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
             </div>
-            <button onclick="saveMorningBrief()" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">저장</button>
+            <button onclick="saveMorningBrief()" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">저장</button>
         </div>
         <script>
         (function(){
@@ -477,7 +477,7 @@
     <!-- Item 16: iCal Feed -->
     <div class="work-card rounded-xl p-6">
         <h4 class="font-bold text-slate-800 dark:text-white mb-4">📅 캘린더 구독 (iCal)</h4>
-        <p class="text-xs text-slate-400 mb-3">아래 URL을 iPhone 캘린더, Google ��린더 등에 추가하면 일정이 자동으로 동기화됩니다.</p>
+        <p class="text-xs text-slate-400 mb-3">아래 URL을 iPhone 캘린더, Google 캘린더 등에 추가하면 일정이 자동으로 동기화됩니다.</p>
         <div class="flex items-center gap-2">
             <input type="text" id="icalUrl" readonly
                    class="flex-1 px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg font-mono"
@@ -497,7 +497,7 @@
 
     <!-- Item 22: QR Sync Guide -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 ��기화 가이드</h4>
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 동기화 가이드</h4>
         <p class="text-xs text-slate-400 mb-3">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
         <div class="space-y-3 mb-4">
             <div class="flex items-start gap-3">
