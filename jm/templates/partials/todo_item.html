@@ -50,7 +50,7 @@
                 <span class="text-xs text-slate-400">👤 {{ todo.assignee }}</span>
                 {% endif %}
                 {% for tag in todo.tags|parse_tags %}
-                <span class="text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded">{{ tag }}</span>
+                <a href="/todos?tag={{ tag }}" class="text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 px-1.5 py-0.5 rounded transition-colors cursor-pointer">{{ tag }}</a>
                 {% endfor %}
             </div>
 

@@ -372,6 +372,42 @@
         {% endif %}
     </div>
 
+    <!-- Morning Brief -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">🌅 모닝 브리핑</h4>
+        <p class="text-xs text-slate-400 mb-3">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림으로 받으세요.</p>
+        <div id="morningBriefForm" class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">활성화</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="mbEnabled" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 rounded-full peer peer-checked:bg-amber-500 transition-colors"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+            </div>
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">시간</label>
+                <input type="time" id="mbTime" value="08:00" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            </div>
+            <button onclick="saveMorningBrief()" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">저장</button>
+        </div>
+        <script>
+        (function(){
+            fetch('/api/morning-brief/settings').then(r=>r.json()).then(d=>{
+                document.getElementById('mbEnabled').checked=d.enabled;
+                document.getElementById('mbTime').value=(d.hour<10?'0':'')+d.hour+':'+(d.minute<10?'0':'')+d.minute;
+            }).catch(function(){});
+        })();
+        function saveMorningBrief(){
+            var enabled=document.getElementById('mbEnabled').checked?1:0;
+            var time=document.getElementById('mbTime').value.split(':');
+            fetch('/api/morning-brief/settings',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:'enabled='+enabled+'&hour='+parseInt(time[0])+'&minute='+parseInt(time[1])
+            }).then(function(){showToast('모닝 브리핑 설정 저장됨','success')}).catch(function(){showToast('저장 실패','error')});
+        }
+        </script>
+    </div>
+
     <!-- Google Calendar Integration -->
     <div class="work-card rounded-xl p-6">
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">Google 캘린더 연동</h4>

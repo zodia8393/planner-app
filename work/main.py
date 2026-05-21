@@ -522,6 +522,57 @@ def init_db():
             created_at TEXT DEFAULT (datetime('now','localtime'))
         );
         CREATE INDEX IF NOT EXISTS idx_meal_profile ON meal_places(profile_id);
+
+        CREATE TABLE IF NOT EXISTS habits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            icon TEXT DEFAULT '✅',
+            color TEXT DEFAULT '#6366f1',
+            frequency TEXT DEFAULT 'daily',
+            sort_order INTEGER DEFAULT 0,
+            archived INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_habits_profile ON habits(profile_id);
+
+        CREATE TABLE IF NOT EXISTS habit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            habit_id INTEGER NOT NULL,
+            profile_id INTEGER NOT NULL,
+            log_date TEXT NOT NULL,
+            completed INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE,
+            UNIQUE(habit_id, log_date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_habit_logs_date ON habit_logs(log_date);
+        CREATE INDEX IF NOT EXISTS idx_habit_logs_habit ON habit_logs(habit_id);
+
+        CREATE TABLE IF NOT EXISTS onboarding_progress (
+            profile_id INTEGER PRIMARY KEY,
+            step1_done INTEGER DEFAULT 0,
+            step2_done INTEGER DEFAULT 0,
+            step3_done INTEGER DEFAULT 0,
+            step4_done INTEGER DEFAULT 0,
+            dismissed INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        );
+
+        CREATE TABLE IF NOT EXISTS morning_brief_settings (
+            profile_id INTEGER PRIMARY KEY,
+            enabled INTEGER DEFAULT 0,
+            hour INTEGER DEFAULT 8,
+            minute INTEGER DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS app_visits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            visit_date TEXT NOT NULL,
+            UNIQUE(profile_id, visit_date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_visits_profile ON app_visits(profile_id);
         """)
 
         for tbl in ("work_profiles", ):
@@ -822,6 +873,13 @@ def _seed_form_presets():
 
 
 # ── Audit log helper ──
+def set_user_setting(conn, profile_id, key: str, value: str):
+    conn.execute(
+        "INSERT OR REPLACE INTO user_settings (profile_id, key, value) VALUES (?, ?, ?)",
+        (str(profile_id), key, value),
+    )
+
+
 def _audit_log(conn, entity_type: str, entity_id: int, action: str, changes: dict = None, profile_id: str = None):
     """Insert a lightweight audit record."""
     conn.execute(
@@ -981,6 +1039,21 @@ def calc_dday(target_date_str: str) -> int:
         return (target - date_mod.today()).days
     except (ValueError, TypeError):
         return 0
+
+
+def get_user_setting(conn, profile_id, key: str, default: str = "") -> str:
+    row = conn.execute(
+        "SELECT value FROM user_settings WHERE profile_id=? AND key=?",
+        (str(profile_id), key),
+    ).fetchone()
+    return row[0] if row else default
+
+
+def set_user_setting(conn, profile_id, key: str, value: str):
+    conn.execute(
+        "INSERT OR REPLACE INTO user_settings (profile_id, key, value) VALUES (?, ?, ?)",
+        (str(profile_id), key, value),
+    )
 
 
 def get_profile_id(request: Request) -> int:
@@ -1967,6 +2040,323 @@ async def sync_profile(request: Request, pid: str = "", sid: str = ""):
     if sid:
         response.set_cookie(SESSION_COOKIE, sid, max_age=365 * 24 * 3600, httponly=True, samesite="lax")
     return response
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Habits CRUD
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/habits", response_class=HTMLResponse)
+async def habits_page(request: Request):
+    pid = get_profile_id(request)
+    today = date_mod.today()
+    with get_db() as conn:
+        habits = conn.execute(
+            "SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)
+        ).fetchall()
+        start_date = (today - timedelta(days=29)).isoformat()
+        logs = conn.execute(
+            "SELECT habit_id, log_date FROM habit_logs WHERE profile_id=? AND log_date>=?",
+            (pid, start_date),
+        ).fetchall()
+    logs_set = {(r["habit_id"], r["log_date"]) for r in logs}
+    habits_data = []
+    for h in habits:
+        hd = dict(h)
+        streak = 0
+        d = today
+        while True:
+            if (hd["id"], d.isoformat()) in logs_set:
+                streak += 1
+                d -= timedelta(days=1)
+            else:
+                break
+        hd["streak"] = streak
+        hd["today_done"] = (hd["id"], today.isoformat()) in logs_set
+        habits_data.append(hd)
+    dates = [(today - timedelta(days=i)).isoformat() for i in range(29, -1, -1)]
+    return render(request, "habits.html", {
+        "page": "habits", "habits": habits_data,
+        "logs_set": logs_set, "dates": dates, "today_str": today.isoformat(),
+    })
+
+
+@app.post("/habits", response_class=HTMLResponse)
+async def create_habit(request: Request, name: str = Form(""), icon: str = Form("✅"), color: str = Form("#6366f1")):
+    pid = get_profile_id(request)
+    name = clamp_text(fix_mojibake(name), 50).strip()
+    if not name:
+        return redirect(request, "/habits")
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM habits WHERE profile_id=?", (pid,)).fetchone()[0]
+        conn.execute(
+            "INSERT INTO habits (profile_id, name, icon, color, sort_order) VALUES (?,?,?,?,?)",
+            (pid, name, icon or "✅", color, max_order + 1),
+        )
+    return redirect(request, "/habits")
+
+
+@app.post("/habits/{habit_id}/toggle", response_class=HTMLResponse)
+async def toggle_habit(request: Request, habit_id: int, date: str = Form("")):
+    pid = get_profile_id(request)
+    log_date = date or date_mod.today().isoformat()
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM habit_logs WHERE habit_id=? AND log_date=?", (habit_id, log_date)
+        ).fetchone()
+        if existing:
+            conn.execute("DELETE FROM habit_logs WHERE id=?", (existing["id"],))
+        else:
+            conn.execute(
+                "INSERT OR IGNORE INTO habit_logs (habit_id, profile_id, log_date) VALUES (?,?,?)",
+                (habit_id, pid, log_date),
+            )
+    return redirect(request, "/habits")
+
+
+@app.delete("/habits/{habit_id}", response_class=HTMLResponse)
+async def delete_habit(request: Request, habit_id: int):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        conn.execute("DELETE FROM habits WHERE id=? AND profile_id=?", (habit_id, pid))
+    return HTMLResponse("")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Onboarding Checklist API
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/api/onboarding")
+async def get_onboarding(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM onboarding_progress WHERE profile_id=?", (pid,)).fetchone()
+        if not row:
+            conn.execute("INSERT INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+            return JSONResponse({"step1": False, "step2": False, "step3": False, "step4": False, "dismissed": False})
+        return JSONResponse({
+            "step1": bool(row["step1_done"]), "step2": bool(row["step2_done"]),
+            "step3": bool(row["step3_done"]), "step4": bool(row["step4_done"]),
+            "dismissed": bool(row["dismissed"]),
+        })
+
+
+@app.post("/api/onboarding/step/{step}")
+async def complete_onboarding_step(request: Request, step: int):
+    pid = get_profile_id(request)
+    if step not in (1, 2, 3, 4):
+        raise HTTPException(400)
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+        conn.execute(f"UPDATE onboarding_progress SET step{step}_done=1 WHERE profile_id=?", (pid,))
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/onboarding/dismiss")
+async def dismiss_onboarding(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+        conn.execute("UPDATE onboarding_progress SET dismissed=1 WHERE profile_id=?", (pid,))
+    return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Morning Brief API
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/api/morning-brief")
+async def morning_brief(request: Request):
+    pid = get_profile_id(request)
+    today_str = date_mod.today().isoformat()
+    with get_db() as conn:
+        todo_count = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND due_date<=? AND completed=0", (pid, today_str)
+        ).fetchone()[0]
+        event_count = conn.execute(
+            "SELECT COUNT(*) FROM events WHERE profile_id=? AND date(start_time)=?", (pid, today_str)
+        ).fetchone()[0]
+        habits_total = conn.execute(
+            "SELECT COUNT(*) FROM habits WHERE profile_id=? AND archived=0", (pid,)
+        ).fetchone()[0]
+        habits_done = conn.execute(
+            "SELECT COUNT(*) FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today_str)
+        ).fetchone()[0]
+    return JSONResponse({
+        "date": today_str,
+        "todos_pending": todo_count,
+        "events_today": event_count,
+        "habits_total": habits_total,
+        "habits_done": habits_done,
+        "message": f"오늘 할 일 {todo_count}개, 일정 {event_count}개가 있습니다.",
+    })
+
+
+@app.post("/api/morning-brief/settings")
+async def save_morning_brief_settings(request: Request, enabled: int = Form(0), hour: int = Form(8), minute: int = Form(0)):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO morning_brief_settings (profile_id, enabled, hour, minute) VALUES (?,?,?,?)",
+            (pid, enabled, max(0, min(23, hour)), max(0, min(59, minute))),
+        )
+    return JSONResponse({"ok": True})
+
+
+@app.get("/api/morning-brief/settings")
+async def get_morning_brief_settings(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM morning_brief_settings WHERE profile_id=?", (pid,)).fetchone()
+    if not row:
+        return JSONResponse({"enabled": False, "hour": 8, "minute": 0})
+    return JSONResponse({"enabled": bool(row["enabled"]), "hour": row["hour"], "minute": row["minute"]})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# PWA Install + Visit Tracking + Review Prompt
+# ══════════════════════════════════════════════════════════════════════
+
+@app.post("/api/pwa-install-dismissed")
+async def pwa_install_dismissed(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        set_user_setting(conn, str(pid), "pwa_install_dismissed", "1")
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/track-visit")
+async def track_visit(request: Request):
+    pid = get_profile_id(request)
+    today_str = date_mod.today().isoformat()
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO app_visits (profile_id, visit_date) VALUES (?,?)", (pid, today_str))
+    return JSONResponse({"ok": True})
+
+
+@app.get("/api/review-prompt")
+async def check_review_prompt(request: Request):
+    pid = get_profile_id(request)
+    today = date_mod.today()
+    with get_db() as conn:
+        snoozed = conn.execute(
+            "SELECT value FROM user_settings WHERE profile_id=? AND key='review_snoozed_until'", (str(pid),)
+        ).fetchone()
+        if snoozed and snoozed["value"] and snoozed["value"] > today.isoformat():
+            return JSONResponse({"show": False})
+        reviewed = conn.execute(
+            "SELECT value FROM user_settings WHERE profile_id=? AND key='review_done'", (str(pid),)
+        ).fetchone()
+        if reviewed:
+            return JSONResponse({"show": False})
+        streak = 0
+        for i in range(7):
+            d = (today - timedelta(days=i)).isoformat()
+            exists = conn.execute(
+                "SELECT 1 FROM app_visits WHERE profile_id=? AND visit_date=?", (pid, d)
+            ).fetchone()
+            if exists:
+                streak += 1
+            else:
+                break
+    return JSONResponse({"show": streak >= 7})
+
+
+@app.post("/api/review-prompt/dismiss")
+async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        if action == "done":
+            set_user_setting(conn, str(pid), "review_done", "1")
+        else:
+            snooze_until = (date_mod.today() + timedelta(days=30)).isoformat()
+            set_user_setting(conn, str(pid), "review_snoozed_until", snooze_until)
+    return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# /today — unified today view
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/today", response_class=HTMLResponse)
+async def today_view(request: Request):
+    pid = get_profile_id(request)
+    today = date_mod.today()
+    today_str = today.isoformat()
+    with get_db() as conn:
+        todos = conn.execute("""
+            SELECT t.*, c.name as category_name, c.color as category_color
+            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+            WHERE t.profile_id=? AND ((t.due_date<=? AND t.completed=0) OR (t.completed=1 AND date(t.completed_at)=?))
+            ORDER BY t.completed ASC, t.priority ASC, t.sort_order ASC
+        """, (pid, today_str, today_str)).fetchall()
+        events = conn.execute("""
+            SELECT e.*, c.name as category_name
+            FROM events e LEFT JOIN categories c ON e.category_id = c.id
+            WHERE e.profile_id=? AND date(e.start_time)=?
+            ORDER BY e.start_time ASC
+        """, (pid, today_str)).fetchall()
+        worklogs = conn.execute("""
+            SELECT w.*, c.name as category_name, c.color as category_color
+            FROM work_logs w LEFT JOIN categories c ON w.category_id = c.id
+            WHERE w.profile_id=? AND w.log_date=?
+            ORDER BY w.created_at DESC
+        """, (pid, today_str)).fetchall()
+        habits = conn.execute("SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)).fetchall()
+        habit_logs_today = conn.execute(
+            "SELECT habit_id FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today_str)
+        ).fetchall()
+    done_habits = {r["habit_id"] for r in habit_logs_today}
+    habits_data = [dict(h) | {"today_done": h["id"] in done_habits} for h in habits]
+    return render(request, "today.html", {
+        "page": "today", "today_str": today_str,
+        "todos": [dict(r) for r in todos],
+        "events": [dict(r) for r in events],
+        "worklogs": [dict(r) for r in worklogs],
+        "habits": habits_data,
+        "priority_map": PRIORITY_MAP,
+    })
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Starter Automation Suggestions
+# ══════════════════════════════════════════════════════════════════════
+
+@app.post("/automations/apply-starter", response_class=HTMLResponse)
+async def apply_starter_automation(request: Request, preset: str = Form("")):
+    pid = get_profile_id(request)
+    starters = {
+        "weekly_review": {
+            "name": "매주 금요일 주간 리뷰",
+            "trigger_type": "weekly",
+            "trigger_config": json.dumps({"weekday": 4}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "주간 업무 리뷰 작성", "priority": 1}),
+        },
+        "daily_standup": {
+            "name": "매일 오전 업무 정리",
+            "trigger_type": "daily",
+            "trigger_config": json.dumps({}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "오늘의 업무 우선순위 정리", "priority": 2}),
+        },
+        "monthly_report": {
+            "name": "매월 1일 월간 보고서",
+            "trigger_type": "monthly",
+            "trigger_config": json.dumps({"day": 1}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "월간 업무 보고서 작성", "priority": 1}),
+        },
+    }
+    if preset not in starters:
+        return redirect(request, "/automations")
+    s = starters[preset]
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO automation_rules (profile_id, name, trigger_type, trigger_config, action_type, action_config) VALUES (?,?,?,?,?,?)",
+            (pid, s["name"], s["trigger_type"], s["trigger_config"], s["action_type"], s["action_config"]),
+        )
+    return redirect(request, "/automations")
 
 
 if __name__ == "__main__":

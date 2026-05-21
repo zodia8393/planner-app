@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}오늘 - Work Planner{% endblock %}
+{% block page_title %}오늘{% endblock %}
+{% block page_subtitle %}{{ today_str }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Today's Todos -->
+    <div class="work-card rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold" style="color: var(--color-text);">
+                <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                할 일 ({{ todos|length }})
+            </h3>
+            <a href="/todos" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
+        </div>
+        {% if todos %}
+        <div class="space-y-2">
+            {% for t in todos[:8] %}
+            <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);">
+                <form action="/todos/{{ t.id }}/toggle" method="POST" class="inline">
+                    <button type="submit" class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors flex-shrink-0
+                        {% if t.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-600{% endif %}">
+                        {% if t.completed %}<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
+                    </button>
+                </form>
+                <span class="text-sm {% if t.completed %}line-through{% endif %}" style="color: var(--color-text);">{{ t.title }}</span>
+                {% if t.category_color %}<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ t.category_color }}"></span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘의 할 일이 없습니다</p>
+        {% endif %}
+    </div>
+
+    <!-- Today's Events -->
+    <div class="work-card rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold" style="color: var(--color-text);">
+                <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                일정 ({{ events|length }})
+            </h3>
+            <a href="/calendar" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
+        </div>
+        {% if events %}
+        <div class="space-y-2">
+            {% for e in events %}
+            <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">
+                <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ e.color or '#6366f1' }}"></div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ e.title }}</p>
+                    <p class="text-xs" style="color: var(--color-text-muted);">{{ e.start_time[11:16] if 'T' in e.start_time else '종일' }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘 일정이 없습니다</p>
+        {% endif %}
+    </div>
+
+    <!-- Today's Habits -->
+    <div class="work-card rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold" style="color: var(--color-text);">
+                <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
+                습관 ({{ habits|selectattr('today_done')|list|length }}/{{ habits|length }})
+            </h3>
+            <a href="/habits" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
+        </div>
+        {% if habits %}
+        <div class="space-y-2">
+            {% for h in habits %}
+            <form action="/habits/{{ h.id }}/toggle" method="POST" class="flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);">
+                <input type="hidden" name="date" value="{{ today_str }}">
+                <button type="submit" class="w-6 h-6 rounded-lg flex items-center justify-center text-sm flex-shrink-0"
+                        style="background: {% if h.today_done %}{{ h.color }}20{% else %}transparent{% endif %}; border: 2px solid {% if h.today_done %}{{ h.color }}{% else %}var(--color-border){% endif %};">
+                    {% if h.today_done %}{{ h.icon }}{% endif %}
+                </button>
+                <span class="text-sm {% if h.today_done %}line-through opacity-60{% endif %}" style="color: var(--color-text);">{{ h.name }}</span>
+            </form>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">습관이 없습니다. <a href="/habits" style="color: var(--color-accent);">추가하기</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Today's Work Logs -->
+    <div class="work-card rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold" style="color: var(--color-text);">
+                <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+                업무일지 ({{ worklogs|length }})
+            </h3>
+            <a href="/worklogs" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
+        </div>
+        {% if worklogs %}
+        <div class="space-y-2">
+            {% for w in worklogs[:5] %}
+            <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">
+                {% if w.category_color %}<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ w.category_color }}"></span>{% endif %}
+                <span class="text-sm flex-1 truncate" style="color: var(--color-text);">{{ w.title }}</span>
+                <span class="text-xs font-medium flex-shrink-0" style="color: var(--color-text-muted);">{{ w.hours }}h</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘 업무 기록이 없습니다</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
