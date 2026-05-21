@@ -15,3 +15,20 @@ work/worklog_images/
 hub/data/
 .git.bak.flyio/
 *.bak
+
+# Secrets
+.env
+.env.*
+
+# TLS certs
+*.pem
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
