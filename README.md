@@ -1,5 +1,7 @@
 # Planner 웹앱 (Flask/FastAPI, 3개 인스턴스 + Hub)
 
+![CI](https://github.com/zodia8393/planner-app/actions/workflows/ci.yml/badge.svg)
+
 ## 목적
 
 개인/공유/업무용 플래너 웹 애플리케이션. 할일 관리, 캘린더, 업무일지, 집중 모드(Pomodoro), 양식 빌더, 자동화 규칙, 통계/리뷰 등 종합 생산성 도구를 제공한다. 3개의 독립 인스턴스(JM/My/Work)와 통합 대시보드(Hub)로 구성된다.
