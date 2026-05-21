@@ -104,7 +104,7 @@ def get_network_group(request: Request) -> str:
 
 
 # ── Middleware ──
-PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/cal", "/worklog-images", "/backgrounds", "/api/qr-code", "/sync-profile"}
+PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/auth/google", "/cal", "/worklog-images", "/backgrounds", "/api/qr-code", "/sync-profile"}
 
 
 class PinAuthMiddleware(BaseHTTPMiddleware):
@@ -576,6 +576,13 @@ def init_db():
         if "gcal_last_synced" not in ev_cols:
             conn.execute("ALTER TABLE events ADD COLUMN gcal_last_synced TEXT DEFAULT ''")
 
+        # Migration: add Google OAuth columns to work_profiles
+        wp_cols = [r[1] for r in conn.execute("PRAGMA table_info(work_profiles)").fetchall()]
+        if "google_sub" not in wp_cols:
+            conn.execute("ALTER TABLE work_profiles ADD COLUMN google_sub TEXT DEFAULT ''")
+        if "google_email" not in wp_cols:
+            conn.execute("ALTER TABLE work_profiles ADD COLUMN google_email TEXT DEFAULT ''")
+
         existing = conn.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
         if existing == 0:
             conn.executemany(
@@ -1022,6 +1029,7 @@ from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos, forms as _r_forms
 from common.routers import settings as _r_settings, misc as _r_misc
 from common.routers import sse as _r_sse
+from common.routers import auth as _r_auth
 
 app.state.get_db = get_db
 app.state.get_profile_id = get_profile_id
@@ -1042,6 +1050,25 @@ app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
     "SELECT * FROM categories ORDER BY sort_order").fetchall()
 app.state.get_network_group = get_network_group
+# Google OAuth config
+app.state.auth_profile_table = "work_profiles"
+app.state.auth_cookie_name = PROFILE_COOKIE
+app.state.auth_cookie_max_age = 86400 * 365
+
+def _work_auth_on_login(request, response, profile_id):
+    """Post-login hook: set session token so PinAuthMiddleware allows access."""
+    token = secrets.token_urlsafe(32)
+    SESSION_TOKENS[token] = profile_id
+    response.set_cookie(
+        SESSION_COOKIE, token,
+        max_age=86400 * 30,
+        httponly=True,
+        secure=request.url.scheme == "https" or "fly.dev" in request.headers.get("host", ""),
+        samesite="lax",
+    )
+    return response
+
+app.state.auth_on_login = _work_auth_on_login
 
 app.include_router(_r_memos.router)
 app.include_router(_r_notices.router)
@@ -1052,6 +1079,7 @@ app.include_router(_r_forms.router)
 app.include_router(_r_settings.router)
 app.include_router(_r_misc.router)
 app.include_router(_r_sse.router)
+app.include_router(_r_auth.router)
 
 
 

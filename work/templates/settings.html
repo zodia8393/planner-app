@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">카테고리</b> — 업무·메모·일정에 사용할 카테고리와 색상을 관리합니다</p>
         <p><b class="text-slate-700 dark:text-slate-300">시간 예산</b> — 카테고리별 주간 목표 시간을 설정하여 대시보드에서 추적</p>
         <p><b class="text-slate-700 dark:text-slate-300">Google 캘린더</b> — Google 계정을 연결하면 일정이 자동으로 동기화됩니다</p>
@@ -20,7 +20,7 @@
     <!-- Profile section -->
     <div class="work-card rounded-xl p-6">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/30">
+            <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-amber-500/30">
                 {{ profile.emoji }}
             </div>
             <div>
@@ -33,10 +33,10 @@
             <div>
                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">이름 변경</label>
                 <input type="text" name="name" value="{{ profile.name }}" required maxlength="50"
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             </div>
             <button type="submit"
-                    class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                    class="w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
                 저장
             </button>
         </form>
@@ -50,14 +50,14 @@
             <div class="flex-1">
                 <label class="text-xs text-slate-500 mb-1 block">이름</label>
                 <input type="text" name="name" placeholder="카테고리 이름" required
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             </div>
             <div>
                 <label class="text-xs text-slate-500 mb-1 block">색상</label>
-                <input type="color" name="color" value="#6366f1"
+                <input type="color" name="color" value="#d97706"
                        class="w-14 h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
             </div>
-            <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">추가</button>
+            <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">추가</button>
         </form>
 
         <div class="space-y-2">
@@ -85,7 +85,7 @@
     <div class="work-card rounded-xl p-6">
         <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-slate-800 dark:text-white">주간 시간 예산</h4>
-            <a href="/settings/time-budgets" class="text-xs text-indigo-500 hover:underline">설정</a>
+            <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline">설정</a>
         </div>
         <p class="text-xs text-slate-400 mb-4">카테고리별 주간 시간 한도를 설정합니다.</p>
         <form action="/settings/time-budgets" method="POST">
@@ -104,7 +104,7 @@
                 {% endfor %}
             </div>
             {% if time_budget_cats|default([])|length > 0 %}
-            <button type="submit" class="mt-3 w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">저장</button>
+            <button type="submit" class="mt-3 w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">저장</button>
             {% endif %}
         </form>
     </div>
@@ -121,7 +121,7 @@
                     <p id="settingsNotifStatus" class="text-xs text-slate-400 mt-0.5">확인 중...</p>
                 </div>
                 <button id="settingsNotifBtn" onclick="requestNotifPermission()"
-                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                        class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
                     알림 허용하기
                 </button>
             </div>
@@ -152,7 +152,7 @@
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">액센트 색상</h4>
         <p class="text-xs text-slate-400 mb-4">앱의 강조 색상을 선택합니다.</p>
         <div class="flex gap-3" id="accentPicker">
-            <button onclick="setAccentColor('indigo')" data-color="indigo" class="w-10 h-10 rounded-xl bg-indigo-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="인디고 색상"></button>
+            <button onclick="setAccentColor('indigo')" data-color="indigo" class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="인디고 색상"></button>
             <button onclick="setAccentColor('emerald')" data-color="emerald" class="w-10 h-10 rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="에메랄드 색상"></button>
             <button onclick="setAccentColor('rose')" data-color="rose" class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="로즈 색상"></button>
             <button onclick="setAccentColor('amber')" data-color="amber" class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="앰버 색상"></button>
@@ -165,13 +165,13 @@
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">글꼴 크기</h4>
         <p class="text-xs text-slate-400 mb-4">화면의 글꼴 크기를 조정합니다.</p>
         <div class="flex gap-2" id="fontSizePicker">
-            <button onclick="setFontSize('small')" data-size="small" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+            <button onclick="setFontSize('small')" data-size="small" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-xs">가</span> 작게
             </button>
-            <button onclick="setFontSize('medium')" data-size="medium" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+            <button onclick="setFontSize('medium')" data-size="medium" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-sm">가</span> 보통
             </button>
-            <button onclick="setFontSize('large')" data-size="large" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-indigo-400">
+            <button onclick="setFontSize('large')" data-size="large" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-base">가</span> 크게
             </button>
         </div>
@@ -206,10 +206,10 @@
         var current = localStorage.getItem('font_size') || 'medium';
         document.querySelectorAll('#fontSizePicker button').forEach(function(btn) {
             if (btn.dataset.size === current) {
-                btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.add('bg-amber-600', 'text-white', 'border-amber-600');
                 btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-600');
             } else {
-                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.remove('bg-amber-600', 'text-white', 'border-amber-600');
                 btn.classList.add('bg-white', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-600');
             }
         });
@@ -228,17 +228,17 @@
             <div class="space-y-3 mb-5">
                 <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <input type="radio" name="type" value="none" {% if not bg_setting or bg_setting.type == 'none' %}checked{% endif %}
-                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                           class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
                     <span class="text-sm font-medium text-slate-700 dark:text-slate-200">기본 (배경 없음)</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <input type="radio" name="type" value="preset" {% if bg_setting and bg_setting.type == 'preset' %}checked{% endif %}
-                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                           class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
                     <span class="text-sm font-medium text-slate-700 dark:text-slate-200">프리셋 그라데이션</span>
                 </label>
                 <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <input type="radio" name="type" value="upload" {% if bg_setting and bg_setting.type == 'upload' %}checked{% endif %}
-                           class="w-4 h-4 text-indigo-600" onchange="updateBgPreview()">
+                           class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
                     <span class="text-sm font-medium text-slate-700 dark:text-slate-200">사진 업로드</span>
                 </label>
             </div>
@@ -250,7 +250,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-1" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-1' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Sunset</p>
@@ -258,7 +258,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-2" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-2' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #667eea 0%, #0891b2 50%, #06b6d4 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Ocean</p>
@@ -266,7 +266,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-3" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-3' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 50%, #22c55e 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Forest</p>
@@ -274,7 +274,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-4" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-4' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #f97316 0%, #f59e0b 50%, #fbbf24 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Amber</p>
@@ -282,7 +282,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-5" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-5' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #4c1d95 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Night</p>
@@ -290,7 +290,7 @@
                     <label class="cursor-pointer">
                         <input type="radio" name="preset" value="gradient-6" class="hidden peer"
                                {% if bg_setting and bg_setting.preset == 'gradient-6' %}checked{% endif %}>
-                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-200 transition-all"
+                        <div class="h-16 rounded-xl border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
                              style="background: linear-gradient(135deg, #be185d 0%, #ec4899 50%, #f9a8d4 100%);">
                         </div>
                         <p class="text-xs text-center mt-1 text-slate-500">Rose</p>
@@ -308,7 +308,7 @@
                     <span class="absolute top-2 left-2 px-2 py-0.5 bg-black/50 text-white text-xs rounded">현재 배경</span>
                 </div>
                 {% endif %}
-                <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-indigo-400 transition-colors">
+                <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-amber-400 transition-colors">
                     <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp" id="bgFileInput"
                            class="hidden" onchange="previewBgFile(this)">
                     <label for="bgFileInput" class="cursor-pointer">
@@ -334,16 +334,42 @@
                            class="flex-1 h-2 bg-slate-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                            id="opacitySlider" oninput="document.getElementById('opacityValue').textContent=Math.round(this.value*100)+'%'">
                     <span class="text-xs text-slate-400 w-8">불투명</span>
-                    <span id="opacityValue" class="text-xs font-medium text-indigo-600 w-10 text-right">{{ ((bg_setting.opacity if bg_setting else 0.7) * 100)|int }}%</span>
+                    <span id="opacityValue" class="text-xs font-medium text-amber-600 w-10 text-right">{{ ((bg_setting.opacity if bg_setting else 0.7) * 100)|int }}%</span>
                 </div>
                 <p class="text-xs text-slate-400 mt-2">낮을수록 배경이 더 많이 보입니다.</p>
             </div>
 
             <button type="submit"
-                    class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                    class="w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
                 배경 저장
             </button>
         </form>
+    </div>
+
+    <!-- Google Account Login -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-2">Google 계정</h4>
+        <p class="text-xs text-slate-400 mb-4">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
+        {% if profile and profile.google_email %}
+        <div class="p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/30 rounded-lg mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                <span class="text-xs font-medium text-green-700 dark:text-green-400">연결됨</span>
+                <span class="text-xs text-slate-500 ml-auto">{{ profile.google_email }}</span>
+            </div>
+        </div>
+        {% else %}
+        <a href="/auth/google/link" hx-boost="false"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Google 계정 연결</span>
+        </a>
+        {% endif %}
     </div>
 
     <!-- Google Calendar Integration -->
@@ -374,7 +400,7 @@
                 <form action="/settings/gcal/calendar-id" method="POST" class="mt-2">
                     <input type="hidden" name="calendar_id" id="gcalIdInput" value="{{ gcal_calendar_id }}">
                     <button type="submit" onclick="document.getElementById('gcalIdInput').value=document.getElementById('gcalSelect').value"
-                            class="w-full py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                            class="w-full py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
                         캘린더 저장
                     </button>
                 </form>
@@ -404,7 +430,7 @@
                    value="{{ request.url.scheme }}://{{ request.headers.get('host', 'localhost:8001') }}/cal/{{ profile.id }}.ics"
                    class="flex-1 px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 font-mono">
             <button onclick="navigator.clipboard.writeText(document.getElementById('icalUrl').value).then(()=>{this.textContent='복사됨!';setTimeout(()=>this.textContent='복사',1500)})"
-                    class="px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm whitespace-nowrap">
+                    class="px-4 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm whitespace-nowrap">
                 복사
             </button>
         </div>
@@ -428,7 +454,7 @@
         <div id="qrSection" class="flex flex-col items-center gap-3">
             <div id="qrLoading" class="text-xs text-slate-400">QR 코드 생성 중...</div>
             <img id="qrImg" class="hidden rounded-lg border border-slate-200 dark:border-slate-600" width="200" height="200" alt="QR">
-            <p id="qrUrl" class="hidden text-sm font-mono text-indigo-600 dark:text-indigo-400"></p>
+            <p id="qrUrl" class="hidden text-sm font-mono text-amber-600 dark:text-amber-400"></p>
         </div>
         <script>
         fetch('/api/qr-code').then(r=>r.json()).then(d=>{

@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">일정 추가</b> — 날짜 클릭으로 일정 추가 (제목, 시간, 색상, 카테고리, 메모, 반복 설정)</p>
         <p><b class="text-slate-700 dark:text-slate-300">일정 수정</b> — 등록된 일정을 클릭하면 인라인 수정 폼이 나타납니다</p>
         <p><b class="text-slate-700 dark:text-slate-300">할일 연동</b> — 마감일이 있는 할일이 캘린더에 체크박스로 표시, 직접 완료 처리 가능</p>
@@ -53,11 +53,11 @@
         {% set weekday = (start_weekday + day - 1) % 7 %}
         {% set total_items = day_events|length + day_todos|length %}
         {% set holiday_name = holidays_by_date.get(day_str) %}
-        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-indigo-50/50 dark:bg-indigo-900/10{% endif %}"
+        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
              onclick="openEventModal('{{ day_str }}')">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs lg:text-sm font-medium
-                    {% if is_today %}bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center
+                    {% if is_today %}bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center
                     {% elif holiday_name or weekday == 6 %}text-red-400
                     {% elif weekday == 5 %}text-blue-400
                     {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ day }}</span>
@@ -121,23 +121,23 @@
             <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">일정 추가</h3>
             <form action="/events" method="POST" class="space-y-3" id="eventForm">
                 <input type="text" name="title" placeholder="일정 제목" required
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">시작</label>
                         <input type="datetime-local" name="start_time" id="eventStartTime"
-                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                     </div>
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">종료</label>
                         <input type="datetime-local" name="end_time"
-                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">색상</label>
-                        <input type="color" name="color" value="#6366f1"
+                        <input type="color" name="color" value="#d97706"
                                class="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
                     </div>
                     <div>
@@ -151,7 +151,7 @@
                     </div>
                 </div>
                 <textarea name="memo" placeholder="메모" rows="2"
-                          class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400"></textarea>
+                          class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"></textarea>
                 <div>
                     <label class="text-xs text-slate-500 mb-1 block">반복</label>
                     <select name="recurrence" id="eventRecurrence" onchange="toggleEventRrule()"
@@ -169,7 +169,7 @@
                     <input type="date" name="recurrence_end"
                            class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
                     저장
                 </button>
             </form>
@@ -206,4 +206,5 @@ function editEvent(eventId) {
     }).catch(function(){});
 }
 </script>
+if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
 {% endblock %}

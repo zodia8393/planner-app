@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">업로드</b> — "파일 업로드" 버튼 또는 드래그 앤 드롭으로 파일 업로드</p>
         <p><b class="text-slate-700 dark:text-slate-300">미리보기</b> — 이미지, PDF, 텍스트 파일 클릭 시 미리보기 지원</p>
         <p><b class="text-slate-700 dark:text-slate-300">폴더 관리</b> — 폴더 생성으로 파일을 체계적으로 정리</p>
@@ -22,7 +22,7 @@
 <div class="flex items-center gap-1.5 mb-4 overflow-x-auto text-sm">
     {% for bc in breadcrumbs %}
     {% if not loop.last %}
-    <a href="/files/{{ bc.path }}" class="text-indigo-500 hover:underline font-medium whitespace-nowrap">{{ bc.name }}</a>
+    <a href="/files/{{ bc.path }}" class="text-amber-500 hover:underline font-medium whitespace-nowrap">{{ bc.name }}</a>
     <span class="text-slate-300 dark:text-slate-600">/</span>
     {% else %}
     <span class="text-slate-700 dark:text-slate-200 font-medium whitespace-nowrap">{{ bc.name }}</span>
@@ -34,7 +34,7 @@
 <div class="flex flex-wrap gap-2 mb-4">
     <!-- Upload -->
     <form action="/files/upload/{{ current_path }}" method="POST" enctype="multipart/form-data" id="uploadForm" class="flex gap-2 items-center">
-        <label class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5">
+        <label class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors cursor-pointer flex items-center gap-1.5">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
@@ -46,7 +46,7 @@
     <!-- New folder -->
     <form action="/files/mkdir/{{ current_path }}" method="POST" class="flex gap-2 items-center" hx-boost="false">
         <input type="text" name="folder_name" placeholder="새 폴더명" required
-               class="px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 w-36">
+               class="px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 w-36">
         <button type="submit" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.06-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
@@ -66,9 +66,9 @@
 </div>
 
 <!-- Drop zone -->
-<div id="dropZone" class="hidden mb-4 p-8 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 text-center">
+<div id="dropZone" class="hidden mb-4 p-8 border-2 border-dashed border-amber-300 dark:border-amber-700 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 text-center">
     <span class="text-3xl">📥</span>
-    <p class="text-sm text-indigo-600 dark:text-indigo-400 font-medium mt-2">파일을 여기에 놓으세요</p>
+    <p class="text-sm text-amber-600 dark:text-amber-400 font-medium mt-2">파일을 여기에 놓으세요</p>
 </div>
 
 <!-- File list -->
@@ -89,7 +89,7 @@
                 {% if item.previewable %}
                 <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
                     <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
-                    <span class="text-sm text-slate-700 dark:text-slate-200 truncate hover:text-indigo-500 transition-colors">{{ item.name }}</span>
+                    <span class="text-sm text-slate-700 dark:text-slate-200 truncate hover:text-amber-500 transition-colors">{{ item.name }}</span>
                 </button>
                 {% else %}
                 <a href="/files/{{ item.path }}" class="flex items-center gap-2.5 min-w-0 {% if item.is_dir %}font-medium{% endif %}">
@@ -109,7 +109,7 @@
             </div>
             <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
                 {% if item.previewable %}
-                <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="미리보기">
+                <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="미리보기">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -117,7 +117,7 @@
                 </button>
                 {% endif %}
                 {% if not item.is_dir %}
-                <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 text-slate-400 hover:text-indigo-500 transition-colors" title="다운로드">
+                <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="다운로드">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
@@ -136,7 +136,7 @@
                 <span class="text-xs text-slate-400">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
                 <div class="flex items-center gap-1">
                     {% if item.previewable %}
-                    <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1.5 text-slate-400 hover:text-indigo-500">
+                    <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1.5 text-slate-400 hover:text-amber-500">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -144,7 +144,7 @@
                     </button>
                     {% endif %}
                     {% if not item.is_dir %}
-                    <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 text-slate-400 hover:text-indigo-500">
+                    <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 text-slate-400 hover:text-amber-500">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
@@ -190,7 +190,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
             <div class="flex items-center gap-2 min-w-0">
-                <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -211,8 +211,8 @@
 <div id="fileStatus" class="fixed bottom-6 right-6 z-50 hidden max-w-sm w-full">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4">
         <div class="flex items-center gap-3 mb-2">
-            <div id="statusIcon" class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-spin" id="statusSpinner" fill="none" viewBox="0 0 24 24">
+            <div id="statusIcon" class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 animate-spin" id="statusSpinner" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                 </svg>
@@ -231,7 +231,7 @@
             </button>
         </div>
         <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-            <div id="statusBar" class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <div id="statusBar" class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width: 0%"></div>
         </div>
         <p id="statusPercent" class="text-xs text-slate-400 mt-1 text-right"></p>
     </div>
@@ -310,7 +310,7 @@ function uploadFiles(fileList) {
         statusTitle.textContent = '업로드 실패';
         statusBar.style.width = '100%';
         statusBar.classList.add('bg-red-500');
-        statusBar.classList.remove('bg-indigo-500');
+        statusBar.classList.remove('bg-amber-500');
         statusSpinner.classList.add('hidden');
     };
     xhr.send(fd);
@@ -365,7 +365,7 @@ function openPreview(url, name, type) {
     const content = document.getElementById('previewContent');
     const title = document.getElementById('previewTitle');
     title.textContent = name;
-    content.innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full"></div></div>';
+    content.innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full"></div></div>';
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 

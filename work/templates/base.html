@@ -5,11 +5,11 @@
     <script>
     (function(){var t=localStorage.getItem('theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
     </script>
-    <style>html.dark{background:#0f172a;color-scheme:dark}html:not(.dark){background:#f8fafc;color-scheme:light}</style>
+    <style>html.dark{background:#1c1917;color-scheme:dark}html:not(.dark){background:#faf9f7;color-scheme:light}</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Work Planner{% endblock %}</title>
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#d97706">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/png" href="/static/icon-192.png">
@@ -26,7 +26,300 @@
     <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <style>
-        /* Memo markdown rendering */
+        /* ── Design Tokens ── */
+        :root {
+            /* Color */
+            --color-bg: #faf9f7;
+            --color-surface: #ffffff;
+            --color-surface-elevated: #ffffff;
+            --color-text: #1c1917;
+            --color-text-muted: #78716c;
+            --color-text-faint: #a8a29e;
+            --color-border: #e7e5e4;
+            --color-border-subtle: #f5f5f4;
+            --color-accent: #d97706;
+            --color-accent-hover: #b45309;
+            --color-accent-soft: #fef3c7;
+            --color-accent-text: #92400e;
+
+            /* Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+
+            /* Shadow (warm-tinted) */
+            --shadow-sm: 0 1px 2px rgba(28,25,23,0.04);
+            --shadow-md: 0 2px 8px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04);
+            --shadow-lg: 0 8px 24px rgba(28,25,23,0.08), 0 2px 8px rgba(28,25,23,0.04);
+            --shadow-xl: 0 16px 48px rgba(28,25,23,0.12), 0 4px 12px rgba(28,25,23,0.06);
+
+            /* Motion */
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --duration-slow: 400ms;
+
+            /* Typography */
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+        }
+
+        .dark {
+            --color-bg: #1c1917;
+            --color-surface: #292524;
+            --color-surface-elevated: #44403c;
+            --color-text: #fafaf9;
+            --color-text-muted: #a8a29e;
+            --color-text-faint: #78716c;
+            --color-border: #44403c;
+            --color-border-subtle: #292524;
+            --color-accent: #f59e0b;
+            --color-accent-hover: #fbbf24;
+            --color-accent-soft: rgba(245,158,11,0.15);
+            --color-accent-text: #fde68a;
+        }
+
+        /* ── Base ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { overflow-x: hidden; }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: var(--color-surface-elevated); }
+
+        /* ── Background ── */
+        .main-bg {
+            background-color: var(--color-bg);
+            position: relative;
+        }
+        .main-bg::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 15% 40%, rgba(217,119,6,0.025) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 15%, rgba(28,25,23,0.015) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dark .main-bg {
+            background-color: var(--color-bg);
+        }
+        .dark .main-bg::before {
+            background:
+                radial-gradient(ellipse at 15% 40%, rgba(245,158,11,0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 15%, rgba(28,25,23,0.06) 0%, transparent 50%);
+        }
+
+        /* ── Background layer (custom bg) ── */
+        #bgLayer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+        #bgLayer .bg-image {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #bgLayer .bg-overlay {
+            position: absolute;
+            inset: 0;
+        }
+        body.has-custom-bg.main-bg {
+            background: transparent !important;
+        }
+        body.has-custom-bg.main-bg::before {
+            display: none;
+        }
+        body.has-custom-bg .sidebar-surface {
+            background: rgba(250,249,247,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        .dark body.has-custom-bg .sidebar-surface {
+            background: rgba(28,25,23,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        body.has-custom-bg .glass-header {
+            background: rgba(250,249,247,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+        .dark body.has-custom-bg .glass-header {
+            background: rgba(28,25,23,0.97) !important;
+            backdrop-filter: blur(20px);
+        }
+
+        /* ── Sidebar ── */
+        .sidebar-surface {
+            background: var(--color-surface);
+        }
+        .dark .sidebar-surface {
+            background: var(--color-surface);
+        }
+
+        /* ── Cards ── */
+        .work-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .dark .work-card {
+            background: var(--color-surface);
+            border-color: var(--color-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-hover { transition: box-shadow var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out); }
+        .card-hover:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+
+        /* ── Navigation ── */
+        .nav-item { transition: background var(--duration-fast) var(--ease-in-out), transform var(--duration-fast) var(--ease-in-out); }
+        .nav-item:hover {
+            background: var(--color-border-subtle);
+            transform: translateX(2px);
+        }
+        .dark .nav-item:hover {
+            background: var(--color-border);
+        }
+
+        .nav-active {
+            background: var(--color-accent-soft) !important;
+            color: var(--color-accent-text) !important;
+            box-shadow: inset 3px 0 0 var(--color-accent);
+        }
+        .nav-active svg {
+            color: var(--color-accent-text) !important;
+        }
+        .dark .nav-active {
+            background: var(--color-accent-soft) !important;
+            color: var(--color-accent-text) !important;
+            box-shadow: inset 3px 0 0 var(--color-accent);
+        }
+
+        /* ── Header ── */
+        .glass-header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .dark .glass-header {
+            background: var(--color-surface);
+            border-bottom-color: var(--color-border);
+        }
+
+        /* ── Date badge ── */
+        .date-badge {
+            background: var(--color-accent-soft);
+            color: var(--color-accent-text);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+        }
+        .dark .date-badge {
+            background: var(--color-accent-soft);
+            color: var(--color-accent-text);
+        }
+
+        /* ── Checkbox / Todo ── */
+        .todo-check { transition: all var(--duration-fast) var(--ease-in-out); }
+        .todo-check:checked { background-color: var(--color-accent); border-color: var(--color-accent); }
+
+        /* ── Animations ── */
+        .fade-in { animation: fadeIn 0.3s var(--ease-out); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-in { animation: slideIn 0.3s var(--ease-out); }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+
+        .page-transition { animation: pageFade 0.2s var(--ease-out); }
+        @keyframes pageFade { from { opacity: 0.6; } to { opacity: 1; } }
+
+        .badge-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .loading-spinner { animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Modal ── */
+        .modal-backdrop { background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); }
+
+        /* ── Calendar ── */
+        .cal-cell { min-height: 100px; transition: background var(--duration-fast) var(--ease-in-out); }
+        .cal-cell:hover { background: var(--color-border-subtle); }
+        .dark .cal-cell:hover { background: var(--color-border); }
+
+        /* ── Progress bar ── */
+        .progress-bar { transition: width 0.8s var(--ease-out); }
+
+        /* ── Sortable ── */
+        .sortable-ghost { opacity: 0.4; background: var(--color-accent-soft) !important; }
+        .sortable-chosen { box-shadow: var(--shadow-lg); }
+
+        /* ── Skeleton loading ── */
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-border-subtle) 25%, var(--color-border) 50%, var(--color-border-subtle) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-elevated) 50%, var(--color-surface) 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* ── Ripple ── */
+        .ripple { position: relative; overflow: hidden; }
+        .ripple::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.25) 10%, transparent 10.01%); transform: scale(10); opacity: 0; transition: transform 0.5s, opacity 0.5s; }
+        .ripple:active::after { transform: scale(0); opacity: 1; transition: 0s; }
+
+        /* ── Toast ── */
+        .toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+        .toast {
+            pointer-events: auto;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            animation: toastSlideIn var(--duration-normal) var(--ease-out);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 320px;
+            will-change: transform, opacity;
+        }
+        .toast.toast-success { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; }
+        .toast.toast-error { background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca; }
+        .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid rgba(217,119,6,0.25); }
+        .dark .toast.toast-success { background: #052e16; color: #bbf7d0; border-color: #166534; }
+        .dark .toast.toast-error { background: #450a0a; color: #fecaca; border-color: #7f1d1d; }
+        .dark .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border-color: rgba(245,158,11,0.3); }
+        .toast.toast-hide { animation: toastSlideOut var(--duration-normal) var(--ease-in-out) forwards; }
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+
+        /* ── Memo markdown ── */
         .memo-content h1 { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0; }
         .memo-content h2 { font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0; }
         .memo-content h3 { font-size: 1rem; font-weight: 600; margin: 0.25rem 0; }
@@ -35,298 +328,54 @@
         .memo-content ul, .memo-content ol { padding-left: 1.5rem; margin: 0.25rem 0; }
         .memo-content ul { list-style: disc; }
         .memo-content ol { list-style: decimal; }
-        .memo-content code { background: rgba(99,102,241,0.1); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.85em; }
-        .memo-content pre { background: rgba(0,0,0,0.05); padding: 0.75rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
+        .memo-content code { background: var(--color-border-subtle); padding: 0.125rem 0.375rem; border-radius: var(--radius-sm); font-size: 0.85em; font-family: var(--font-mono); }
+        .memo-content pre { background: var(--color-border-subtle); padding: 0.75rem; border-radius: var(--radius-md); overflow-x: auto; margin: 0.5rem 0; }
         .memo-content pre code { background: none; padding: 0; }
-        .memo-content blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; color: #64748b; margin: 0.5rem 0; }
-        .memo-content a { color: #6366f1; text-decoration: underline; }
+        .memo-content blockquote { border-left: 3px solid var(--color-accent); padding-left: 0.75rem; color: var(--color-text-muted); margin: 0.5rem 0; }
+        .memo-content a { color: var(--color-accent); text-decoration: underline; }
         .memo-content p { margin: 0.25rem 0; }
-        .dark .memo-content pre { background: rgba(255,255,255,0.05); }
-        .dark .memo-content blockquote { color: #94a3b8; }
+        .dark .memo-content pre { background: var(--color-surface-elevated); }
+        .dark .memo-content blockquote { color: var(--color-text-faint); }
 
-        :root {
-            --bg-gradient-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            --bg-gradient-gradient-2: linear-gradient(135deg, #667eea 0%, #0891b2 50%, #06b6d4 100%);
-            --bg-gradient-gradient-3: linear-gradient(135deg, #11998e 0%, #38ef7d 50%, #22c55e 100%);
-            --bg-gradient-gradient-4: linear-gradient(135deg, #f97316 0%, #f59e0b 50%, #fbbf24 100%);
-            --bg-gradient-gradient-5: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #4c1d95 100%);
-            --bg-gradient-gradient-6: linear-gradient(135deg, #be185d 0%, #ec4899 50%, #f9a8d4 100%);
-        }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
-
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-        .slide-in { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
-
-        .todo-check { transition: all 0.2s ease; }
-        .todo-check:checked { background-color: #4f46e5; border-color: #4f46e5; }
-
-        .card-hover { transition: all 0.2s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(71, 85, 105, 0.12); }
-
-        .nav-active { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white !important; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        .nav-active svg { color: white !important; }
-
-        .modal-backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-
-        .cal-cell { min-height: 100px; transition: background 0.15s; }
-        .cal-cell:hover { background: rgba(99, 102, 241, 0.06); }
-        .dark .cal-cell:hover { background: rgba(99, 102, 241, 0.1); }
-
-        .progress-bar { transition: width 0.8s ease-in-out; }
-
-        .sortable-ghost { opacity: 0.4; background: #e0e7ff !important; }
-        .sortable-chosen { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2); }
-
-        .badge-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
+        /* ── HTMX indicator ── */
         .htmx-request .htmx-indicator { display: inline-block; }
         .htmx-indicator { display: none; }
-        .loading-spinner { animation: spin 0.6s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ── Mobile tab bar ── */
+        .mobile-tab-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 40;
+            background: var(--color-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--color-border);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .dark .mobile-tab-bar {
+            background: var(--color-surface);
+            border-top-color: var(--color-border);
+        }
+        .mobile-tab-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 6px 4px 4px; font-size: 10px; font-weight: 500; color: var(--color-text-faint);
+            text-decoration: none; transition: color var(--duration-fast) var(--ease-in-out);
+            -webkit-tap-highlight-color: transparent;
+            min-width: 48px; min-height: 48px;
+        }
+        .mobile-tab-item.active { color: var(--color-accent); }
+        .mobile-tab-item span.tab-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+
+        /* ── Safe area ── */
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+        /* ── Sheet / spreadsheet cells ── */
         @media (max-width: 768px) {
             .sheet-cell input, .sheet-cell select, .sheet-cell textarea { padding: 10px 8px; }
             .sheet-cell { min-width: 80px; }
         }
 
-        .main-bg {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
-            position: relative;
-        }
-        .main-bg::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(71, 85, 105, 0.02) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .dark .main-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-        }
-        .dark .main-bg::before {
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(71, 85, 105, 0.04) 0%, transparent 50%);
-        }
-
-        .sidebar-gradient {
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%);
-        }
-        .dark .sidebar-gradient {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        }
-
-        .work-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
-        }
-        .dark .work-card {
-            background: #1e293b;
-            border-color: rgba(100, 116, 139, 0.3);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-        }
-
-        .nav-item:hover {
-            background: rgba(99, 102, 241, 0.08);
-            transform: translateX(2px);
-        }
-        .nav-item { transition: all 0.2s ease; }
-
-        .glass-header {
-            background: rgba(255, 255, 255, 0.88);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 1px 12px rgba(71, 85, 105, 0.04);
-        }
-        .dark .glass-header {
-            background: rgba(30, 41, 59, 0.88);
-            border-bottom-color: rgba(100, 116, 139, 0.3);
-        }
-
-        .date-badge {
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            color: #4338ca;
-            font-weight: 600;
-        }
-        .dark .date-badge {
-            background: linear-gradient(135deg, #312e81, #3730a3);
-            color: #a5b4fc;
-        }
-
-        /* Toast notifications */
-        .toast-container {
-            position: fixed; top: 1rem; right: 1rem; z-index: 9999;
-            display: flex; flex-direction: column; gap: 0.5rem;
-            pointer-events: none;
-        }
-        .toast {
-            pointer-events: auto;
-            padding: 0.75rem 1.25rem; border-radius: 0.75rem;
-            font-size: 0.875rem; font-weight: 500;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
-            animation: toastSlideIn 0.3s ease-out;
-            backdrop-filter: blur(8px);
-            max-width: 320px;
-        }
-        .toast.success { background: rgba(16,185,129,0.95); color: white; }
-        .toast.error { background: rgba(239,68,68,0.95); color: white; }
-        .toast.info { background: rgba(99,102,241,0.95); color: white; }
-        .toast.warning { background: rgba(245,158,11,0.95); color: white; }
-        .toast.exit { animation: toastSlideOut 0.3s ease-in forwards; }
-        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-
-        /* Page transitions */
-        .htmx-swapping { opacity: 0; transition: opacity 0.15s ease-out; }
-        .htmx-settling { opacity: 1; transition: opacity 0.2s ease-in; }
-
-        /* Focus-visible */
-        :focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; border-radius: 4px; }
-
-        /* Skeleton shimmer */
-        .skeleton {
-            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 0.5rem;
-        }
-        .dark .skeleton {
-            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
-            background-size: 200% 100%;
-        }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-        /* Better card hover */
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -8px rgba(71,85,105,0.15); }
-        .dark .card-hover:hover { box-shadow: 0 12px 30px -8px rgba(0,0,0,0.4); }
-
-        /* Background layer */
-        #bgLayer {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: -2; pointer-events: none;
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-        }
-        #bgOverlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: -1; pointer-events: none;
-        }
-        body.has-custom-bg.main-bg { background: transparent !important; }
-        body.has-custom-bg.main-bg::before { display: none !important; }
-        body.has-custom-bg .sidebar-gradient { background: rgba(255,255,255,0.97) !important; backdrop-filter: blur(20px); }
-        .dark body.has-custom-bg .sidebar-gradient { background: rgba(15,23,42,0.97) !important; backdrop-filter: blur(20px); }
-        body.has-custom-bg .glass-header { background: rgba(255,255,255,0.97) !important; backdrop-filter: blur(20px); }
-        .dark body.has-custom-bg .glass-header { background: rgba(30,41,59,0.97) !important; backdrop-filter: blur(20px); }
-        body.has-custom-bg .mobile-tab-bar { background: rgba(255,255,255,0.97) !important; backdrop-filter: blur(20px); }
-        .dark body.has-custom-bg .mobile-tab-bar { background: rgba(30,41,59,0.97) !important; backdrop-filter: blur(20px); }
-
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-        html, body { overflow-x: hidden; }
-
-        .mobile-tab-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            z-index: 40;
-            background: rgba(255,255,255,0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(226,232,240,0.8);
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-        }
-        .dark .mobile-tab-bar {
-            background: rgba(30,41,59,0.97);
-            border-top-color: rgba(100,116,139,0.3);
-        }
-        .mobile-tab-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 6px 4px 4px; font-size: 10px; font-weight: 500; color: #94a3b8;
-            text-decoration: none; transition: color 0.15s;
-            -webkit-tap-highlight-color: transparent;
-            min-width: 48px; min-height: 48px;
-        }
-        .mobile-tab-item.active { color: #4f46e5; }
-        .mobile-tab-item span.tab-icon { font-size: 20px; line-height: 1; margin-bottom: 2px; }
-
-        @media (max-width: 1023px) {
-            html { font-size: 14px; }
-            .group-hover\:opacity-100 { opacity: 1 !important; }
-            .mobile-pad-bottom { padding-bottom: 80px; }
-            .overflow-x-auto { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-            .overflow-x-auto::-webkit-scrollbar { display: none; }
-            .cal-cell { min-height: 72px; }
-        }
-        @media (max-width: 380px) {
-            html { font-size: 13px; }
-            .mobile-tab-item { min-width: 42px; font-size: 9px; }
-            .mobile-tab-item span.tab-icon { font-size: 18px; }
-            .cal-cell { min-height: 60px; }
-        }
-        @media (min-width: 1024px) {
-            .mobile-tab-bar { display: none !important; }
-        }
-
-        @media (max-width: 1023px) {
-            button, [role="button"] { min-height: 40px; }
-            a.nav-item, a.mobile-tab-item { min-height: 40px; display: flex; align-items: center; }
-            input, textarea, select { font-size: 16px !important; }
-        }
-        @media (hover: none) {
-            .card-hover:active { transform: scale(0.98); }
-            .nav-item:active { background: rgba(99,102,241,0.12); }
-            .mobile-tab-item:active { color: #4f46e5; transform: scale(0.95); }
-        }
-
-        /* ── Responsive UI/UX enhancements ── */
-
-        /* Responsive typography — page titles & subtitles */
-        .page-title, h2.text-lg { transition: font-size 0.2s ease; }
-        @media (max-width: 640px) {
-            h2.text-lg.font-bold { font-size: 1.25rem !important; }
-            .page-subtitle, h2.text-lg + p.text-xs { font-size: 0.75rem !important; }
-        }
-        @media (min-width: 1536px) {
-            h2.text-lg.font-bold { font-size: 2rem !important; }
-            .page-subtitle, h2.text-lg + p.text-xs { font-size: 1rem !important; }
-        }
-
-        /* Calendar cells — better mobile sizing & text */
-        @media (max-width: 640px) {
-            .cal-cell { min-height: 60px; padding: 2px !important; }
-            .cal-cell .text-xs { font-size: 10px; }
-        }
-        @media (min-width: 1024px) {
-            .cal-cell { min-height: 100px; }
-        }
-
-        /* Work cards — reduced padding on mobile */
-        @media (max-width: 640px) {
-            .work-card { padding: 0.75rem !important; }
-            .work-card.rounded-xl { border-radius: 0.75rem !important; }
-        }
-
-        /* Touch targets — 44px minimum on mobile for accessibility */
-        @media (max-width: 640px) {
-            button, a.inline-flex, [role="button"], .nav-item { min-height: 44px; }
-        }
-
-        /* Form inputs — 16px on iOS to prevent auto-zoom */
-        @media (max-width: 640px) {
-            input[type="text"], input[type="number"], input[type="date"],
-            input[type="datetime-local"], select, textarea {
-                font-size: 16px !important;
-            }
-        }
-
-        /* Table responsiveness — horizontal scroll with fade indicators */
+        /* ── Table responsive ── */
         @media (max-width: 768px) {
             .table-responsive, .overflow-x-auto {
                 position: relative;
@@ -337,121 +386,267 @@
                 position: absolute;
                 top: 0; right: 0; bottom: 0;
                 width: 24px;
-                background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+                background: linear-gradient(to left, var(--color-surface), transparent);
                 pointer-events: none;
                 z-index: 1;
             }
-            .dark .table-responsive::after, .dark .overflow-x-auto[data-scroll-hint]::after {
-                background: linear-gradient(to left, rgba(15,23,42,0.9), transparent);
-            }
         }
 
-        /* Dashboard grid — force single column on narrow mobile */
+        /* ── Responsive breakpoints ── */
+        @media (max-width: 1023px) {
+            html { font-size: 14px; }
+            .group-hover\:opacity-100 { opacity: 1 !important; }
+            .mobile-pad-bottom { padding-bottom: 80px; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+            .overflow-x-auto::-webkit-scrollbar { display: none; }
+            .cal-cell { min-height: 72px; }
+        }
+        @media (max-width: 640px) {
+            .cal-cell { min-height: 60px; padding: 2px !important; }
+            .cal-cell .text-xs { font-size: 10px; }
+            .work-card { padding: 0.75rem !important; }
+            .work-card.rounded-xl { border-radius: var(--radius-lg) !important; }
+            button, a.inline-flex, [role="button"], .nav-item { min-height: 44px; }
+            input[type="text"], input[type="number"], input[type="date"],
+            input[type="datetime-local"], select, textarea {
+                font-size: 16px !important;
+            }
+            h2.text-lg.font-bold { font-size: 1.25rem !important; }
+            .page-subtitle, h2.text-lg + p.text-xs { font-size: 0.75rem !important; }
+        }
         @media (max-width: 480px) {
             .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
         }
+        @media (max-width: 380px) {
+            html { font-size: 13px; }
+            .mobile-tab-item { min-width: 42px; font-size: 9px; }
+            .cal-cell { min-height: 60px; }
+        }
+        @media (min-width: 1024px) {
+            .mobile-tab-bar { display: none !important; }
+            .cal-cell { min-height: 100px; }
+        }
+        @media (min-width: 1536px) {
+            h2.text-lg.font-bold { font-size: 2rem !important; }
+            .page-subtitle, h2.text-lg + p.text-xs { font-size: 1rem !important; }
+        }
+
+        @media (max-width: 1023px) {
+            button, [role="button"] { min-height: 40px; }
+            a.nav-item, a.mobile-tab-item { min-height: 40px; display: flex; align-items: center; }
+            input, textarea, select { font-size: 16px !important; }
+        }
+        @media (hover: none) {
+            .card-hover:active { transform: scale(0.98); }
+            .nav-item:active { background: var(--color-border); }
+            .mobile-tab-item:active { color: var(--color-accent); transform: scale(0.95); }
+        }
     </style>
 </head>
-<body class="h-full main-bg text-slate-800 dark:text-slate-200 {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" data-accent="indigo" data-fontsize="medium">
+<body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
 
-<!-- Background layer -->
-<div id="bgLayer"
-     {% if bg_setting and bg_setting.type == 'preset' and bg_setting.preset %}
-     style="background: var(--bg-gradient-{{ bg_setting.preset }});"
-     {% elif bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
-     style="background-image: url('{{ bg_setting.image }}'); background-size: cover; background-position: center;"
-     {% endif %}
-></div>
-<div id="bgOverlay"
-     {% if bg_setting and bg_setting.type != 'none' %}
-     style="background: rgba(255,255,255,{{ bg_setting.opacity or 0.7 }});"
-     {% endif %}
-></div>
+<!-- Background Layer -->
+<div id="bgLayer">
+    {% if bg_setting and bg_setting.type == 'preset' %}
+    <div class="bg-image" style="background: {{ {
+        'gradient-1': 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        'gradient-2': 'linear-gradient(135deg, #0077b6 0%, #0096c7 40%, #48cae4 100%)',
+        'gradient-3': 'linear-gradient(135deg, #2d6a4f 0%, #40916c 50%, #95d5b2 100%)',
+        'gradient-4': 'linear-gradient(135deg, #e85d04 0%, #f48c06 40%, #ffba08 100%)',
+        'gradient-5': 'linear-gradient(135deg, #0d1b2a 0%, #1b263b 40%, #415a77 100%)',
+        'gradient-6': 'linear-gradient(135deg, #b5838d 0%, #e5989b 50%, #ffccd5 100%)',
+    }.get(bg_setting.preset, 'transparent') }};"></div>
+    {% elif bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
+    <div class="bg-image" style="background-image: url('{{ bg_setting.image }}');"></div>
+    {% endif %}
+    {% if bg_setting and bg_setting.type != 'none' %}
+    <div class="bg-overlay bg-overlay-light" style="background: rgba(250,249,247,{{ bg_setting.opacity }});"></div>
+    <div class="bg-overlay bg-overlay-dark hidden" style="background: rgba(28,25,23,{{ bg_setting.opacity }});"></div>
+    {% endif %}
+</div>
 
-<!-- Toast container -->
+<!-- Toast Container -->
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-<a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:text-sm">본문으로 건너뛰기</a>
+<a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm" style="background:var(--color-accent);color:#fff;">본문으로 건너뛰기</a>
 
 <div class="flex h-full">
     <!-- Sidebar (desktop) -->
-    <aside id="sidebar" role="complementary" aria-label="사이드바 내비게이션" class="fixed inset-y-0 left-0 z-50 w-64 sidebar-gradient border-r border-slate-200/60 dark:border-slate-700 flex flex-col shadow-xl shadow-slate-200/20 transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none">
+    <aside id="sidebar" role="complementary" aria-label="사이드바 내비게이션"
+           class="sidebar-surface fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 lg:translate-x-0 -translate-x-full lg:static lg:shadow-none"
+           style="border-right: 1px solid var(--color-border); box-shadow: var(--shadow-md);">
+
         <!-- Logo -->
-        <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-200/60 dark:border-slate-700 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-800 dark:to-slate-800">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <div class="flex items-center gap-3 px-6 py-5" style="border-bottom: 1px solid var(--color-border);">
+            <div class="w-9 h-9 flex items-center justify-center rounded-xl flex-shrink-0"
+                 style="background: var(--color-accent-soft); color: var(--color-accent);">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
                 </svg>
             </div>
             <div>
-                <h1 class="text-lg font-bold bg-gradient-to-r from-indigo-700 to-slate-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-slate-300">Work Planner</h1>
-                <p class="text-xs text-slate-400 font-medium">
-                    {% if active_profile %}{{ active_profile.emoji }} {{ active_profile.name }}{% else %}업무 관리{% endif %}
+                <h1 class="text-base font-bold leading-tight" style="color: var(--color-text);">Work Planner</h1>
+                <p class="text-xs font-medium" style="color: var(--color-text-faint);">
+                    {% if active_profile %}{{ active_profile.name }}{% else %}Plan your day{% endif %}
                 </p>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" role="navigation" aria-label="메인 내비게이션">
-            <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'dashboard' %}nav-active{% endif %}">
-                <span class="text-lg">📊</span> 대시보드
+        <nav class="flex-1 px-3 py-4 overflow-y-auto" style="display: flex; flex-direction: column; gap: 2px;" role="navigation" aria-label="메인 내비게이션">
+            <!-- Main -->
+            <a href="/" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if page == 'dashboard' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- squares-2x2 -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                대시보드
             </a>
-            <a href="/todos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'todos' %}nav-active{% endif %}">
-                <span class="text-lg">✅</span> 할 일
+            <a href="/todos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if page == 'todos' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- check-circle -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                할 일
             </a>
-            <a href="/calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'calendar' %}nav-active{% endif %}">
-                <span class="text-lg">📅</span> 캘린더
+            <a href="/calendar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if page == 'calendar' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- calendar-days -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                </svg>
+                캘린더
             </a>
-            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">업무</p></div>
-            <a href="/worklogs" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'worklogs' %}nav-active{% endif %}">
-                <span class="text-lg">📋</span> 업무일지
+
+            <!-- 업무 section -->
+            <div class="pt-4 pb-1 px-2">
+                <p class="text-[11px] font-semibold tracking-widest uppercase" style="color: var(--color-text-faint);">업무</p>
+            </div>
+            <a href="/worklogs" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'worklogs' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- clipboard-document-list -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                </svg>
+                업무일지
             </a>
-            <a href="/memos" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'memos' %}nav-active{% endif %}">
-                <span class="text-lg">📝</span> 메모
+            <a href="/memos" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'memos' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- document-text -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                메모
             </a>
-            <a href="/forms" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'forms' %}nav-active{% endif %}">
-                <span class="text-lg">📑</span> 양식
+            <a href="/forms" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'forms' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- document-duplicate -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                </svg>
+                양식
             </a>
-            <a href="/notices" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'notices' %}nav-active{% endif %}">
-                <span class="text-lg">📢</span> 공지사항
+            <a href="/notices" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'notices' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- megaphone -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+                </svg>
+                공지사항
             </a>
-            <a href="/files" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'files' %}nav-active{% endif %}">
-                <span class="text-lg">📁</span> 공유폴더
+            <a href="/files" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'files' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- folder-open -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+                </svg>
+                공유폴더
             </a>
-            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">도구</p></div>
-            <a href="/todo-templates" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'todo-templates' %}nav-active{% endif %}">
-                <span class="text-lg">📋</span> 할일 템플릿
+
+            <!-- 도구 section -->
+            <div class="pt-4 pb-1 px-2">
+                <p class="text-[11px] font-semibold tracking-widest uppercase" style="color: var(--color-text-faint);">도구</p>
+            </div>
+            <a href="/todo-templates" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'todo-templates' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- queue-list -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                </svg>
+                할일 템플릿
             </a>
-            <a href="/automations" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'automations' %}nav-active{% endif %}">
-                <span class="text-lg">⚡</span> 자동화
+            <a href="/automations" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'automations' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- bolt -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+                자동화
             </a>
-            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">분석</p></div>
-            <a href="/review" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'review' %}nav-active{% endif %}">
-                <span class="text-lg">📊</span> 리뷰
+            <a href="/ddays" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'ddays' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- flag -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                </svg>
+                D-day
             </a>
-            <a href="/search" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'search' %}nav-active{% endif %}">
-                <span class="text-lg">🔍</span> 검색
+            <a href="/links" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'links' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- link -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+                링크
             </a>
-            <div class="pt-3 pb-1 px-3"><p class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide">관리</p></div>
-            <a href="/settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 {% if page == 'settings' %}nav-active{% endif %}">
-                <span class="text-lg">⚙️</span> 설정
+
+            <!-- 분석 section -->
+            <div class="pt-4 pb-1 px-2">
+                <p class="text-[11px] font-semibold tracking-widest uppercase" style="color: var(--color-text-faint);">분석</p>
+            </div>
+            <a href="/stats" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'stats' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- chart-bar -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+                통계
+            </a>
+            <a href="/review" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'review' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- presentation-chart-line -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                </svg>
+                리뷰
+            </a>
+            <a href="/search" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'search' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- magnifying-glass -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
+                </svg>
+                검색
+            </a>
+
+            <!-- 관리 section -->
+            <div class="pt-4 pb-1 px-2">
+                <p class="text-[11px] font-semibold tracking-widest uppercase" style="color: var(--color-text-faint);">관리</p>
+            </div>
+            <a href="/settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'settings' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
+                <!-- cog-6-tooth -->
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                설정
             </a>
         </nav>
 
-        <!-- Bottom: dark mode -->
-        <div class="px-4 py-4 pb-20 lg:pb-4 border-t border-slate-200/60 dark:border-slate-700">
-            <button id="themeToggleBtn" onclick="toggleDarkMode()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
-                <svg id="themeIconSun" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <!-- Bottom: theme toggle -->
+        <div class="px-4 py-4 pb-20 lg:pb-4" style="border-top: 1px solid var(--color-border);">
+            <button id="themeToggleBtn" onclick="toggleDarkMode()"
+                    class="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                    style="color: var(--color-text-muted);"
+                    onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg id="themeIconSun" class="w-5 h-5 hidden flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                 </svg>
-                <svg id="themeIconMoon" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <svg id="themeIconMoon" class="w-5 h-5 hidden flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                 </svg>
-                <svg id="themeIconAuto" class="w-5 h-5 text-indigo-400 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <svg id="themeIconAuto" class="w-5 h-5 hidden flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
                 </svg>
                 <span id="themeLabel">시스템 설정</span>
             </button>
-            <div class="mt-2 px-3 text-xs text-slate-400 font-medium">Work Planner v1.0</div>
+            <div class="mt-2 px-3 text-xs font-medium" style="color: var(--color-text-faint);">Work Planner v1.0</div>
         </div>
     </aside>
 
@@ -461,39 +656,43 @@
     <!-- Main content -->
     <main class="flex-1 overflow-y-auto lg:ml-0" role="main">
         <!-- Top bar -->
-        <header class="sticky top-0 z-10 glass-header backdrop-blur-xl" role="banner">
+        <header class="sticky top-0 z-10 glass-header" role="banner">
             <div class="flex items-center justify-between px-4 lg:px-8 py-3">
                 <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="사이드바 열기">
-                        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg transition-colors" style="color: var(--color-text-muted);"
+                            onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''" aria-label="사이드바 열기">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-white">{% block page_title %}대시보드{% endblock %}</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{% block page_subtitle %}{% endblock %}</p>
+                        <h2 class="text-lg font-bold" style="color: var(--color-text);">{% block page_title %}대시보드{% endblock %}</h2>
+                        <p class="text-xs font-medium" style="color: var(--color-text-muted);">{% block page_subtitle %}{% endblock %}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
                     <!-- Notification bell -->
                     <div class="relative">
-                        <button onclick="toggleNotifPanel()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative" title="알림">
-                            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <button onclick="toggleNotifPanel()" class="p-2 rounded-lg transition-colors relative" style="color: var(--color-text-muted);"
+                                onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''" title="알림">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                             </svg>
-                            <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none">0</span>
+                            <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none">0</span>
                         </button>
-                        <div id="notifPanel" class="hidden absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                <span class="text-sm font-bold text-slate-800 dark:text-white">알림</span>
-                                <span id="notifPermStatus" class="text-[11px] text-slate-400"></span>
+                        <!-- Notification dropdown -->
+                        <div id="notifPanel" class="hidden absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl z-50"
+                             style="background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-xl);">
+                            <div class="p-3 flex items-center justify-between" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="text-sm font-bold" style="color: var(--color-text);">알림</span>
+                                <span id="notifPermStatus" class="text-[11px]" style="color: var(--color-text-faint);"></span>
                             </div>
-                            <div id="notifList" class="divide-y divide-slate-100 dark:divide-slate-700">
-                                <p class="p-4 text-sm text-slate-400 text-center">알림이 없습니다</p>
+                            <div id="notifList" class="divide-y" style="border-color: var(--color-border);">
+                                <p class="p-4 text-sm text-center" style="color: var(--color-text-faint);">알림이 없습니다</p>
                             </div>
                         </div>
                     </div>
-                    <div class="date-badge px-2.5 py-1.5 rounded-xl text-xs sm:text-sm whitespace-nowrap">
+                    <div class="date-badge px-2.5 py-1.5 text-xs sm:text-sm whitespace-nowrap">
                         {{ today.strftime('%m월 %d일') }}
                     </div>
                 </div>
@@ -508,26 +707,51 @@
 </div>
 
 <!-- Mobile tab bar -->
-<nav class="mobile-tab-bar lg:hidden safe-bottom">
+<nav id="mobileTabBar" class="mobile-tab-bar lg:hidden safe-bottom">
     <div class="flex justify-around items-center px-2 py-1">
         <a href="/" class="mobile-tab-item {% if page == 'dashboard' %}active{% endif %}">
-            <span class="tab-icon">📊</span>
+            <span class="tab-icon">
+                <!-- squares-2x2 (18x18) -->
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+            </span>
             <span>대시보드</span>
         </a>
         <a href="/todos" class="mobile-tab-item {% if page == 'todos' %}active{% endif %}">
-            <span class="tab-icon">✅</span>
+            <span class="tab-icon">
+                <!-- check-circle (18x18) -->
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </span>
             <span>할 일</span>
         </a>
         <a href="/calendar" class="mobile-tab-item {% if page == 'calendar' %}active{% endif %}">
-            <span class="tab-icon">📅</span>
+            <span class="tab-icon">
+                <!-- calendar-days (18x18) -->
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+            </span>
             <span>캘린더</span>
         </a>
         <a href="/worklogs" class="mobile-tab-item {% if page == 'worklogs' %}active{% endif %}">
-            <span class="tab-icon">📋</span>
+            <span class="tab-icon">
+                <!-- clipboard-document-list (18x18) -->
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                </svg>
+            </span>
             <span>업무일지</span>
         </a>
-        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','notices','files','forms','settings','review'] %}active{% endif %}">
-            <span class="tab-icon">&#8943;</span>
+        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','forms','notices','files','search','settings','ddays','links','stats','review'] %}active{% endif %}">
+            <span class="tab-icon">
+                <!-- ellipsis-horizontal (18x18) -->
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+            </span>
             <span>더보기</span>
         </button>
     </div>
@@ -536,44 +760,129 @@
 <!-- More menu overlay -->
 <div id="moreMenu" class="fixed inset-0 z-50 hidden lg:hidden">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="toggleMoreMenu()"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl p-4 safe-bottom transform transition-transform">
-        <div class="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mb-4"></div>
-        <div class="grid grid-cols-5 gap-2 mb-4">
-            <a href="/memos" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">📝</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">메모</span>
+    <div class="absolute bottom-0 left-0 right-0 rounded-t-2xl shadow-2xl p-4 safe-bottom transform transition-transform"
+         style="background: var(--color-surface);">
+        <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
+        <div class="grid grid-cols-4 gap-1 mb-4">
+            <a href="/memos" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <span class="text-xs font-medium">메모</span>
             </a>
-            <a href="/forms" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">📑</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">양식</span>
+            <a href="/forms" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                </svg>
+                <span class="text-xs font-medium">양식</span>
             </a>
-            <a href="/notices" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">📢</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">공지사항</span>
+            <a href="/notices" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+                </svg>
+                <span class="text-xs font-medium">공지사항</span>
             </a>
-            <a href="/files" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">📁</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">공유폴더</span>
+            <a href="/files" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
+                </svg>
+                <span class="text-xs font-medium">공유폴더</span>
             </a>
-            <a href="/review" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">📊</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">리뷰</span>
+            <a href="/ddays" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                </svg>
+                <span class="text-xs font-medium">D-day</span>
             </a>
-            <a href="/settings" class="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <span class="text-2xl">⚙️</span>
-                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">설정</span>
+            <a href="/links" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+                <span class="text-xs font-medium">링크</span>
+            </a>
+            <a href="/stats" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+                <span class="text-xs font-medium">통계</span>
+            </a>
+            <a href="/review" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                </svg>
+                <span class="text-xs font-medium">리뷰</span>
+            </a>
+            <a href="/search" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
+                </svg>
+                <span class="text-xs font-medium">검색</span>
+            </a>
+            <a href="/settings" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
+               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-xs font-medium">설정</span>
             </a>
         </div>
-        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex gap-2">
-            <button onclick="toggleDarkMode();toggleMoreMenu()" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300">
+        <div class="pt-3 flex gap-2" style="border-top: 1px solid var(--color-border);">
+            <button onclick="toggleDarkMode();toggleMoreMenu()"
+                    class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                    style="background: var(--color-border-subtle); color: var(--color-text-muted);">
                 테마 전환
             </button>
         </div>
     </div>
 </div>
 
+<!-- Command Palette -->
+<div id="cmdPalette" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleCommandPalette()"></div>
+    <div class="absolute top-[15%] left-1/2 -translate-x-1/2 w-full max-w-lg mx-4" style="max-width:min(32rem,calc(100vw - 2rem))">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden fade-in">
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                <input id="cmdInput" type="text" placeholder="검색 또는 명령어 입력..." autocomplete="off"
+                       class="flex-1 bg-transparent text-sm text-slate-800 dark:text-white outline-none placeholder-slate-400">
+                <kbd class="hidden sm:inline text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded font-mono">Esc</kbd>
+            </div>
+            <div id="cmdResults" class="max-h-[50vh] overflow-y-auto">
+                <div id="cmdQuickActions" class="p-2 space-y-0.5">
+                    <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">바로가기</div>
+                    <a href="/" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">D</span> 대시보드</a>
+                    <a href="/todos" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">N</span> 할일</a>
+                    <a href="/calendar" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">C</span> 캘린더</a>
+                    <a href="/worklogs" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">W</span> 업무일지</a>
+                    <a href="/memos" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">M</span> 메모</a>
+                    <a href="/forms" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">F</span> 양식</a>
+                    <a href="/search" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <span class="w-6 text-center text-slate-400">/</span> 상세 검색</a>
+                </div>
+                <div id="cmdSearchResults" class="hidden p-2 space-y-0.5"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Dark mode — 3-mode: light / dark / auto
+    // Dark mode init — 3-mode: light / dark / auto
     function applyTheme() {
         var mode = localStorage.getItem('theme') || 'auto';
         var html = document.documentElement;
@@ -608,6 +917,7 @@
         updateBgOverlay();
         setTimeout(function(){ document.documentElement.style.transition = ''; document.body.style.transition = ''; }, 350);
     }
+    // Migrate old darkMode key
     if (localStorage.getItem('darkMode') !== null && !localStorage.getItem('theme')) {
         localStorage.setItem('theme', localStorage.getItem('darkMode') === 'true' ? 'dark' : 'light');
         localStorage.removeItem('darkMode');
@@ -617,37 +927,15 @@
         if ((localStorage.getItem('theme') || 'auto') === 'auto') applyTheme();
     });
 
-    // Background overlay dark mode support
+    // Background overlay for dark/light
     function updateBgOverlay() {
-        const overlay = document.getElementById('bgOverlay');
-        if (!overlay || !document.body.classList.contains('has-custom-bg')) return;
-        const opacity = overlay.dataset.opacity || '0.7';
         const isDark = document.documentElement.classList.contains('dark');
-        overlay.style.background = isDark
-            ? `rgba(15,23,42,${opacity})`
-            : `rgba(255,255,255,${opacity})`;
+        const light = document.querySelector('.bg-overlay-light');
+        const dark = document.querySelector('.bg-overlay-dark');
+        if (light) { light.classList.toggle('hidden', isDark); }
+        if (dark) { dark.classList.toggle('hidden', !isDark); }
     }
-    {% if bg_setting and bg_setting.type != 'none' %}
-    (function() {
-        const ov = document.getElementById('bgOverlay');
-        if (ov) { ov.dataset.opacity = '{{ bg_setting.opacity or 0.7 }}'; }
-        updateBgOverlay();
-    })();
-    {% endif %}
-
-    // Toast notification system
-    function showToast(message, type) {
-        type = type || 'info';
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = 'toast ' + type;
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(function() {
-            toast.classList.add('exit');
-            setTimeout(function() { toast.remove(); }, 300);
-        }, 3000);
-    }
+    updateBgOverlay();
 
     function toggleMoreMenu() {
         document.getElementById('moreMenu').classList.toggle('hidden');
@@ -660,45 +948,159 @@
         ov.classList.toggle('hidden');
     }
 
-    // SSE with reconnection & exponential backoff
-    (function() {
-        var retryDelay = 1000;
-        var maxRetry = 30000;
-        var evtSource = null;
+    // Toast notification system
+    function showToast(message, type) {
+        type = type || 'success';
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        var icons = { success: '✓', error: '✕', info: 'i' };
+        toast.innerHTML = '<span style="font-weight:700;font-size:0.875rem;">' + (icons[type] || '') + '</span><span>' + message + '</span>';
+        container.appendChild(toast);
+        setTimeout(function() {
+            toast.classList.add('toast-hide');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 3000);
+    }
 
-        function connectSSE() {
-            evtSource = new EventSource('/sse');
-            evtSource.addEventListener('sync', function(e) {
-                var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
-                if (cnt > 0) { sessionStorage.setItem('_sseSkip', String(cnt - 1)); return; }
-                var currentPage = window.location.pathname.split('/')[1] || 'dashboard';
-                if (e.data === currentPage || e.data === 'dashboard') {
-                    if (document.querySelector('[hx-get]')) {
-                        htmx.trigger(document.body, 'sse-refresh');
-                    } else {
-                        window.location.reload();
-                    }
+    // Undo delete pattern: hide element → show undo toast → delete after 5s
+    var _undoTimers = {};
+    function undoDelete(el, url) {
+        var id = url;
+        el.style.transition = 'opacity 0.3s, max-height 0.3s';
+        el.style.opacity = '0'; el.style.maxHeight = '0'; el.style.overflow = 'hidden';
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-info';
+        toast.style.cursor = 'pointer';
+        toast.innerHTML = '<span>삭제됨</span><button style="margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border-radius:6px;font-weight:600;font-size:0.8rem;" onclick="event.stopPropagation()">되돌리기</button>';
+        container.appendChild(toast);
+        toast.querySelector('button').onclick = function(e) {
+            e.stopPropagation();
+            clearTimeout(_undoTimers[id]);
+            delete _undoTimers[id];
+            el.style.opacity = '1'; el.style.maxHeight = ''; el.style.overflow = '';
+            toast.remove();
+            showToast('복구됨', 'success');
+        };
+        _undoTimers[id] = setTimeout(function() {
+            delete _undoTimers[id];
+            fetch(url, {method:'DELETE', headers:{'HX-Request':'true'}}).then(function() {
+                el.remove();
+            });
+            toast.classList.add('toast-hide');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 5000);
+        setTimeout(function() {
+            if (!_undoTimers[id]) return;
+            toast.classList.add('toast-hide');
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 5000);
+    }
+
+    // SSE with exponential backoff reconnection
+    var sseRetries = 0;
+    function connectSSE() {
+        var evtSource = new EventSource('/sse');
+        evtSource.onopen = function() { sseRetries = 0; };
+        evtSource.onerror = function() {
+            evtSource.close();
+            var delay = Math.min(1000 * Math.pow(2, sseRetries), 30000);
+            sseRetries++;
+            setTimeout(connectSSE, delay);
+        };
+        evtSource.addEventListener('sync', function(e) {
+            var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
+            if (cnt > 0) { sessionStorage.setItem('_sseSkip', String(cnt - 1)); return; }
+            var currentPage = window.location.pathname.split('/')[1] || 'dashboard';
+            if (e.data === currentPage || e.data === 'dashboard') {
+                if (document.querySelector('[hx-get]')) {
+                    htmx.trigger(document.body, 'sse-refresh');
+                } else {
+                    window.location.reload();
                 }
-            });
-            evtSource.addEventListener('open', function() {
-                retryDelay = 1000;
-            });
-            evtSource.addEventListener('error', function() {
-                evtSource.close();
-                setTimeout(function() {
-                    retryDelay = Math.min(retryDelay * 2, maxRetry);
-                    connectSSE();
-                }, retryDelay);
-            });
-        }
-        connectSSE();
-    })();
+            }
+        });
+    }
+    connectSSE();
 
-    // HTMX event handlers
+    // Command Palette
+    var _cmdDebounce = null;
+    var _cmdIdx = -1;
+    function toggleCommandPalette() {
+        var cp = document.getElementById('cmdPalette');
+        cp.classList.toggle('hidden');
+        if (!cp.classList.contains('hidden')) {
+            var input = document.getElementById('cmdInput');
+            input.value = '';
+            input.focus();
+            _cmdIdx = -1;
+            document.getElementById('cmdQuickActions').classList.remove('hidden');
+            document.getElementById('cmdSearchResults').classList.add('hidden');
+        }
+    }
+    document.getElementById('cmdInput').addEventListener('input', function() {
+        var q = this.value.trim();
+        clearTimeout(_cmdDebounce);
+        if (q.length < 2) {
+            document.getElementById('cmdQuickActions').classList.remove('hidden');
+            document.getElementById('cmdSearchResults').classList.add('hidden');
+            _cmdIdx = -1;
+            return;
+        }
+        _cmdDebounce = setTimeout(function() {
+            fetch('/api/search?q=' + encodeURIComponent(q)).then(function(r){return r.json()}).then(function(data) {
+                var sr = document.getElementById('cmdSearchResults');
+                var qa = document.getElementById('cmdQuickActions');
+                if (!data.items || data.items.length === 0) {
+                    sr.innerHTML = '<div class="px-3 py-4 text-sm text-slate-400 text-center">검색 결과 없음</div>';
+                } else {
+                    sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">검색 결과</div>' +
+                        data.items.map(function(it) {
+                            return '<a href="' + it.url + '" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">' +
+                                '<span class="w-auto text-[10px] px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-slate-400 font-medium">' + it.type + '</span>' +
+                                '<span class="truncate">' + it.title.replace(/</g,'&lt;') + '</span></a>';
+                        }).join('');
+                }
+                sr.classList.remove('hidden');
+                qa.classList.add('hidden');
+                _cmdIdx = -1;
+            });
+        }, 300);
+    });
+    document.getElementById('cmdInput').addEventListener('keydown', function(e) {
+        var items = document.querySelectorAll('#cmdResults .cmd-item:not(.hidden)');
+        if (!items.length) items = document.querySelectorAll('#cmdResults .cmd-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            _cmdIdx = Math.min(_cmdIdx + 1, items.length - 1);
+            items.forEach(function(el,i){el.classList.toggle('bg-slate-100',i===_cmdIdx);el.classList.toggle('dark:bg-slate-700',i===_cmdIdx);});
+            if (items[_cmdIdx]) items[_cmdIdx].scrollIntoView({block:'nearest'});
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            _cmdIdx = Math.max(_cmdIdx - 1, 0);
+            items.forEach(function(el,i){el.classList.toggle('bg-slate-100',i===_cmdIdx);el.classList.toggle('dark:bg-slate-700',i===_cmdIdx);});
+            if (items[_cmdIdx]) items[_cmdIdx].scrollIntoView({block:'nearest'});
+        } else if (e.key === 'Enter' && _cmdIdx >= 0 && items[_cmdIdx]) {
+            e.preventDefault();
+            items[_cmdIdx].click();
+        }
+    });
+
+    // Keyboard shortcuts are now in /static/shortcuts.js
+
+    // HTMX: page transition effect
+    document.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail && e.detail.target) {
+            e.detail.target.classList.add('page-transition');
+        }
+    });
+
+    // HTMX: close mobile sidebar before navigation
     document.addEventListener('htmx:beforeRequest', function(e) {
         if (window.innerWidth < 1024) {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('sidebarOverlay');
+            var sb = document.getElementById('sidebar');
+            var ov = document.getElementById('sidebarOverlay');
             if (!sb.classList.contains('-translate-x-full')) {
                 sb.classList.add('-translate-x-full');
                 ov.classList.add('hidden');
@@ -711,7 +1113,7 @@
         }
     });
 
-    // Form submission feedback
+    // HTMX: form submission feedback
     document.addEventListener('htmx:afterRequest', function(e) {
         if (!e.detail || !e.detail.requestConfig || e.detail.requestConfig.verb === 'get') return;
         var xhr = e.detail.xhr;
@@ -723,27 +1125,20 @@
             showToast('오류가 발생했습니다', 'error');
         }
     });
+
+    // Network error handling
     document.addEventListener('htmx:sendError', function() {
-        showToast('네트워크 연결을 확인해주세요', 'error');
+        showToast('네트워크 오류: 연결을 확인해주세요', 'error');
     });
-
-    // HTMX page transition animation
-    document.addEventListener('htmx:afterSwap', function(e) {
-        if (e.detail.target) {
-            e.detail.target.classList.add('fade-in');
-            setTimeout(function() { e.detail.target.classList.remove('fade-in'); }, 300);
-        }
-    });
-
-    // Keyboard shortcuts are now in /static/shortcuts.js
 
     // Global drag-drop file upload
     (function() {
         var dragCounter = 0;
         var overlay = document.createElement('div');
         overlay.id = 'dropOverlay';
-        overlay.className = 'fixed inset-0 z-[9999] bg-indigo-500/10 border-4 border-dashed border-indigo-400 hidden items-center justify-center pointer-events-none';
-        overlay.innerHTML = '<div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl px-8 py-6 text-center pointer-events-none"><svg class="w-12 h-12 text-indigo-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p class="text-indigo-600 dark:text-indigo-400 font-medium">파일을 놓으면 업로드합니다</p></div>';
+        overlay.className = 'fixed inset-0 z-[9999] hidden items-center justify-center pointer-events-none';
+        overlay.style.cssText = 'background: var(--color-accent-soft); border: 3px dashed var(--color-accent);';
+        overlay.innerHTML = '<div class="rounded-2xl shadow-xl px-8 py-6 text-center pointer-events-none" style="background: var(--color-surface);"><svg class="w-12 h-12 mx-auto mb-3" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p style="color: var(--color-accent-text); font-weight: 500;">파일을 놓으면 업로드합니다</p></div>';
         document.body.appendChild(overlay);
 
         document.addEventListener('dragenter', function(e) {
@@ -776,19 +1171,9 @@
             var formData = new FormData();
             for (var i = 0; i < files.length; i++) formData.append('files', files[i]);
 
-            if (location.pathname.indexOf('/files') !== 0 && location.pathname.indexOf('/worklogs') !== 0) {
-                showToast('파일 페이지에서 업로드해주세요', 'info');
-                return;
-            }
-            var uploadUrl = location.pathname.indexOf('/worklogs') === 0 ? '/worklogs/upload-image' : '/files/upload';
-            if (uploadUrl === '/worklogs/upload-image') {
-                var singleForm = new FormData();
-                singleForm.append('file', files[0]);
-                formData = singleForm;
-            }
-            fetch(uploadUrl, { method: 'POST', body: formData }).then(function(res) {
+            fetch('/files', { method: 'POST', body: formData }).then(function(res) {
                 if (res.ok) {
-                    showToast('업로드 완료', 'success');
+                    showToast('파일 업로드 완료', 'success');
                     if (location.pathname.indexOf('/files') === 0) location.reload();
                 } else {
                     showToast('업로드 실패', 'error');
@@ -824,6 +1209,7 @@
             refreshNotifPanel();
         }
     }
+    // Close panel on outside click
     document.addEventListener('click', function(e) {
         var panel = document.getElementById('notifPanel');
         if (panel && !panel.classList.contains('hidden') && !e.target.closest('#notifPanel') && !e.target.closest('[onclick*="toggleNotifPanel"]')) {
@@ -831,6 +1217,7 @@
         }
     });
 
+    // Refresh notification panel content
     function refreshNotifPanel() {
         var status = document.getElementById('notifPermStatus');
         if ('Notification' in window) {
@@ -841,7 +1228,7 @@
             var list = document.getElementById('notifList');
             var badge = document.getElementById('notifBadge');
             if (!items.length) {
-                list.innerHTML = '<p class="p-4 text-sm text-slate-400 text-center">알림이 없습니다</p>';
+                list.innerHTML = '<p class="p-4 text-sm text-center" style="color: var(--color-text-faint);">알림이 없습니다</p>';
                 badge.classList.add('hidden');
                 return;
             }
@@ -851,10 +1238,10 @@
             var html = '';
             function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
             items.forEach(function(item) {
-                html += '<a href="' + escHtml(item.url) + '" class="flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">';
+                html += '<a href="' + escHtml(item.url) + '" class="flex items-start gap-3 p-3 transition-colors" style="color: var(--color-text-muted);" onmouseover="this.style.background=\'var(--color-border-subtle)\'" onmouseout="this.style.background=\'\'">';
                 html += '<span class="text-base mt-0.5">' + (icons[item.type] || '📌') + '</span>';
-                html += '<div class="flex-1 min-w-0"><p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">' + escHtml(item.title) + '</p>';
-                html += '<p class="text-xs text-slate-400">' + escHtml(item.body) + '</p></div></a>';
+                html += '<div class="flex-1 min-w-0"><p class="text-sm font-medium truncate" style="color: var(--color-text);">' + escHtml(item.title) + '</p>';
+                html += '<p class="text-xs" style="color: var(--color-text-faint);">' + escHtml(item.body) + '</p></div></a>';
             });
             list.innerHTML = html;
         }).catch(function() {});
@@ -888,44 +1275,67 @@
 </script>
 <!-- Focus mode timer -->
 <div id="focusBtn" onclick="document.getElementById('focusModal').classList.remove('hidden')"
-     class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-indigo-700 transition-all hover:scale-110"
+     class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+     style="background: var(--color-accent); color: #fff; box-shadow: var(--shadow-lg);"
+     onmouseover="this.style.background='var(--color-accent-hover)'" onmouseout="this.style.background='var(--color-accent)'"
      title="집중 모드 (Pomodoro)">
-    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
 </div>
 <div id="focusModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center modal-backdrop">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-80 max-w-[90vw]" onclick="event.stopPropagation()">
+    <div class="rounded-2xl shadow-2xl p-6 w-80 max-w-[90vw]" style="background: var(--color-surface);" onclick="event.stopPropagation()">
         <div id="focusSetup">
-            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center">집중 모드</h3>
+            <h3 class="text-lg font-bold mb-4 text-center" style="color: var(--color-text);">집중 모드</h3>
             <div class="flex justify-center gap-2 mb-4">
-                <button onclick="_focusStart(25)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">25분</button>
-                <button onclick="_focusStart(45)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">45분</button>
-                <button onclick="_focusStart(60)" class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200">60분</button>
+                <button onclick="_focusStart(25)" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        style="background: var(--color-accent-soft); color: var(--color-accent-text);"
+                        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">25분</button>
+                <button onclick="_focusStart(45)" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        style="background: var(--color-accent-soft); color: var(--color-accent-text);"
+                        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">45분</button>
+                <button onclick="_focusStart(60)" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        style="background: var(--color-accent-soft); color: var(--color-accent-text);"
+                        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">60분</button>
             </div>
             <div class="flex gap-2 mb-3">
-                <input type="number" id="focusCustomMin" placeholder="분" min="1" max="480" value="25" class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-center">
-                <button onclick="_focusStart(parseInt(document.getElementById('focusCustomMin').value)||25)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">시작</button>
+                <input type="number" id="focusCustomMin" placeholder="분" min="1" max="480" value="25"
+                       class="flex-1 px-3 py-2 text-sm rounded-lg text-center"
+                       style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);">
+                <button onclick="_focusStart(parseInt(document.getElementById('focusCustomMin').value)||25)"
+                        class="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
+                        style="background: var(--color-accent);"
+                        onmouseover="this.style.background='var(--color-accent-hover)'" onmouseout="this.style.background='var(--color-accent)'">시작</button>
             </div>
-            <input type="text" id="focusTitle" placeholder="작업 내용 (선택)" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-2">
-            <button onclick="document.getElementById('focusModal').classList.add('hidden')" class="w-full text-xs text-slate-400 hover:text-slate-600 py-1">닫기</button>
+            <input type="text" id="focusTitle" placeholder="작업 내용 (선택)"
+                   class="w-full px-3 py-2 text-sm rounded-lg mb-2"
+                   style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);">
+            <button onclick="document.getElementById('focusModal').classList.add('hidden')"
+                    class="w-full text-xs py-1 transition-colors"
+                    style="color: var(--color-text-faint);">닫기</button>
         </div>
         <div id="focusRunning" class="hidden text-center">
-            <div id="focusTime" class="text-5xl font-bold text-indigo-600 dark:text-indigo-400 mb-2 font-mono">25:00</div>
-            <div id="focusLabel" class="text-sm text-slate-500 mb-4"></div>
-            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
-                <div id="focusProgress" class="h-full bg-indigo-500 rounded-full transition-all" style="width:0%"></div>
+            <div id="focusTime" class="text-5xl font-bold mb-2" style="color: var(--color-accent); font-family: var(--font-mono);">25:00</div>
+            <div id="focusLabel" class="text-sm mb-4" style="color: var(--color-text-muted);"></div>
+            <div class="h-2 rounded-full overflow-hidden mb-4" style="background: var(--color-border);">
+                <div id="focusProgress" class="h-full rounded-full transition-all" style="width:0%; background: var(--color-accent);"></div>
             </div>
             <div class="flex gap-2 justify-center">
-                <button onclick="_focusStop(false)" class="px-4 py-2 text-sm text-slate-500 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">취소</button>
-                <button onclick="_focusStop(true)" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 기록</button>
+                <button onclick="_focusStop(false)" class="px-4 py-2 text-sm rounded-lg transition-colors"
+                        style="color: var(--color-text-muted); border: 1px solid var(--color-border);"
+                        onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">취소</button>
+                <button onclick="_focusStop(true)" class="px-4 py-2 text-sm rounded-lg text-white transition-colors"
+                        style="background: #16a34a;"
+                        onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">완료 기록</button>
             </div>
         </div>
         <div id="focusDone" class="hidden text-center">
             <div class="text-4xl mb-2">&#127881;</div>
-            <p class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-1">집중 완료!</p>
-            <p id="focusDoneMsg" class="text-sm text-slate-500 mb-4"></p>
-            <button onclick="_focusReset()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">확인</button>
+            <p class="text-lg font-bold mb-1" style="color: var(--color-text);">집중 완료!</p>
+            <p id="focusDoneMsg" class="text-sm mb-4" style="color: var(--color-text-muted);"></p>
+            <button onclick="_focusReset()" class="px-4 py-2 rounded-lg text-sm text-white transition-colors"
+                    style="background: var(--color-accent);"
+                    onmouseover="this.style.background='var(--color-accent-hover)'" onmouseout="this.style.background='var(--color-accent)'">확인</button>
         </div>
     </div>
 </div>
@@ -1003,7 +1413,7 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
 <script>
 (function() {
     // Accent color: apply saved preference
-    var accent = localStorage.getItem('accent_color') || 'indigo';
+    var accent = localStorage.getItem('accent_color') || 'amber';
     document.body.dataset.accent = accent;
 
     // Font size: apply saved preference
