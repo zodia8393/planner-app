@@ -90,7 +90,7 @@ async def lifespan(app):
 app = FastAPI(title="My Planner", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
-OPEN_PATHS = {"/setup", "/health", "/sse", "/static", "/cal", "/settings/gcal/callback", "/auth/google/login", "/auth/google/callback"}
+OPEN_PATHS = {"/setup", "/health", "/sse", "/static", "/cal", "/settings/gcal/callback", "/auth/google/login", "/auth/google/callback", "/privacy", "/.well-known"}
 
 
 class ProfileCheckMiddleware(BaseHTTPMiddleware):
@@ -98,7 +98,7 @@ class ProfileCheckMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         # Allow open paths
-        if path in OPEN_PATHS or path.startswith("/static") or path.startswith("/setup") or path.startswith("/worklog-images") or path.startswith("/backgrounds") or path == "/api/qr-code" or path == "/sync-profile":
+        if path in OPEN_PATHS or path.startswith("/static") or path.startswith("/setup") or path.startswith("/worklog-images") or path.startswith("/backgrounds") or path.startswith("/.well-known") or path == "/api/qr-code" or path == "/sync-profile":
             return await call_next(request)
         # Check cookie
         cookie_val = request.cookies.get("planner_profile")

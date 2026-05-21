@@ -104,7 +104,7 @@ def get_network_group(request: Request) -> str:
 
 
 # ── Middleware ──
-PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/auth/google", "/cal", "/worklog-images", "/backgrounds", "/api/qr-code", "/sync-profile"}
+PUBLIC_PATHS = {"/login", "/health", "/static", "/uploads", "/favicon.ico", "/sse", "/select-profile", "/profiles", "/auth", "/auth/google", "/cal", "/worklog-images", "/backgrounds", "/api/qr-code", "/sync-profile", "/privacy", "/.well-known"}
 
 
 class PinAuthMiddleware(BaseHTTPMiddleware):

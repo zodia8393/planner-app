@@ -597,6 +597,92 @@ def _relative_time(dt_str: str, now: datetime) -> str:
     return dt_str[:10]
 
 
+@router.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy(request: Request):
+    """Privacy policy page required for Play Store TWA listing."""
+    S = request.app.state
+    app_name = getattr(S, "app_name", "Planner").replace("-", " ").title()
+    html = f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보처리방침 - {app_name}</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; line-height: 1.7; color: #1e293b; background: #f8fafc; }}
+h1 {{ font-size: 1.5rem; border-bottom: 2px solid #4f46e5; padding-bottom: .5rem; }}
+h2 {{ font-size: 1.15rem; color: #4f46e5; margin-top: 2rem; }}
+p, li {{ font-size: 0.95rem; }}
+ul {{ padding-left: 1.5rem; }}
+.updated {{ color: #64748b; font-size: 0.85rem; }}
+a {{ color: #4f46e5; }}
+</style>
+</head>
+<body>
+<h1>개인정보처리방침</h1>
+<p class="updated">최종 수정일: 2026-05-21</p>
+
+<h2>1. 수집하는 개인정보</h2>
+<p>{app_name}(이하 "서비스")는 최소한의 정보만 수집합니다.</p>
+<ul>
+<li><strong>프로필 이름</strong>: 사용자가 직접 입력한 닉네임 (실명 불요)</li>
+<li><strong>기기 정보</strong>: 접속 IP 주소 (네트워크 그룹 식별 목적)</li>
+<li><strong>서비스 이용 데이터</strong>: 할일, 일정, 메모 등 사용자가 직접 입력한 콘텐츠</li>
+</ul>
+<p>본 서비스는 Google 계정 연동(Google Calendar) 시 OAuth 토큰을 저장하며, 이는 캘린더 동기화 목적으로만 사용됩니다.</p>
+
+<h2>2. 개인정보의 이용 목적</h2>
+<ul>
+<li>서비스 기능 제공 (할일 관리, 일정 관리, 메모, 업무일지 등)</li>
+<li>사용자 프로필 식별 및 데이터 분리</li>
+<li>Google Calendar 연동 (사용자 동의 시)</li>
+</ul>
+
+<h2>3. 개인정보의 보관 및 파기</h2>
+<p>모든 데이터는 사용자의 기기 또는 서비스 서버의 SQLite 데이터베이스에 저장됩니다. 제3자에게 데이터를 판매하거나 공유하지 않습니다. 사용자가 프로필을 삭제하면 관련 데이터가 함께 삭제됩니다.</p>
+
+<h2>4. 제3자 제공</h2>
+<p>본 서비스는 사용자의 개인정보를 제3자에게 제공하지 않습니다. 단, Google Calendar 연동 시 Google API를 통해 캘린더 데이터가 교환됩니다.</p>
+
+<h2>5. 쿠키 및 추적</h2>
+<p>본 서비스는 세션 관리를 위한 필수 쿠키만 사용하며, 광고 추적이나 분석 도구를 사용하지 않습니다.</p>
+
+<h2>6. 이용자의 권리</h2>
+<ul>
+<li>프로필 정보 수정 및 삭제</li>
+<li>Google Calendar 연동 해제</li>
+<li>데이터 백업 및 내보내기</li>
+</ul>
+
+<h2>7. 연락처</h2>
+<p>개인정보 관련 문의: <a href="mailto:chash8393@gmail.com">chash8393@gmail.com</a></p>
+</body>
+</html>"""
+    return HTMLResponse(html)
+
+
+@router.get("/.well-known/assetlinks.json")
+async def assetlinks(request: Request):
+    """Digital Asset Links for Android TWA verification.
+
+    Returns an empty array by default. Replace the sha256_cert_fingerprints
+    with actual signing certificate fingerprints after generating the TWA keystore.
+    """
+    # Placeholder: populate with actual fingerprints after TWA signing key generation
+    # keytool -list -v -keystore <keystore> | grep SHA256
+    return JSONResponse(
+        content=[{
+            "relation": ["delegate_permission/common.handle_all_urls"],
+            "target": {
+                "namespace": "android_app",
+                "package_name": "dev.fly.planner",
+                "sha256_cert_fingerprints": [],
+            },
+        }],
+        media_type="application/json",
+    )
+
+
 @router.get("/health")
 async def health(request: Request):
     S = request.app.state
