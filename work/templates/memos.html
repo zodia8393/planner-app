@@ -26,7 +26,7 @@
                       class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
             <p class="text-xs text-slate-400 mt-1">**굵게** *기울임* `코드` - 목록 > 인용</p>
             <div class="flex gap-2 items-center">
-                <select name="category_id" class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <select name="category_id" class="flex-1 px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                     <option value="">카테고리 없음</option>
                     {% for cat in categories %}
                     <option value="{{ cat.id }}">{{ cat.name }}</option>

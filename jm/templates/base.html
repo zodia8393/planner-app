@@ -513,6 +513,254 @@
             .nav-item:active { background: var(--color-border); }
             .mobile-tab-item:active { color: var(--color-accent); transform: scale(0.95); }
         }
+
+/* ══ Part 2: Mobile UX Optimization ══ */
+
+        /* ── J: Sticky Header (page title + action bar) ── */
+        @media (max-width: 1023px) {
+            .glass-header {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .glass-header.scrolled {
+                box-shadow: var(--shadow-md);
+            }
+        }
+
+        /* ── I: Bottom Sheet (modal → bottom sheet on mobile) ── */
+        .bottom-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity var(--duration-normal) var(--ease-out);
+            pointer-events: none;
+        }
+        .bottom-sheet-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 51;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(100%);
+            transition: transform var(--duration-slow) var(--ease-out);
+            max-height: 85vh;
+            overflow-y: auto;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+        .bottom-sheet-handle {
+            width: 2.5rem;
+            height: 0.25rem;
+            background: var(--color-border);
+            border-radius: var(--radius-full);
+            margin: 0.75rem auto;
+            flex-shrink: 0;
+        }
+        .dark .bottom-sheet {
+            background: var(--color-surface);
+        }
+
+        /* ── M: Skeleton Loading ── */
+        .skeleton-line {
+            height: 1rem;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(90deg, var(--color-border-subtle) 25%, var(--color-border) 50%, var(--color-border-subtle) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-card {
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+        }
+        .skeleton-card .skeleton-line + .skeleton-line { margin-top: 0.75rem; }
+        .skeleton-card .skeleton-line:nth-child(2) { width: 60%; }
+        .skeleton-card .skeleton-line:nth-child(3) { width: 80%; }
+        .dark .skeleton-line {
+            background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-elevated) 50%, var(--color-surface) 75%);
+            background-size: 200% 100%;
+        }
+
+        /* ── P: Horizontal Scroll Snap ── */
+        .scroll-snap-x {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 0.5rem;
+            padding-bottom: 0.25rem;
+        }
+        .scroll-snap-x::-webkit-scrollbar { display: none; }
+        .scroll-snap-x > * {
+            scroll-snap-align: start;
+            flex-shrink: 0;
+        }
+        .scroll-fade-right {
+            position: relative;
+        }
+        .scroll-fade-right::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 2rem;
+            background: linear-gradient(to left, var(--color-bg), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        /* P: Auto scroll-snap on filter/tab bars at mobile */
+        @media (max-width: 768px) {
+            .flex.overflow-x-auto {
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .flex.overflow-x-auto::-webkit-scrollbar { display: none; }
+            .flex.overflow-x-auto > .btn-sm {
+                scroll-snap-align: start;
+            }
+        }
+
+        /* ── R: Overscroll / Bounce Control ── */
+        @media (max-width: 1023px) {
+            html, body {
+                overscroll-behavior: none;
+                -webkit-overflow-scrolling: touch;
+            }
+            body.sheet-open {
+                overflow: hidden;
+                touch-action: none;
+            }
+        }
+
+        /* ── N: Thumb Zone — FAB position ── */
+        .fab {
+            position: fixed;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+            right: 1rem;
+            z-index: 30;
+            width: clamp(3rem, 2.5rem + 2vw, 3.5rem);
+            height: clamp(3rem, 2.5rem + 2vw, 3.5rem);
+            border-radius: var(--radius-full);
+            background: var(--color-accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast);
+        }
+        .fab:active { transform: scale(0.9); }
+        .fab svg { width: 1.5rem; height: 1.5rem; }
+        @media (min-width: 1024px) {
+            .fab { display: none; }
+        }
+
+        /* ── Q: Touch Feedback ── */
+        @media (max-width: 1023px) {
+            .touch-item {
+                transition: background var(--duration-fast) var(--ease-in-out), transform var(--duration-fast) var(--ease-in-out);
+                -webkit-tap-highlight-color: transparent;
+            }
+            .touch-item:active {
+                background: var(--color-border-subtle);
+                transform: scale(0.98);
+            }
+            .dark .touch-item:active {
+                background: var(--color-surface-elevated);
+            }
+        }
+
+        /* ── O: Keyboard Handling ── */
+        @media (max-width: 1023px) {
+            .keyboard-open .mobile-tab-bar { display: none; }
+            .keyboard-open .fab { display: none; }
+        }
+
+        /* ── K: Swipe Gesture hints ── */
+        .swipe-item {
+            position: relative;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+        .swipe-bg {
+            position: absolute;
+            top: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+        .swipe-bg-left {
+            left: 0; right: 50%;
+            background: #16a34a;
+            justify-content: flex-start;
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+        }
+        .swipe-bg-right {
+            left: 50%; right: 0;
+            background: #dc2626;
+            justify-content: flex-end;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+        }
+        .swipe-item.swiping .swipe-bg { opacity: 1; }
+        .swipe-content {
+            position: relative;
+            z-index: 1;
+            background: var(--color-surface);
+            transition: transform var(--duration-fast) var(--ease-out);
+        }
+
+        /* ── L: Pull to Refresh ── */
+        .ptr-indicator {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            z-index: 55;
+            padding: 0.5rem 1rem;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            background: var(--color-surface);
+            box-shadow: var(--shadow-md);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-muted);
+            transition: transform var(--duration-normal) var(--ease-out);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .ptr-indicator.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+        .ptr-indicator .ptr-spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--color-border);
+            border-top-color: var(--color-accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
     </style>
 </head>
 <body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
@@ -539,6 +787,9 @@
 
 <!-- Toast Container -->
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<!-- Pull-to-Refresh Indicator -->
+<div id="ptrIndicator" class="ptr-indicator">
+    <div class="ptr-spinner"></div>
 <a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm" style="background:var(--color-accent);color:#fff;">본문으로 건너뛰기</a>
 
 <div class="flex h-full">
@@ -1550,25 +1801,48 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
         }
     }
 
-    // Pull-to-refresh for mobile
-    var pullStart = 0;
-    var pulling = false;
-    document.addEventListener('touchstart', function(e) {
+    // ── L: Pull-to-Refresh (enhanced with indicator) ──
+    (function() {
+        var ptrIndicator = document.getElementById('ptrIndicator');
+        var pullStart = 0, pulling = false, ptrTriggered = false;
         var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
-        if (mainEl && mainEl.scrollTop === 0) {
-            pullStart = e.touches[0].clientY;
-            pulling = true;
-        }
-    }, { passive: true });
-    document.addEventListener('touchmove', function(e) {
-        if (!pulling) return;
-        var pullDist = e.touches[0].clientY - pullStart;
-        if (pullDist > 120) {
+        if (!mainEl || !ptrIndicator) return;
+        mainEl.addEventListener('touchstart', function(e) {
+            if (mainEl.scrollTop <= 0) {
+                pullStart = e.touches[0].clientY;
+                pulling = true;
+                ptrTriggered = false;
+            }
+        }, { passive: true });
+        mainEl.addEventListener('touchmove', function(e) {
+            if (!pulling) return;
+            var pullDist = e.touches[0].clientY - pullStart;
+            if (pullDist > 60 && !ptrTriggered) {
+                ptrIndicator.classList.add('visible');
+            }
+            if (pullDist > 120 && !ptrTriggered) {
+                ptrTriggered = true;
+                ptrIndicator.querySelector('.ptr-text').textContent = '새로고침 중...';
+                setTimeout(function() { location.reload(); }, 300);
+            }
+        }, { passive: true });
+        mainEl.addEventListener('touchend', function() {
             pulling = false;
-            location.reload();
-        }
-    }, { passive: true });
-    document.addEventListener('touchend', function() { pulling = false; }, { passive: true });
+            if (!ptrTriggered) {
+                ptrIndicator.classList.remove('visible');
+            }
+        }, { passive: true });
+    })();
+
+    // ── J: Sticky header scroll effect ──
+    (function() {
+        var header = document.querySelector('.glass-header');
+        var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+        if (!header || !mainEl) return;
+        mainEl.addEventListener('scroll', function() {
+            header.classList.toggle('scrolled', mainEl.scrollTop > 10);
+        }, { passive: true });
+    })();
 })();
 </script>
 <!-- PWA Install Prompt -->
@@ -1664,6 +1938,145 @@ function dismissReview(action){
     document.getElementById('reviewSheet').classList.add('hidden');
     fetch('/api/review-prompt/dismiss',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'action='+action}).catch(function(){});
 }
+</script>
+
+<!-- ══ Part 2: Mobile UX JS (I: Bottom Sheet, K: Swipe, Q: Long-press) ══ -->
+<script>
+/* ── I: Bottom Sheet utility ── */
+var _activeSheet = null;
+function openBottomSheet(contentEl) {
+    if (_activeSheet) closeBottomSheet();
+    var overlay = document.createElement('div');
+    overlay.className = 'bottom-sheet-overlay';
+    overlay.onclick = closeBottomSheet;
+    var sheet = document.createElement('div');
+    sheet.className = 'bottom-sheet';
+    sheet.innerHTML = '<div class="bottom-sheet-handle"></div>';
+    var content = contentEl.cloneNode(true);
+    content.classList.remove('hidden');
+    sheet.appendChild(content);
+    document.body.appendChild(overlay);
+    document.body.appendChild(sheet);
+    document.body.classList.add('sheet-open');
+    requestAnimationFrame(function() {
+        overlay.classList.add('active');
+        sheet.classList.add('active');
+    });
+    _activeSheet = { overlay: overlay, sheet: sheet };
+    // Swipe-down to dismiss
+    var startY = 0, currentY = 0;
+    sheet.addEventListener('touchstart', function(e) {
+        if (e.target.closest('input, textarea, select, button, a')) return;
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    sheet.addEventListener('touchmove', function(e) {
+        if (!startY) return;
+        currentY = e.touches[0].clientY - startY;
+        if (currentY > 0) {
+            sheet.style.transform = 'translateY(' + currentY + 'px)';
+        }
+    }, { passive: true });
+    sheet.addEventListener('touchend', function() {
+        if (currentY > 100) {
+            closeBottomSheet();
+        } else {
+            sheet.style.transform = '';
+        }
+        startY = 0; currentY = 0;
+    }, { passive: true });
+}
+function closeBottomSheet() {
+    if (!_activeSheet) return;
+    _activeSheet.overlay.classList.remove('active');
+    _activeSheet.sheet.classList.remove('active');
+    document.body.classList.remove('sheet-open');
+    var ref = _activeSheet;
+    setTimeout(function() {
+        ref.overlay.remove();
+        ref.sheet.remove();
+    }, 400);
+    _activeSheet = null;
+}
+
+/* ── K: Swipe gesture for list items ── */
+function initSwipeItems() {
+    if (window.innerWidth > 768) return;
+    document.querySelectorAll('.swipe-item').forEach(function(item) {
+        if (item._swipeInit) return;
+        item._swipeInit = true;
+        var startX = 0, currentX = 0, threshold = 80;
+        var content = item.querySelector('.swipe-content');
+        if (!content) return;
+        item.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            currentX = 0;
+        }, { passive: true });
+        item.addEventListener('touchmove', function(e) {
+            currentX = e.touches[0].clientX - startX;
+            if (Math.abs(currentX) > 10) {
+                item.classList.add('swiping');
+                content.style.transform = 'translateX(' + Math.max(-120, Math.min(120, currentX)) + 'px)';
+            }
+        }, { passive: true });
+        item.addEventListener('touchend', function() {
+            item.classList.remove('swiping');
+            if (currentX > threshold) {
+                // Swipe right → complete
+                var completeBtn = item.querySelector('[data-swipe-complete]');
+                if (completeBtn) completeBtn.click();
+            } else if (currentX < -threshold) {
+                // Swipe left → delete
+                var deleteBtn = item.querySelector('[data-swipe-delete]');
+                if (deleteBtn && confirm('삭제할까요?')) deleteBtn.click();
+            }
+            content.style.transform = '';
+            startX = 0; currentX = 0;
+        }, { passive: true });
+    });
+}
+document.addEventListener('DOMContentLoaded', initSwipeItems);
+document.addEventListener('htmx:afterSettle', initSwipeItems);
+
+/* ── Q: Long-press context menu ── */
+function initLongPress() {
+    if (window.innerWidth > 768) return;
+    document.querySelectorAll('[data-long-press]').forEach(function(item) {
+        if (item._lpInit) return;
+        item._lpInit = true;
+        var timer = null;
+        item.addEventListener('touchstart', function(e) {
+            timer = setTimeout(function() {
+                if (navigator.vibrate) navigator.vibrate(30);
+                var menu = item.querySelector('.context-menu');
+                if (menu) {
+                    menu.classList.toggle('hidden');
+                    setTimeout(function() { menu.classList.add('hidden'); }, 3000);
+                }
+            }, 500);
+        }, { passive: true });
+        item.addEventListener('touchend', function() { clearTimeout(timer); }, { passive: true });
+        item.addEventListener('touchmove', function() { clearTimeout(timer); }, { passive: true });
+    });
+}
+document.addEventListener('DOMContentLoaded', initLongPress);
+document.addEventListener('htmx:afterSettle', initLongPress);
+
+/* ── M: Skeleton Loading for HTMX ── */
+document.addEventListener('htmx:beforeRequest', function(e) {
+    var target = e.detail.target;
+    if (target && !target.querySelector('.skeleton-card')) {
+        var skeleton = document.createElement('div');
+        skeleton.className = 'skeleton-card htmx-skeleton';
+        skeleton.innerHTML = '<div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line" style="width:85%"></div>';
+        target.prepend(skeleton);
+    }
+});
+document.addEventListener('htmx:afterSettle', function(e) {
+    var target = e.detail.target;
+    if (target) {
+        target.querySelectorAll('.htmx-skeleton').forEach(function(s) { s.remove(); });
+    }
+});
 </script>
 
 {% block scripts %}{% endblock %}

@@ -1,4 +1,7 @@
-<div class="work-card rounded-xl p-4 fade-in group" data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
+<div class="work-card rounded-xl fade-in group touch-item swipe-item" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
+    <div class="swipe-bg swipe-bg-left">완료</div>
+    <div class="swipe-bg swipe-bg-right">삭제</div>
+    <div class="swipe-content p-4">
     <div class="flex items-start gap-3">
         <!-- Drag handle -->
         <div class="drag-handle cursor-grab flex-shrink-0 mt-1 text-slate-300 dark:text-slate-600 hover:text-slate-500 transition-colors block">
@@ -110,5 +113,8 @@
                 </svg>
             </button>
         </div>
+    </div>
+    <button data-swipe-complete class="hidden" hx-post="/todos/{{ todo.id }}/toggle" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
+    <button data-swipe-delete class="hidden" hx-delete="/todos/{{ todo.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
     </div>
 </div>

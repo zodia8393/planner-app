@@ -40,9 +40,9 @@
             <div class="flex items-center gap-2">
                 <span class="text-xs text-slate-500 whitespace-nowrap">매</span>
                 <input type="number" name="rrule_interval" value="{{ todo._rrule_interval if is_custom_rrule else 1 }}" min="1" max="99"
-                       class="w-16 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                       class="w-16 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                 <select name="rrule_freq" id="editRruleFreq_{{ todo.id }}" onchange="toggleEditRruleExtra({{ todo.id }})"
-                        class="px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        class="px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                     <option value="DAILY" {% if is_custom_rrule and todo._rrule_freq == 'DAILY' %}selected{% endif %}>일</option>
                     <option value="WEEKLY" {% if is_custom_rrule and todo._rrule_freq == 'WEEKLY' %}selected{% endif %}>주</option>
                     <option value="MONTHLY" {% if is_custom_rrule and todo._rrule_freq == 'MONTHLY' %}selected{% endif %}>개월</option>
@@ -51,7 +51,7 @@
             </div>
             <div id="editBydayRow_{{ todo.id }}" class="{% if not (is_custom_rrule and todo._rrule_freq == 'WEEKLY') %}hidden{% endif %} flex flex-wrap gap-1">
                 {% for code, label in rrule_day_options %}
-                <label class="flex items-center gap-0.5 px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20">
+                <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20">
                     <input type="checkbox" class="rrule-byday-edit-{{ todo.id }}" value="{{ code }}" {% if is_custom_rrule and code in (todo._rrule_byday or []) %}checked{% endif %}>
                     {{ label }}
                 </label>
@@ -59,12 +59,12 @@
             </div>
             <div id="editBymonthdayRow_{{ todo.id }}" class="{% if not (is_custom_rrule and todo._rrule_freq == 'MONTHLY') %}hidden{% endif %}">
                 <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)" value="{{ todo._rrule_bymonthday_str if is_custom_rrule else '' }}"
-                       class="w-full px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                       class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-xs text-slate-500 whitespace-nowrap">종료:</span>
                 <select name="rrule_end_type" id="editRruleEndType_{{ todo.id }}" onchange="toggleEditEndFields({{ todo.id }})"
-                        class="px-2 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        class="px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                     <option value="never" {% if is_custom_rrule and not todo._rrule_count and not todo._rrule_until %}selected{% endif %}>무제한</option>
                     <option value="count" {% if is_custom_rrule and todo._rrule_count %}selected{% endif %}>횟수</option>
                     <option value="until" {% if is_custom_rrule and todo._rrule_until %}selected{% endif %}>날짜</option>

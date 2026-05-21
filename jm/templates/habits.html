@@ -14,7 +14,7 @@
         </div>
         <div>
             <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">아이콘</label>
-            <select name="icon" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            <select name="icon" class="px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                 <option value="✅">✅</option><option value="📖">📖</option><option value="🏃">🏃</option>
                 <option value="💧">💧</option><option value="🧘">🧘</option><option value="✍️">✍️</option>
                 <option value="🎯">🎯</option><option value="💪">💪</option><option value="🌅">🌅</option>
@@ -44,7 +44,7 @@
 <!-- Habit list with today toggle -->
 <div class="space-y-3 mb-6">
     {% for h in habits %}
-    <div class="work-card rounded-xl p-4 card-hover">
+    <div class="work-card rounded-xl p-4 card-hover touch-item">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
