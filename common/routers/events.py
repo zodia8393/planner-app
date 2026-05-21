@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/calendar", response_class=HTMLResponse)
-async def calendar_page(request: Request, year: Optional[int] = None, month: Optional[int] = None):
+async def calendar_page(request: Request, year: Optional[int] = None, month: Optional[int] = None, view: str = "month"):
     S = request.app.state
     pid = S.get_profile_id(request)
     today = date.today()
@@ -88,6 +88,20 @@ async def calendar_page(request: Request, year: Optional[int] = None, month: Opt
     if next_m > 12:
         next_m = 1; next_y += 1
 
+    # Item 15: Week view data
+    from datetime import timedelta as _td
+    week_start = today - _td(days=today.weekday())
+    week_days = []
+    for i in range(7):
+        d = week_start + _td(days=i)
+        d_str = d.isoformat()
+        week_days.append({
+            "date": d, "date_str": d_str,
+            "events": events_by_date.get(d_str, []),
+            "todos": todos_by_date.get(d_str, []),
+            "is_today": d == today,
+        })
+
     return S.render(request, "calendar.html", {
         "page": "calendar",
         "year": y,
@@ -103,6 +117,8 @@ async def calendar_page(request: Request, year: Optional[int] = None, month: Opt
         "next_month": next_m,
         "today_str": today.isoformat(),
         "holidays_by_date": get_holidays_for_month(y, m),
+        "cal_view": view,
+        "week_days": week_days,
     })
 
 

@@ -512,11 +512,31 @@ async def widget_today_data(request: Request):
 
         # Today focus hours (defensive: work_logs table may not exist or lack profile_id)
         today_focus = 0
+        week_focus = 0
+        focus_streak = 0
         try:
             today_focus = conn.execute(
                 "SELECT COALESCE(SUM(hours), 0) FROM work_logs WHERE profile_id=? AND log_date=? AND title LIKE '%집중 모드%'",
                 (pid, today_str),
             ).fetchone()[0]
+            # Item 14: Weekly focus total
+            week_start = today_date - timedelta(days=today_date.weekday())
+            week_focus = conn.execute(
+                "SELECT COALESCE(SUM(hours), 0) FROM work_logs WHERE profile_id=? AND log_date>=? AND title LIKE '%집중 모드%'",
+                (pid, week_start.isoformat()),
+            ).fetchone()[0]
+            # Item 14: Focus streak (consecutive days with focus)
+            d = today_date
+            while True:
+                has_focus = conn.execute(
+                    "SELECT 1 FROM work_logs WHERE profile_id=? AND log_date=? AND title LIKE '%집중 모드%' LIMIT 1",
+                    (pid, d.isoformat()),
+                ).fetchone()
+                if has_focus:
+                    focus_streak += 1
+                    d -= timedelta(days=1)
+                else:
+                    break
         except Exception:
             pass
 
@@ -564,6 +584,8 @@ async def widget_today_data(request: Request):
         "week_total": week_total,
         "upcoming_items": upcoming_items,
         "today_focus_hours": round(today_focus, 1),
+        "week_focus_hours": round(week_focus, 1),
+        "focus_streak": focus_streak,
         "category_budgets": category_budgets,
     })
 

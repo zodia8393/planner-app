@@ -17,22 +17,89 @@
         <p><b class="text-slate-700 dark:text-slate-300">월 이동</b> — 좌우 화살표로 이전/다음 달 이동, "오늘" 버튼으로 복귀</p>
     </div>
 </details>
+<!-- Item 15: Month/Week view toggle -->
+<div class="flex items-center gap-2 mb-3">
+    <a href="/calendar?view=month"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+              {% if cal_view != 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        월간
+    </a>
+    <a href="/calendar?view=week"
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+              {% if cal_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        주간
+    </a>
+</div>
+
 <!-- Month navigation -->
 <div class="flex items-center justify-center gap-4 mb-4">
-    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
     <h3 class="text-lg font-bold text-slate-800 dark:text-white min-w-[120px] text-center">{{ year }}년 {{ month }}월</h3>
-    <a href="/calendar?year={{ next_year }}&month={{ next_month }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
+    <a href="/calendar?view={{ cal_view }}" class="ml-1 px-3 py-1.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+        오늘
+    </a>
 </div>
 
-<!-- Calendar grid -->
+{% if cal_view == 'week' %}
+<!-- ====== WEEK VIEW ====== -->
+<div class="space-y-0 work-card rounded-xl overflow-hidden mb-6">
+    {% for wd in week_days %}
+    {% set day_events = wd.events %}
+    {% set day_todos = wd.todos %}
+    <div class="border-b border-slate-100 dark:border-slate-700/50 p-3 {% if wd.is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
+         onclick="openEventModal('{{ wd.date_str }}')">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="flex items-center gap-2 min-w-[80px]">
+                <span class="text-sm font-bold
+                    {% if wd.is_today %}bg-amber-600 text-white w-7 h-7 rounded-full flex items-center justify-center
+                    {% elif wd.date.weekday() == 6 %}text-red-400
+                    {% elif wd.date.weekday() == 5 %}text-blue-400
+                    {% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ wd.date.day }}</span>
+                <span class="text-xs font-medium {% if wd.is_today %}text-amber-600{% else %}text-slate-500{% endif %}">{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
+            </div>
+            <div class="flex-1 flex flex-wrap gap-1.5">
+                {% for ev in day_events %}
+                <div class="text-xs truncate px-2 py-1 rounded cursor-pointer hover:opacity-80 max-w-[200px]"
+                     style="background: {{ ev.color }}20; color: {{ ev.color }}"
+                     {% if ev.get('is_gcal') %}onclick="event.stopPropagation(); editGcalEvent('{{ ev.id }}')"
+                     {% else %}onclick="event.stopPropagation(); editEvent({{ ev.id }})"{% endif %}>
+                    {% if ev.get('is_gcal') %}<span class="opacity-60">G</span> {% endif %}
+                    {% if ev.start_time and ev.start_time|length > 10 %}<span class="opacity-60">{{ ev.start_time[11:16] }}</span> {% endif %}{{ ev.title }}
+                </div>
+                {% endfor %}
+                {% for todo in day_todos %}
+                <div class="flex items-center gap-1 px-2 py-1 rounded bg-slate-100/50 dark:bg-slate-700/30">
+                    <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).finally(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
+                        {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}border-slate-300{% endif %}">
+                        {% if todo.completed %}
+                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        {% endif %}
+                    </button>
+                    <span class="text-xs truncate max-w-[160px] {% if todo.completed %}line-through text-slate-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ todo.title }}</span>
+                </div>
+                {% endfor %}
+                {% if not day_events and not day_todos %}
+                <span class="text-xs text-slate-300 dark:text-slate-600">-</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- ====== MONTH VIEW ====== -->
 <div class="work-card rounded-xl overflow-hidden mb-6">
     <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
         {% for day_name in ['월', '화', '수', '목', '금', '토', '일'] %}
@@ -108,6 +175,7 @@
         {% endfor %}
     </div>
 </div>
+{% endif %}
 
 <!-- Add event modal -->
 <div id="eventModal" class="fixed inset-0 z-50 hidden">
@@ -215,6 +283,6 @@ function editGcalEvent(gcalId) {
         htmx.process(container);
     }).catch(function(){});
 }
-</script>
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
+</script>
 {% endblock %}

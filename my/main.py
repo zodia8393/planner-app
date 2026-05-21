@@ -527,6 +527,57 @@ def init_db():
             created_at TEXT DEFAULT (datetime('now','localtime'))
         );
         CREATE INDEX IF NOT EXISTS idx_meal_profile ON meal_places(profile_id);
+
+        CREATE TABLE IF NOT EXISTS habits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            icon TEXT DEFAULT '✅',
+            color TEXT DEFAULT '#6366f1',
+            frequency TEXT DEFAULT 'daily',
+            sort_order INTEGER DEFAULT 0,
+            archived INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_habits_profile ON habits(profile_id);
+
+        CREATE TABLE IF NOT EXISTS habit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            habit_id INTEGER NOT NULL,
+            profile_id INTEGER NOT NULL,
+            log_date TEXT NOT NULL,
+            completed INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE,
+            UNIQUE(habit_id, log_date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_habit_logs_date ON habit_logs(log_date);
+        CREATE INDEX IF NOT EXISTS idx_habit_logs_habit ON habit_logs(habit_id);
+
+        CREATE TABLE IF NOT EXISTS onboarding_progress (
+            profile_id INTEGER PRIMARY KEY,
+            step1_done INTEGER DEFAULT 0,
+            step2_done INTEGER DEFAULT 0,
+            step3_done INTEGER DEFAULT 0,
+            step4_done INTEGER DEFAULT 0,
+            dismissed INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        );
+
+        CREATE TABLE IF NOT EXISTS morning_brief_settings (
+            profile_id INTEGER PRIMARY KEY,
+            enabled INTEGER DEFAULT 0,
+            hour INTEGER DEFAULT 8,
+            minute INTEGER DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS app_visits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            visit_date TEXT NOT NULL,
+            UNIQUE(profile_id, visit_date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_visits_profile ON app_visits(profile_id);
         """)
 
         # Migration: add token column if missing (existing DBs)
@@ -811,6 +862,33 @@ def ensure_default_categories(conn, profile_id: int):
         )
 
 
+# ── Sample data for new profiles (Item 1) ──
+def _seed_sample_data(conn, profile_id: int):
+    """Insert sample todos, event, and memo for new user onboarding."""
+    today = date_mod.today()
+    tomorrow = today + timedelta(days=1)
+    conn.execute(
+        "INSERT INTO todos (profile_id, title, priority, due_date, tags, sort_order) VALUES (?,?,?,?,?,?)",
+        (profile_id, "My Planner 둘러보기", 1, today.isoformat(), '["시작"]', 1),
+    )
+    conn.execute(
+        "INSERT INTO todos (profile_id, title, priority, due_date, tags, sort_order) VALUES (?,?,?,?,?,?)",
+        (profile_id, "캘린더에 일정 추가해보기", 2, tomorrow.isoformat(), '["시작"]', 2),
+    )
+    conn.execute(
+        "INSERT INTO todos (profile_id, title, priority, due_date, tags, sort_order) VALUES (?,?,?,?,?,?)",
+        (profile_id, "집중 모드로 25분 작업하기", 2, tomorrow.isoformat(), '["시작"]', 3),
+    )
+    conn.execute(
+        "INSERT INTO events (profile_id, title, start_time, color, memo) VALUES (?,?,?,?,?)",
+        (profile_id, "My Planner 시작!", f"{today.isoformat()}T09:00", "#d97706", "환영합니다! 이 일정을 수정하거나 삭제해보세요."),
+    )
+    conn.execute(
+        "INSERT INTO memos (profile_id, author, title, content) VALUES (?,?,?,?)",
+        (profile_id, "My Planner", "환영합니다!", "## 시작 가이드\n\n- **할 일**: 좌측 메뉴에서 할 일을 관리하세요\n- **캘린더**: 일정을 한눈에 확인하세요\n- **집중 모드**: 포모도로 타이머로 생산성을 높이세요\n- **양식**: 13종의 업무 양식을 바로 사용하세요"),
+    )
+
+
 # ── Audit log helper ──
 def _audit_log(conn, entity_type: str, entity_id: int, action: str, changes: dict = None, profile_id: str = None):
     """Insert a lightweight audit record."""
@@ -914,6 +992,7 @@ async def create_profile(request: Request, name: str = Form("")):
         )
         profile_id = cursor.lastrowid
         ensure_default_categories(conn, profile_id)
+        _seed_sample_data(conn, profile_id)
 
     response = RedirectResponse("/", status_code=303)
     response.set_cookie(
@@ -1038,10 +1117,11 @@ def _run_automation_rules(conn, pid, today_str):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request, plan_view: str = "week", plan_offset: int = 0):
+async def dashboard(request: Request, plan_view: str = "week", plan_offset: int = 0, include_no_due: str = ""):
     pid = require_profile(request)
     today = date_mod.today()
     today_str = today.isoformat()
+    _include_no_due = include_no_due == "1"
 
     with get_db() as conn:
         _run_automation_rules(conn, pid, today_str)
@@ -1170,16 +1250,29 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             monday = today - timedelta(days=today.weekday()) + timedelta(weeks=plan_offset)
             sunday = monday + timedelta(days=6)
             week_num = week_number_in_month(monday)
-            plan_todos = conn.execute("""
-                SELECT t.*, c.name as category_name, c.color as category_color
-                FROM todos t LEFT JOIN categories c ON t.category_id = c.id
-                WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
-                ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
-            """, (monday.isoformat(), sunday.isoformat(), pid)).fetchall()
+            if _include_no_due:
+                plan_todos = conn.execute("""
+                    SELECT t.*, c.name as category_name, c.color as category_color
+                    FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+                    WHERE ((t.due_date BETWEEN ? AND ?) OR (t.due_date IS NULL OR t.due_date = ''))
+                      AND t.profile_id = ?
+                    ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
+                """, (monday.isoformat(), sunday.isoformat(), pid)).fetchall()
+            else:
+                plan_todos = conn.execute("""
+                    SELECT t.*, c.name as category_name, c.color as category_color
+                    FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+                    WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
+                    ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
+                """, (monday.isoformat(), sunday.isoformat(), pid)).fetchall()
             week_days = []
+            no_due_todos = [dict(t) for t in plan_todos if not t["due_date"]] if _include_no_due else []
             for i in range(7):
                 d = monday + timedelta(days=i)
                 day_todos = [dict(t) for t in plan_todos if t["due_date"] == d.isoformat()]
+                # Attach no-due-date todos to today's column
+                if _include_no_due and d == today:
+                    day_todos.extend(no_due_todos)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),
                     "label": f"{WEEKDAY_NAMES[i]} {d.strftime('%m/%d')}",
@@ -2082,6 +2175,340 @@ async def my_sync_profile(request: Request, token: str = ""):
         samesite="lax",
     )
     return response
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 8: Habits Tracker
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/habits", response_class=HTMLResponse)
+async def habits_page(request: Request):
+    pid = require_profile(request)
+    today = date_mod.today()
+    with get_db() as conn:
+        habits = conn.execute(
+            "SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)
+        ).fetchall()
+        # Get logs for past 30 days
+        start_date = (today - timedelta(days=29)).isoformat()
+        logs = conn.execute(
+            "SELECT habit_id, log_date FROM habit_logs WHERE profile_id=? AND log_date>=?",
+            (pid, start_date),
+        ).fetchall()
+    logs_set = {(r["habit_id"], r["log_date"]) for r in logs}
+    # Calculate streaks
+    habits_data = []
+    for h in habits:
+        hd = dict(h)
+        streak = 0
+        d = today
+        while True:
+            if (hd["id"], d.isoformat()) in logs_set:
+                streak += 1
+                d -= timedelta(days=1)
+            else:
+                break
+        hd["streak"] = streak
+        hd["today_done"] = (hd["id"], today.isoformat()) in logs_set
+        habits_data.append(hd)
+    # Heatmap data (last 30 days)
+    dates = [(today - timedelta(days=i)).isoformat() for i in range(29, -1, -1)]
+    return render(request, "habits.html", {
+        "page": "habits", "habits": habits_data,
+        "logs_set": logs_set, "dates": dates, "today_str": today.isoformat(),
+    })
+
+
+@app.post("/habits", response_class=HTMLResponse)
+async def create_habit(request: Request, name: str = Form(""), icon: str = Form("✅"), color: str = Form("#6366f1")):
+    pid = require_profile(request)
+    name = clamp_text(fix_mojibake(name), 50).strip()
+    if not name:
+        return redirect(request, "/habits")
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM habits WHERE profile_id=?", (pid,)).fetchone()[0]
+        conn.execute(
+            "INSERT INTO habits (profile_id, name, icon, color, sort_order) VALUES (?,?,?,?,?)",
+            (pid, name, icon or "✅", color, max_order + 1),
+        )
+    return redirect(request, "/habits")
+
+
+@app.post("/habits/{habit_id}/toggle", response_class=HTMLResponse)
+async def toggle_habit(request: Request, habit_id: int, date: str = Form("")):
+    pid = require_profile(request)
+    log_date = date or date_mod.today().isoformat()
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM habit_logs WHERE habit_id=? AND log_date=?", (habit_id, log_date)
+        ).fetchone()
+        if existing:
+            conn.execute("DELETE FROM habit_logs WHERE id=?", (existing["id"],))
+        else:
+            conn.execute(
+                "INSERT OR IGNORE INTO habit_logs (habit_id, profile_id, log_date) VALUES (?,?,?)",
+                (habit_id, pid, log_date),
+            )
+    return redirect(request, "/habits")
+
+
+@app.delete("/habits/{habit_id}", response_class=HTMLResponse)
+async def delete_habit(request: Request, habit_id: int):
+    pid = require_profile(request)
+    with get_db() as conn:
+        conn.execute("DELETE FROM habits WHERE id=? AND profile_id=?", (habit_id, pid))
+    return HTMLResponse("")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 9: Onboarding Checklist API
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/api/onboarding")
+async def get_onboarding(request: Request):
+    pid = require_profile(request)
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM onboarding_progress WHERE profile_id=?", (pid,)).fetchone()
+        if not row:
+            conn.execute("INSERT INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+            return JSONResponse({"step1": False, "step2": False, "step3": False, "step4": False, "dismissed": False})
+        return JSONResponse({
+            "step1": bool(row["step1_done"]), "step2": bool(row["step2_done"]),
+            "step3": bool(row["step3_done"]), "step4": bool(row["step4_done"]),
+            "dismissed": bool(row["dismissed"]),
+        })
+
+
+@app.post("/api/onboarding/step/{step}")
+async def complete_onboarding_step(request: Request, step: int):
+    pid = require_profile(request)
+    if step not in (1, 2, 3, 4):
+        raise HTTPException(400)
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+        conn.execute(f"UPDATE onboarding_progress SET step{step}_done=1 WHERE profile_id=?", (pid,))
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/onboarding/dismiss")
+async def dismiss_onboarding(request: Request):
+    pid = require_profile(request)
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
+        conn.execute("UPDATE onboarding_progress SET dismissed=1 WHERE profile_id=?", (pid,))
+    return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 10: Morning Brief API
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/api/morning-brief")
+async def morning_brief(request: Request):
+    pid = require_profile(request)
+    today = date_mod.today().isoformat()
+    with get_db() as conn:
+        todo_count = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND due_date<=? AND completed=0", (pid, today)
+        ).fetchone()[0]
+        event_count = conn.execute(
+            "SELECT COUNT(*) FROM events WHERE profile_id=? AND date(start_time)=?", (pid, today)
+        ).fetchone()[0]
+        habits_total = conn.execute(
+            "SELECT COUNT(*) FROM habits WHERE profile_id=? AND archived=0", (pid,)
+        ).fetchone()[0]
+        habits_done = conn.execute(
+            "SELECT COUNT(*) FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today)
+        ).fetchone()[0]
+    return JSONResponse({
+        "date": today,
+        "todos_pending": todo_count,
+        "events_today": event_count,
+        "habits_total": habits_total,
+        "habits_done": habits_done,
+        "message": f"오늘 할 일 {todo_count}개, 일정 {event_count}개가 있습니다.",
+    })
+
+
+@app.post("/api/morning-brief/settings")
+async def save_morning_brief_settings(request: Request, enabled: int = Form(0), hour: int = Form(8), minute: int = Form(0)):
+    pid = require_profile(request)
+    with get_db() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO morning_brief_settings (profile_id, enabled, hour, minute) VALUES (?,?,?,?)",
+            (pid, enabled, max(0, min(23, hour)), max(0, min(59, minute))),
+        )
+    return JSONResponse({"ok": True})
+
+
+@app.get("/api/morning-brief/settings")
+async def get_morning_brief_settings(request: Request):
+    pid = require_profile(request)
+    with get_db() as conn:
+        row = conn.execute("SELECT * FROM morning_brief_settings WHERE profile_id=?", (pid,)).fetchone()
+    if not row:
+        return JSONResponse({"enabled": False, "hour": 8, "minute": 0})
+    return JSONResponse({"enabled": bool(row["enabled"]), "hour": row["hour"], "minute": row["minute"]})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 5: PWA Install Prompt API
+# ══════════════════════════════════════════════════════════════════════
+
+@app.post("/api/pwa-install-dismissed")
+async def pwa_install_dismissed(request: Request):
+    pid = require_profile(request)
+    with get_db() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO user_settings (profile_id, key, value) VALUES (?, 'pwa_install_dismissed', '1')",
+            (pid,),
+        )
+    return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 17: Play Store Review Prompt
+# ══════════════════════════════════════════════════════════════════════
+
+@app.post("/api/track-visit")
+async def track_visit(request: Request):
+    pid = require_profile(request)
+    today = date_mod.today().isoformat()
+    with get_db() as conn:
+        conn.execute("INSERT OR IGNORE INTO app_visits (profile_id, visit_date) VALUES (?,?)", (pid, today))
+    return JSONResponse({"ok": True})
+
+
+@app.get("/api/review-prompt")
+async def check_review_prompt(request: Request):
+    pid = require_profile(request)
+    today = date_mod.today()
+    with get_db() as conn:
+        # Check if already reviewed or snoozed
+        snoozed = conn.execute(
+            "SELECT value FROM user_settings WHERE profile_id=? AND key='review_snoozed_until'", (pid,)
+        ).fetchone()
+        if snoozed and snoozed["value"] and snoozed["value"] > today.isoformat():
+            return JSONResponse({"show": False})
+        reviewed = conn.execute(
+            "SELECT value FROM user_settings WHERE profile_id=? AND key='review_done'", (pid,)
+        ).fetchone()
+        if reviewed:
+            return JSONResponse({"show": False})
+        # Check 7 consecutive days
+        streak = 0
+        for i in range(7):
+            d = (today - timedelta(days=i)).isoformat()
+            exists = conn.execute(
+                "SELECT 1 FROM app_visits WHERE profile_id=? AND visit_date=?", (pid, d)
+            ).fetchone()
+            if exists:
+                streak += 1
+            else:
+                break
+    return JSONResponse({"show": streak >= 7})
+
+
+@app.post("/api/review-prompt/dismiss")
+async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
+    pid = require_profile(request)
+    with get_db() as conn:
+        if action == "done":
+            conn.execute(
+                "INSERT OR REPLACE INTO user_settings (profile_id, key, value) VALUES (?, 'review_done', '1')", (pid,)
+            )
+        else:
+            snooze_until = (date_mod.today() + timedelta(days=30)).isoformat()
+            conn.execute(
+                "INSERT OR REPLACE INTO user_settings (profile_id, key, value) VALUES (?, 'review_snoozed_until', ?)",
+                (pid, snooze_until),
+            )
+    return JSONResponse({"ok": True})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 20: /today route — unified today view
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/today", response_class=HTMLResponse)
+async def today_view(request: Request):
+    pid = require_profile(request)
+    today = date_mod.today()
+    today_str = today.isoformat()
+    with get_db() as conn:
+        todos = conn.execute("""
+            SELECT t.*, c.name as category_name, c.color as category_color
+            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+            WHERE t.profile_id=? AND ((t.due_date<=? AND t.completed=0) OR (t.completed=1 AND date(t.completed_at)=?))
+            ORDER BY t.completed ASC, t.priority ASC, t.sort_order ASC
+        """, (pid, today_str, today_str)).fetchall()
+        events = conn.execute("""
+            SELECT e.*, c.name as category_name
+            FROM events e LEFT JOIN categories c ON e.category_id = c.id
+            WHERE e.profile_id=? AND date(e.start_time)=?
+            ORDER BY e.start_time ASC
+        """, (pid, today_str)).fetchall()
+        worklogs = conn.execute("""
+            SELECT w.*, c.name as category_name, c.color as category_color
+            FROM work_logs w LEFT JOIN categories c ON w.category_id = c.id
+            WHERE w.profile_id=? AND w.log_date=?
+            ORDER BY w.created_at DESC
+        """, (pid, today_str)).fetchall()
+        habits = conn.execute("SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)).fetchall()
+        habit_logs_today = conn.execute(
+            "SELECT habit_id FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today_str)
+        ).fetchall()
+    done_habits = {r["habit_id"] for r in habit_logs_today}
+    habits_data = [dict(h) | {"today_done": h["id"] in done_habits} for h in habits]
+    return render(request, "today.html", {
+        "page": "today", "today_str": today_str,
+        "todos": [dict(r) for r in todos],
+        "events": [dict(r) for r in events],
+        "worklogs": [dict(r) for r in worklogs],
+        "habits": habits_data,
+        "priority_map": PRIORITY_MAP,
+    })
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Item 13: Starter Automation Suggestions
+# ══════════════════════════════════════════════════════════════════════
+
+@app.post("/automations/apply-starter", response_class=HTMLResponse)
+async def apply_starter_automation(request: Request, preset: str = Form("")):
+    pid = require_profile(request)
+    starters = {
+        "weekly_review": {
+            "name": "매주 금요일 주간 리뷰",
+            "trigger_type": "weekly",
+            "trigger_config": json.dumps({"weekday": 4}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "주간 업무 리뷰 작성", "priority": 1}),
+        },
+        "daily_standup": {
+            "name": "매일 오전 업무 정리",
+            "trigger_type": "daily",
+            "trigger_config": json.dumps({}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "오늘의 업무 우선순위 정리", "priority": 2}),
+        },
+        "monthly_report": {
+            "name": "매월 1일 월간 보고서",
+            "trigger_type": "monthly",
+            "trigger_config": json.dumps({"day": 1}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "월간 업무 보고서 작성", "priority": 1}),
+        },
+    }
+    if preset not in starters:
+        return redirect(request, "/automations")
+    s = starters[preset]
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO automation_rules (profile_id, name, trigger_type, trigger_config, action_type, action_config) VALUES (?,?,?,?,?,?)",
+            (pid, s["name"], s["trigger_type"], s["trigger_config"], s["action_type"], s["action_config"]),
+        )
+    return redirect(request, "/automations")
 
 
 if __name__ == "__main__":

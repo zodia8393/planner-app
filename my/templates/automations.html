@@ -15,6 +15,41 @@
         <p><b class="text-slate-700 dark:text-slate-300">실행 주기</b> — 규칙은 매일 자동으로 실행됩니다</p>
     </div>
 </details>
+
+<!-- Item 13: Starter Automation Suggestions -->
+{% if rules|length == 0 %}
+<div class="work-card rounded-xl p-4 mb-4">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">추천 자동화</h3>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">클릭 한 번으로 유용한 규칙을 바로 적용하세요</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <form action="/automations/apply-starter" method="POST" class="inline">
+            <input type="hidden" name="preset" value="daily_standup">
+            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+                <span class="text-lg">🌅</span>
+                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매일 업무 정리</p>
+                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매일 "업무 우선순위 정리" 할일 생성</p>
+            </button>
+        </form>
+        <form action="/automations/apply-starter" method="POST" class="inline">
+            <input type="hidden" name="preset" value="weekly_review">
+            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+                <span class="text-lg">📋</span>
+                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매주 금요일 리뷰</p>
+                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">금요일마다 "주간 리뷰" 할일 생성</p>
+            </button>
+        </form>
+        <form action="/automations/apply-starter" method="POST" class="inline">
+            <input type="hidden" name="preset" value="monthly_report">
+            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+                <span class="text-lg">📊</span>
+                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매월 1일 보고서</p>
+                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매월 1일 "월간 보고서" 할일 생성</p>
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <div class="work-card rounded-xl p-4 mb-4">
     <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">새 규칙 만들기</h3>
     <form action="/automations" method="POST" id="automationForm">

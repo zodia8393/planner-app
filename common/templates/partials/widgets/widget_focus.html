@@ -29,12 +29,22 @@
         </button>
     </div>
 
-    {# Today total #}
-    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span>오늘 집중: <strong class="text-slate-700 dark:text-slate-200">{{ today_focus_hours|default(0)|round(1) }}시간</strong></span>
+    {# Item 14: Enhanced Pomodoro stats #}
+    <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            오늘: <strong class="text-slate-700 dark:text-slate-200">{{ today_focus_hours|default(0)|round(1) }}h</strong>
+        </span>
+        <span class="flex items-center gap-1.5">
+            📊 이번 주: <strong class="text-slate-700 dark:text-slate-200">{{ week_focus_hours|default(0)|round(1) }}h</strong>
+        </span>
+        {% if focus_streak|default(0) > 0 %}
+        <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">
+            🔥 연속 {{ focus_streak }}일
+        </span>
+        {% endif %}
     </div>
 </div>
 

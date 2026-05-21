@@ -63,6 +63,15 @@
     </button>
 </div>
 
+<!-- Item 18: Tag filter indicator -->
+{% if current_tag %}
+<div class="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg" style="background: var(--color-accent-soft);">
+    <span class="text-xs font-medium" style="color: var(--color-accent-text);">태그 필터: "{{ current_tag }}"</span>
+    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+       class="text-xs font-bold" style="color: var(--color-accent);">해제</a>
+</div>
+{% endif %}
+
 <!-- Energy filter -->
 <div class="flex items-center gap-1.5 mb-3">
     <span class="text-xs text-slate-400">에너지:</span>
@@ -212,9 +221,11 @@
     </div>
     {% else %}
     <div class="py-16 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">📋</span>
-        </div>
+        <svg class="w-24 h-24 mx-auto mb-4 text-slate-200 dark:text-slate-700" fill="none" viewBox="0 0 96 96" stroke="currentColor" stroke-width="1.5">
+            <rect x="20" y="16" width="56" height="68" rx="6" stroke-dasharray="4 3"/>
+            <path d="M34 36h28M34 48h20M34 60h24" stroke-linecap="round"/>
+            <circle cx="27" cy="36" r="2.5"/><circle cx="27" cy="48" r="2.5"/><circle cx="27" cy="60" r="2.5"/>
+        </svg>
         <p class="text-slate-400 font-medium">업무가 없습니다</p>
         <p class="text-xs text-slate-400 mt-1">위에서 새 업무를 추가해보세요</p>
     </div>
@@ -323,6 +334,6 @@ function bulkAction(action) {
         body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
     }).finally(function() { location.reload(); });
 }
-</script>
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
+</script>
 {% endblock %}

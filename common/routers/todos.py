@@ -16,7 +16,7 @@ router = APIRouter()
 @router.get("/todos", response_class=HTMLResponse)
 async def todos_page(request: Request, filter: str = "all",
                      category_id: int = None, assignee: str = None,
-                     energy: int = None):
+                     energy: int = None, tag: str = None):
     S = request.app.state
     pid = S.get_profile_id(request)
     with S.get_db() as conn:
@@ -46,6 +46,11 @@ async def todos_page(request: Request, filter: str = "all",
         if energy in (1, 2, 3):
             where += " AND t.energy_level = ?"
             params.append(energy)
+
+        # Item 18: Tag filter
+        if tag:
+            where += " AND t.tags LIKE ?"
+            params.append(f'%"{tag}"%')
 
         todos = conn.execute(f"""
             SELECT t.*, c.name as category_name, c.color as category_color
@@ -77,6 +82,7 @@ async def todos_page(request: Request, filter: str = "all",
         "current_category_id": category_id,
         "current_assignee": assignee,
         "current_energy": energy,
+        "current_tag": tag,
         "priority_map": PRIORITY_MAP,
         "repeat_map": REPEAT_MAP,
         "rrule_freq_options": RRULE_FREQ_OPTIONS,

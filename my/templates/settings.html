@@ -438,10 +438,81 @@
         </div>
     </div>
 
-    <!-- QR Code Mobile Access -->
+    <!-- Item 10: Morning Brief Settings -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 접속</h4>
-        <p class="text-xs text-slate-400 mb-4">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">🌅 모닝 브리핑</h4>
+        <p class="text-xs text-slate-400 mb-3">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림��로 받으세요.</p>
+        <div id="morningBriefForm" class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">활성화</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="mbEnabled" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 rounded-full peer peer-checked:bg-amber-500 transition-colors"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </label>
+            </div>
+            <div>
+                <label class="text-xs text-slate-500 mb-1 block">시간</label>
+                <input type="time" id="mbTime" value="08:00" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            </div>
+            <button onclick="saveMorningBrief()" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">저장</button>
+        </div>
+        <script>
+        (function(){
+            fetch('/api/morning-brief/settings').then(r=>r.json()).then(d=>{
+                document.getElementById('mbEnabled').checked=d.enabled;
+                document.getElementById('mbTime').value=(d.hour<10?'0':'')+d.hour+':'+(d.minute<10?'0':'')+d.minute;
+            }).catch(function(){});
+        })();
+        function saveMorningBrief(){
+            var enabled=document.getElementById('mbEnabled').checked?1:0;
+            var time=document.getElementById('mbTime').value.split(':');
+            fetch('/api/morning-brief/settings',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:'enabled='+enabled+'&hour='+parseInt(time[0])+'&minute='+parseInt(time[1])
+            }).then(function(){showToast('모닝 브리핑 설정 저장됨','success')}).catch(function(){showToast('저장 실패','error')});
+        }
+        </script>
+    </div>
+
+    <!-- Item 16: iCal Feed -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📅 캘린더 구독 (iCal)</h4>
+        <p class="text-xs text-slate-400 mb-3">아래 URL을 iPhone 캘린더, Google ��린더 등에 추가하면 일정이 자동으로 동기화됩니다.</p>
+        <div class="flex items-center gap-2">
+            <input type="text" id="icalUrl" readonly
+                   class="flex-1 px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg font-mono"
+                   value="">
+            <button onclick="navigator.clipboard.writeText(document.getElementById('icalUrl').value);this.textContent='복사됨!';setTimeout(()=>this.textContent='복사',2000)"
+                    class="px-3 py-2 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition-colors flex-shrink-0">복사</button>
+        </div>
+        <script>
+        (function(){
+            var host=location.host;var scheme=location.protocol==='https:'?'https':'http';
+            var token=document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('planner_profile='));
+            var t=token?token.split('=')[1]:'';
+            document.getElementById('icalUrl').value=scheme+'://'+host+'/cal/'+t+'/feed.ics';
+        })();
+        </script>
+    </div>
+
+    <!-- Item 22: QR Sync Guide -->
+    <div class="work-card rounded-xl p-6">
+        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 ��기화 가이드</h4>
+        <p class="text-xs text-slate-400 mb-3">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
+        <div class="space-y-3 mb-4">
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background: var(--color-accent-soft); color: var(--color-accent-text);">1</span>
+                <div><p class="text-sm font-medium" style="color: var(--color-text);">QR 코드 스캔</p><p class="text-xs" style="color: var(--color-text-muted);">스마트폰 카메라로 아래 QR코드를 스캔하세요</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background: var(--color-accent-soft); color: var(--color-accent-text);">2</span>
+                <div><p class="text-sm font-medium" style="color: var(--color-text);">브라우저에서 열기</p><p class="text-xs" style="color: var(--color-text-muted);">링크를 탭하면 자동으로 프로필이 동기화됩니다</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background: var(--color-accent-soft); color: var(--color-accent-text);">3</span>
+                <div><p class="text-sm font-medium" style="color: var(--color-text);">홈 화면에 추가</p><p class="text-xs" style="color: var(--color-text-muted);">"공유" > "홈 화면에 추가"로 앱처럼 사용하세요</p></div>
+            </div>
+        </div>
         <div id="qrSection" class="flex flex-col items-center gap-3">
             <div id="qrLoading" class="text-xs text-slate-400">QR 코드 생성 중...</div>
             <img id="qrImg" class="hidden rounded-lg border border-slate-200 dark:border-slate-600" width="200" height="200" alt="QR">

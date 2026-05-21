@@ -128,6 +128,11 @@ _PAT_SHORTCUT = re.compile(
     r"^(월말|다음달\s*초|주말)$"
 )
 
+# "다음달 15일" or "이번달 20일"
+_PAT_NEXT_MONTH_DAY = re.compile(
+    r"(다음|이번|저번)\s*달?\s*(\d{1,2})일"
+)
+
 
 def parse_korean_date(text: str, reference_date: date = None) -> Optional[date]:
     """Parse Korean natural language date expression to a date object.
@@ -206,6 +211,22 @@ def parse_korean_date(text: str, reference_date: date = None) -> Optional[date]:
         if wd is not None:
             return _next_week_weekday(ref, wd)
 
+    # 6.5) "다음달 15일" / "이번달 20일" / "저번달 5일"
+    m = _PAT_NEXT_MONTH_DAY.match(text)
+    if m:
+        prefix = m.group(1)
+        day_num = int(m.group(2))
+        if prefix == "다음":
+            target = _add_months(ref, 1)
+        elif prefix == "저번":
+            target = _add_months(ref, -1)
+        else:
+            target = ref
+        try:
+            return target.replace(day=min(day_num, calendar.monthrange(target.year, target.month)[1]))
+        except ValueError:
+            return None
+
     # 7) Absolute full: 2026년 5월 20일 / 2026-05-20 / 2026/5/20
     m = _PAT_ABS_FULL_KR.match(text)
     if m:
@@ -262,6 +283,8 @@ _EXTRACT_PATTERNS: list[re.Pattern] = [
     _PAT_ABS_FULL_KR,
     # 2026-05-20 / 2026/5/20
     _PAT_ABS_FULL_SEP,
+    # 다음달 15일 / 이번달 20일
+    _PAT_NEXT_MONTH_DAY,
     # 다음주 금요일/금
     _PAT_DOW_NEXTWEEK,
     # 이번주 금요일/금
