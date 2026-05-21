@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/tailwind.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #f1f5f9 100%); }
+        body { font-family: 'Pretendard', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #fef3c7 50%, #f1f5f9 100%); }
         .profile-card { transition: all 0.3s ease; cursor: pointer; }
         .profile-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px -8px rgba(79, 70, 229, 0.2); }
         .profile-card:active { transform: scale(0.97); }
@@ -16,7 +16,7 @@
 <body class="h-full flex items-center justify-center">
     <div class="w-full max-w-xl mx-4">
         <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 text-center border border-slate-200/60">
-            <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+            <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/30">
                 <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
@@ -27,7 +27,7 @@
             <!-- Top row: 3 profiles -->
             <div class="grid grid-cols-3 gap-3 mb-3">
                 {% for p in profiles[:3] %}
-                {% set rc = role_colors.get(p.role, {"from": "from-indigo-400", "to": "to-indigo-600", "border": "border-indigo-200", "hover": "hover:border-indigo-400", "bg": "from-indigo-50 to-slate-50", "text": "text-indigo-700", "shadow": "shadow-indigo-300/30"}) %}
+                {% set rc = role_colors.get(p.role, {"from": "from-amber-400", "to": "to-amber-600", "border": "border-amber-200", "hover": "hover:border-amber-400", "bg": "from-amber-50 to-slate-50", "text": "text-amber-700", "shadow": "shadow-amber-300/30"}) %}
                 <form action="/select-profile" method="POST">
                     <input type="hidden" name="profile_id" value="{{ p.id }}">
                     <button type="submit" class="profile-card w-full bg-gradient-to-br {{ rc.bg }} border-2 {{ rc.border }} {{ rc.hover }} rounded-2xl p-5 text-center">
@@ -46,7 +46,7 @@
             <!-- Bottom row: 2 profiles centered -->
             <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto">
                 {% for p in profiles[3:] %}
-                {% set rc = role_colors.get(p.role, {"from": "from-indigo-400", "to": "to-indigo-600", "border": "border-indigo-200", "hover": "hover:border-indigo-400", "bg": "from-indigo-50 to-slate-50", "text": "text-indigo-700", "shadow": "shadow-indigo-300/30"}) %}
+                {% set rc = role_colors.get(p.role, {"from": "from-amber-400", "to": "to-amber-600", "border": "border-amber-200", "hover": "hover:border-amber-400", "bg": "from-amber-50 to-slate-50", "text": "text-amber-700", "shadow": "shadow-amber-300/30"}) %}
                 <form action="/select-profile" method="POST">
                     <input type="hidden" name="profile_id" value="{{ p.id }}">
                     <button type="submit" class="profile-card w-full bg-gradient-to-br {{ rc.bg }} border-2 {{ rc.border }} {{ rc.hover }} rounded-2xl p-5 text-center">

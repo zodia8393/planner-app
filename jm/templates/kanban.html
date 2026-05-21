@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">칸반 보드</b> — 할일·진행중·완료 3개 컬럼으로 상태를 시각적으로 관리</p>
         <p><b class="text-slate-700 dark:text-slate-300">드래그 앤 드롭</b> — 카드를 드래그하여 다른 컬럼으로 이동하면 상태 자동 변경</p>
         <p><b class="text-slate-700 dark:text-slate-300">카테고리 필터</b> — 상단 필터로 특정 카테고리만 표시</p>
@@ -18,19 +18,19 @@
 <!-- View toggle + group_by -->
 <div class="flex flex-wrap items-center gap-2 mb-4">
     <a href="/todos"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400">
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400">
         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
         목록 보기
     </a>
     <a href="/todos/kanban"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-amber-600 text-white shadow-sm">
         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
         칸반 보기
     </a>
     <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
     <a href="/todos/kanban{% if group_by != 'category' %}?group_by=category{% endif %}"
        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
-              {% if group_by == 'category' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+              {% if group_by == 'category' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         카테고리별 그룹
     </a>
 </div>
@@ -163,7 +163,7 @@ function kanbanDragStart(e) {
 function kanbanDragEnd(e) {
     e.target.closest('[data-todo-id]').style.opacity = '1';
     document.querySelectorAll('.kanban-drop-zone').forEach(function(z) {
-        z.classList.remove('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        z.classList.remove('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
         z.classList.add('border-transparent');
     });
     _draggedId = null;
@@ -174,7 +174,7 @@ function kanbanDragOver(e) {
     e.dataTransfer.dropEffect = 'move';
     var zone = e.target.closest('.kanban-drop-zone');
     if (zone) {
-        zone.classList.add('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        zone.classList.add('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
         zone.classList.remove('border-transparent');
     }
 }
@@ -182,7 +182,7 @@ function kanbanDragOver(e) {
 function kanbanDragLeave(e) {
     var zone = e.target.closest('.kanban-drop-zone');
     if (zone && !zone.contains(e.relatedTarget)) {
-        zone.classList.remove('border-indigo-400', 'bg-indigo-50/50', 'dark:bg-indigo-900/10');
+        zone.classList.remove('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
         zone.classList.add('border-transparent');
     }
 }

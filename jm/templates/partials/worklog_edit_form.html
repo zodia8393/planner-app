@@ -1,16 +1,16 @@
-<div class="work-card rounded-xl p-4 fade-in border-2 border-indigo-300 dark:border-indigo-600" data-log-id="{{ log.id }}">
+<div class="work-card rounded-xl p-4 fade-in border-2 border-amber-300 dark:border-amber-600" data-log-id="{{ log.id }}">
     <form hx-put="/worklogs/{{ log.id }}" hx-target="closest [data-log-id]" hx-swap="outerHTML" class="space-y-2">
         <div class="flex items-center justify-between mb-1">
-            <h4 class="font-bold text-sm text-indigo-600 dark:text-indigo-400">업무 편집</h4>
+            <h4 class="font-bold text-sm text-amber-600 dark:text-amber-400">업무 편집</h4>
             <a href="/worklogs?date={{ log.log_date }}" hx-boost="false" class="text-xs text-slate-400 hover:text-slate-600">취소</a>
         </div>
         <input type="text" name="title" value="{{ log.title }}" placeholder="업무 제목" required
-               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
         <textarea name="content" rows="3" placeholder="업무 내용 (이미지 붙여넣기 가능)"
-                  class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400 resize-none">{{ log.content or '' }}</textarea>
+                  class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none">{{ log.content or '' }}</textarea>
         <div class="flex gap-2 items-center">
             <input type="number" name="hours" value="{{ log.hours }}" min="0" max="24" step="0.5"
-                   class="w-20 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                   class="w-20 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             <select name="category_id" class="flex-1 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                 <option value="">카테고리 없음</option>
                 {% for cat in categories %}
@@ -18,7 +18,7 @@
                 {% endfor %}
             </select>
             <a href="/worklogs?date={{ log.log_date }}" hx-boost="false" class="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">취소</a>
-            <button type="submit" class="px-4 py-1.5 bg-indigo-600 text-white font-medium text-sm rounded-lg hover:bg-indigo-700 transition-colors">저장</button>
+            <button type="submit" class="px-4 py-1.5 bg-amber-600 text-white font-medium text-sm rounded-lg hover:bg-amber-700 transition-colors">저장</button>
         </div>
     </form>
 </div>

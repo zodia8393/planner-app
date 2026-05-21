@@ -502,6 +502,13 @@ def init_db():
         if "gcal_last_synced" not in ev_cols:
             conn.execute("ALTER TABLE events ADD COLUMN gcal_last_synced TEXT DEFAULT ''")
 
+        # Migration: add Google OAuth columns to work_profiles
+        wp_cols = [r[1] for r in conn.execute("PRAGMA table_info(work_profiles)").fetchall()]
+        if "google_sub" not in wp_cols:
+            conn.execute("ALTER TABLE work_profiles ADD COLUMN google_sub TEXT DEFAULT ''")
+        if "google_email" not in wp_cols:
+            conn.execute("ALTER TABLE work_profiles ADD COLUMN google_email TEXT DEFAULT ''")
+
         existing = conn.execute("SELECT COUNT(*) FROM categories").fetchone()[0]
         if existing == 0:
             conn.executemany(
@@ -881,6 +888,7 @@ from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos, forms as _r_forms
 from common.routers import settings as _r_settings, misc as _r_misc
 from common.routers import sse as _r_sse
+from common.routers import auth as _r_auth
 
 app.state.get_db = get_db
 app.state.get_profile_id = get_profile_id
@@ -900,6 +908,10 @@ app.state.gcal_delete_event = _gcal_delete_event
 app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
     "SELECT * FROM categories ORDER BY sort_order").fetchall()
+# Google OAuth config
+app.state.auth_profile_table = "work_profiles"
+app.state.auth_cookie_name = "jm_profile"
+app.state.auth_cookie_max_age = 365 * 24 * 3600
 
 app.include_router(_r_memos.router)
 app.include_router(_r_notices.router)
@@ -910,6 +922,7 @@ app.include_router(_r_forms.router)
 app.include_router(_r_settings.router)
 app.include_router(_r_misc.router)
 app.include_router(_r_sse.router)
+app.include_router(_r_auth.router)
 
 
 

@@ -13,6 +13,8 @@
         { key: 'W', label: '업무일지', action: function () { location.href = '/worklogs'; } },
         { key: 'F', label: '양식', action: function () { location.href = '/forms'; } },
         { key: 'S', label: '설정', action: function () { location.href = '/settings'; } },
+        { key: 'T', label: '할일 추가', action: function () { location.href = '/todos#new'; } },
+        { key: 'E', label: '일정 추가', action: function () { location.href = '/calendar#new'; } },
     ];
 
     function isTyping() {
@@ -22,6 +24,12 @@
     }
 
     function closeAllModals() {
+        // Close command palette
+        var cp = document.getElementById('cmdPalette');
+        if (cp && !cp.classList.contains('hidden')) {
+            cp.classList.add('hidden');
+            return true;
+        }
         // Close more menu
         var moreMenu = document.getElementById('moreMenu');
         if (moreMenu && !moreMenu.classList.contains('hidden')) {
@@ -104,10 +112,10 @@
         // Skip if typing in input
         if (isTyping()) return;
 
-        // Ctrl/Cmd+K: search
+        // Ctrl/Cmd+K: command palette
         if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
             e.preventDefault();
-            location.href = '/search';
+            if (typeof toggleCommandPalette === 'function') toggleCommandPalette();
             return;
         }
 

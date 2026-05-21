@@ -6,11 +6,11 @@
 {% block content %}
 <div class="flex items-center justify-between mb-4">
     <details class="group">
-        <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+        <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
             사용법
         </summary>
-        <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+        <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
             <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간·월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
             <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 "내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
             <p><b class="text-slate-700 dark:text-slate-300">위젯 설정</b> — 우측 상단 슬라이더 아이콘으로 표시할 위젯 선택/해제</p>
@@ -30,7 +30,7 @@
     <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">대시보드 위젯 설정</h4>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="widgetToggles"></div>
     <div class="mt-3 flex justify-end">
-        <button onclick="resetWidgetConfig()" class="text-xs text-slate-400 hover:text-indigo-500 transition-colors">초기화</button>
+        <button onclick="resetWidgetConfig()" class="text-xs text-slate-400 hover:text-amber-500 transition-colors">초기화</button>
     </div>
 </div>
 
@@ -45,12 +45,12 @@
                 <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today.strftime('%m월 %d일') }}</p>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}</p>
             </div>
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900/30 dark:to-indigo-800/20 rounded-xl flex items-center justify-center">
+            <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20 rounded-xl flex items-center justify-center">
                 <span class="text-xl" aria-hidden="true">☀️</span>
             </div>
         </div>
         <div class="flex items-center gap-3 text-xs">
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-medium">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">
                 <span aria-hidden="true">✅</span> 할일 {{ stats.total_today }}개
             </span>
             <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
@@ -74,7 +74,7 @@
             <span class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.week_rate }}%</span>
         </div>
         <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
-            <div class="h-full rounded-full progress-bar {% if stats.week_rate >= 80 %}bg-emerald-500{% elif stats.week_rate >= 50 %}bg-amber-500{% else %}bg-indigo-500{% endif %}"
+            <div class="h-full rounded-full progress-bar {% if stats.week_rate >= 80 %}bg-emerald-500{% elif stats.week_rate >= 50 %}bg-amber-500{% else %}bg-amber-500{% endif %}"
                  style="width: {{ stats.week_rate }}%" role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
         </div>
         <p class="text-xs text-slate-400">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
@@ -105,11 +105,11 @@
         </div>
         <div class="flex gap-2 mb-2">
             <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="25분 집중">25분</button>
+                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="25분 집중">25분</button>
             <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="45분 집중">45분</button>
+                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="45분 집중">45분</button>
             <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 transition-colors" aria-label="60분 집중">60분</button>
+                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="60분 집중">60분</button>
         </div>
         <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
@@ -133,7 +133,7 @@
         </div>
         {% if stats.total_today > 0 %}
         <div class="mt-2 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full bg-indigo-500 rounded-full progress-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
+            <div class="h-full bg-amber-500 rounded-full progress-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
         </div>
         {% endif %}
     </div>
@@ -147,7 +147,7 @@
             <span class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats.week_events }}</span>
             <span class="text-xs text-slate-400">건</span>
         </div>
-        <a href="/calendar" class="text-xs text-indigo-500 hover:underline mt-1 inline-block">캘린더 보기</a>
+        <a href="/calendar" class="text-xs text-amber-500 hover:underline mt-1 inline-block">캘린더 보기</a>
     </div>
 </div>
 
@@ -157,13 +157,13 @@
         <div class="flex gap-2">
             <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
             <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
-                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400"
+                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"
                    oninput="previewNaturalDate(this.value)">
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+            <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
                 추가
             </button>
         </div>
-        <div id="datePreview" class="hidden mt-1.5 text-xs text-indigo-500 dark:text-indigo-400 pl-1"></div>
+        <div id="datePreview" class="hidden mt-1.5 text-xs text-amber-500 dark:text-amber-400 pl-1"></div>
     </form>
 </div>
 
@@ -172,12 +172,12 @@
 <div class="flex flex-wrap items-center gap-2 mb-3">
     <a href="/?plan_view=week&plan_offset=0"
        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
-              {% if plan_view == 'week' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+              {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         주간
     </a>
     <a href="/?plan_view=month&plan_offset=0"
        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
-              {% if plan_view == 'month' %}bg-indigo-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+              {% if plan_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         월간
     </a>
     <div class="flex items-center gap-1 ml-auto">
@@ -196,7 +196,7 @@
         </a>
         {% if plan_offset != 0 %}
         <a href="/?plan_view={{ plan_view }}&plan_offset=0"
-           class="ml-1 px-2.5 py-1 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 transition-colors">
+           class="ml-1 px-2.5 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
             {{ reset_label }}
         </a>
         {% endif %}
@@ -205,7 +205,7 @@
         <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">전체 <b class="text-slate-700 dark:text-slate-200">{{ total_count }}</b></span>
         <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20">완료 <b class="text-emerald-600 dark:text-emerald-400">{{ done_count }}</b></span>
         {% if total_count > 0 %}
-        <span class="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/20"><b class="text-indigo-600 dark:text-indigo-400">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
+        <span class="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/20"><b class="text-amber-600 dark:text-amber-400">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
         {% endif %}
     </div>
 </div>
@@ -214,17 +214,17 @@
 <!-- ====== WEEK VIEW ====== -->
 <div class="grid grid-cols-1 lg:grid-cols-7 gap-2 mb-6">
     {% for day in week_days %}
-    <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
+    <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
          style="animation-delay: {{ loop.index0 * 40 }}ms">
         <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between
-                    {% if day.is_today %}bg-indigo-50 dark:bg-indigo-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% endif %}">
+                    {% if day.is_today %}bg-amber-50 dark:bg-amber-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% endif %}">
             <div class="flex items-center gap-2">
                 {% if day.is_today %}
-                <span class="w-6 h-6 bg-indigo-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{{ day.date.day }}</span>
+                <span class="w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{{ day.date.day }}</span>
                 {% else %}
                 <span class="text-sm font-bold {% if day.is_weekend %}text-red-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ day.date.day }}</span>
                 {% endif %}
-                <span class="text-xs font-medium {% if day.is_today %}text-indigo-600 dark:text-indigo-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{{ day.short_label }}</span>
+                <span class="text-xs font-medium {% if day.is_today %}text-amber-600 dark:text-amber-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{{ day.short_label }}</span>
             </div>
             {% if day.todos|length > 0 %}
             <span class="text-xs font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
@@ -236,7 +236,7 @@
             {% for todo in day.todos %}
             <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                 <button type="button" onclick="toggleDashTodo(this, {{ todo.id }})" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
-                            {% if todo.completed %}bg-indigo-500 border-indigo-500{% else %}border-slate-300 dark:border-slate-500 hover:border-indigo-400{% endif %}"
+                            {% if todo.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-500 hover:border-amber-400{% endif %}"
                         data-completed="{{ 'true' if todo.completed else 'false' }}">
                     {% if todo.completed %}
                     <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -278,10 +278,10 @@
         {% set is_today = cell_date == today %}
         {% set weekday = cell_date.weekday() %}
         <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-[60px] lg:min-h-[80px]
-                    {% if is_today %}bg-indigo-50/50 dark:bg-indigo-900/10{% endif %}">
+                    {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs lg:text-sm font-medium
-                    {% if is_today %}bg-indigo-600 text-white w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center
+                    {% if is_today %}bg-amber-600 text-white w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center
                     {% elif weekday == 6 %}text-red-400
                     {% elif weekday == 5 %}text-blue-400
                     {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ cell_date.day }}</span>
@@ -316,7 +316,7 @@
 <div data-widget="time-budgets" class="work-card rounded-xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
-        <a href="/settings/time-budgets" class="text-xs text-indigo-500 hover:underline">설정</a>
+        <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline">설정</a>
     </div>
     <div class="space-y-2">
         {% for tb in time_budgets|default([]) %}
@@ -348,14 +348,14 @@
     <div data-widget="notices" class="work-card rounded-xl overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
             <h3 class="font-bold text-slate-800 dark:text-white text-sm">최근 공지사항</h3>
-            <a href="/notices" class="text-xs text-indigo-500 hover:underline">더보기</a>
+            <a href="/notices" class="text-xs text-amber-500 hover:underline">더보기</a>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
             {% for notice in recent_notices %}
             <div class="px-5 py-2.5">
                 <div class="flex items-center gap-2 mb-0.5">
                     {% if notice.pinned %}
-                    <span class="text-xs px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium">고정</span>
+                    <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">고정</span>
                     {% endif %}
                     {% if notice.priority == 1 %}
                     <span class="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium">중요</span>
@@ -381,9 +381,9 @@
             <h3 class="font-bold text-slate-800 dark:text-white text-sm">오늘 업무일지</h3>
             <div class="flex items-center gap-2">
                 {% if today_work_hours > 0 %}
-                <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium">{{ today_work_hours }}h</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">{{ today_work_hours }}h</span>
                 {% endif %}
-                <a href="/worklogs" class="text-xs text-indigo-500 hover:underline">더보기</a>
+                <a href="/worklogs" class="text-xs text-amber-500 hover:underline">더보기</a>
             </div>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -392,7 +392,7 @@
                 <div class="flex items-center gap-2">
                     <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ log.title }}</p>
                     {% if log.hours > 0 %}
-                    <span class="text-xs px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium flex-shrink-0">{{ log.hours }}h</span>
+                    <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium flex-shrink-0">{{ log.hours }}h</span>
                     {% endif %}
                 </div>
                 {% if log.category_name %}
@@ -417,13 +417,13 @@
     <div data-widget="events" class="work-card rounded-xl overflow-hidden">
         <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
             <h3 class="font-bold text-slate-800 dark:text-white text-sm">이번 주 일정</h3>
-            <a href="/calendar" class="text-xs text-indigo-500 hover:underline">더보기</a>
+            <a href="/calendar" class="text-xs text-amber-500 hover:underline">더보기</a>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
             {% for ev in week_events %}
             <div class="px-5 py-2.5">
                 <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or '#6366f1' }}"></div>
+                    <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or '#d97706' }}"></div>
                     <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ ev.title }}</p>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5 ml-4">{{ ev.start_time|format_datetime }}</p>
@@ -504,7 +504,7 @@ function renderWidgetToggles() {
     if (!container) return;
     container.innerHTML = DEFAULT_WIDGETS.map(w => {
         const active = config.includes(w);
-        return `<button type="button" onclick="toggleWidget('${w}')" class="px-3 py-2 text-xs rounded-lg border transition-all ${active ? 'bg-indigo-100 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400'}">${WIDGET_LABELS[w] || w}</button>`;
+        return `<button type="button" onclick="toggleWidget('${w}')" class="px-3 py-2 text-xs rounded-lg border transition-all ${active ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400'}">${WIDGET_LABELS[w] || w}</button>`;
     }).join('');
 }
 
@@ -644,11 +644,11 @@ async function toggleDashTodo(btn, todoId) {
 
     // Toggle checkbox visual
     if (wasCompleted) {
-        btn.classList.remove('bg-indigo-500', 'border-indigo-500');
+        btn.classList.remove('bg-amber-500', 'border-amber-500');
         btn.classList.add('border-slate-300', 'dark:border-slate-500');
         btn.innerHTML = '';
     } else {
-        btn.classList.add('bg-indigo-500', 'border-indigo-500');
+        btn.classList.add('bg-amber-500', 'border-amber-500');
         btn.classList.remove('border-slate-300', 'dark:border-slate-500');
         btn.innerHTML = '<svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
     }

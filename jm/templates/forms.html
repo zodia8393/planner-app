@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">양식 만들기</b> — 텍스트, 숫자, 드롭다운 등 필드를 조합해 커스텀 양식 생성</p>
         <p><b class="text-slate-700 dark:text-slate-300">작성하기</b> — 양식 카드를 클릭하면 해당 양식으로 기록을 작성합니다</p>
         <p><b class="text-slate-700 dark:text-slate-300">복제/편집</b> — 기존 양식을 복제하거나 수정하여 빠르게 새 양식 생성</p>
@@ -19,7 +19,7 @@
 <!-- Action buttons -->
 <div class="mb-4 flex flex-wrap gap-2">
     <a href="/forms/new"
-       class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors text-sm shadow-sm">
+       class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm shadow-sm">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -54,15 +54,15 @@
 <!-- Template list -->
 <div class="space-y-3">
     {% for tpl in templates %}
-    <div class="work-card rounded-xl p-4 card-hover fade-in group relative overflow-hidden" data-tpl-id="{{ tpl.id }}">
-        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: {{ tpl.color or '#6366f1' }}"></div>
+    <div class="work-card rounded-xl p-4 card-hover fade-in group relative" data-tpl-id="{{ tpl.id }}">
+        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: {{ tpl.color or '#d97706' }}"></div>
         <a href="/forms/{{ tpl.id }}/entries" class="block">
             <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-bold text-slate-800 dark:text-white truncate">
                         {{ tpl.emoji or '📝' }} {{ tpl.name }}
                         {% if tpl.profile_id == 0 %}
-                        <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">기본 양식</span>
+                        <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">기본 양식</span>
                         {% endif %}
                     </p>
                     {% if tpl.description %}
@@ -72,7 +72,7 @@
                         <span class="text-xs text-slate-400">{{ field_counts.get(tpl.id, 0) }}개 필드</span>
                         <span class="text-xs text-slate-400">{{ entry_counts.get(tpl.id, 0) }}건 작성</span>
                         {% if tpl.frequency and tpl.frequency != 'daily' %}
-                        <span class="text-xs px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500">
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-500">
                             {{ {'weekly': '주간', 'monthly': '월간', 'yearly': '연간'}.get(tpl.frequency, '') }}
                         </span>
                         {% endif %}
@@ -82,7 +82,7 @@
                 <div class="flex items-center gap-1 flex-shrink-0 ml-2">
                     <a href="/forms/{{ tpl.id }}/edit"
                        onclick="event.stopPropagation(); event.preventDefault(); location.href=this.href"
-                       class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-400 hover:text-indigo-500 transition-all">
+                       class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                         </svg>
@@ -95,14 +95,20 @@
                             </svg>
                         </button>
                     </form>
-                    <a href="/forms/{{ tpl.id }}/export-json" download
-                       onclick="event.stopPropagation()"
-                       class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all"
-                       title="JSON 내보내기">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                    </a>
+                    <div class="relative" onclick="event.stopPropagation()">
+                        <button onclick="event.preventDefault(); var m=this.nextElementSibling; m.classList.toggle('hidden')"
+                                class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all"
+                                title="내보내기">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
+                        <div class="hidden absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg z-20 py-1 min-w-[120px]">
+                            <a href="/forms/{{ tpl.id }}/entries/export?fmt=xlsx" class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Excel (.xlsx)</a>
+                            <a href="/forms/{{ tpl.id }}/entries/export?fmt=csv" class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">CSV (.csv)</a>
+                            <a href="/forms/{{ tpl.id }}/export-json" download class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">JSON (양식)</a>
+                        </div>
+                    </div>
                     <button onclick="event.stopPropagation(); event.preventDefault(); if(confirm('이 양식을 삭제하시겠습니까?')) fetch('/forms/{{ tpl.id }}',{method:'DELETE'}).then(function(){location.reload()}).catch(function(){location.reload()})"
                             class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -123,4 +129,11 @@
     </div>
     {% endfor %}
 </div>
+<script>
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.space-y-3 .relative > div.absolute, .space-y-3 .relative > div[class*="absolute"]').forEach(function(m) {
+        if (!m.classList.contains('hidden') && !m.parentElement.contains(e.target)) m.classList.add('hidden');
+    });
+});
+</script>
 {% endblock %}
