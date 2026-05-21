@@ -5,11 +5,11 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-indigo-500 cursor-pointer transition-colors select-none">
+    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
         사용법
     </summary>
-    <div class="mt-2 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
         <p><b class="text-slate-700 dark:text-slate-300">요약 카드</b> — 전체/완료/완료율/주간 완료율을 한눈에 확인</p>
         <p><b class="text-slate-700 dark:text-slate-300">차트</b> — 주간 완료 추이, 카테고리별 분포, 월간 추이를 그래프로 표시</p>
         <p><b class="text-slate-700 dark:text-slate-300">업무시간 분석</b> — 카테고리별 투자 시간과 시간 예산 대비 현황 확인</p>
@@ -27,7 +27,7 @@
     </div>
     <div class="work-card rounded-xl p-4">
         <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">완료율</p>
-        <p class="text-2xl font-bold text-indigo-600">{{ total_rate }}%</p>
+        <p class="text-2xl font-bold text-amber-600">{{ total_rate }}%</p>
     </div>
     <div class="work-card rounded-xl p-4">
         <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">주간 완료율</p>
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: {{ chart_data.labels | tojson }},
                 datasets: [
-                    { label: '완료', data: {{ chart_data.completed | tojson }}, backgroundColor: '#6366f1', borderRadius: 4 },
+                    { label: '완료', data: {{ chart_data.completed | tojson }}, backgroundColor: '#d97706', borderRadius: 4 },
                     { label: '전체', data: {{ chart_data.total | tojson }}, backgroundColor: '#e2e8f0', borderRadius: 4 }
                 ]
             },
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: monthlyData.map(d => d.label),
                 datasets: [
                     { label: '전체', data: monthlyData.map(d => d.total), borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.1)', fill: true, tension: 0.3 },
-                    { label: '완료', data: monthlyData.map(d => d.done), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3 }
+                    { label: '완료', data: monthlyData.map(d => d.done), borderColor: '#d97706', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3 }
                 ]
             },
             options: {

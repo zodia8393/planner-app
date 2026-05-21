@@ -11,23 +11,23 @@
             <div class="w-16">
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">아이콘</label>
                 <input type="text" name="emoji" value="{{ tpl.emoji if tpl and tpl.emoji else '' }}" placeholder="📝" maxlength="2"
-                       class="w-full px-3 py-2 text-sm text-center bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-3 py-2 text-sm text-center bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             </div>
             <div class="w-16">
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">색상</label>
-                <input type="color" name="color" value="{{ tpl.color if tpl and tpl.color else '#6366f1' }}"
+                <input type="color" name="color" value="{{ tpl.color if tpl and tpl.color else '#d97706' }}"
                        class="w-full h-[38px] p-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer">
             </div>
             <div class="flex-1">
                 <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">양식 이름 *</label>
                 <input type="text" name="name" value="{{ tpl.name if tpl else '' }}" placeholder="예: 일일 업무보고서" required
-                       class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             </div>
         </div>
         <div>
             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">설명</label>
             <input type="text" name="description" value="{{ tpl.description if tpl else '' }}" placeholder="양식에 대한 간단한 설명"
-                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
         </div>
         <div>
             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">작성 빈도</label>
@@ -44,7 +44,7 @@
     <div class="mb-3 flex items-center justify-between">
         <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">필드 구성</h3>
         <button type="button" onclick="addField()"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 transition-colors">
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
@@ -62,7 +62,7 @@
 
     <!-- Actions -->
     <div class="flex gap-2">
-        <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors text-sm">
+        <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">
             {{ '저장' if mode == 'edit' else '양식 만들기' }}
         </button>
         <a href="/forms" class="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium">
@@ -107,7 +107,7 @@ function addField(data) {
             <div class="flex-1 space-y-2">
                 <div class="flex gap-2">
                     <input type="text" name="field_${idx}_label" value="${escHtml(d.label)}" placeholder="필드명" required
-                           class="flex-1 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                           class="flex-1 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                     <select name="field_${idx}_type" onchange="onTypeChange(this, ${idx})"
                             class="w-32 px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                         ${FIELD_TYPES.map(t => `<option value="${t.value}" ${t.value === d.type ? 'selected' : ''}>${t.label}</option>`).join('')}
@@ -115,12 +115,12 @@ function addField(data) {
                 </div>
                 <div id="options_${idx}" class="${optionsHidden}">
                     <input type="text" name="field_${idx}_options" value="${escHtml(optionsVal)}" placeholder="${optionsPlaceholder}"
-                           class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                           class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">
                     <label class="inline-flex items-center gap-1.5 cursor-pointer">
                         <input type="checkbox" name="field_${idx}_required" ${d.required ? 'checked' : ''}
-                               class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-400">
+                               class="w-3.5 h-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-400">
                         <span class="text-xs text-slate-500">필수</span>
                     </label>
                     <label class="inline-flex items-center gap-1.5 cursor-pointer">
@@ -130,7 +130,7 @@ function addField(data) {
                     </label>
                 </div>
                 <input type="text" name="field_${idx}_default" value="${escHtml(d.default_val || '')}" placeholder="기본값 (선택)"
-                       class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             </div>
             <div class="flex flex-col gap-1 flex-shrink-0">
                 <button type="button" onclick="moveField(this, -1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600">

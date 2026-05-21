@@ -14,7 +14,7 @@
             </p>
             <form hx-put="/events/gcal/{{ event.gcal_id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
                 <input type="text" name="title" value="{{ event.title }}" required
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-400">
+                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">시작</label>
@@ -30,7 +30,7 @@
                 <textarea name="memo" placeholder="메모" rows="2"
                           class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">{{ event.memo or '' }}</textarea>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                    <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
                         저장
                     </button>
                     <button type="button" onclick="if(confirm('삭제할까요?'))fetch('/events/gcal/{{ event.gcal_id }}',{method:'DELETE'}).finally(function(){location.reload()})"
