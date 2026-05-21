@@ -152,11 +152,11 @@
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">액센트 색상</h4>
         <p class="text-xs text-slate-400 mb-4">앱의 강조 색상을 선택합니다.</p>
         <div class="flex gap-3" id="accentPicker">
-            <button onclick="setAccentColor('indigo')" data-color="indigo" class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="인디고 색상"></button>
-            <button onclick="setAccentColor('emerald')" data-color="emerald" class="w-10 h-10 rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="에메랄드 색상"></button>
-            <button onclick="setAccentColor('rose')" data-color="rose" class="w-10 h-10 rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="로즈 색상"></button>
-            <button onclick="setAccentColor('amber')" data-color="amber" class="w-10 h-10 rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="앰버 색상"></button>
-            <button onclick="setAccentColor('sky')" data-color="sky" class="w-10 h-10 rounded-xl bg-sky-500 border-2 border-transparent hover:scale-110 transition-all" aria-label="스카이 색상"></button>
+            <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상"></button>
+            <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="에메랄드 색상"></button>
+            <button onclick="setAccentColor('rose')" data-color="rose" class="rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="로즈 색상"></button>
+            <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="앰버 색상"></button>
+            <button onclick="setAccentColor('sky')" data-color="sky" class="rounded-xl bg-sky-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="스카이 색상"></button>
         </div>
     </div>
 
@@ -165,13 +165,13 @@
         <h4 class="font-bold text-slate-800 dark:text-white mb-2">글꼴 크기</h4>
         <p class="text-xs text-slate-400 mb-4">화면의 글꼴 크기를 조정합니다.</p>
         <div class="flex gap-2" id="fontSizePicker">
-            <button onclick="setFontSize('small')" data-size="small" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
+            <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-xs">가</span> 작게
             </button>
-            <button onclick="setFontSize('medium')" data-size="medium" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
+            <button onclick="setFontSize('medium')" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-sm">가</span> 보통
             </button>
-            <button onclick="setFontSize('large')" data-size="large" class="flex-1 py-2.5 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
+            <button onclick="setFontSize('large')" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-base">가</span> 크게
             </button>
         </div>
@@ -473,11 +473,11 @@
         <div class="mt-3 flex flex-wrap gap-2">
             <a href="https://calendar.google.com/calendar/r?cid=webcal://{{ request.headers.get('host', 'localhost:8001') }}/cal/{{ profile.id }}.ics"
                target="_blank"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition-colors">
+               class="inline-flex items-center gap-1.5 btn-sm font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 transition-colors">
                 Google Calendar에 추가
             </a>
             <a href="webcal://{{ request.headers.get('host', 'localhost:8001') }}/cal/{{ profile.id }}.ics"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 transition-colors">
+               class="inline-flex items-center gap-1.5 btn-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 transition-colors">
                 Apple Calendar에 추가
             </a>
         </div>

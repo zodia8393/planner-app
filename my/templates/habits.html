@@ -22,7 +22,7 @@
         </div>
         <div>
             <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">색상</label>
-            <input type="color" name="color" value="#6366f1" class="w-10 h-9 rounded border border-slate-200 dark:border-slate-600 cursor-pointer">
+            <input type="color" name="color" value="#6366f1" class="rounded border border-slate-200 dark:border-slate-600 cursor-pointer" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
         </div>
         <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">추가</button>
     </form>
@@ -50,9 +50,9 @@
                 <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
                     <input type="hidden" name="date" value="{{ today_str }}">
                     <button type="submit"
-                            class="w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all
+                            class="rounded-xl flex items-center justify-center text-lg transition-all
                                    {% if h.today_done %}shadow-sm{% endif %}"
-                            style="background: {% if h.today_done %}{{ h.color }}20{% else %}var(--color-border-subtle){% endif %}; border: 2px solid {% if h.today_done %}{{ h.color }}{% else %}var(--color-border){% endif %};"
+                            style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: {% if h.today_done %}{{ h.color }}20{% else %}var(--color-border-subtle){% endif %}; border: 2px solid {% if h.today_done %}{{ h.color }}{% else %}var(--color-border){% endif %};"
                             title="{% if h.today_done %}완료 취소{% else %}오늘 완료{% endif %}">
                         {% if h.today_done %}{{ h.icon }}{% else %}<span style="opacity:0.3">{{ h.icon }}</span>{% endif %}
                     </button>

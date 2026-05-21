@@ -44,15 +44,15 @@
 </div>
 
 <!-- Category filter tabs -->
-<div class="flex flex-wrap gap-1.5 mb-4">
+<div class="flex flex-wrap gap-2 mb-4">
     <a href="/memos"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+       class="btn-sm rounded-lg font-semibold transition-colors
               {% if current_category_id is none %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         전체
     </a>
     {% for cat in categories %}
     <a href="/memos?category_id={{ cat.id }}"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5
+       class="btn-sm rounded-lg font-semibold transition-colors flex items-center gap-1.5
               {% if current_category_id == cat.id %}text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}"
        {% if current_category_id == cat.id %}style="background:{{ cat.color }}"{% endif %}>
         <span class="w-2 h-2 rounded-full flex-shrink-0 {% if current_category_id == cat.id %}hidden{% endif %}" style="background:{{ cat.color }}"></span>

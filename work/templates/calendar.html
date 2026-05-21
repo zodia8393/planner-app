@@ -20,12 +20,12 @@
 <!-- Month/Week view toggle -->
 <div class="flex items-center gap-2 mb-3">
     <a href="/calendar?view=month"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
               {% if cal_view != 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         월간
     </a>
     <a href="/calendar?view=week"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
               {% if cal_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         주간
     </a>
@@ -44,7 +44,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
-    <a href="/calendar?view={{ cal_view }}" class="ml-1 px-3 py-1.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+    <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
         오늘
     </a>
 </div>
@@ -60,13 +60,13 @@
         <div class="flex items-center gap-3 mb-2">
             <div class="flex items-center gap-2 min-w-[80px]">
                 <span class="text-sm font-bold
-                    {% if wd.is_today %}bg-amber-600 text-white w-7 h-7 rounded-full flex items-center justify-center
+                    {% if wd.is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center
                     {% elif wd.date.weekday() == 6 %}text-red-400
                     {% elif wd.date.weekday() == 5 %}text-blue-400
                     {% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ wd.date.day }}</span>
                 <span class="text-xs font-medium {% if wd.is_today %}text-amber-600{% else %}text-slate-500{% endif %}">{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
             </div>
-            <div class="flex-1 flex flex-wrap gap-1.5">
+            <div class="flex-1 flex flex-wrap gap-2">
                 {% for ev in day_events %}
                 <div class="text-xs truncate px-2 py-1 rounded cursor-pointer hover:opacity-80 max-w-[200px]"
                      style="background: {{ ev.color }}20; color: {{ ev.color }}"
@@ -123,7 +123,7 @@
              onclick="openEventModal('{{ day_str }}')">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs lg:text-sm font-medium
-                    {% if is_today %}bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center
+                    {% if is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center
                     {% elif holiday_name or weekday == 6 %}text-red-400
                     {% elif weekday == 5 %}text-blue-400
                     {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ day }}</span>
@@ -205,7 +205,7 @@
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">색상</label>
                         <input type="color" name="color" value="#d97706"
-                               class="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
+                               class="w-full rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer" style="height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
                     </div>
                     <div>
                         <label class="text-xs text-slate-500 mb-1 block">카테고리</label>

@@ -436,6 +436,9 @@
             /* A5: Checkbox/radio touch area */
             input[type="checkbox"], input[type="radio"] {
                 width: 1.25rem; height: 1.25rem; min-width: 1.25rem; min-height: 1.25rem;
+                max-height: 1.25rem;
+                align-self: center;
+                flex-shrink: 0;
             }
             label:has(input[type="checkbox"]), label:has(input[type="radio"]) {
                 min-height: clamp(2.75rem, 2rem + 3vw, 3rem);
@@ -482,6 +485,21 @@
             transition: transform var(--duration-fast) var(--ease-in-out), background var(--duration-fast);
         }
         .btn-icon:active { transform: scale(0.9); }
+
+        /* ── Mobile UI Polish: Small Inline Button ── */
+        .btn-sm {
+            padding: clamp(0.375rem, 0.25rem + 0.5vw, 0.5rem) clamp(0.5rem, 0.375rem + 0.5vw, 0.625rem);
+            font-size: clamp(0.6875rem, 0.625rem + 0.25vw, 0.75rem);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            min-height: clamp(2rem, 1.5rem + 2vw, 2.5rem);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
+        }
+        .btn-sm:active { transform: scale(0.95); }
+
         .press-feedback { transition: transform var(--duration-fast) var(--ease-in-out); }
         .press-feedback:active { transform: scale(0.95); }
 

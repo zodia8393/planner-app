@@ -21,36 +21,36 @@
 <!-- View toggle -->
 <div class="flex items-center gap-2 mb-3">
     <a href="/todos"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-amber-600 text-white shadow-sm">
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-amber-600 text-white shadow-sm">
         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
         목록 보기
     </a>
     <a href="/todos/kanban"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400">
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400">
         <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
         칸반 보기
     </a>
 </div>
 
 <!-- Filters -->
-<div class="flex flex-wrap items-center gap-1.5 mb-3 overflow-x-auto pb-1">
+<div class="flex flex-wrap items-center gap-2 mb-3 overflow-x-auto pb-1">
     {% set filters = [("all", "전체"), ("active", "미완료"), ("completed", "완료")] %}
     {% for fk, fl in filters %}
     <a href="/todos?filter={{ fk }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
               {% if current_filter == fk %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         {{ fl }}
     </a>
     {% endfor %}
     <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
     <a href="/todos?filter={{ current_filter }}"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
               {% if not current_category_id %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         전체
     </a>
     {% for cat in categories %}
     <a href="/todos?filter={{ current_filter }}&category_id={{ cat.id }}"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5
               {% if current_category_id == cat.id %}text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}"
        {% if current_category_id == cat.id %}style="background:{{ cat.color }}"{% endif %}>
         <span class="w-2 h-2 rounded-full flex-shrink-0 {% if current_category_id != cat.id %}block{% else %}hidden{% endif %}" style="background:{{ cat.color }}"></span>
@@ -58,7 +58,7 @@
     </a>
     {% endfor %}
     <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
-    <button onclick="bulkModeOn()" id="bulkToggle" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+    <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         일괄
     </button>
 </div>
@@ -73,25 +73,25 @@
 {% endif %}
 
 <!-- Energy filter -->
-<div class="flex items-center gap-1.5 mb-3">
+<div class="flex items-center gap-2 mb-3">
     <span class="text-xs text-slate-400">에너지:</span>
     <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
-       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
               {% if not current_energy %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         전체
     </a>
     <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=1"
-       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
               {% if current_energy == 1 %}bg-green-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         🟢 저
     </a>
     <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=2"
-       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
               {% if current_energy == 2 %}bg-blue-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         🔵 중
     </a>
     <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=3"
-       class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap
+       class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
               {% if current_energy == 3 %}bg-red-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         🔥 고
     </a>
@@ -102,39 +102,39 @@
     <form action="/todos" method="POST">
         <div class="flex gap-2 mb-2">
             <input type="text" name="title" placeholder="새 업무 추가..." required
-                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                   class="flex-1 px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
             <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">
                 추가
             </button>
         </div>
-        <div class="flex flex-wrap items-center gap-1.5">
+        <div class="flex flex-wrap items-center gap-2">
             <input type="date" name="due_date" value="{{ today.isoformat() }}"
-                   class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            <select name="priority" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                   class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="priority" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 {% for pk, pv in priority_map.items() %}
                 <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
                 {% endfor %}
             </select>
-            <select name="category_id" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="category_id" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <option value="">카테고리</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
             </select>
             <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
-                    class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                    class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 {% for rk, rv in repeat_map.items() %}
                 <option value="{{ rk }}">{{ rv }}</option>
                 {% endfor %}
             </select>
-            <select name="energy_level" class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="energy_level" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <option value="1">🟢 저에너지</option>
                 <option value="2" selected>🔵 보통</option>
                 <option value="3">🔥 고에너지</option>
             </select>
             <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
-                   class="px-2.5 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
-            <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="text-xs text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
+                   class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
+            <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
         </div>
         <!-- Custom RRULE builder for add form -->
         <div id="addRrulePanel" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
@@ -185,11 +185,11 @@
 <!-- Bulk action bar -->
 <div id="bulkBar" class="hidden mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl flex items-center gap-3 text-sm">
     <span class="text-amber-700 dark:text-amber-300 font-medium"><span id="bulkCount">0</span>개 선택</span>
-    <button onclick="bulkSelectAll()" class="px-3 py-1 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
+    <button onclick="bulkSelectAll()" class="btn-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
     <div class="flex-1"></div>
-    <button onclick="bulkAction('complete')" class="btn-primary bg-green-600 text-white hover:bg-green-700 text-xs">완료 처리</button>
-    <button onclick="bulkAction('delete')" class="btn-danger bg-red-600 text-white hover:bg-red-700 text-xs">삭제</button>
-    <button onclick="bulkModeOff()" class="btn-secondary text-xs" style="color: var(--color-text-muted);">취소</button>
+    <button onclick="bulkAction('complete')" class="btn-secondary bg-green-600 text-white hover:bg-green-700">완료 처리</button>
+    <button onclick="bulkAction('delete')" class="btn-secondary bg-red-600 text-white hover:bg-red-700">삭제</button>
+    <button onclick="bulkModeOff()" class="btn-secondary" style="color: var(--color-text-muted);">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->

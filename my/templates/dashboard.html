@@ -111,7 +111,7 @@ function dismissOnboarding(){
                 <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today.strftime('%m월 %d일') }}</p>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}</p>
             </div>
-            <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20 rounded-xl flex items-center justify-center">
+            <div class="rounded-xl flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
                 <span class="text-xl" aria-hidden="true">☀️</span>
             </div>
         </div>
@@ -171,11 +171,11 @@ function dismissOnboarding(){
         </div>
         <div class="flex gap-2 mb-2">
             <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="25분 집중">25분</button>
+                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="25분 집중">25분</button>
             <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="45분 집중">45분</button>
+                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="45분 집중">45분</button>
             <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
-                    class="flex-1 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="60분 집중">60분</button>
+                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="60분 집중">60분</button>
         </div>
         <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
@@ -245,12 +245,12 @@ function dismissOnboarding(){
 </div>
 <div class="flex flex-wrap items-center gap-2 mb-3">
     <a href="/?plan_view=week&plan_offset=0"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+       class="btn-sm rounded-lg font-semibold transition-colors
               {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         주간
     </a>
     <a href="/?plan_view=month&plan_offset=0"
-       class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+       class="btn-sm rounded-lg font-semibold transition-colors
               {% if plan_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         월간
     </a>
