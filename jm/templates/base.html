@@ -265,7 +265,7 @@
         .modal-backdrop { background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); }
 
         /* ── Calendar ── */
-        .cal-cell { min-height: 100px; transition: background var(--duration-fast) var(--ease-in-out); }
+        .cal-cell { min-height: clamp(3.75rem, 8vw + 1.5rem, 6.25rem); transition: background var(--duration-fast) var(--ease-in-out); }
         .cal-cell:hover { background: var(--color-border-subtle); }
         .dark .cal-cell:hover { background: var(--color-border); }
 
@@ -358,10 +358,11 @@
         }
         .mobile-tab-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 8px 4px 6px; font-size: 10px; font-weight: 500; color: var(--color-text-faint);
+            padding: clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.375rem);
+            font-size: clamp(0.5625rem, 1.2vw + 0.2rem, 0.625rem); font-weight: 500; color: var(--color-text-faint);
             text-decoration: none; transition: color var(--duration-fast) var(--ease-in-out);
             -webkit-tap-highlight-color: transparent;
-            min-width: 48px; min-height: 52px;
+            min-width: clamp(2.625rem, 8vw, 3rem); min-height: clamp(2.75rem, 9vw, 3.25rem);
         }
         .mobile-tab-item.active { color: var(--color-accent); }
         .mobile-tab-item span.tab-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
@@ -371,8 +372,8 @@
 
         /* ── Sheet / spreadsheet cells ── */
         @media (max-width: 768px) {
-            .sheet-cell input, .sheet-cell select, .sheet-cell textarea { padding: 10px 8px; }
-            .sheet-cell { min-width: 80px; }
+            .sheet-cell input, .sheet-cell select, .sheet-cell textarea { padding: 0.625rem 0.5rem; }
+            .sheet-cell { min-width: 5rem; }
         }
 
         /* ── Table responsive ── */
@@ -392,82 +393,90 @@
             }
         }
 
-        /* ── Responsive breakpoints ── */
+        /* ── Fluid Responsive (clamp/rem/vw) ── */
+
+        /* A: Root font — fluid 13px(280px)..14px(460px)..16px(1024px+) */
+        html { font-size: clamp(0.8125rem, 0.625rem + 0.5vw, 1rem); }
+
+        /* D: Typography — fluid scale */
+        h2.text-lg.font-bold { font-size: clamp(1.125rem, 0.75rem + 1.5vw, 2rem) !important; font-weight: 700 !important; }
+        .page-subtitle, h2.text-lg + p.text-xs { font-size: clamp(0.6875rem, 0.5rem + 0.5vw, 1rem) !important; }
+
+        /* C: Card & layout — fluid padding */
+        .work-card { padding: clamp(0.75rem, 0.5rem + 1.5vw, 1.5rem); }
+        #mainContent { padding-left: clamp(0.75rem, 0.25rem + 2vw, 2rem); padding-right: clamp(0.75rem, 0.25rem + 2vw, 2rem); }
+        .space-y-2 > * + * { margin-top: clamp(0.5rem, 0.25rem + 0.75vw, 0.75rem); }
+
+        /* E: Calendar cells — fluid via .cal-cell base rule (already clamp above) */
+        .cal-cell { padding: clamp(0.125rem, 0.5vw, 0.5rem); }
+        .cal-cell .text-xs { font-size: clamp(0.5625rem, 0.4rem + 0.5vw, 0.75rem); }
+
+        /* F: Grid — auto-fit instead of fixed breakpoint */
+        .grid.grid-cols-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)) !important; }
+
+        /* ── Layout breakpoints (structural only) ── */
         @media (max-width: 1023px) {
-            html { font-size: 14px; }
             .group-hover\:opacity-100 { opacity: 1 !important; }
-            .mobile-pad-bottom { padding-bottom: 80px; }
+            .mobile-pad-bottom { padding-bottom: 5rem; }
             .overflow-x-auto { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
             .overflow-x-auto::-webkit-scrollbar { display: none; }
-            .cal-cell { min-height: 72px; }
         }
         @media (max-width: 640px) {
-            .cal-cell { min-height: 60px; padding: 2px !important; }
-            .cal-cell .text-xs { font-size: 10px; }
-            .work-card { padding: 1rem !important; }
             .work-card.rounded-xl { border-radius: var(--radius-lg) !important; }
-            button, a.inline-flex, [role="button"], .nav-item { min-height: 44px; }
+            /* A1: Touch targets */
+            button, a.inline-flex, [role="button"], .nav-item { min-height: clamp(2.75rem, 2rem + 3vw, 3rem); }
+            /* A4: Form inputs — 16px font is iOS zoom prevention, must stay fixed */
             input[type="text"], input[type="number"], input[type="date"],
             input[type="datetime-local"], input[type="email"], input[type="password"],
             input[type="search"], input[type="tel"], input[type="url"],
             select, textarea {
                 font-size: 16px !important;
-                min-height: 44px;
+                min-height: clamp(2.75rem, 2rem + 3vw, 3rem);
             }
+            /* A5: Checkbox/radio touch area */
             input[type="checkbox"], input[type="radio"] {
-                width: 20px; height: 20px; min-width: 20px; min-height: 20px;
+                width: 1.25rem; height: 1.25rem; min-width: 1.25rem; min-height: 1.25rem;
             }
             label:has(input[type="checkbox"]), label:has(input[type="radio"]) {
-                min-height: 44px; display: inline-flex; align-items: center; gap: 0.5rem;
+                min-height: clamp(2.75rem, 2rem + 3vw, 3rem);
+                display: inline-flex; align-items: center; gap: 0.5rem;
             }
-            h2.text-lg.font-bold { font-size: 1.25rem !important; font-weight: 700 !important; }
-            .page-subtitle, h2.text-lg + p.text-xs { font-size: 0.75rem !important; }
+            /* C13: Muted text visibility boost */
             .text-slate-400 { color: #94a3b8 !important; }
+            /* C15: Input placeholder contrast */
             ::placeholder { color: #78716c !important; }
             .dark ::placeholder { color: #a8a29e !important; }
-            #mainContent { padding-left: 1rem; padding-right: 1rem; }
-            .space-y-2 > * + * { margin-top: 0.75rem; }
-        }
-        @media (max-width: 480px) {
-            .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 380px) {
-            html { font-size: 13px; }
-            .mobile-tab-item { min-width: 42px; font-size: 9px; }
-            .cal-cell { min-height: 60px; }
+            /* B10: Button gap (mistouch prevention) */
+            .flex.gap-2:has(button), .flex.gap-2:has(a.inline-flex) { gap: 0.75rem; }
         }
         @media (min-width: 1024px) {
             .mobile-tab-bar { display: none !important; }
-            .cal-cell { min-height: 100px; }
-        }
-        @media (min-width: 1536px) {
-            h2.text-lg.font-bold { font-size: 2rem !important; }
-            .page-subtitle, h2.text-lg + p.text-xs { font-size: 1rem !important; }
         }
 
-        /* ── Mobile UI Polish: Button & Touch Styles ── */
-        .btn-touch { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+        /* ── Mobile UI Polish: Button & Touch Styles (fluid) ── */
+        .btn-touch { min-height: clamp(2.75rem, 2rem + 3vw, 3rem); display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary {
-            padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
-            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            padding: clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem) clamp(0.75rem, 0.5rem + 1vw, 1rem); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
+            min-height: clamp(2.75rem, 2rem + 3vw, 3rem); display: inline-flex; align-items: center; justify-content: center;
             transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
         }
         .btn-primary:active { transform: scale(0.95); }
         .btn-secondary {
-            padding: 0.625rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: var(--radius-md);
-            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            padding: clamp(0.5rem, 0.375rem + 0.5vw, 0.625rem) clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem); font-size: 0.875rem; font-weight: 500; border-radius: var(--radius-md);
+            min-height: clamp(2.75rem, 2rem + 3vw, 3rem); display: inline-flex; align-items: center; justify-content: center;
             border: 1px solid var(--color-border);
             transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
         }
         .btn-secondary:active { transform: scale(0.95); }
         .btn-danger {
-            padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
-            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+            padding: clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem) clamp(0.75rem, 0.5rem + 1vw, 1rem); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-lg);
+            min-height: clamp(2.75rem, 2rem + 3vw, 3rem); display: inline-flex; align-items: center; justify-content: center;
             transition: transform var(--duration-fast) var(--ease-in-out), opacity var(--duration-fast);
         }
         .btn-danger:active { transform: scale(0.95); }
         .btn-icon {
-            width: 2.5rem; height: 2.5rem; min-width: 2.5rem; min-height: 2.5rem;
+            width: clamp(2.25rem, 1.75rem + 1.5vw, 2.5rem); height: clamp(2.25rem, 1.75rem + 1.5vw, 2.5rem);
+            min-width: clamp(2.25rem, 1.75rem + 1.5vw, 2.5rem); min-height: clamp(2.25rem, 1.75rem + 1.5vw, 2.5rem);
             display: inline-flex; align-items: center; justify-content: center;
             border-radius: var(--radius-md);
             transition: transform var(--duration-fast) var(--ease-in-out), background var(--duration-fast);
@@ -477,9 +486,9 @@
         .press-feedback:active { transform: scale(0.95); }
 
         @media (max-width: 1023px) {
-            button, [role="button"] { min-height: 44px; }
-            a.nav-item, a.mobile-tab-item { min-height: 44px; display: flex; align-items: center; }
-            input, textarea, select { font-size: 16px !important; min-height: 44px; }
+            button, [role="button"] { min-height: clamp(2.75rem, 2rem + 3vw, 3rem); }
+            a.nav-item, a.mobile-tab-item { min-height: clamp(2.75rem, 2rem + 3vw, 3rem); display: flex; align-items: center; }
+            input, textarea, select { font-size: 16px !important; min-height: clamp(2.75rem, 2rem + 3vw, 3rem); }
         }
         @media (hover: none) {
             .card-hover:active { transform: scale(0.98); }
@@ -1498,8 +1507,8 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
     // Font size: apply saved preference
     var fontSize = localStorage.getItem('font_size') || 'medium';
     document.body.dataset.fontsize = fontSize;
-    var fontSizeMap = { small: '13px', medium: '14px', large: '16px' };
-    document.documentElement.style.fontSize = fontSizeMap[fontSize] || '14px';
+    var fontSizeMap = { small: 'clamp(0.75rem, 0.5625rem + 0.5vw, 0.875rem)', medium: 'clamp(0.8125rem, 0.625rem + 0.5vw, 1rem)', large: 'clamp(0.9375rem, 0.75rem + 0.5vw, 1.125rem)' };
+    document.documentElement.style.fontSize = fontSizeMap[fontSize] || 'clamp(0.8125rem, 0.625rem + 0.5vw, 1rem)';
 
     // Mobile tab bar: hide on scroll down, show on scroll up
     var lastScrollY = 0;
