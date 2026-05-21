@@ -5,7 +5,7 @@ Uses httpx.AsyncClient + ASGITransport to test each FastAPI app
 without starting a real server. Each app runs against an isolated
 temporary DB so production data is never touched.
 
-Run:  cd /workspace/planners && python3 -m pytest tests/smoke_test.py -v
+Run:  cd /workspace/app_planners && python3 -m pytest tests/smoke_test.py -v
 """
 
 import asyncio

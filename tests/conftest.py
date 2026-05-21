@@ -50,9 +50,9 @@ def _import_app(path: str, alias: str):
     return mod.app, mod
 
 
-jm_app, jm_mod = _import_app("/workspace/planners/jm", "jm_main")
-my_app, my_mod = _import_app("/workspace/planners/my", "my_main")
-work_app, work_mod = _import_app("/workspace/planners/work", "work_main")
+jm_app, jm_mod = _import_app("/workspace/app_planners/jm", "jm_main")
+my_app, my_mod = _import_app("/workspace/app_planners/my", "my_main")
+work_app, work_mod = _import_app("/workspace/app_planners/work", "work_main")
 
 
 # ---------------------------------------------------------------------------

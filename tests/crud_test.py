@@ -4,7 +4,7 @@ CRUD integration tests for all 3 planner apps.
 Covers: todo, memo, worklog, notice, event — full create/read/update/delete cycles.
 Each app uses an isolated temporary DB (shared via conftest.py).
 
-Run:  cd /workspace/planners && python3 -m pytest tests/crud_test.py -v
+Run:  cd /workspace/app_planners && python3 -m pytest tests/crud_test.py -v
 """
 
 import httpx
