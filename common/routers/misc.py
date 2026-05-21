@@ -302,6 +302,31 @@ async def search_page(request: Request, q: str = ""):
     return S.render(request, "search.html", {"page": "search", "q": q, "results": results, "total": total})
 
 
+@router.get("/api/search", response_class=JSONResponse)
+async def api_search(request: Request, q: str = ""):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    if not q or len(q) < 2:
+        return JSONResponse({"items": []})
+    with S.get_db() as conn:
+        raw = search_fts(conn, q, pid, limit=20)
+    items = []
+    type_meta = {
+        "todos": ("할일", "/todos"),
+        "events": ("일정", "/calendar"),
+        "memos": ("메모", "/memos"),
+        "worklogs": ("업무일지", "/worklogs"),
+        "notices": ("공지", "/notices"),
+        "entries": ("기록", "/entries"),
+    }
+    for typ, rows in raw.items():
+        label, base_url = type_meta.get(typ, (typ, "/"))
+        for r in rows:
+            title = r.get("title") or r.get("content", "")[:60] or "(제목 없음)"
+            items.append({"type": label, "title": title, "url": base_url})
+    return JSONResponse({"items": items[:15]})
+
+
 @router.post("/focus/complete", response_class=HTMLResponse)
 async def focus_complete(request: Request):
     S = request.app.state

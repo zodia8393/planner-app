@@ -25,9 +25,17 @@ async def worklogs_page(request: Request,
         categories = S.get_categories(conn, pid)
         cats_list = [dict(c) for c in categories]
 
-        # Range mode: start & end both provided
+        # Range mode: start & end both provided, or default 7-day view
         start_date = validate_date_str(start) if start else None
         end_date = validate_date_str(end) if end else None
+        explicit_range = bool(start_date and end_date)
+
+        # 날짜 파라미터 없으면 이번 주(월~일) 기본 표시
+        if not date_param and not explicit_range:
+            monday = today - timedelta(days=today.weekday())
+            sunday = monday + timedelta(days=6)
+            start_date = monday.isoformat()
+            end_date = sunday.isoformat()
         range_mode = bool(start_date and end_date)
 
         if range_mode:
@@ -89,6 +97,32 @@ async def worklogs_page(request: Request,
     next_date = (current_dt + timedelta(days=1)).isoformat()
     is_today = current_dt == today
 
+    # 주간 뷰: 기본 접근이거나, start/end가 월~일 7일 범위일 때
+    week_mode = False
+    if range_mode and not date_param:
+        if not explicit_range:
+            week_mode = True
+        else:
+            try:
+                _sd = datetime.strptime(start_date, "%Y-%m-%d").date()
+                _ed = datetime.strptime(end_date, "%Y-%m-%d").date()
+                week_mode = (_ed - _sd).days == 6 and _sd.weekday() == 0
+            except ValueError:
+                pass
+
+    # 주간 네비게이션 날짜 계산 (항상 월~일 단위)
+    if range_mode and start_date and end_date:
+        try:
+            sd = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except ValueError:
+            sd = today - timedelta(days=today.weekday())
+        prev_week_start = (sd - timedelta(days=7)).isoformat()
+        prev_week_end = (sd - timedelta(days=1)).isoformat()
+        next_week_start = (sd + timedelta(days=7)).isoformat()
+        next_week_end = (sd + timedelta(days=13)).isoformat()
+    else:
+        prev_week_start = prev_week_end = next_week_start = next_week_end = ""
+
     return S.render(request, "worklogs.html", {
         "page": "worklogs",
         "logs": logs_list,
@@ -99,10 +133,15 @@ async def worklogs_page(request: Request,
         "is_today": is_today,
         "total_hours": round(total_hours, 1),
         "range_mode": range_mode,
+        "week_mode": week_mode,
         "start_date": start_date or "",
         "end_date": end_date or "",
         "logs_by_date": logs_by_date,
         "selected_category": category_id or "",
+        "prev_week_start": prev_week_start,
+        "prev_week_end": prev_week_end,
+        "next_week_start": next_week_start,
+        "next_week_end": next_week_end,
     })
 
 
