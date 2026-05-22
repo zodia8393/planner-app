@@ -409,6 +409,13 @@
         /* C: Card & layout — fluid padding */
         .work-card { padding: clamp(0.75rem, 0.5rem + 1.5vw, 1.5rem); }
         #mainContent { padding-left: clamp(0.75rem, 0.25rem + 2vw, 2rem); padding-right: clamp(0.75rem, 0.25rem + 2vw, 2rem); }
+        main { overflow-x: hidden; }
+        #mainContent { overflow: hidden; }
+        input, select, textarea { max-width: 100%; box-sizing: border-box; }
+        input[type="date"] { min-width: 0; width: auto; }
+        form { max-width: 100%; }
+        .flex { min-width: 0; }
+        .flex > * { min-width: 0; }
         .space-y-2 > * + * { margin-top: clamp(0.5rem, 0.25rem + 0.75vw, 0.75rem); }
 
         /* E: Calendar cells — fluid via .cal-cell base rule (already clamp above) */
