@@ -786,6 +786,592 @@
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
         }
+
+        /* ══════════════════════════════════════════════════
+           MOBILE NATIVE DESIGN SYSTEM
+           Target: @media (max-width: 1023px) ONLY
+           Goal: iOS/Android native app look & feel
+           PC layout: ZERO changes
+           ══════════════════════════════════════════════════ */
+
+        @media (max-width: 1023px) {
+            /* ── M-DS: Design Tokens (mobile-only overrides) ── */
+            :root {
+                --m-shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+                --m-shadow-card-active: 0 1px 2px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.08);
+                --m-shadow-elevated: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.1);
+                --m-shadow-bottom-sheet: 0 -4px 32px rgba(0,0,0,0.12);
+                --m-shadow-fab: 0 4px 14px rgba(217,119,6,0.3), 0 2px 6px rgba(0,0,0,0.08);
+                --m-radius-card: 1.25rem;
+                --m-radius-input: 0.875rem;
+                --m-radius-button: 0.875rem;
+                --m-radius-section: 1rem;
+                --m-spacing-page: 1rem;
+                --m-spacing-card: 1.25rem;
+                --m-spacing-section: 1.5rem;
+                --m-header-height: 3.5rem;
+                --m-tabbar-height: 3.5rem;
+            }
+            .dark {
+                --m-shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+                --m-shadow-card-active: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.35);
+                --m-shadow-elevated: 0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
+            }
+
+            /* ── M-01: Page container — edge-to-edge native feel ── */
+            #mainContent {
+                padding: var(--m-spacing-page) !important;
+                padding-bottom: calc(var(--m-tabbar-height) + env(safe-area-inset-bottom, 0px) + 2rem) !important;
+            }
+
+            /* ── M-02: Cards — elevated, rounded, tactile ── */
+            .work-card {
+                border-radius: var(--m-radius-card) !important;
+                box-shadow: var(--m-shadow-card) !important;
+                border: none !important;
+                padding: var(--m-spacing-card) !important;
+            }
+            .dark .work-card {
+                border: 1px solid var(--color-border) !important;
+                box-shadow: var(--m-shadow-card) !important;
+            }
+            .card-hover:active {
+                transform: scale(0.98) !important;
+                box-shadow: var(--m-shadow-card-active) !important;
+                transition: transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out) !important;
+            }
+            .card-hover:hover {
+                transform: none;
+                box-shadow: var(--m-shadow-card);
+            }
+
+            /* ── M-03: Header — iOS large title style ── */
+            .glass-header {
+                background: rgba(250,249,247,0.88) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border-bottom: 0.5px solid rgba(0,0,0,0.08) !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            .dark .glass-header {
+                background: rgba(28,25,23,0.88) !important;
+                border-bottom-color: rgba(255,255,255,0.06) !important;
+            }
+            .glass-header.scrolled {
+                box-shadow: 0 0.5px 0 rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04) !important;
+            }
+            .dark .glass-header.scrolled {
+                box-shadow: 0 0.5px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.2) !important;
+            }
+            .glass-header > div {
+                padding: 0.5rem var(--m-spacing-page) !important;
+                min-height: var(--m-header-height);
+            }
+            .glass-header h2.text-lg.font-bold {
+                font-size: 1.375rem !important;
+                font-weight: 800 !important;
+                letter-spacing: -0.025em !important;
+                line-height: 1.2 !important;
+            }
+            .glass-header p.text-xs {
+                font-size: 0.6875rem !important;
+                font-weight: 500 !important;
+                letter-spacing: 0.01em !important;
+                opacity: 0.7;
+            }
+
+            /* ── M-04: Bottom Tab Bar — native app navigation ── */
+            .mobile-tab-bar {
+                background: rgba(250,249,247,0.92) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border-top: 0.5px solid rgba(0,0,0,0.08) !important;
+                box-shadow: 0 -1px 8px rgba(0,0,0,0.03) !important;
+                height: auto;
+            }
+            .dark .mobile-tab-bar {
+                background: rgba(28,25,23,0.92) !important;
+                border-top-color: rgba(255,255,255,0.06) !important;
+            }
+            .mobile-tab-bar > div {
+                padding: 0.375rem 0.5rem calc(0.25rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            .mobile-tab-item {
+                position: relative;
+                padding: 0.25rem 0.5rem 0.125rem !important;
+                min-height: 2.75rem !important;
+                min-width: 3.5rem !important;
+                border-radius: 0.75rem;
+                font-size: 0.625rem !important;
+                font-weight: 500 !important;
+                gap: 0.125rem;
+                transition: color 200ms var(--ease-out), transform 100ms var(--ease-out) !important;
+            }
+            .mobile-tab-item .tab-icon {
+                width: 1.5rem;
+                height: 1.5rem;
+                margin-bottom: 0 !important;
+            }
+            .mobile-tab-item .tab-icon svg {
+                width: 1.375rem !important;
+                height: 1.375rem !important;
+            }
+            .mobile-tab-item.active {
+                color: var(--color-accent) !important;
+                font-weight: 700 !important;
+            }
+            .mobile-tab-item.active .tab-icon svg {
+                stroke-width: 2;
+            }
+            .mobile-tab-item.active::after {
+                content: '';
+                position: absolute;
+                bottom: -0.125rem;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 1.25rem;
+                height: 0.1875rem;
+                background: var(--color-accent);
+                border-radius: 1rem;
+            }
+            .mobile-tab-item:active {
+                transform: scale(0.9) !important;
+            }
+
+            /* ── M-05: Input fields — rounded, soft, spacious ── */
+            input[type="text"], input[type="number"], input[type="date"],
+            input[type="datetime-local"], input[type="email"], input[type="password"],
+            input[type="search"], input[type="tel"], input[type="url"],
+            select, textarea {
+                border-radius: var(--m-radius-input) !important;
+                border: 1.5px solid var(--color-border) !important;
+                padding: 0.75rem 1rem !important;
+                transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out) !important;
+                background: var(--color-surface) !important;
+            }
+            input:focus, select:focus, textarea:focus {
+                border-color: var(--color-accent) !important;
+                box-shadow: 0 0 0 3px rgba(217,119,6,0.12) !important;
+                outline: none !important;
+            }
+            .dark input:focus, .dark select:focus, .dark textarea:focus {
+                box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
+            }
+
+            /* ── M-06: Buttons — native tactile ── */
+            .btn-primary, .btn-secondary, .btn-danger {
+                border-radius: var(--m-radius-button) !important;
+            }
+            .btn-primary:active, .btn-secondary:active, .btn-danger:active, .btn-sm:active {
+                transform: scale(0.96) !important;
+                transition: transform 80ms var(--ease-out) !important;
+            }
+            .btn-sm {
+                border-radius: var(--radius-full) !important;
+                padding: 0.375rem 0.875rem !important;
+            }
+            .flex.flex-wrap.items-center.gap-2 .btn-sm {
+                border-radius: var(--radius-full) !important;
+                font-size: 0.75rem !important;
+                padding: 0.375rem 0.875rem !important;
+            }
+
+            /* ── M-07: Section spacing — breathing room ── */
+            .space-y-4 > * + * { margin-top: var(--m-spacing-section) !important; }
+            .mb-4 { margin-bottom: var(--m-spacing-section) !important; }
+            .mb-6 { margin-bottom: calc(var(--m-spacing-section) * 1.25) !important; }
+
+            /* ── M-08: Typography — native hierarchy ── */
+            .work-card h3.text-sm.font-bold,
+            .work-card h3.font-semibold {
+                font-size: 0.9375rem !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.01em !important;
+            }
+            .text-\[11px\].font-semibold.tracking-widest {
+                font-size: 0.6875rem !important;
+                letter-spacing: 0.08em !important;
+                text-transform: uppercase;
+                color: var(--color-text-faint) !important;
+            }
+            .text-sm { font-size: 0.875rem; }
+            .text-xs { font-size: 0.75rem; }
+
+            /* ── M-09: FAB — elevated, native shadow ── */
+            .fab {
+                width: 3.25rem !important;
+                height: 3.25rem !important;
+                border-radius: 1rem !important;
+                box-shadow: var(--m-shadow-fab) !important;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + var(--m-tabbar-height) + 1rem) !important;
+            }
+            .fab:active {
+                transform: scale(0.88) !important;
+                box-shadow: 0 2px 8px rgba(217,119,6,0.2), 0 1px 3px rgba(0,0,0,0.06) !important;
+            }
+
+            /* ── M-10: More Menu — native bottom sheet ── */
+            #moreMenu > div:last-child {
+                border-radius: var(--m-radius-card) var(--m-radius-card) 0 0 !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+                padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            #moreMenu a {
+                border-radius: var(--m-radius-section) !important;
+                padding: 0.75rem 0.5rem !important;
+                min-height: 3.5rem !important;
+            }
+            #moreMenu a:active {
+                background: var(--color-border-subtle) !important;
+                transform: scale(0.96);
+            }
+            #moreMenu a svg {
+                width: 1.375rem !important;
+                height: 1.375rem !important;
+            }
+            #moreMenu a .text-xs {
+                font-size: 0.6875rem !important;
+                font-weight: 600 !important;
+            }
+
+            /* ── M-11: Bottom Sheet — enhanced native feel ── */
+            .bottom-sheet {
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+            }
+            .bottom-sheet-handle {
+                width: 2.25rem !important;
+                height: 0.3125rem !important;
+                border-radius: 0.25rem !important;
+                background: var(--color-border) !important;
+                margin: 0.625rem auto 0.5rem !important;
+            }
+
+            /* ── M-12: Toast — mobile-optimized position ── */
+            .toast-container {
+                top: auto !important;
+                bottom: calc(var(--m-tabbar-height) + env(safe-area-inset-bottom, 0px) + 0.75rem) !important;
+                left: var(--m-spacing-page) !important;
+                right: var(--m-spacing-page) !important;
+            }
+            .toast {
+                max-width: 100% !important;
+                border-radius: var(--m-radius-input) !important;
+                padding: 0.875rem 1rem !important;
+                box-shadow: var(--m-shadow-elevated) !important;
+            }
+            @keyframes toastSlideIn {
+                from { opacity: 0; transform: translateY(1rem); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes toastSlideOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(1rem); }
+            }
+
+            /* ── M-13: Modal → Bottom Sheet conversion ── */
+            .modal-backdrop > div:last-child {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                transform: none !important;
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                max-height: 90vh !important;
+                overflow-y: auto !important;
+                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)) !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .modal-backdrop > div:last-child::before {
+                content: '';
+                display: block;
+                width: 2.25rem;
+                height: 0.3125rem;
+                background: var(--color-border);
+                border-radius: 0.25rem;
+                margin: 0.625rem auto 0.75rem;
+            }
+
+            /* ── M-14: Lists — iOS grouped style ── */
+            .divide-y > * {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+
+            /* ── M-15: Date badge — native pill ── */
+            .date-badge {
+                border-radius: var(--radius-full) !important;
+                padding: 0.375rem 0.75rem !important;
+                font-size: 0.75rem !important;
+                font-weight: 600 !important;
+            }
+
+            /* ── M-16: Pull-to-Refresh — iOS native style ── */
+            .ptr-indicator {
+                border-radius: var(--radius-full) !important;
+                padding: 0.5rem 1rem !important;
+                box-shadow: var(--m-shadow-card) !important;
+            }
+
+            /* ── M-17: Checkbox/radio — native feel ── */
+            input[type="checkbox"] {
+                border-radius: 0.375rem !important;
+                border: 1.5px solid var(--color-border) !important;
+                transition: background 150ms var(--ease-out), border-color 150ms var(--ease-out) !important;
+            }
+            input[type="checkbox"]:checked {
+                background-color: var(--color-accent) !important;
+                border-color: var(--color-accent) !important;
+            }
+
+            /* ── M-18: Page transition — native fade ── */
+            .page-transition {
+                animation: mobilePageFade 200ms var(--ease-out) !important;
+            }
+            @keyframes mobilePageFade {
+                from { opacity: 0; transform: translateY(6px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* ── M-19: Swipe items — enhanced ── */
+            .swipe-bg-left { border-radius: var(--m-radius-card) 0 0 var(--m-radius-card) !important; }
+            .swipe-bg-right { border-radius: 0 var(--m-radius-card) var(--m-radius-card) 0 !important; }
+
+            /* ── M-20: Command Palette — mobile-friendly ── */
+            #cmdPalette .absolute.top-\[15\%\] {
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                transform: none !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #cmdPalette .rounded-2xl {
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+                max-height: 70vh !important;
+                padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+            }
+
+            /* ── M-21: Focus button — integrated with tab bar ── */
+            #focusBtn {
+                width: 3rem !important;
+                height: 3rem !important;
+                border-radius: 0.875rem !important;
+                box-shadow: var(--m-shadow-fab) !important;
+            }
+
+            /* ── M-22: Details/summary — native disclosure ── */
+            details summary {
+                padding: 0.5rem 0 !important;
+            }
+            details[open] > summary {
+                margin-bottom: 0.5rem;
+            }
+            details > div, details > .mt-2 {
+                border-radius: var(--m-radius-input) !important;
+            }
+
+            /* ── M-23: Empty states — centered with breathing room ── */
+            .py-16.text-center, .py-6.text-center {
+                padding: 3rem 1.5rem !important;
+            }
+            .py-16.text-center svg, .py-6.text-center svg {
+                width: 3rem;
+                height: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            /* ── M-24: Review prompt bottom sheet ── */
+            #reviewSheet > div:last-child {
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+            }
+
+            /* ── M-25: PWA install banner ── */
+            #pwaInstallBanner {
+                border-radius: var(--m-radius-card) !important;
+                box-shadow: var(--m-shadow-elevated) !important;
+                left: var(--m-spacing-page) !important;
+                right: var(--m-spacing-page) !important;
+            }
+
+            /* ── M-26: Sidebar — full-screen on mobile like native nav ── */
+            #sidebar {
+                width: 85vw !important;
+                max-width: 20rem !important;
+                border-radius: 0 var(--m-radius-card) var(--m-radius-card) 0 !important;
+                box-shadow: var(--m-shadow-elevated) !important;
+                border-right: none !important;
+            }
+            #sidebar .nav-item {
+                border-radius: var(--m-radius-input) !important;
+                padding: 0.625rem 0.75rem !important;
+                margin-bottom: 0.125rem;
+            }
+            #sidebar .nav-active {
+                box-shadow: none !important;
+                border-left: none !important;
+                background: var(--color-accent-soft) !important;
+            }
+
+            /* ── M-27: Notification panel — bottom sheet style ── */
+            #notifPanel {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                max-height: 70vh !important;
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+                width: 100% !important;
+                z-index: 55 !important;
+            }
+
+            /* ── M-28: Skeleton — rounded ── */
+            .skeleton-card {
+                border-radius: var(--m-radius-card) !important;
+                border: none !important;
+                box-shadow: var(--m-shadow-card) !important;
+            }
+
+            /* ── M-29: Confetti fix for mobile ── */
+            .confetti-piece {
+                width: 8px !important;
+                height: 8px !important;
+            }
+
+            /* ── M-30: Table responsive — native scroll ── */
+            .overflow-x-auto {
+                border-radius: var(--m-radius-input);
+            }
+
+            /* ── M-31: Focus modal — bottom sheet on mobile ── */
+            #focusModal > div:last-child {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: auto !important;
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) !important;
+                box-shadow: var(--m-shadow-bottom-sheet) !important;
+            }
+            #focusModal > div:last-child::before {
+                content: '';
+                display: block;
+                width: 2.25rem;
+                height: 0.3125rem;
+                background: var(--color-border);
+                border-radius: 0.25rem;
+                margin: 0 auto 1rem;
+            }
+
+            /* ── M-32: View toggle buttons — Segment Control style ── */
+            .flex.items-center.gap-2.mb-3:has(> a.btn-sm) {
+                background: var(--color-border-subtle);
+                border-radius: var(--radius-full);
+                padding: 0.1875rem;
+                display: inline-flex;
+                gap: 0 !important;
+            }
+            .dark .flex.items-center.gap-2.mb-3:has(> a.btn-sm) {
+                background: var(--color-surface-elevated);
+            }
+            .flex.items-center.gap-2.mb-3:has(> a.btn-sm) > a.btn-sm {
+                border: none !important;
+                background: transparent !important;
+                color: var(--color-text-muted) !important;
+                border-radius: var(--radius-full) !important;
+                padding: 0.4375rem 1rem !important;
+                font-size: 0.8125rem !important;
+                min-height: 2rem !important;
+                transition: all 200ms var(--ease-out) !important;
+                box-shadow: none !important;
+            }
+            .flex.items-center.gap-2.mb-3:has(> a.btn-sm) > a.btn-sm.bg-amber-600 {
+                background: var(--color-surface) !important;
+                color: var(--color-accent) !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+                font-weight: 700 !important;
+            }
+            .dark .flex.items-center.gap-2.mb-3:has(> a.btn-sm) > a.btn-sm.bg-amber-600 {
+                background: var(--color-surface) !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+            }
+
+            /* ── M-33: Calendar cells — larger touch targets ── */
+            .cal-cell {
+                min-height: 3.25rem !important;
+                border-radius: 0.5rem !important;
+                padding: 0.25rem !important;
+            }
+            .cal-cell:active {
+                background: var(--color-accent-soft) !important;
+            }
+
+            /* ── M-34: Details tip boxes — rounded native ── */
+            details > div.mt-2.p-3 {
+                border-radius: var(--m-radius-section) !important;
+            }
+
+            /* ── M-35: Grid cards — column on mobile ── */
+            .grid.grid-cols-2 {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+            }
+
+            /* ── M-36: Overscroll rubber-band for iOS native feel ── */
+            main[role="main"] {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: auto;
+            }
+        }
+
+        /* Sub-640px further refinements */
+        @media (max-width: 640px) {
+            /* M-37: Cards full-width, minimal side margin */
+            #mainContent {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .work-card {
+                border-radius: 1rem !important;
+            }
+            /* M-38: Header title scales down */
+            .glass-header h2.text-lg.font-bold {
+                font-size: 1.25rem !important;
+            }
+            /* M-39: Grid single column */
+            .grid.grid-cols-2, .grid.sm\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* M-40: Hover-less devices (touch only) — additional feedback */
+        @media (hover: none) and (max-width: 1023px) {
+            .work-card { transition: transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out); }
+            .work-card:active {
+                transform: scale(0.985);
+                box-shadow: var(--m-shadow-card-active);
+            }
+            .card-hover:hover { transform: none !important; box-shadow: var(--m-shadow-card) !important; }
+            .nav-item:hover { background: none !important; transform: none !important; }
+            .nav-item:active { background: var(--color-border-subtle) !important; }
+            #moreMenu a:hover { background: none !important; }
+        }
     </style>
 </head>
 <body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
@@ -1322,7 +1908,20 @@
     updateBgOverlay();
 
     function toggleMoreMenu() {
-        document.getElementById('moreMenu').classList.toggle('hidden');
+        var menu = document.getElementById('moreMenu');
+        var sheet = menu.querySelector(':scope > div:last-child');
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            requestAnimationFrame(function() {
+                sheet.style.transform = 'translateY(0)';
+                sheet.style.transition = 'transform 350ms cubic-bezier(0.16, 1, 0.3, 1)';
+            });
+            sheet.style.transform = 'translateY(100%)';
+        } else {
+            sheet.style.transform = 'translateY(100%)';
+            sheet.style.transition = 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(function() { menu.classList.add('hidden'); sheet.style.transform = ''; }, 260);
+        }
     }
 
     function toggleSidebar() {
@@ -1473,9 +2072,11 @@
 
     // Keyboard shortcuts are now in /static/shortcuts.js
 
-    // HTMX: page transition effect
+    // HTMX: page transition effect (native-style fade-in)
     document.addEventListener('htmx:afterSwap', function(e) {
         if (e.detail && e.detail.target) {
+            e.detail.target.classList.remove('page-transition');
+            void e.detail.target.offsetWidth;
             e.detail.target.classList.add('page-transition');
         }
     });
