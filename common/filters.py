@@ -26,25 +26,31 @@ __all__ = [
 ]
 
 
-def format_date(value: str, fmt: str = "%m/%d") -> str:
+def format_date(value: str, fmt: str | None = None) -> str:
     if not value:
         return ""
     try:
-        return datetime.strptime(value, "%Y-%m-%d").strftime(fmt)
+        dt = datetime.strptime(value, "%Y-%m-%d")
+        if fmt:
+            return dt.strftime(fmt)
+        return f"{dt.month}월 {dt.day}일"
     except (ValueError, TypeError):
         return str(value)
 
 
-def format_datetime(value: str, fmt: str = "%m/%d %H:%M") -> str:
+def format_datetime(value: str, fmt: str | None = None) -> str:
     if not value:
         return ""
     try:
-        return datetime.strptime(value, "%Y-%m-%dT%H:%M").strftime(fmt)
+        dt = datetime.strptime(value, "%Y-%m-%dT%H:%M")
     except (ValueError, TypeError):
         try:
-            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").strftime(fmt)
+            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
         except (ValueError, TypeError):
             return str(value)
+    if fmt:
+        return dt.strftime(fmt)
+    return f"{dt.month}월 {dt.day}일 {dt.strftime('%H:%M')}"
 
 
 def relative_date(value: str) -> str:
@@ -67,7 +73,7 @@ def relative_date(value: str) -> str:
     elif diff <= 7:
         return f"{diff}일 후"
     else:
-        return target.strftime("%m/%d")
+        return f"{target.month}월 {target.day}일"
 
 
 def parse_tags(value: str) -> list:

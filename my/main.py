@@ -1275,7 +1275,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                     day_todos.extend(no_due_todos)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),
-                    "label": f"{WEEKDAY_NAMES[i]} {d.strftime('%m/%d')}",
+                    "label": f"{WEEKDAY_NAMES[i]} {d.month}/{d.day}",
                     "short_label": WEEKDAY_NAMES[i],
                     "is_today": d == today, "is_weekend": i >= 5,
                     "todos": day_todos,

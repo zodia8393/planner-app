@@ -359,12 +359,12 @@
         .mobile-tab-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.375rem);
-            font-size: clamp(0.5625rem, 1.2vw + 0.2rem, 0.625rem); font-weight: 500; color: var(--color-text-faint);
+            font-size: clamp(0.625rem, 1.2vw + 0.2rem, 0.75rem); font-weight: 500; color: var(--color-text-faint);
             text-decoration: none; transition: color var(--duration-fast) var(--ease-in-out);
             -webkit-tap-highlight-color: transparent;
             min-width: clamp(2.625rem, 8vw, 3rem); min-height: clamp(2.75rem, 9vw, 3.25rem);
         }
-        .mobile-tab-item.active { color: var(--color-accent); }
+        .mobile-tab-item.active { color: var(--color-accent); font-weight: 700; }
         .mobile-tab-item span.tab-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
 
         /* ── Safe area ── */
@@ -444,11 +444,29 @@
                 min-height: clamp(2.75rem, 2rem + 3vw, 3rem);
                 display: inline-flex; align-items: center; gap: 0.5rem;
             }
-            /* C13: Muted text visibility boost */
+            /* C13: Muted text visibility boost — dark mode WCAG AA (4.5:1+) */
             .text-slate-400 { color: #94a3b8 !important; }
+            .dark .text-slate-400 { color: #cbd5e1 !important; }
+            /* C14: Empty state message visibility */
+            .py-16.text-center p.text-slate-400,
+            .py-6.text-center p.text-xs.text-slate-400 {
+                font-size: 0.875rem !important;
+                color: #64748b !important;
+            }
+            .dark .py-16.text-center p.text-slate-400,
+            .dark .py-6.text-center p.text-xs.text-slate-400 {
+                color: #94a3b8 !important;
+            }
             /* C15: Input placeholder contrast */
             ::placeholder { color: #78716c !important; }
             .dark ::placeholder { color: #a8a29e !important; }
+            /* C16: Dark mode input field border visibility */
+            .dark input, .dark select, .dark textarea {
+                border-color: #64748b !important;
+            }
+            .dark input:focus, .dark select:focus, .dark textarea:focus {
+                border-color: #f59e0b !important;
+            }
             /* B10: Button gap (mistouch prevention) */
             .flex.gap-2:has(button), .flex.gap-2:has(a.inline-flex) { gap: 0.75rem; }
         }
@@ -1031,7 +1049,7 @@
                         </div>
                     </div>
                     <div class="date-badge px-2.5 py-1.5 text-xs sm:text-sm whitespace-nowrap">
-                        {{ today.strftime('%m월 %d일') }}
+                        {{ today.month }}월 {{ today.day }}일
                     </div>
                 </div>
             </div>
