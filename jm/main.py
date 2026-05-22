@@ -971,6 +971,95 @@ app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
 app.include_router(_r_forms.router)
 app.include_router(_r_settings.router)
+
+
+# ── Override /plans: render plans.html instead of redirecting ──
+@app.get("/plans", response_class=HTMLResponse)
+async def plans_page(request: Request, view: str = "week", offset: int = 0):
+    pid = get_profile_id(request)
+    today = date.today()
+    today_str = today.isoformat()
+
+    with get_db() as conn:
+        categories = conn.execute("SELECT * FROM categories ORDER BY sort_order").fetchall()
+
+        if view == "month":
+            m = today.month + offset
+            y = today.year
+            while m < 1:
+                m += 12; y -= 1
+            while m > 12:
+                m -= 12; y += 1
+            _, days_in_month = cal_mod.monthrange(y, m)
+            month_start = date(y, m, 1)
+            month_end = date(y, m, days_in_month)
+            plan_todos = conn.execute("""
+                SELECT t.*, c.name as category_name, c.color as category_color
+                FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+                WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
+                ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
+            """, (month_start.isoformat(), month_end.isoformat(), pid)).fetchall()
+            start_weekday = (month_start.weekday() + 1) % 7
+            cal_weeks = []
+            current_week = [None] * start_weekday
+            for day_num in range(1, days_in_month + 1):
+                current_week.append(date(y, m, day_num))
+                if len(current_week) == 7:
+                    cal_weeks.append(current_week); current_week = []
+            if current_week:
+                current_week += [None] * (7 - len(current_week))
+                cal_weeks.append(current_week)
+            todos_by_date: dict = {}
+            for t in plan_todos:
+                td = dict(t)
+                dd = td.get("due_date", "")
+                if dd:
+                    todos_by_date.setdefault(dd, []).append(td)
+            ctx = {
+                "cal_weeks": cal_weeks, "todos_by_date": todos_by_date,
+                "nav_label": f"{y}년 {m}월", "reset_label": "이번달",
+                "total_count": len(plan_todos),
+                "done_count": sum(1 for t in plan_todos if t["completed"]),
+                "weekday_names": WEEKDAY_NAMES,
+            }
+        else:
+            plan_monday = today - timedelta(days=today.weekday()) + timedelta(weeks=offset)
+            plan_sunday = plan_monday + timedelta(days=6)
+            week_num = week_number_in_month(plan_monday)
+            plan_todos = conn.execute("""
+                SELECT t.*, c.name as category_name, c.color as category_color
+                FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+                WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
+                ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
+            """, (plan_monday.isoformat(), plan_sunday.isoformat(), pid)).fetchall()
+            week_days = []
+            for i in range(7):
+                d = plan_monday + timedelta(days=i)
+                day_todos = [dict(t) for t in plan_todos if t["due_date"] == d.isoformat()]
+                week_days.append({
+                    "date": d, "date_str": d.isoformat(),
+                    "label": f"{WEEKDAY_NAMES[i]} {d.strftime('%m/%d')}",
+                    "short_label": WEEKDAY_NAMES[i],
+                    "is_today": d == today, "is_weekend": i >= 5,
+                    "todos": day_todos,
+                })
+            ctx = {
+                "week_days": week_days,
+                "nav_label": f"{plan_monday.year}년 {plan_monday.month}월 {week_num}주차 ({plan_monday.strftime('%m.%d')} ~ {plan_sunday.strftime('%m.%d')})",
+                "reset_label": "오늘",
+                "total_count": len(plan_todos),
+                "done_count": sum(1 for t in plan_todos if t["completed"]),
+            }
+
+    return render(request, "plans.html", {
+        "page": "plans",
+        "view": view,
+        "offset": offset,
+        "priority_map": PRIORITY_MAP,
+        **ctx,
+    })
+
+
 app.include_router(_r_misc.router)
 app.include_router(_r_sse.router)
 app.include_router(_r_auth.router)
@@ -1070,7 +1159,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
                 ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
             """, (month_start.isoformat(), month_end.isoformat(), pid)).fetchall()
-            start_weekday = month_start.weekday()
+            start_weekday = (month_start.weekday() + 1) % 7
             cal_weeks = []
             current_week = [None] * start_weekday
             for day_num in range(1, days_in_month + 1):
@@ -1581,6 +1670,50 @@ def _collect_export_data(conn, tpl_id, pid, date=None):
 
 
 # ── Focus mode ──
+
+
+# ── Routes: Categories ──
+@app.get("/categories", response_class=HTMLResponse)
+async def categories_page(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        categories = conn.execute(
+            "SELECT * FROM categories ORDER BY sort_order"
+        ).fetchall()
+    return render(request, "categories.html", {
+        "page": "categories",
+        "categories": [dict(r) for r in categories],
+    })
+
+
+@app.post("/categories", response_class=HTMLResponse)
+async def create_category_page(request: Request, name: str = Form(""), color: str = Form("#d97706")):
+    pid = get_profile_id(request)
+    name = clamp_text(fix_mojibake(name), 50)
+    if name:
+        with get_db() as conn:
+            max_order = conn.execute(
+                "SELECT COALESCE(MAX(sort_order),0) FROM categories WHERE profile_id=?", (pid,)
+            ).fetchone()[0]
+            try:
+                conn.execute(
+                    "INSERT INTO categories (profile_id, name, color, sort_order) VALUES (?,?,?,?)",
+                    (pid, name, color, max_order + 1),
+                )
+                _audit_log(conn, "category", conn.execute("SELECT last_insert_rowid()").fetchone()[0], "create", {"name": name, "color": color})
+            except sqlite3.IntegrityError:
+                pass
+    return redirect(request, "/categories")
+
+
+@app.delete("/categories/{cat_id}", response_class=HTMLResponse)
+async def delete_category_page(request: Request, cat_id: int):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        conn.execute("DELETE FROM categories WHERE id=? AND profile_id=?", (cat_id, pid))
+    if request.headers.get("HX-Request"):
+        return HTMLResponse("")
+    return redirect(request, "/categories")
 
 
 # ── Routes: D-day ──

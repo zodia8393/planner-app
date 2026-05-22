@@ -69,7 +69,8 @@
 {% if view == 'week' %}
 <!-- ==================== WEEK VIEW ==================== -->
 <div class="grid grid-cols-1 lg:grid-cols-7 gap-3">
-    {% for day in week_days %}
+    {% set reordered_week = [week_days[6]] + week_days[:6] %}
+    {% for day in reordered_week %}
     <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
          style="animation-delay: {{ loop.index0 * 40 }}ms">
         <!-- Day header -->
@@ -139,8 +140,8 @@
 <div class="work-card rounded-xl overflow-hidden">
     <!-- Weekday header -->
     <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-        {% for wn in weekday_names %}
-        <div class="py-2.5 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ wn }}</div>
+        {% for wn in ['일', '월', '화', '수', '목', '금', '토'] %}
+        <div class="py-2.5 {% if loop.index == 1 %}text-red-400{% elif loop.index == 7 %}text-blue-400{% endif %}">{{ wn }}</div>
         {% endfor %}
     </div>
     <!-- Calendar grid -->

@@ -52,7 +52,8 @@
 {% if cal_view == 'week' %}
 <!-- ====== WEEK VIEW ====== -->
 <div class="space-y-0 work-card rounded-xl overflow-hidden mb-6">
-    {% for wd in week_days %}
+    {% set reordered_week = [week_days[6]] + week_days[:6] %}
+    {% for wd in reordered_week %}
     {% set day_events = wd.events %}
     {% set day_todos = wd.todos %}
     <div class="border-b border-slate-100 dark:border-slate-700/50 p-3 {% if wd.is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
@@ -103,13 +104,14 @@
 <!-- Calendar grid -->
 <div class="work-card rounded-xl overflow-hidden mb-6">
     <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-        {% for day_name in ['월', '화', '수', '목', '금', '토', '일'] %}
-        <div class="py-2.5 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ day_name }}</div>
+        {% for day_name in ['일', '월', '화', '수', '목', '금', '토'] %}
+        <div class="py-2.5 {% if loop.index == 1 %}text-red-400{% elif loop.index == 7 %}text-blue-400{% endif %}">{{ day_name }}</div>
         {% endfor %}
     </div>
     <div class="grid grid-cols-7">
-        <!-- Empty cells before month starts -->
-        {% for _ in range(start_weekday) %}
+        <!-- Empty cells before month starts (Sunday=0 start) -->
+        {% set sun_start = (start_weekday + 1) % 7 %}
+        {% for _ in range(sun_start) %}
         <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30"></div>
         {% endfor %}
 
@@ -118,7 +120,7 @@
         {% set day_events = events_by_date.get(day_str, []) %}
         {% set day_todos = todos_by_date.get(day_str, []) %}
         {% set is_today = day_str == today_str %}
-        {% set weekday = (start_weekday + day - 1) % 7 %}
+        {% set weekday = (sun_start + day - 1) % 7 %}
         {% set total_items = day_events|length + day_todos|length %}
         {% set holiday_name = holidays_by_date.get(day_str) %}
         <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
@@ -126,8 +128,8 @@
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs lg:text-sm font-medium
                     {% if is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center
-                    {% elif holiday_name or weekday == 6 %}text-red-400
-                    {% elif weekday == 5 %}text-blue-400
+                    {% elif holiday_name or weekday == 0 %}text-red-400
+                    {% elif weekday == 6 %}text-blue-400
                     {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ day }}</span>
             </div>
             {% if holiday_name %}
@@ -170,7 +172,7 @@
         {% endfor %}
 
         <!-- Fill remaining cells -->
-        {% set remaining = (7 - (start_weekday + days_in_month) % 7) % 7 %}
+        {% set remaining = (7 - (sun_start + days_in_month) % 7) % 7 %}
         {% for _ in range(remaining) %}
         <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30"></div>
         {% endfor %}

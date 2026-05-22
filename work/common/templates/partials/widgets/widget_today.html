@@ -1,0 +1,25 @@
+{# Today Widget: date, schedule summary, overdue count #}
+<div data-widget="today" class="work-card rounded-xl p-4 card-hover">
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today_display }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ today_weekday }}</p>
+        </div>
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-indigo-50 dark:from-indigo-900/30 dark:to-indigo-800/20 rounded-xl flex items-center justify-center">
+            <span class="text-xl" aria-hidden="true">{{ weather_icon|default('☀️') }}</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-3 text-xs">
+        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-medium">
+            <span aria-hidden="true">✅</span> 할일 {{ today_todo_count }}개
+        </span>
+        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
+            <span aria-hidden="true">📅</span> 일정 {{ today_event_count }}개
+        </span>
+        {% if overdue_count > 0 %}
+        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium badge-pulse">
+            <span aria-hidden="true">🔴</span> 지연 {{ overdue_count }}개
+        </span>
+        {% endif %}
+    </div>
+</div>

@@ -30,7 +30,10 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘의 할 일이 없습니다</p>
+        <div class="text-center py-4">
+            <p class="text-sm" style="color: var(--color-text-faint);">오늘의 할 일이 없습니다</p>
+            <a href="/todos" class="inline-block mt-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">할일 추가</a>
+        </div>
         {% endif %}
     </div>
 
@@ -56,7 +59,10 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘 일정이 없습니다</p>
+        <div class="text-center py-4">
+            <p class="text-sm" style="color: var(--color-text-faint);">오늘 일정이 없습니다</p>
+            <a href="/calendar" class="inline-block mt-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">일정 등록</a>
+        </div>
         {% endif %}
     </div>
 
@@ -107,7 +113,10 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-sm text-center py-4" style="color: var(--color-text-faint);">오늘 업무 기록이 없습니다</p>
+        <div class="text-center py-4">
+            <p class="text-sm" style="color: var(--color-text-faint);">오늘 업무 기록이 없습니다</p>
+            <a href="/worklogs" class="inline-block mt-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">업무 기록</a>
+        </div>
         {% endif %}
     </div>
 </div>

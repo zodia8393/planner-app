@@ -64,7 +64,7 @@
 <div class="space-y-3">
     {% for tpl in templates %}
     <div class="work-card rounded-xl p-4 card-hover fade-in group relative" data-tpl-id="{{ tpl.id }}">
-        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: {{ tpl.color or '#d97706' }}"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: var(--color-accent)"></div>
         <a href="/forms/{{ tpl.id }}/entries" class="block">
             <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
