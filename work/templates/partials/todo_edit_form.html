@@ -79,6 +79,34 @@
             {% endif %}
         </div>
         <input type="hidden" name="rrule_byday" id="editRruleByday_{{ todo.id }}" value="">
+        <!-- Reminder offsets -->
+        <div>
+            <label class="text-xs text-slate-500 mb-1 block">🔔 알림</label>
+            <input type="hidden" name="reminder_offsets" id="todoReminderOffsets_{{ todo.id }}" value="{{ todo.reminder_offsets or '' }}">
+            <div class="flex flex-wrap gap-1 mb-1.5" id="todoOffsetChips_{{ todo.id }}"></div>
+            <div class="flex gap-1.5">
+                <select id="todoOffsetSel_{{ todo.id }}" class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-lg">
+                    <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
+                    <option value='{"value":5,"unit":"minute"}'>5분 전</option>
+                    <option value='{"value":10,"unit":"minute"}'>10분 전</option>
+                    <option value='{"value":15,"unit":"minute"}'>15분 전</option>
+                    <option value='{"value":30,"unit":"minute"}'>30분 전</option>
+                    <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
+                    <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
+                    <option value='{"value":3,"unit":"hour"}'>3시간 전</option>
+                    <option value='{"value":1,"unit":"day"}'>1일 전</option>
+                    <option value='{"value":2,"unit":"day"}'>2일 전</option>
+                    <option value='{"value":3,"unit":"day"}'>3일 전</option>
+                    <option value='{"value":1,"unit":"week"}'>1주 전</option>
+                </select>
+                <button type="button" onclick="addEditTodoOffset({{ todo.id }})" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+            </div>
+            <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
+                <input type="checkbox" id="todoUseDefault_{{ todo.id }}" onchange="toggleEditTodoDefault({{ todo.id }})"
+                       {% if not todo.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded text-amber-600">
+                <span class="text-xs text-slate-500">기본값 사용</span>
+            </label>
+        </div>
         <input type="text" name="tags" value="{{ (todo.tags|parse_tags)|join(', ') }}" placeholder="태그 (쉼표 구분)"
                class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
         <div class="flex justify-end gap-2">
@@ -88,6 +116,50 @@
     </form>
 </div>
 <script>
+// --- Edit Todo Reminder Offsets ---
+(function(){
+    var tid = {{ todo.id }};
+    var labels = {'0_minute':'당일 오전 9시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','3_hour':'3시간 전','1_day':'1일 전','2_day':'2일 전','3_day':'3일 전','1_week':'1주 전'};
+    var input = document.getElementById('todoReminderOffsets_'+tid);
+    var offsets = [];
+    try { offsets = JSON.parse(input.value || '[]'); } catch(e) { offsets = []; }
+    if (!Array.isArray(offsets)) offsets = [];
+
+    function render() {
+        var c = document.getElementById('todoOffsetChips_'+tid);
+        c.innerHTML = '';
+        offsets.forEach(function(o, i) {
+            var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':o.unit==='day'?'일':'주')+' 전');
+            c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEditTodoOffset('+tid+','+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+        });
+        input.value = offsets.length ? JSON.stringify(offsets) : '';
+    }
+    window['_todoOff'+tid] = offsets;
+    window.addEditTodoOffset = function(id) {
+        var sel = document.getElementById('todoOffsetSel_'+id);
+        var o = JSON.parse(sel.value);
+        var arr = window['_todoOff'+id];
+        if (arr.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
+        arr.push(o);
+        offsets = arr;
+        document.getElementById('todoUseDefault_'+id).checked = false;
+        render();
+    };
+    window.removeEditTodoOffset = function(id, idx) {
+        window['_todoOff'+id].splice(idx, 1);
+        offsets = window['_todoOff'+id];
+        render();
+    };
+    window.toggleEditTodoDefault = function(id) {
+        if (document.getElementById('todoUseDefault_'+id).checked) {
+            window['_todoOff'+id] = [];
+            offsets = [];
+            render();
+        }
+    };
+    render();
+})();
+
 function toggleEditRrule(tid) {
     var sel = document.getElementById('editRepeatType_' + tid);
     var panel = document.getElementById('editRrulePanel_' + tid);

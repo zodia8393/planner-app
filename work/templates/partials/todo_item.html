@@ -37,6 +37,9 @@
                 {% if todo.repeat_type and todo.repeat_type != 'none' %}
                 <span class="text-xs text-slate-400">🔄 {{ repeat_map.get(todo.repeat_type, '') }}</span>
                 {% endif %}
+                {% if todo.reminder_offsets %}
+                <span class="text-xs text-amber-500" title="개별 알림 설정됨">🔔</span>
+                {% endif %}
             </div>
 
             {% if todo.description %}
