@@ -222,6 +222,7 @@ def render(request: Request, name: str, context: dict = None):
     else:
         ctx["needs_pin_setup"] = False
     ctx.setdefault("today", date_mod.today())
+    ctx.setdefault("config", {"planner_name": "Work Planner"})
     # Background setting
     pid = ctx.get("active_profile_id") or 0
     if "bg_setting" not in ctx:
@@ -1563,7 +1564,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "categories": [dict(r) for r in categories],
         "project_progress": [dict(r) for r in project_progress],
         "today_worklogs": [dict(r) for r in today_worklogs],
-        "today_worklogs_hours": round(today_worklogs_hours, 1),
+        "today_work_hours": round(today_worklogs_hours, 1),
         "recent_notices": [dict(r) for r in recent_notices],
         "time_budgets": time_budgets,
         "over_budget": over_budget,

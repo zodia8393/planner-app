@@ -1,0 +1,55 @@
+{% from "widgets/_widget_wrapper.html" import widget %}
+{% call widget('stat-cards', '통계 카드') %}
+<div class="widget-detail-compact">
+    <div class="work-card rounded-xl p-3 text-center">
+        <span class="stat-label">완료율</span>
+        <span class="stat-number block mt-1">{{ stats.week_rate }}%</span>
+    </div>
+</div>
+<div class="widget-detail-m">
+    <div class="grid grid-cols-2 gap-3">
+        <div class="work-card rounded-xl p-4 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span class="stat-label">오늘 업무</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+                    <svg class="w-4 h-4" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <div class="flex items-baseline gap-1.5">
+                <span class="stat-number">{{ stats.completed_today }}</span>
+                <span class="text-sm font-medium" style="color: var(--color-text-faint);">/ {{ stats.total_today }}</span>
+            </div>
+            {% if stats.total_today > 0 %}
+            <div class="progress-premium mt-2.5">
+                <div class="progress-premium-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
+            </div>
+            {% else %}
+            <a href="/todos" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                할일 추가하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            </a>
+            {% endif %}
+        </div>
+        <div class="work-card rounded-xl p-4 card-hover">
+            <div class="flex items-center justify-between mb-3">
+                <span class="stat-label">이번 주 일정</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-info-soft);">
+                    <svg class="w-4 h-4" style="color: var(--color-info);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg>
+                </div>
+            </div>
+            <div class="flex items-baseline gap-1.5">
+                <span class="stat-number">{{ stats.week_events }}</span>
+                <span class="text-sm font-medium" style="color: var(--color-text-faint);">건</span>
+            </div>
+            {% if stats.week_events > 0 %}
+            <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                캘린더 보기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            </a>
+            {% else %}
+            <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                일정 등록하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endcall %}

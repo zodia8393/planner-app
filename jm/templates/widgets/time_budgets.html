@@ -1,0 +1,47 @@
+{% from "widgets/_widget_wrapper.html" import widget %}
+{% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
+{% call widget('time-budgets', '시간 예산') %}
+<div class="work-card rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
+        <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline widget-detail-m">설정</a>
+    </div>
+    <div class="widget-detail-compact">
+        {% for tb in time_budgets|default([]) %}
+        {% if tb.budget > 0 and loop.index <= 1 %}
+        <div class="flex justify-between text-xs mb-1">
+            <span>{{ tb.name or '미분류' }}</span>
+            <span>{{ tb.used|round(1) }}/{{ tb.budget }}h</span>
+        </div>
+        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full {% if tb.used > tb.budget %}bg-red-500{% else %}bg-green-500{% endif %}" style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="widget-detail-m">
+        <div class="space-y-2">
+            {% for tb in time_budgets|default([]) %}
+            {% if tb.budget > 0 %}
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full" style="background:{{ tb.color }}"></span>
+                        {{ tb.name or '미분류' }}
+                    </span>
+                    <span class="{% if tb.used > tb.budget %}text-red-500 font-bold{% else %}text-slate-400{% endif %}">
+                        {{ tb.used|round(1) }} / {{ tb.budget }}h
+                    </span>
+                </div>
+                <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all {% if tb.used > tb.budget %}bg-red-500{% elif tb.used > tb.budget * 0.8 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                         style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endcall %}
+{% endif %}

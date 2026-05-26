@@ -230,6 +230,7 @@ def render(request: Request, name: str, context: dict = None):
         ctx["active_profile"] = None
         ctx["active_profile_id"] = None
     ctx.setdefault("today", date_mod.today())
+    ctx.setdefault("config", {"planner_name": "My Planner"})
     ctx.setdefault("bg_setting", get_bg_setting(pid))
     return templates.TemplateResponse(request, name, ctx)
 
@@ -1407,7 +1408,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "categories": [dict(r) for r in categories],
         "project_progress": [dict(r) for r in project_progress],
         "today_worklogs": [dict(r) for r in today_worklogs],
-        "today_worklogs_hours": round(today_worklogs_hours, 1),
+        "today_work_hours": round(today_worklogs_hours, 1),
         "recent_notices": [dict(r) for r in recent_notices],
         "time_budgets": time_budgets,
         "over_budget": over_budget,

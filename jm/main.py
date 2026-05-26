@@ -164,6 +164,7 @@ def render(request: Request, name: str, context: dict = None):
         ctx["bg_setting"] = {"type": "none", "preset": "", "image": "", "opacity": 0.7}
     ctx["needs_pin_setup"] = False
     ctx.setdefault("today", date.today())
+    ctx.setdefault("config", {"planner_name": "JM Planner"})
     return templates.TemplateResponse(request, name, ctx)
 
 

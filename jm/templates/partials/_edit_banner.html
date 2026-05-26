@@ -1,0 +1,37 @@
+{# Dashboard header: usage tip + edit mode toggle #}
+<div class="flex items-center justify-between mb-4">
+    <details class="group">
+        <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            사용법
+        </summary>
+        <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
+            <p><b class="text-slate-700 dark:text-slate-300">위젯 편집</b> — 편집 버튼으로 위젯 이동/크기 조절/제거. PC와 모바일 레이아웃은 독립</p>
+            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간/월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
+            <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 "내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
+            <p><b class="text-slate-700 dark:text-slate-300">집중 모드</b> — 우측 하단 시계 버튼으로 포모도로 타이머 시작, 완료 시 업무일지에 자동 기록</p>
+        </div>
+    </details>
+    <button id="editModeBtn" data-action="toggle-edit" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors" title="위젯 편집">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+        </svg>
+    </button>
+</div>
+
+{# Edit mode banner #}
+<div id="editBanner" class="hidden mb-4 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between" style="background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px dashed var(--color-accent);">
+    <span class="edit-banner-pc">위젯을 드래그하여 이동하고, 모서리를 잡아 크기를 조절하세요.</span>
+    <span class="edit-banner-mobile hidden">길게 눌러 이동 / 크기 탭으로 조절</span>
+    <button data-action="toggle-edit" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" style="background: var(--color-accent); color: var(--color-text-inverse, #fff); min-height: 44px; min-width: 60px;">완료</button>
+</div>
+
+{# Widget configuration panel (restore removed widgets) #}
+<div id="widgetConfig" class="hidden mb-4 work-card rounded-xl p-4">
+    <h4 class="text-sm font-bold mb-3" style="color: var(--color-text);">위젯 관리</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="widgetToggles"></div>
+    <div class="mt-3 flex justify-end gap-2">
+        <button data-action="reset-layout" class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors" style="color: var(--color-danger);">전체 초기화</button>
+        <button data-action="toggle-config" class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors" style="color: var(--color-text-faint);">닫기</button>
+    </div>
+</div>

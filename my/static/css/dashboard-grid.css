@@ -1,0 +1,349 @@
+/* ============================================================
+   dashboard-grid.css — Dashboard Grid + Widget Styles
+   ============================================================ */
+
+/* ── Grid Tokens ── */
+:root {
+    --dash-cols-pc: 12;
+    --dash-cols-tablet: 3;
+    --dash-cols-mobile: 2;
+    --dash-cols-landscape: 3;
+    --dash-row-pc: 64px;
+    --dash-row-tablet: 56px;
+    --dash-row-mobile: 48px;
+    --dash-row-landscape: 40px;
+    --dash-gap-pc: 12px;
+    --dash-gap-mobile: 10px;
+    --dash-z-header: 2;
+    --dash-z-handle: 5;
+    --dash-z-preview: 50;
+    --dash-z-drag: 100;
+}
+
+/* ── Dashboard Grid Container ── */
+#dashboardGrid {
+    display: grid;
+    grid-template-columns: repeat(var(--dash-cols-pc), 1fr);
+    grid-auto-rows: var(--dash-row-pc);
+    gap: var(--dash-gap-pc);
+    position: relative;
+}
+
+/* ── Responsive Breakpoints ── */
+@media (max-width: 1023px) {
+    #dashboardGrid {
+        grid-template-columns: repeat(var(--dash-cols-mobile), 1fr);
+        grid-auto-rows: var(--dash-row-mobile);
+        gap: var(--dash-gap-mobile);
+    }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    #dashboardGrid {
+        grid-template-columns: repeat(var(--dash-cols-tablet), 1fr);
+        grid-auto-rows: var(--dash-row-tablet);
+        gap: var(--dash-gap-pc);
+    }
+}
+@media (max-width: 1023px) and (orientation: landscape) {
+    #dashboardGrid {
+        grid-template-columns: repeat(var(--dash-cols-landscape), 1fr);
+        grid-auto-rows: var(--dash-row-landscape);
+        gap: 8px;
+    }
+}
+
+/* ── Dashboard Widget ── */
+.dashboard-widget {
+    container-type: inline-size;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    min-height: 0;
+    min-width: 0;
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border-subtle, #f1f5f9);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s ease-out;
+}
+.dashboard-widget:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+html.dark .dashboard-widget {
+    background: var(--color-surface, #1c1917);
+}
+
+.dashboard-widget .widget-body {
+    height: 100%;
+    overflow: auto;
+}
+.dashboard-widget .widget-body > .work-card {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+}
+
+/* ── Widget Header (drag handle) ── */
+.widget-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    cursor: grab;
+    user-select: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-faint);
+    background: var(--color-border-subtle);
+    border-bottom: 1px dashed var(--color-border);
+    position: relative;
+    z-index: var(--dash-z-header);
+}
+.widget-header:active { cursor: grabbing; }
+
+.widget-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Remove Button ── */
+.widget-remove-btn {
+    display: none;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-faint);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.widget-remove-btn:hover {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+@media (max-width: 1023px) {
+    .widget-remove-btn { width: 44px; height: 44px; font-size: 22px; }
+}
+
+/* ── Resize Handle ── */
+.widget-resize-handle {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    cursor: nwse-resize;
+    z-index: var(--dash-z-handle);
+    background: linear-gradient(135deg, transparent 50%, var(--color-border) 50%);
+    border-radius: 0 0 var(--radius-lg) 0;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+.widget-resize-handle:hover { opacity: 1; }
+
+/* ── Size Presets (mobile only) ── */
+.widget-size-presets {
+    display: none;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--color-border-subtle);
+}
+.widget-size-presets button {
+    flex: 1;
+    padding: 6px 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+    color: var(--color-text-faint);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 32px;
+}
+.widget-size-presets button.active {
+    background: var(--color-accent);
+    color: var(--color-text-inverse, #fff);
+    border-color: var(--color-accent);
+}
+.widget-size-presets button:hover {
+    border-color: var(--color-accent);
+}
+
+/* ── Edit Mode ── */
+body.dash-edit-mode .dashboard-widget {
+    border: 2px dashed var(--color-border);
+    transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+body.dash-edit-mode .widget-header {
+    display: flex;
+}
+body.dash-edit-mode .widget-remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (min-width: 1024px) {
+    body.dash-edit-mode .widget-resize-handle { display: block; }
+}
+@media (max-width: 1023px) {
+    body.dash-edit-mode .widget-size-presets { display: flex; }
+    body.dash-edit-mode .widget-resize-handle { display: none; }
+}
+
+/* ── Banner Responsive ── */
+@media (max-width: 1023px) {
+    .edit-banner-pc { display: none; }
+    .edit-banner-mobile { display: inline; }
+}
+@media (min-width: 1024px) {
+    .edit-banner-pc { display: inline; }
+    .edit-banner-mobile { display: none; }
+}
+
+/* ── Content Adaptation (Container Queries) ── */
+.widget-detail-compact { display: block; }
+.widget-detail-m { display: none; }
+.widget-detail-l { display: none; }
+
+@container (min-width: 220px) {
+    .widget-detail-compact { display: none; }
+    .widget-detail-m { display: block; }
+}
+@container (min-width: 450px) {
+    .widget-detail-l { display: block; }
+}
+
+/* Height-based adaptation via row classes */
+.dashboard-widget.widget-rows-1 .widget-body { overflow: hidden; }
+.dashboard-widget.widget-rows-1 .widget-detail-compact { display: block; }
+.dashboard-widget.widget-rows-1 .widget-detail-m { display: none; }
+.dashboard-widget.widget-rows-1 .widget-detail-l { display: none; }
+
+/* ── Drag visual states ── */
+.dashboard-widget.dragging {
+    opacity: 0.6;
+    z-index: var(--dash-z-drag);
+    box-shadow: var(--shadow-xl);
+    transform: scale(1.02);
+}
+.dashboard-widget.drag-over {
+    box-shadow: 0 0 0 2px var(--color-accent);
+}
+.dashboard-widget.lifting {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-xl);
+    z-index: var(--dash-z-drag);
+    opacity: 0.9;
+}
+
+/* ── Grid preview placeholder ── */
+.grid-preview {
+    background: var(--color-accent-soft);
+    border: 2px dashed var(--color-accent);
+    border-radius: var(--radius-lg);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: var(--dash-z-preview);
+    transition: all 0.1s;
+}
+
+/* ── Fade out animation for removed widgets ── */
+.dashboard-widget.removing {
+    animation: widgetFadeOut 0.2s ease-out forwards;
+}
+@keyframes widgetFadeOut {
+    to { opacity: 0; transform: scale(0.95); }
+}
+
+/* ── Timetable SVG constraint ── */
+.dashboard-widget[data-widget="timetable"] svg {
+    max-height: 100%;
+    width: auto;
+}
+
+/* ── Plan-view week grid ── */
+@media (min-width: 1024px) {
+    .plan-week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+@media (max-width: 1023px) {
+    .plan-week-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Quick-add mobile padding ── */
+@media (max-width: 1023px) {
+    .dashboard-widget[data-widget="quick-add"] .widget-body form {
+        padding: 0.25rem 0.75rem;
+    }
+    .dashboard-widget[data-widget="quick-add"] .widget-body input {
+        font-size: 13px;
+        padding: 0.25rem 0.5rem;
+    }
+    .dashboard-widget[data-widget="quick-add"] .widget-body button[type="submit"] {
+        padding: 0.25rem 0.75rem;
+        font-size: 13px;
+    }
+}
+
+/* ── Empty state ── */
+.dashboard-widget .widget-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0.75rem;
+    min-height: 0;
+    text-align: center;
+}
+.widget-empty-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.widget-empty-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-faint);
+    margin: 0;
+}
+.widget-empty-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-top: 0.5rem;
+    transition: color 0.15s;
+}
+.widget-empty-action:hover { text-decoration: underline; }
+
+/* ── Bottom sheet animation ── */
+#widgetBottomSheet > div:last-child {
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+}
+#widgetBottomSheet.active > div:last-child {
+    transform: translateY(0);
+}
+
+/* ── Loading Skeleton ── */
+.widget-skeleton {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.skeleton-line {
+    height: 0.75rem;
+    border-radius: 0.25rem;
+    background: linear-gradient(90deg, var(--color-border-subtle) 25%, var(--color-surface) 50%, var(--color-border-subtle) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+.skeleton-line.w-3\/4 { width: 75%; }
+.skeleton-line.w-1\/2 { width: 50%; }
+.skeleton-line.w-5\/6 { width: 83.33%; }
+@keyframes shimmer { to { background-position: -200% 0; } }

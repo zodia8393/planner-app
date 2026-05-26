@@ -1,0 +1,27 @@
+<div id="onboardingChecklist" class="hidden work-card rounded-xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold" style="color: var(--color-text);">시작 가이드</h3>
+        <button data-action="dismiss-onboarding" class="text-xs" style="color: var(--color-text-faint);">닫기</button>
+    </div>
+    <div class="h-2 rounded-full overflow-hidden mb-3" style="background: var(--color-border);">
+        <div id="onboardingProgress" class="h-full rounded-full transition-all" style="width: 0%; background: var(--color-accent);"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div id="ob-step1" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="1">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
+            <div><p class="text-sm font-medium" style="color: var(--color-text);">할 일 추가하기</p><p class="text-xs" style="color: var(--color-text-faint);">첫 번째 할 일을 만들어보세요</p></div>
+        </div>
+        <div id="ob-step2" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="2">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
+            <div><p class="text-sm font-medium" style="color: var(--color-text);">일정 등록하기</p><p class="text-xs" style="color: var(--color-text-faint);">캘린더에 일정을 추가해보세요</p></div>
+        </div>
+        <div id="ob-step3" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="3">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
+            <div><p class="text-sm font-medium" style="color: var(--color-text);">집중 모드 사용</p><p class="text-xs" style="color: var(--color-text-faint);">포모도로 타이머로 집중해보세요</p></div>
+        </div>
+        <div id="ob-step4" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="4">
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
+            <div><p class="text-sm font-medium" style="color: var(--color-text);">양식 살펴보기</p><p class="text-xs" style="color: var(--color-text-faint);">13종 업무 양식을 확인해보세요</p></div>
+        </div>
+    </div>
+</div>
