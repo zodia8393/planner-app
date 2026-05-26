@@ -140,7 +140,7 @@ function dismissOnboarding(){
             <button onclick="DashGrid.setMobileSize('widget-row','T')" data-size="T">T</button>
         </div>
         <div class="widget-body">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 {# Today Widget #}
                 <div data-widget="today" class="work-card rounded-xl p-4 card-hover" style="background: var(--gradient-warm); border-color: rgba(217,119,6,0.15);">
                     <div class="flex items-center justify-between mb-3">
@@ -243,7 +243,7 @@ function dismissOnboarding(){
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <span>오늘: <strong style="color: var(--color-text);">{{ today_worklogs_hours|round(1) }}h</strong></span>
+                        <span>오늘: <strong style="color: var(--color-text);">{{ today_work_hours|round(1) }}h</strong></span>
                     </div>
                 </div>
             </div>
@@ -367,13 +367,17 @@ function dismissOnboarding(){
             <!-- Compact: progress bar only -->
             <div class="widget-detail-compact">
                 <div class="work-card rounded-xl p-3">
+                    {% if total_count == 0 %}
+                    <span class="text-xs" style="color: var(--color-text-faint);">항목 없음</span>
+                    {% else %}
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-medium" style="color: var(--color-text-faint);">진행률</span>
-                        <span class="text-xs font-bold" style="color: var(--color-accent);">{% if total_count > 0 %}{{ ((done_count / total_count) * 100)|round|int }}%{% else %}0%{% endif %}</span>
+                        <span class="text-xs font-bold" style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</span>
                     </div>
                     <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border);">
-                        <div class="h-full rounded-full" style="background: var(--color-accent); width: {% if total_count > 0 %}{{ ((done_count / total_count) * 100)|round|int }}{% else %}0{% endif %}%;"></div>
+                        <div class="h-full rounded-full" style="background: var(--color-accent); width: {{ ((done_count / total_count) * 100)|round|int }}%;"></div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <!-- Medium+ full plan view -->
@@ -420,7 +424,7 @@ function dismissOnboarding(){
                 </div>
 
                 {% if plan_view == 'week' %}
-                <div class="grid grid-cols-1 lg:grid-cols-7 gap-2">
+                <div class="plan-week-grid grid grid-cols-1 lg:grid-cols-7 gap-2">
                     {% for day in week_days %}
                     <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
                          style="animation-delay: {{ loop.index0 * 40 }}ms">
@@ -756,8 +760,8 @@ function dismissOnboarding(){
                 <div class="section-header">
                     <h3>오늘 업무일지</h3>
                     <div class="flex items-center gap-2">
-                        {% if today_worklogs_hours > 0 %}
-                        <span class="badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ today_worklogs_hours }}h</span>
+                        {% if today_work_hours > 0 %}
+                        <span class="badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ today_work_hours }}h</span>
                         {% endif %}
                         <a href="/worklogs" class="widget-detail-m">더보기</a>
                     </div>
@@ -911,12 +915,12 @@ function dismissOnboarding(){
 <style>
 /* ── Grid Variables ── */
 :root {
-    --grid-row-height: 80px;
-    --grid-row-height-mobile: 60px;
+    --grid-row-height: 64px;
+    --grid-row-height-mobile: 48px;
     --grid-cols: 12;
     --grid-cols-mobile: 2;
-    --grid-gap: 16px;
-    --grid-gap-mobile: 12px;
+    --grid-gap: 12px;
+    --grid-gap-mobile: 10px;
 }
 
 /* ── Dashboard Grid Container ── */
@@ -935,6 +939,20 @@ function dismissOnboarding(){
         gap: var(--grid-gap-mobile);
     }
 }
+@media (min-width: 768px) and (max-width: 1023px) {
+    #dashboardGrid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: 56px;
+        gap: 12px;
+    }
+}
+@media (max-width: 1023px) and (orientation: landscape) {
+    #dashboardGrid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: 40px;
+        gap: 8px;
+    }
+}
 
 /* ── Dashboard Widget ── */
 .dashboard-widget {
@@ -942,9 +960,12 @@ function dismissOnboarding(){
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-lg);
-    transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
     min-height: 0;
     min-width: 0;
+    background: var(--color-surface, #ffffff);
+}
+html.dark .dashboard-widget {
+    background: var(--color-surface, #1c1917);
 }
 
 .dashboard-widget .widget-body {
@@ -1061,6 +1082,7 @@ function dismissOnboarding(){
 /* ── Edit Mode ── */
 body.dash-edit-mode .dashboard-widget {
     border: 2px dashed var(--color-border);
+    transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 body.dash-edit-mode .widget-header {
     display: flex;
@@ -1089,6 +1111,9 @@ body.dash-edit-mode .widget-remove-btn {
 }
 
 /* ── Banner Responsive ── */
+.edit-banner-pc, .edit-banner-mobile {
+    transition: opacity 0.15s;
+}
 @media (max-width: 1023px) {
     .edit-banner-pc { display: none !important; }
     .edit-banner-mobile { display: inline !important; }
@@ -1103,16 +1128,18 @@ body.dash-edit-mode .widget-remove-btn {
 .widget-detail-m { display: none; }
 .widget-detail-l { display: none; }
 
-@container (min-width: 300px) {
+@container (min-width: 220px) {
     .widget-detail-compact { display: none; }
     .widget-detail-m { display: block; }
 }
-@container (min-width: 550px) {
+@container (min-width: 450px) {
     .widget-detail-l { display: block; }
 }
 
 /* Height-based adaptation via data-h classes */
 .dashboard-widget.widget-rows-1 .widget-body { overflow: hidden; }
+.dashboard-widget.widget-rows-1 .widget-detail-compact { display: block !important; }
+.dashboard-widget.widget-rows-1 .widget-detail-m { display: none !important; }
 .dashboard-widget.widget-rows-1 .widget-detail-l { display: none !important; }
 
 /* ── Drag visual states ── */
@@ -1154,6 +1181,44 @@ body.dash-edit-mode .widget-remove-btn {
     to { opacity: 0; transform: scale(0.95); }
 }
 
+/* ── Timetable SVG height constraint ── */
+.dashboard-widget[data-widget="timetable"] svg {
+    max-height: 100%;
+    width: auto;
+}
+
+/* ── Plan-view week grid breakpoint alignment ── */
+@media (min-width: 1024px) {
+    .plan-week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 1023px) {
+    .plan-week-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Quick-add mobile padding fix ── */
+@media (max-width: 1023px) {
+    .dashboard-widget[data-widget="quick-add"] .widget-body form {
+        padding: 0.25rem 0.75rem;
+    }
+    .dashboard-widget[data-widget="quick-add"] .widget-body input {
+        font-size: 13px;
+        padding: 0.25rem 0.5rem;
+    }
+    .dashboard-widget[data-widget="quick-add"] .widget-body button[type="submit"] {
+        padding: 0.25rem 0.75rem;
+        font-size: 13px;
+    }
+}
+
+/* ── Empty state centered ── */
+.dashboard-widget .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem !important;
+    min-height: 0;
+}
+
 /* ── Mobile bottom sheet animation ── */
 #widgetBottomSheet > div:last-child {
     transform: translateY(100%);
@@ -1177,11 +1242,16 @@ var DashGrid = (function() {
     /* ── Constants ── */
     var STORAGE_KEY_PC = 'dashboard_layout_pc';
     var STORAGE_KEY_MOBILE = 'dashboard_layout_mobile';
+    var STORAGE_KEY_TABLET = 'dashboard_layout_tablet';
     var PC_COLS = 12;
     var MOBILE_COLS = 2;
-    var PC_ROW_H = 80;
-    var MOBILE_ROW_H = 60;
+    var TABLET_COLS = 3;
+    var PC_ROW_H = 64;
+    var MOBILE_ROW_H = 48;
+    var TABLET_ROW_H = 56;
+    var LANDSCAPE_ROW_H = 40;
     var BREAKPOINT = 1024;
+    var TABLET_BP = 768;
 
     var WIDGET_LABELS = {
         'widget-row': 'Today / 오늘',
@@ -1209,6 +1279,8 @@ var DashGrid = (function() {
         'progress': '&#128200;'
     };
 
+    var LAYOUT_VERSION = 2;
+
     /* ── Default Layouts ── */
     var DEFAULT_LAYOUT_PC = {
         'widget-row':   { col: 1,  row: 1,  w: 12, h: 2, visible: true },
@@ -1217,23 +1289,36 @@ var DashGrid = (function() {
         'plan-view':    { col: 1,  row: 5,  w: 12, h: 4, visible: true },
         'timetable':    { col: 1,  row: 9,  w: 6,  h: 3, visible: true },
         'time-budgets': { col: 7,  row: 9,  w: 6,  h: 3, visible: true },
-        'notices':      { col: 1,  row: 12, w: 6,  h: 3, visible: true },
-        'worklogs':     { col: 7,  row: 12, w: 6,  h: 3, visible: true },
-        'events':       { col: 1,  row: 15, w: 6,  h: 3, visible: true },
-        'progress':     { col: 7,  row: 15, w: 6,  h: 3, visible: true }
+        'notices':      { col: 1,  row: 12, w: 6,  h: 2, visible: true },
+        'worklogs':     { col: 7,  row: 12, w: 6,  h: 2, visible: true },
+        'events':       { col: 1,  row: 14, w: 6,  h: 2, visible: true },
+        'progress':     { col: 7,  row: 14, w: 6,  h: 2, visible: true }
     };
 
     var DEFAULT_LAYOUT_MOBILE = {
-        'widget-row':   { col: 1, row: 1,  w: 2, h: 2, visible: true },
-        'quick-add':    { col: 1, row: 3,  w: 2, h: 1, visible: true },
-        'timetable':    { col: 1, row: 4,  w: 2, h: 3, visible: true },
-        'stat-cards':   { col: 1, row: 7,  w: 2, h: 2, visible: true },
-        'events':       { col: 1, row: 9,  w: 2, h: 2, visible: true },
-        'plan-view':    { col: 1, row: 11, w: 2, h: 3, visible: false },
-        'time-budgets': { col: 1, row: 14, w: 2, h: 2, visible: false },
-        'notices':      { col: 1, row: 16, w: 2, h: 2, visible: false },
-        'worklogs':     { col: 1, row: 18, w: 2, h: 2, visible: false },
-        'progress':     { col: 1, row: 20, w: 2, h: 2, visible: false }
+        'widget-row':   { col: 1, row: 1,  w: 2, h: 3, visible: true },
+        'quick-add':    { col: 1, row: 4,  w: 2, h: 1, visible: true },
+        'timetable':    { col: 1, row: 5,  w: 2, h: 4, visible: true },
+        'stat-cards':   { col: 1, row: 9,  w: 2, h: 2, visible: true },
+        'events':       { col: 1, row: 11, w: 2, h: 2, visible: true },
+        'plan-view':    { col: 1, row: 13, w: 2, h: 4, visible: false },
+        'time-budgets': { col: 1, row: 17, w: 2, h: 2, visible: false },
+        'notices':      { col: 1, row: 19, w: 2, h: 2, visible: false },
+        'worklogs':     { col: 1, row: 21, w: 2, h: 2, visible: false },
+        'progress':     { col: 1, row: 23, w: 2, h: 2, visible: false }
+    };
+
+    var DEFAULT_LAYOUT_TABLET = {
+        'widget-row':   { col: 1, row: 1,  w: 3, h: 2, visible: true },
+        'quick-add':    { col: 1, row: 3,  w: 3, h: 1, visible: true },
+        'stat-cards':   { col: 1, row: 4,  w: 2, h: 2, visible: true },
+        'timetable':    { col: 3, row: 4,  w: 1, h: 2, visible: true },
+        'plan-view':    { col: 1, row: 6,  w: 3, h: 4, visible: true },
+        'events':       { col: 1, row: 10, w: 2, h: 2, visible: true },
+        'time-budgets': { col: 3, row: 10, w: 1, h: 2, visible: true },
+        'notices':      { col: 1, row: 12, w: 2, h: 2, visible: true },
+        'worklogs':     { col: 3, row: 12, w: 1, h: 2, visible: true },
+        'progress':     { col: 1, row: 14, w: 3, h: 2, visible: true }
     };
 
     /* Mobile size presets mapping */
@@ -1256,19 +1341,32 @@ var DashGrid = (function() {
         return window.innerWidth < BREAKPOINT;
     }
 
+    function isTablet() {
+        return window.innerWidth >= TABLET_BP && window.innerWidth < BREAKPOINT;
+    }
+
+    function isLandscape() {
+        return window.innerWidth > window.innerHeight && window.innerWidth < BREAKPOINT;
+    }
+
     function getStorageKey() {
+        if (isTablet()) return STORAGE_KEY_TABLET;
         return isMobile() ? STORAGE_KEY_MOBILE : STORAGE_KEY_PC;
     }
 
     function getCols() {
+        if (isTablet() || isLandscape()) return TABLET_COLS;
         return isMobile() ? MOBILE_COLS : PC_COLS;
     }
 
     function getRowH() {
+        if (isLandscape()) return LANDSCAPE_ROW_H;
+        if (isTablet()) return TABLET_ROW_H;
         return isMobile() ? MOBILE_ROW_H : PC_ROW_H;
     }
 
     function getDefaultLayout() {
+        if (isTablet()) return JSON.parse(JSON.stringify(DEFAULT_LAYOUT_TABLET));
         return isMobile() ? JSON.parse(JSON.stringify(DEFAULT_LAYOUT_MOBILE)) : JSON.parse(JSON.stringify(DEFAULT_LAYOUT_PC));
     }
 
@@ -1277,7 +1375,8 @@ var DashGrid = (function() {
             var raw = localStorage.getItem(getStorageKey());
             if (raw) {
                 var parsed = JSON.parse(raw);
-                /* Merge with defaults for any missing widgets */
+                if (parsed._v !== LAYOUT_VERSION) return getDefaultLayout();
+                delete parsed._v;
                 var defaults = getDefaultLayout();
                 for (var k in defaults) {
                     if (!parsed[k]) parsed[k] = defaults[k];
@@ -1290,7 +1389,9 @@ var DashGrid = (function() {
 
     function saveLayout(layout) {
         try {
-            localStorage.setItem(getStorageKey(), JSON.stringify(layout));
+            var copy = JSON.parse(JSON.stringify(layout));
+            copy._v = LAYOUT_VERSION;
+            localStorage.setItem(getStorageKey(), JSON.stringify(copy));
         } catch(e) {}
     }
 
@@ -1343,10 +1444,21 @@ var DashGrid = (function() {
             }
         });
 
-        /* Show/hide add widget button */
+        /* Show/hide add widget button + position at bottom of grid */
         var addBtn = document.getElementById('addWidgetBtn');
         if (addBtn) {
-            addBtn.style.display = (editMode && isMobile()) ? '' : 'none';
+            var showAdd = editMode && isMobile();
+            addBtn.style.display = showAdd ? '' : 'none';
+            if (showAdd) {
+                var maxRow = 1;
+                for (var k in layout) {
+                    if (layout[k].visible) {
+                        var endRow = layout[k].row + layout[k].h;
+                        if (endRow > maxRow) maxRow = endRow;
+                    }
+                }
+                addBtn.style.gridRow = maxRow + ' / span 1';
+            }
         }
     }
 
@@ -1442,7 +1554,9 @@ var DashGrid = (function() {
 
     /* ── Reset Layout ── */
     function resetLayout() {
-        localStorage.removeItem(getStorageKey());
+        localStorage.removeItem(STORAGE_KEY_PC);
+        localStorage.removeItem(STORAGE_KEY_MOBILE);
+        localStorage.removeItem(STORAGE_KEY_TABLET);
         applyLayout();
         renderWidgetToggles();
     }
@@ -1580,9 +1694,8 @@ var DashGrid = (function() {
                 updatePreview(preview, { col: newCol, row: newRow, w: cfg.w, h: cfg.h });
             }
 
-            /* Bug-8: move widget itself in real time */
-            dragState.widget.style.gridColumn = newCol + ' / span ' + cfg.w;
-            dragState.widget.style.gridRow = newRow + ' / span ' + cfg.h;
+            /* Widget stays at original position with low opacity; preview shows target */
+            dragState.widget.style.opacity = '0.3';
         });
 
         document.addEventListener('mouseup', function(e) {
@@ -1602,6 +1715,7 @@ var DashGrid = (function() {
             saveLayout(layout);
 
             dragState.widget.classList.remove('dragging');
+            dragState.widget.style.opacity = '';
             var preview = document.getElementById('gridPreview');
             if (preview) preview.remove();
 
