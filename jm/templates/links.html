@@ -89,12 +89,10 @@
         </a>
     </div>
     {% else %}
-    <div class="col-span-full py-16 text-center" id="emptyLinks">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">🔗</span>
-        </div>
-        <p class="text-slate-400 font-medium">저장된 링크가 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">위에서 자주 쓰는 링크를 추가해보세요</p>
+    <div class="col-span-full empty-state" id="emptyLinks">
+        <div class="empty-state-icon"><span>🔗</span></div>
+        <p class="empty-state-title">저장된 링크가 없습니다</p>
+        <p class="empty-state-desc">위에서 자주 쓰는 링크를 추가해보세요</p>
     </div>
     {% endfor %}
 </div>

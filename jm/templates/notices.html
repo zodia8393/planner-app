@@ -87,12 +87,10 @@
         </div>
     </div>
     {% else %}
-    <div class="py-16 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">📢</span>
-        </div>
-        <p class="text-slate-400 font-medium">공지사항이 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">위에서 새 공지를 작성해보세요</p>
+    <div class="empty-state">
+        <div class="empty-state-icon"><span>📢</span></div>
+        <p class="empty-state-title">공지사항이 없습니다</p>
+        <p class="empty-state-desc">위에서 새 공지를 작성해보세요</p>
     </div>
     {% endfor %}
 </div>

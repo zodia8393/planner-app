@@ -17,26 +17,46 @@
 </details>
 <!-- Summary cards -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">전체 업무</p>
-        <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ total_all }}</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-info-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-info);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">전체 업무</p>
+        <p class="stat-number">{{ total_all }}</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">완료</p>
-        <p class="text-2xl font-bold text-emerald-600">{{ total_completed }}</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-success-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-success);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">완료</p>
+        <p class="stat-number" style="color: var(--color-success);">{{ total_completed }}</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">완료율</p>
-        <p class="text-2xl font-bold text-amber-600">{{ total_rate }}%</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-warning-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-warning);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">완료율</p>
+        <p class="stat-number" style="color: var(--color-accent);">{{ total_rate }}%</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">주간 완료율</p>
-        <p class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-600{% endif %}">{{ stats.week_rate }}%</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.week_rate >= 80 %}var(--color-success-soft){% elif stats.week_rate >= 50 %}var(--color-warning-soft){% else %}var(--color-danger-soft){% endif %};">
+                <svg class="w-4 h-4" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% elif stats.week_rate >= 50 %}var(--color-warning){% else %}var(--color-danger){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">주간 완료율</p>
+        <p class="stat-number" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% elif stats.week_rate >= 50 %}var(--color-accent){% else %}var(--color-text-muted){% endif %};">{{ stats.week_rate }}%</p>
     </div>
 </div>
 
 <div class="work-card rounded-xl p-4 mb-6">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">연간 완료 히트맵</h3>
+    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">연간 완료 히트맵</h3>
     <div class="overflow-x-auto">
         <div id="heatmap" style="display:flex; gap:3px; min-width:720px"></div>
     </div>
@@ -54,7 +74,7 @@
 <div class="grid lg:grid-cols-2 gap-4 lg:gap-6">
     <!-- Weekly chart -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">주간 업무 현황</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">주간 업무 현황</h3>
         <div class="h-64">
             <canvas id="weeklyChart"></canvas>
         </div>
@@ -62,7 +82,7 @@
 
     <!-- Monthly trend -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">월간 추이</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">월간 추이</h3>
         <div class="h-64">
             <canvas id="monthlyChart"></canvas>
         </div>
@@ -70,7 +90,7 @@
 
     <!-- Category distribution -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">카테고리별 분포</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 분포</h3>
         {% if cat_stats %}
         <div class="h-64">
             <canvas id="catChart"></canvas>
@@ -84,7 +104,7 @@
 
     <!-- Category breakdown table -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">카테고리별 상세</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 상세</h3>
         <div class="space-y-3">
             {% for cat in cat_stats %}
             {% if cat.total > 0 %}
@@ -96,7 +116,7 @@
                     </div>
                     <span class="text-xs text-slate-400">{{ cat.done }}/{{ cat.total }}</span>
                 </div>
-                <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div class="progress-premium">
                     <div class="h-full rounded-full progress-bar" style="width: {{ (cat.done / cat.total * 100)|int if cat.total > 0 else 0 }}%; background: {{ cat.color }}"></div>
                 </div>
             </div>

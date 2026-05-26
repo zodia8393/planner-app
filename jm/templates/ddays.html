@@ -17,23 +17,23 @@
 </details>
 <!-- Add D-day -->
 <div class="work-card rounded-xl p-5 mb-6">
-    <form action="/ddays" method="POST" class="flex flex-wrap gap-2 items-end">
+    <form action="/ddays" method="POST" class="flex flex-wrap gap-3 items-end">
         <div>
-            <label class="text-xs text-slate-500 mb-1 block">아이콘</label>
+            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">아이콘</label>
             <input type="text" name="icon" value="🎯" maxlength="4"
-                   class="w-14 px-2 py-2.5 text-center text-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                   class="w-14 px-2 py-2.5 text-center text-lg rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
         </div>
         <div class="flex-1 min-w-40">
-            <label class="text-xs text-slate-500 mb-1 block">제목</label>
+            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">제목</label>
             <input type="text" name="title" placeholder="D-day 제목" required
-                   class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                   class="w-full px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
         </div>
         <div>
-            <label class="text-xs text-slate-500 mb-1 block">날짜</label>
+            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">날짜</label>
             <input type="date" name="target_date" required
-                   class="px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                   class="px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
         </div>
-        <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">추가</button>
+        <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">추가</button>
     </form>
 </div>
 
@@ -55,23 +55,24 @@
                 <p class="text-xs text-slate-400">{{ dd.target_date|format_date('%Y.%m.%d') }}</p>
             </div>
         </div>
-        <div class="text-center py-3 rounded-lg {% if dd.dday > 0 %}bg-amber-50 dark:bg-amber-900/20{% elif dd.dday == 0 %}bg-emerald-50 dark:bg-emerald-900/20{% else %}bg-slate-50 dark:bg-slate-800{% endif %}">
+        <div class="text-center py-3.5 rounded-xl {% if dd.dday > 0 and dd.dday <= 3 %}{% elif dd.dday == 0 %}{% endif %}"
+             style="background: {% if dd.dday > 0 and dd.dday <= 3 %}var(--color-danger-soft){% elif dd.dday > 0 %}var(--color-accent-soft){% elif dd.dday == 0 %}var(--color-success-soft){% else %}var(--color-border-subtle){% endif %};">
             {% if dd.dday > 0 %}
-            <span class="text-2xl font-bold text-amber-600 dark:text-amber-400">D-{{ dd.dday }}</span>
+            <span class="text-2xl font-extrabold {% if dd.dday <= 3 %}text-red-600 dark:text-red-400{% else %}text-amber-600 dark:text-amber-400{% endif %}" style="letter-spacing: -0.02em;">D-{{ dd.dday }}</span>
             {% elif dd.dday == 0 %}
-            <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">D-Day!</span>
+            <span class="text-2xl font-extrabold badge-pulse" style="color: var(--color-success); letter-spacing: -0.02em;">D-Day!</span>
             {% else %}
-            <span class="text-2xl font-bold text-slate-500 dark:text-slate-400">D+{{ -dd.dday }}</span>
+            <span class="text-2xl font-extrabold" style="color: var(--color-text-faint); letter-spacing: -0.02em;">D+{{ -dd.dday }}</span>
             {% endif %}
         </div>
     </div>
     {% else %}
-    <div class="col-span-full py-16 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">🎯</span>
+    <div class="col-span-full empty-state">
+        <div class="empty-state-icon">
+            <span>🎯</span>
         </div>
-        <p class="text-slate-400 font-medium">D-day가 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">위에서 새 마감일을 추가해보세요</p>
+        <p class="empty-state-title">D-day가 없습니다</p>
+        <p class="empty-state-desc">위에서 새 마감일을 추가해보세요</p>
     </div>
     {% endfor %}
 </div>

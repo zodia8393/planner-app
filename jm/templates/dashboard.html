@@ -105,26 +105,31 @@ function dismissOnboarding(){
      hx-get="/api/widgets/today" hx-trigger="load" hx-swap="none"
      id="widgetRow">
     {# Today Widget #}
-    <div data-widget="today" class="work-card rounded-xl p-4 card-hover">
+    <div data-widget="today" class="work-card rounded-xl p-4 card-hover" style="background: var(--gradient-warm); border-color: rgba(217,119,6,0.15);">
         <div class="flex items-center justify-between mb-3">
             <div>
-                <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today.strftime('%m월 %d일') }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}</p>
+                <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-accent); letter-spacing: 0.08em;">
+                    {{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}
+                </p>
+                <p class="text-2xl font-extrabold mt-0.5" style="color: var(--color-text); letter-spacing: -0.02em;">{{ today.strftime('%m월 %d일') }}</p>
             </div>
-            <div class="rounded-xl flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
+            <div class="rounded-2xl flex items-center justify-center" style="width: 3rem; height: 3rem; background: var(--color-accent-soft); box-shadow: 0 2px 8px rgba(217,119,6,0.1);">
                 <span class="text-xl" aria-hidden="true">☀️</span>
             </div>
         </div>
-        <div class="flex items-center gap-3 text-xs">
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">
-                <span aria-hidden="true">✅</span> 할일 {{ stats.total_today }}개
+        <div class="flex items-center gap-2 text-xs flex-wrap">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold" style="background: rgba(217,119,6,0.12); color: var(--color-accent-text);">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                할일 {{ stats.total_today }}
             </span>
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
-                <span aria-hidden="true">📅</span> 일정 {{ stats.week_events }}개
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold" style="background: rgba(16,185,129,0.1); color: #059669;">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg>
+                일정 {{ stats.week_events }}
             </span>
             {% if stats.overdue > 0 %}
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium badge-pulse">
-                <span aria-hidden="true">🔴</span> 지연 {{ stats.overdue }}개
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold badge-pulse" style="background: rgba(220,38,38,0.08); color: #dc2626;">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                지연 {{ stats.overdue }}
             </span>
             {% endif %}
         </div>
@@ -132,56 +137,67 @@ function dismissOnboarding(){
 
     {# Weekly completion mini card #}
     <div data-widget="quick-stats" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">주간 완료율</span>
-            <span class="text-lg" aria-hidden="true">📈</span>
+        <div class="flex items-center justify-between mb-3">
+            <span class="stat-label">주간 완료율</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.week_rate >= 80 %}var(--color-success-soft){% else %}var(--color-warning-soft){% endif %};">
+                <svg class="w-4 h-4" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% else %}var(--color-warning){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+            </div>
         </div>
-        <div class="flex items-baseline gap-1 mb-2">
-            <span class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.week_rate }}%</span>
+        <div class="flex items-baseline gap-1.5 mb-2">
+            <span class="stat-number {% if stats.week_rate >= 80 %}text-emerald-600 dark:text-emerald-400{% elif stats.week_rate >= 50 %}text-amber-600 dark:text-amber-400{% endif %}">{{ stats.week_rate }}%</span>
         </div>
-        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
-            <div class="h-full rounded-full progress-bar {% if stats.week_rate >= 80 %}bg-emerald-500{% elif stats.week_rate >= 50 %}bg-amber-500{% else %}bg-amber-500{% endif %}"
-                 style="width: {{ stats.week_rate }}%" role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
+        <div class="progress-premium mb-1.5">
+            <div class="progress-premium-bar" style="width: {{ stats.week_rate }}%; {% if stats.week_rate >= 80 %}background: linear-gradient(90deg, #16a34a, #22c55e);{% elif stats.week_rate >= 50 %}background: var(--gradient-accent);{% else %}background: var(--gradient-accent);{% endif %}"
+                 role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
         </div>
-        <p class="text-xs text-slate-400">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
+        <p class="text-xs font-medium" style="color: var(--color-text-faint);">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
     </div>
 
     {# Overdue + upcoming mini card #}
     <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">지연 업무</span>
-            <span class="text-lg" aria-hidden="true">⚠️</span>
+        <div class="flex items-center justify-between mb-3">
+            <span class="stat-label">지연 업무</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.overdue > 0 %}var(--color-danger-soft){% else %}var(--color-success-soft){% endif %};">
+                <svg class="w-4 h-4" style="color: {% if stats.overdue > 0 %}var(--color-danger){% else %}var(--color-success){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+            </div>
         </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold {% if stats.overdue > 0 %}text-red-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.overdue }}</span>
-            <span class="text-xs text-slate-400">건</span>
+        <div class="flex items-baseline gap-1.5">
+            <span class="stat-number {% if stats.overdue > 0 %}text-red-600 dark:text-red-400{% endif %}">{{ stats.overdue }}</span>
+            <span class="text-sm font-medium" style="color: var(--color-text-faint);">건</span>
         </div>
         {% if stats.overdue > 0 %}
-        <a href="/todos?filter=overdue" class="text-xs text-red-500 hover:underline mt-1 inline-block">확인하기</a>
+        <a href="/todos?filter=overdue" class="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 mt-1.5 transition-colors">
+            확인하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+        </a>
         {% else %}
-        <p class="text-xs text-emerald-500 mt-1">지연 없음</p>
+        <p class="text-xs font-semibold mt-1.5" style="color: var(--color-success);">지연 없음</p>
         {% endif %}
     </div>
 
     {# Focus quick start card #}
     <div data-widget="focus-quick" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">집중 모드</span>
-            <span class="text-lg" aria-hidden="true">🎯</span>
+        <div class="flex items-center justify-between mb-3">
+            <span class="stat-label">집중 모드</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
         </div>
-        <div class="flex gap-2 mb-2">
+        <div class="flex gap-2 mb-3">
             <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="25분 집중">25분</button>
+                    class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="25분 집중"
+                    onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">25분</button>
             <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="45분 집중">45분</button>
+                    class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="45분 집중"
+                    onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">45분</button>
             <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="60분 집중">60분</button>
+                    class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="60분 집중"
+                    onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">60분</button>
         </div>
-        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <div class="flex items-center gap-2 text-xs" style="color: var(--color-text-faint);">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <span>오늘: <strong class="text-slate-700 dark:text-slate-200">{{ today_work_hours|round(1) }}h</strong></span>
+            <span>오늘: <strong style="color: var(--color-text);">{{ today_work_hours|round(1) }}h</strong></span>
         </div>
     </div>
 </div>
@@ -189,53 +205,64 @@ function dismissOnboarding(){
 <!-- Stat cards -->
 <div data-widget="stat-cards" class="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
     <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">오늘 업무</span>
-            <span class="text-lg">✅</span>
+        <div class="flex items-center justify-between mb-3">
+            <span class="stat-label">오늘 업무</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
         </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats.completed_today }}</span>
-            <span class="text-sm text-slate-400">/ {{ stats.total_today }}</span>
+        <div class="flex items-baseline gap-1.5">
+            <span class="stat-number">{{ stats.completed_today }}</span>
+            <span class="text-sm font-medium" style="color: var(--color-text-faint);">/ {{ stats.total_today }}</span>
         </div>
         {% if stats.total_today > 0 %}
-        <div class="mt-2 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-500 rounded-full progress-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
+        <div class="progress-premium mt-2.5">
+            <div class="progress-premium-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
         </div>
         {% else %}
-        <a href="/todos" class="text-xs text-amber-500 hover:underline mt-1 inline-block">할일 추가하기</a>
+        <a href="/todos" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+            할일 추가하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </a>
         {% endif %}
     </div>
 
     <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">이번 주 일정</span>
-            <span class="text-lg">📅</span>
+        <div class="flex items-center justify-between mb-3">
+            <span class="stat-label">이번 주 일정</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-info-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-info);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg>
+            </div>
         </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats.week_events }}</span>
-            <span class="text-xs text-slate-400">건</span>
+        <div class="flex items-baseline gap-1.5">
+            <span class="stat-number">{{ stats.week_events }}</span>
+            <span class="text-sm font-medium" style="color: var(--color-text-faint);">건</span>
         </div>
         {% if stats.week_events > 0 %}
-        <a href="/calendar" class="text-xs text-amber-500 hover:underline mt-1 inline-block">캘린더 보기</a>
+        <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+            캘린더 보기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+        </a>
         {% else %}
-        <a href="/calendar" class="text-xs text-amber-500 hover:underline mt-1 inline-block">일정 등록하기</a>
+        <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+            일정 등록하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </a>
         {% endif %}
     </div>
 </div>
 
 <!-- Quick add -->
 <div data-widget="quick-add" class="work-card rounded-xl overflow-hidden mb-4">
-    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-5 py-3" onsubmit="return handleQuickAdd(event)">
+    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-5 py-3.5" onsubmit="return handleQuickAdd(event)">
         <div class="flex gap-2">
             <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
             <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
-                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"
+                   class="flex-1 px-3.5 py-2.5 text-sm rounded-xl input-premium"
+                   style="background: var(--color-bg); color: var(--color-text);"
                    oninput="previewNaturalDate(this.value)">
-            <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
+            <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">
                 추가
             </button>
         </div>
-        <div id="datePreview" class="hidden mt-1.5 text-xs text-amber-500 dark:text-amber-400 pl-1"></div>
+        <div id="datePreview" class="hidden mt-1.5 text-xs font-medium pl-1" style="color: var(--color-accent);"></div>
     </form>
 </div>
 
@@ -418,9 +445,9 @@ function dismissOnboarding(){
 <div class="grid lg:grid-cols-2 gap-4 mb-4">
     <!-- Recent notices -->
     <div data-widget="notices" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">최근 공지사항</h3>
-            <a href="/notices" class="text-xs text-amber-500 hover:underline">더보기</a>
+        <div class="section-header">
+            <h3>최근 공지사항</h3>
+            <a href="/notices">더보기</a>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
             {% for notice in recent_notices %}
@@ -440,8 +467,8 @@ function dismissOnboarding(){
                 <p class="text-xs text-slate-400 mt-1">{{ notice.created_at|format_datetime }}</p>
             </div>
             {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">공지사항이 없습니다</p>
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="text-xs font-medium" style="color: var(--color-text-faint);">공지사항이 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -449,13 +476,13 @@ function dismissOnboarding(){
 
     <!-- Today's work logs -->
     <div data-widget="worklogs" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">오늘 업무일지</h3>
+        <div class="section-header">
+            <h3>오늘 업무일지</h3>
             <div class="flex items-center gap-2">
                 {% if today_work_hours > 0 %}
-                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">{{ today_work_hours }}h</span>
+                <span class="badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ today_work_hours }}h</span>
                 {% endif %}
-                <a href="/worklogs" class="text-xs text-amber-500 hover:underline">더보기</a>
+                <a href="/worklogs">더보기</a>
             </div>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -476,8 +503,8 @@ function dismissOnboarding(){
                 {% endif %}
             </div>
             {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">오늘 기록된 업무가 없습니다</p>
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="text-xs font-medium" style="color: var(--color-text-faint);">오늘 기록된 업무가 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -487,9 +514,9 @@ function dismissOnboarding(){
 <div class="grid lg:grid-cols-2 gap-4">
     <!-- This week's events -->
     <div data-widget="events" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">이번 주 일정</h3>
-            <a href="/calendar" class="text-xs text-amber-500 hover:underline">더보기</a>
+        <div class="section-header">
+            <h3>이번 주 일정</h3>
+            <a href="/calendar">더보기</a>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-700">
             {% for ev in week_events %}
@@ -501,8 +528,8 @@ function dismissOnboarding(){
                 <p class="text-xs text-slate-400 mt-0.5 ml-4">{{ ev.start_time|format_datetime }}</p>
             </div>
             {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">이번 주 일정이 없습니다</p>
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="text-xs font-medium" style="color: var(--color-text-faint);">이번 주 일정이 없습니다</p>
             </div>
             {% endfor %}
         </div>
@@ -510,8 +537,8 @@ function dismissOnboarding(){
 
     <!-- Project progress -->
     <div data-widget="progress" class="work-card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">프로젝트 진행률</h3>
+        <div class="section-header">
+            <h3>프로젝트 진행률</h3>
         </div>
         <div class="p-4 space-y-3">
             {% for proj in project_progress %}
@@ -529,8 +556,8 @@ function dismissOnboarding(){
                 </div>
             </div>
             {% else %}
-            <div class="py-4 text-center">
-                <p class="text-xs text-slate-400">카테고리별 진행률이 표시됩니다</p>
+            <div class="empty-state" style="padding: 1.5rem;">
+                <p class="text-xs font-medium" style="color: var(--color-text-faint);">카테고리별 진행률이 표시됩니다</p>
             </div>
             {% endfor %}
         </div>

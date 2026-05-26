@@ -19,20 +19,20 @@
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Category management -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-4">카테고리 관리</h4>
+        <h4 class="font-extrabold mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리 관리</h4>
 
         <form action="/settings/categories" method="POST" class="flex gap-2 items-end mb-4">
             <div class="flex-1">
-                <label class="text-xs text-slate-500 mb-1 block">이름</label>
+                <label class="text-xs font-medium mb-1 block" style="color: var(--color-text-faint);">이름</label>
                 <input type="text" name="name" placeholder="카테고리 이름" required
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                       class="input-premium w-full px-4 py-2.5 text-sm" style="background: var(--color-bg);">
             </div>
             <div>
-                <label class="text-xs text-slate-500 mb-1 block">색상</label>
+                <label class="text-xs font-medium mb-1 block" style="color: var(--color-text-faint);">색상</label>
                 <input type="color" name="color" value="#d97706"
-                       class="w-14 h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
+                       class="w-14 h-10 rounded-lg cursor-pointer" style="border: 1.5px solid var(--color-border);">
             </div>
-            <button type="submit" class="px-5 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">추가</button>
+            <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">추가</button>
         </form>
 
         <div class="space-y-2">
@@ -59,10 +59,10 @@
     <!-- Time Budget Settings -->
     <div class="work-card rounded-xl p-6">
         <div class="flex items-center justify-between mb-4">
-            <h4 class="font-bold text-slate-800 dark:text-white">주간 시간 예산</h4>
-            <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline">설정</a>
+            <h4 class="font-extrabold" style="color: var(--color-text); letter-spacing: -0.01em;">주간 시간 예산</h4>
+            <a href="/settings/time-budgets" class="text-xs font-medium" style="color: var(--color-accent);">설정</a>
         </div>
-        <p class="text-xs text-slate-400 mb-4">카테고리별 주간 시간 한도를 설정합니다.</p>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">카테고리별 주간 시간 한도를 설정합니다.</p>
         <form action="/settings/time-budgets" method="POST">
             <div class="space-y-2">
                 {% for cat in time_budget_cats|default([]) %}
@@ -79,15 +79,15 @@
                 {% endfor %}
             </div>
             {% if time_budget_cats|default([])|length > 0 %}
-            <button type="submit" class="mt-3 w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">저장</button>
+            <button type="submit" class="btn-accent mt-3 w-full py-2.5 rounded-xl text-sm">저장</button>
             {% endif %}
         </form>
     </div>
 
     <!-- Notification Settings -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">알림 설정</h4>
-        <p class="text-xs text-slate-400 mb-4">브라우저 알림으로 마감 할일과 예정 일정을 받아보세요.</p>
+        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">알림 설정</h4>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">브라우저 알림으로 마감 할일과 예정 일정을 받아보세요.</p>
 
         <div class="space-y-4">
             <div class="flex items-center justify-between px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-700/50">
@@ -245,8 +245,8 @@
 
     <!-- Theme toggle -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">테마</h4>
-        <p class="text-xs text-slate-400 mb-4">화면 테마를 전환합니다.</p>
+        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">테마</h4>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
         <button onclick="toggleDarkMode()"
                 class="w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm">
             <span class="dark:hidden">🌙 다크 모드로 전환</span>
@@ -256,8 +256,8 @@
 
     <!-- Accent Color Picker -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">액센트 색상</h4>
-        <p class="text-xs text-slate-400 mb-4">앱의 강조 색상을 선택합니다.</p>
+        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">액센트 색상</h4>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
         <div class="flex gap-3" id="accentPicker">
             <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상" title="인디고"></button>
             <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="에메랄드 색상" title="에메랄드"></button>
@@ -269,8 +269,8 @@
 
     <!-- Font Size Toggle -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">글꼴 크기</h4>
-        <p class="text-xs text-slate-400 mb-4">화면의 글꼴 크기를 조정합니다.</p>
+        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">글꼴 크기</h4>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
         <div class="flex gap-2" id="fontSizePicker">
             <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
                 <span class="text-xs">가</span> 작게
@@ -329,8 +329,8 @@
 
     <!-- Background Settings -->
     <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">배경 설정</h4>
-        <p class="text-xs text-slate-400 mb-4">배경 이미지 또는 그라데이션을 설정합니다.</p>
+        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
+        <p class="text-xs mb-4" style="color: var(--color-text-faint);">배경 이미지 또는 그라데이션을 설정합니다.</p>
 
         <form action="/settings/background" method="POST" enctype="multipart/form-data" id="bgForm">
             <!-- Background type selection -->
