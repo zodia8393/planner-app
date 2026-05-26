@@ -1137,7 +1137,6 @@ body.dash-edit-mode .widget-remove-btn {
 
 /* ── Grid preview placeholder ── */
 .grid-preview {
-    position: absolute;
     background: var(--color-accent-soft);
     border: 2px dashed var(--color-accent);
     border-radius: var(--radius-lg);
@@ -1250,6 +1249,7 @@ var DashGrid = (function() {
     var dragState = null;
     var resizeState = null;
     var longPressTimer = null;
+    var longPressStartTouch = null;  /* Bug-7: touch start position for jitter tolerance */
 
     /* ── Helpers ── */
     function isMobile() {
@@ -1432,6 +1432,7 @@ var DashGrid = (function() {
             setTimeout(function() {
                 var layout = loadLayout();
                 if (layout[name]) layout[name].visible = false;
+                compactLayout(layout);  /* Bug-5: pull remaining widgets up */
                 saveLayout(layout);
                 applyLayout();
                 renderWidgetToggles();
@@ -1455,30 +1456,33 @@ var DashGrid = (function() {
         if (!layout[name]) return;
         layout[name].w = sz.w;
         layout[name].h = sz.h;
-        saveLayout(layout);
-        resolveCollisions(layout);
+        resolveCollisions(layout);  /* Bug-6: resolve first, save once */
         saveLayout(layout);
         applyLayout();
     }
 
-    /* ── Collision Resolution (push-down) ── */
+    /* ── Collision Resolution (push-down, iterative) ── */
     function resolveCollisions(layout) {
-        var cols = getCols();
         var items = [];
         for (var k in layout) {
             if (layout[k].visible) {
                 items.push({ name: k, cfg: layout[k] });
             }
         }
-        /* Sort by row then col */
-        items.sort(function(a, b) {
-            return a.cfg.row - b.cfg.row || a.cfg.col - b.cfg.col;
-        });
 
-        for (var i = 0; i < items.length; i++) {
-            for (var j = i + 1; j < items.length; j++) {
-                if (overlaps(items[i].cfg, items[j].cfg)) {
-                    items[j].cfg.row = items[i].cfg.row + items[i].cfg.h;
+        var changed = true;
+        var maxIter = 50;  /* Bug-4: iterate until stable, prevent infinite loop */
+        while (changed && maxIter-- > 0) {
+            changed = false;
+            items.sort(function(a, b) {
+                return a.cfg.row - b.cfg.row || a.cfg.col - b.cfg.col;
+            });
+            for (var i = 0; i < items.length; i++) {
+                for (var j = i + 1; j < items.length; j++) {
+                    if (overlaps(items[i].cfg, items[j].cfg)) {
+                        items[j].cfg.row = items[i].cfg.row + items[i].cfg.h;
+                        changed = true;
+                    }
                 }
             }
         }
@@ -1487,6 +1491,29 @@ var DashGrid = (function() {
     function overlaps(a, b) {
         return !(a.col + a.w <= b.col || b.col + b.w <= a.col ||
                  a.row + a.h <= b.row || b.row + b.h <= a.row);
+    }
+
+    /* Bug-5: compact layout — pull visible widgets upward into empty space */
+    function compactLayout(layout) {
+        var items = [];
+        for (var k in layout) {
+            if (layout[k].visible) items.push({ name: k, cfg: layout[k] });
+        }
+        items.sort(function(a, b) { return a.cfg.row - b.cfg.row || a.cfg.col - b.cfg.col; });
+
+        for (var i = 0; i < items.length; i++) {
+            var cfg = items[i].cfg;
+            var minRow = 1;
+            for (var j = 0; j < i; j++) {
+                var other = items[j].cfg;
+                /* Only consider horizontally overlapping widgets */
+                if (!(cfg.col + cfg.w <= other.col || other.col + other.w <= cfg.col)) {
+                    var endRow = other.row + other.h;
+                    if (endRow > minRow) minRow = endRow;
+                }
+            }
+            cfg.row = minRow;
+        }
     }
 
     /* ── PC Drag Move ── */
@@ -1521,18 +1548,18 @@ var DashGrid = (function() {
                 origCol: cfg.col,
                 origRow: cfg.row,
                 colW: colW,
-                rowH: rowH
+                rowH: rowH,
+                layout: layout  /* Bug-2: cache layout snapshot */
             };
 
             widget.classList.add('dragging');
 
-            /* Create preview element */
+            /* Create preview element as grid item */
             var preview = document.createElement('div');
             preview.className = 'grid-preview';
             preview.id = 'gridPreview';
-            grid.style.position = 'relative';
             grid.appendChild(preview);
-            updatePreview(preview, cfg, colW, rowH);
+            updatePreview(preview, cfg);
         });
 
         document.addEventListener('mousemove', function(e) {
@@ -1544,15 +1571,18 @@ var DashGrid = (function() {
             var colDelta = Math.round(dx / dragState.colW);
             var rowDelta = Math.round(dy / dragState.rowH);
 
-            var layout = loadLayout();
-            var cfg = layout[dragState.name];
+            var cfg = dragState.layout[dragState.name];  /* Bug-2: use cached layout */
             var newCol = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
             var newRow = Math.max(1, dragState.origRow + rowDelta);
 
             var preview = document.getElementById('gridPreview');
             if (preview) {
-                updatePreview(preview, { col: newCol, row: newRow, w: cfg.w, h: cfg.h }, dragState.colW, dragState.rowH);
+                updatePreview(preview, { col: newCol, row: newRow, w: cfg.w, h: cfg.h });
             }
+
+            /* Bug-8: move widget itself in real time */
+            dragState.widget.style.gridColumn = newCol + ' / span ' + cfg.w;
+            dragState.widget.style.gridRow = newRow + ' / span ' + cfg.h;
         });
 
         document.addEventListener('mouseup', function(e) {
@@ -1563,7 +1593,7 @@ var DashGrid = (function() {
             var colDelta = Math.round(dx / dragState.colW);
             var rowDelta = Math.round(dy / dragState.rowH);
 
-            var layout = loadLayout();
+            var layout = dragState.layout;  /* Bug-2: use cached layout */
             var cfg = layout[dragState.name];
             cfg.col = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
             cfg.row = Math.max(1, dragState.origRow + rowDelta);
@@ -1580,11 +1610,9 @@ var DashGrid = (function() {
         });
     }
 
-    function updatePreview(el, cfg, colW, rowH) {
-        el.style.left = ((cfg.col - 1) * colW) + 'px';
-        el.style.top = ((cfg.row - 1) * rowH) + 'px';
-        el.style.width = (cfg.w * colW - 8) + 'px';
-        el.style.height = (cfg.h * rowH - 8) + 'px';
+    function updatePreview(el, cfg) {
+        el.style.gridColumn = cfg.col + ' / span ' + cfg.w;
+        el.style.gridRow = cfg.row + ' / span ' + cfg.h;
     }
 
     /* ── PC Resize ── */
@@ -1618,8 +1646,11 @@ var DashGrid = (function() {
                 startY: e.clientY,
                 origW: cfg.w,
                 origH: cfg.h,
+                origCol: cfg.col,
+                origRow: cfg.row,
                 colW: colW,
-                rowH: rowH
+                rowH: rowH,
+                layout: layout  /* Bug-3: cache layout snapshot */
             };
 
             widget.classList.add('dragging');
@@ -1627,9 +1658,8 @@ var DashGrid = (function() {
             var preview = document.createElement('div');
             preview.className = 'grid-preview';
             preview.id = 'resizePreview';
-            grid.style.position = 'relative';
             grid.appendChild(preview);
-            updatePreview(preview, cfg, colW, rowH);
+            updatePreview(preview, cfg);
         });
 
         document.addEventListener('mousemove', function(e) {
@@ -1641,15 +1671,18 @@ var DashGrid = (function() {
             var wDelta = Math.round(dx / resizeState.colW);
             var hDelta = Math.round(dy / resizeState.rowH);
 
-            var layout = loadLayout();
-            var cfg = layout[resizeState.name];
+            var cfg = resizeState.layout[resizeState.name];  /* Bug-3: use cached layout */
             var newW = Math.max(3, Math.min(getCols() - cfg.col + 1, resizeState.origW + wDelta));
             var newH = Math.max(1, Math.min(6, resizeState.origH + hDelta));
 
             var preview = document.getElementById('resizePreview');
             if (preview) {
-                updatePreview(preview, { col: cfg.col, row: cfg.row, w: newW, h: newH }, resizeState.colW, resizeState.rowH);
+                updatePreview(preview, { col: cfg.col, row: cfg.row, w: newW, h: newH });
             }
+
+            /* Real-time widget resize feedback */
+            resizeState.widget.style.gridColumn = cfg.col + ' / span ' + newW;
+            resizeState.widget.style.gridRow = cfg.row + ' / span ' + newH;
         });
 
         document.addEventListener('mouseup', function(e) {
@@ -1660,7 +1693,7 @@ var DashGrid = (function() {
             var wDelta = Math.round(dx / resizeState.colW);
             var hDelta = Math.round(dy / resizeState.rowH);
 
-            var layout = loadLayout();
+            var layout = resizeState.layout;  /* Bug-3: use cached layout */
             var cfg = layout[resizeState.name];
             cfg.w = Math.max(3, Math.min(getCols() - cfg.col + 1, resizeState.origW + wDelta));
             cfg.h = Math.max(1, Math.min(6, resizeState.origH + hDelta));
@@ -1692,6 +1725,9 @@ var DashGrid = (function() {
             if (!widget) return;
             var name = widget.dataset.widget;
 
+            /* Bug-7: save start touch for jitter tolerance */
+            longPressStartTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
             longPressTimer = setTimeout(function() {
                 if (navigator.vibrate) navigator.vibrate(50);
                 widget.classList.add('lifting');
@@ -1714,15 +1750,24 @@ var DashGrid = (function() {
                     origRow: cfg.row,
                     colW: colW,
                     rowH: rowH,
-                    isTouch: true
+                    isTouch: true,
+                    layout: layout  /* Cache layout for touch drag */
                 };
             }, 500);
         }, { passive: true });
 
         grid.addEventListener('touchmove', function(e) {
             if (longPressTimer && !dragState) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
+                /* Bug-7: only cancel long-press if finger moved > 10px */
+                var touch = e.touches[0];
+                if (longPressStartTouch) {
+                    var dist = Math.abs(touch.clientX - longPressStartTouch.x) + Math.abs(touch.clientY - longPressStartTouch.y);
+                    if (dist > 10) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                        longPressStartTouch = null;
+                    }
+                }
                 return;
             }
             if (!dragState || !dragState.isTouch) return;
@@ -1734,8 +1779,7 @@ var DashGrid = (function() {
             var colDelta = Math.round(dx / dragState.colW);
             var rowDelta = Math.round(dy / dragState.rowH);
 
-            var layout = loadLayout();
-            var cfg = layout[dragState.name];
+            var cfg = dragState.layout[dragState.name];  /* Use cached layout */
             var newCol = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
             var newRow = Math.max(1, dragState.origRow + rowDelta);
 
@@ -1749,10 +1793,11 @@ var DashGrid = (function() {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
             }
+            longPressStartTouch = null;
             if (!dragState || !dragState.isTouch) return;
 
-            /* Read final position from style */
-            var layout = loadLayout();
+            /* Compute final position from cached layout */
+            var layout = dragState.layout;  /* Use cached layout */
             var cfg = layout[dragState.name];
             var style = dragState.widget.style;
             var colMatch = style.gridColumn.match(/(\d+)/);
@@ -1773,6 +1818,7 @@ var DashGrid = (function() {
                 clearTimeout(longPressTimer);
                 longPressTimer = null;
             }
+            longPressStartTouch = null;
             if (dragState && dragState.isTouch) {
                 dragState.widget.classList.remove('lifting');
                 dragState = null;
