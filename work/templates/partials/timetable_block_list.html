@@ -1,0 +1,38 @@
+<!-- Timetable block list partial (HTMX swappable) -->
+<div id="blockListContent">
+{% if user_blocks %}
+<div class="space-y-1.5">
+    {% for b in user_blocks %}
+    <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg group"
+         style="background: var(--color-border-subtle);"
+         id="block-row-{{ b.id }}">
+        <div class="w-1.5 h-8 rounded-full flex-shrink-0" style="background: {{ b.color }};"></div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate" style="color: var(--color-text);">
+                {% if b.icon %}{{ b.icon }} {% endif %}{{ b.title }}
+            </p>
+            <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
+        </div>
+        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+            <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
+                    class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="편집">
+                <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                </svg>
+            </button>
+            <button hx-delete="/timetable/blocks/{{ b.id }}"
+                    hx-target="#block-row-{{ b.id }}"
+                    hx-swap="outerHTML"
+                    class="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30" title="삭제">
+                <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-center text-sm py-3" style="color: var(--color-text-faint);">시간 블록이 없습니다</p>
+{% endif %}
+</div>

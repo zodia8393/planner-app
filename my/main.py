@@ -692,7 +692,21 @@ def init_db():
                 offsets TEXT NOT NULL DEFAULT '[]',
                 enabled INTEGER DEFAULT 1,
                 UNIQUE(profile_id, target_type)
-            )
+            );
+
+            CREATE TABLE IF NOT EXISTS timetable_blocks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                profile_id INTEGER NOT NULL,
+                day_type TEXT NOT NULL DEFAULT 'default',
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                title TEXT NOT NULL,
+                color TEXT DEFAULT '#6366f1',
+                icon TEXT DEFAULT '',
+                sort_order INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now', 'localtime'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_timetable_blocks_profile ON timetable_blocks(profile_id, day_type)
         """)
 
     # One-time cleanup: remove duplicate focus mode worklog entries
@@ -1358,6 +1372,23 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 "done_count": sum(1 for t in plan_todos if t["completed"]),
             }
 
+        # Timetable widget data
+        tt_blocks = _resolve_timetable_blocks(conn, pid, today)
+        now = datetime.now()
+        now_minutes = now.hour * 60 + now.minute
+        tt_widget_blocks = []; tt_current = None; tt_next = None
+        for ub in tt_blocks:
+            try:
+                sp = ub["start_time"].split(":"); ep = ub["end_time"].split(":")
+                s_min = int(sp[0])*60+int(sp[1]); e_min = int(ep[0])*60+int(ep[1])
+                start_h = int(sp[0])+int(sp[1])/60.0; end_h = int(ep[0])+int(ep[1])/60.0
+            except: continue
+            if end_h <= start_h: end_h = 24.0; e_min = 1440
+            bdata = {"title":f"{ub.get('icon','')} {ub['title']}".strip(),"start_time":ub["start_time"],"end_time":ub["end_time"],"start_hour":start_h,"end_hour":end_h,"color":ub.get("color","#6366f1")}
+            tt_widget_blocks.append(bdata)
+            if s_min <= now_minutes < e_min: tt_current = bdata
+            elif s_min > now_minutes and tt_next is None: tt_next = bdata
+
     return render(request, "dashboard.html", {
         "page": "dashboard",
         "stats": stats,
@@ -1374,6 +1405,9 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "priority_map": PRIORITY_MAP,
         "plan_view": plan_view,
         "plan_offset": plan_offset,
+        "tt_widget_blocks": tt_widget_blocks,
+        "tt_current": tt_current,
+        "tt_next": tt_next,
         **plan_data,
     })
 
@@ -2689,163 +2723,171 @@ async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# ══════════════════════════════════════════════════════════════════════
-# /timetable — 24h circular timetable
+# /timetable — 24h circular timetable with editable blocks
 # ══════════════════════════════════════════════════════════════════════
 
+TIMETABLE_PRESETS = {
+    "worker": {"label": "직장인", "blocks": [("07:00","09:00","출근 준비","#f59e0b",""),("09:00","12:00","업무","#6366f1",""),("12:00","13:00","점심","#10b981",""),("13:00","18:00","업무","#6366f1",""),("18:00","19:00","퇴근","#f59e0b",""),("19:00","23:00","자유시간","#8b5cf6","")]},
+    "student": {"label": "학생", "blocks": [("07:00","08:00","등교 준비","#f59e0b",""),("08:00","12:00","수업","#6366f1",""),("12:00","13:00","점심","#10b981",""),("13:00","16:00","수업","#6366f1",""),("16:00","18:00","자습","#8b5cf6",""),("18:00","19:00","저녁","#10b981",""),("19:00","22:00","공부","#6366f1","")]},
+    "free": {"label": "자유", "blocks": []},
+}
+DAY_TYPE_LABELS = {"default":"기본","weekday":"평일","weekend":"주말","mon":"월","tue":"화","wed":"수","thu":"목","fri":"금","sat":"토","sun":"일"}
+DAY_TYPE_ORDER = ["default","weekday","weekend","mon","tue","wed","thu","fri","sat","sun"]
+WEEKDAY_TO_DAY_TYPE = {0:"mon",1:"tue",2:"wed",3:"thu",4:"fri",5:"sat",6:"sun"}
+
+def _resolve_timetable_blocks(conn, pid, target):
+    target_str = target.isoformat()
+    weekday_num = target.weekday()
+    day_type_name = WEEKDAY_TO_DAY_TYPE[weekday_num]
+    is_weekend = weekday_num >= 5
+    candidates = conn.execute("SELECT * FROM timetable_blocks WHERE profile_id=? AND day_type IN (?,?,?,'default') ORDER BY sort_order, id",
+        (pid, target_str, day_type_name, "weekend" if is_weekend else "weekday")).fetchall()
+    if not candidates: return []
+    by_type = {}
+    for row in candidates: by_type.setdefault(row["day_type"], []).append(dict(row))
+    if target_str in by_type: return by_type[target_str]
+    if day_type_name in by_type: return by_type[day_type_name]
+    wk = "weekend" if is_weekend else "weekday"
+    if wk in by_type: return by_type[wk]
+    return by_type.get("default", [])
+
+def _has_any_blocks(conn, pid):
+    return conn.execute("SELECT COUNT(*) FROM timetable_blocks WHERE profile_id=?", (pid,)).fetchone()[0] > 0
+
 @app.get("/timetable", response_class=HTMLResponse)
-async def timetable_page(request: Request, dt: str = ""):
+async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
     pid = get_profile_id(request)
     today = date_mod.today()
     if dt:
-        try:
-            target = date_mod.fromisoformat(dt)
-        except ValueError:
-            target = today
-    else:
-        target = today
+        try: target = date_mod.fromisoformat(dt)
+        except ValueError: target = today
+    else: target = today
     target_str = target.isoformat()
-    weekday_names = ['월', '화', '수', '목', '금', '토', '일']
+    weekday_names = ['월','화','수','목','금','토','일']
     weekday_label = weekday_names[target.weekday()]
 
     with get_db() as conn:
-        events = conn.execute("""
-            SELECT e.*, c.name as category_name
-            FROM events e LEFT JOIN categories c ON e.category_id = c.id
-            WHERE e.profile_id = ? AND date(e.start_time) = ?
-            ORDER BY e.start_time ASC
-        """, (pid, target_str)).fetchall()
-
-        todos = conn.execute("""
-            SELECT t.*, c.name as category_name, c.color as category_color
-            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
-            WHERE t.profile_id = ? AND t.due_date = ?
-            ORDER BY t.priority ASC, t.sort_order ASC
-        """, (pid, target_str)).fetchall()
-
-        habits = conn.execute(
-            "SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)
-        ).fetchall()
-
-        habit_logs_today = conn.execute(
-            "SELECT habit_id, log_time FROM habit_logs WHERE profile_id=? AND log_date=?",
-            (pid, target_str)
-        ).fetchall()
+        events = conn.execute("SELECT e.*, c.name as category_name FROM events e LEFT JOIN categories c ON e.category_id=c.id WHERE e.profile_id=? AND date(e.start_time)=? ORDER BY e.start_time ASC", (pid, target_str)).fetchall()
+        todos = conn.execute("SELECT t.*, c.name as category_name, c.color as category_color FROM todos t LEFT JOIN categories c ON t.category_id=c.id WHERE t.profile_id=? AND t.due_date=? ORDER BY t.priority ASC, t.sort_order ASC", (pid, target_str)).fetchall()
+        habits = conn.execute("SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)).fetchall()
+        habit_logs_today = conn.execute("SELECT habit_id, log_time FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, target_str)).fetchall()
         done_habit_ids = {r["habit_id"] for r in habit_logs_today}
-
         categories = conn.execute("SELECT * FROM categories ORDER BY sort_order").fetchall()
+        user_blocks = _resolve_timetable_blocks(conn, pid, target)
+        has_blocks = _has_any_blocks(conn, pid)
+        edit_day_type = day_type if day_type in DAY_TYPE_ORDER else ""
+        if edit_day_type:
+            edit_blocks = [dict(b) for b in conn.execute("SELECT * FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order, id", (pid, edit_day_type)).fetchall()]
+        else: edit_blocks = user_blocks
+        existing_day_types = {r["day_type"] for r in conn.execute("SELECT DISTINCT day_type FROM timetable_blocks WHERE profile_id=?", (pid,)).fetchall()}
 
-    time_blocks = []
+    inner_blocks = []
     for ev in events:
-        ev = dict(ev)
-        st = ev.get("start_time", "")
-        et = ev.get("end_time", "")
-        if not st or "T" not in st:
-            continue
-        try:
-            sh, sm = int(st[11:13]), int(st[14:16])
-            start_h = sh + sm / 60.0
-        except (ValueError, IndexError):
-            continue
+        ev = dict(ev); st = ev.get("start_time",""); et = ev.get("end_time","")
+        if not st or "T" not in st: continue
+        try: sh,sm = int(st[11:13]),int(st[14:16]); start_h = sh+sm/60.0
+        except (ValueError,IndexError): continue
         if et and "T" in et:
-            try:
-                eh, em = int(et[11:13]), int(et[14:16])
-                end_h = eh + em / 60.0
-            except (ValueError, IndexError):
-                end_h = min(start_h + 1, 24)
-        else:
-            end_h = min(start_h + 1, 24)
-        if end_h <= start_h:
-            end_h = min(start_h + 1, 24) if end_h == 0 else min(start_h + 0.5, 24)
-        time_blocks.append({
-            "type": "event",
-            "title": ev["title"],
-            "start_hour": start_h,
-            "end_hour": end_h,
-            "color": ev.get("color") or "#6366f1",
-            "start_time": st,
-            "end_time": et or "",
-            "id": ev["id"],
-        })
-
+            try: eh,em = int(et[11:13]),int(et[14:16]); end_h = eh+em/60.0
+            except (ValueError,IndexError): end_h = min(start_h+1,24)
+        else: end_h = min(start_h+1,24)
+        if end_h <= start_h: end_h = min(start_h+1,24) if end_h==0 else min(start_h+0.5,24)
+        inner_blocks.append({"type":"event","title":ev["title"],"start_hour":start_h,"end_hour":end_h,"color":ev.get("color") or "#6366f1","start_time":st,"end_time":et or "","id":ev["id"]})
     for h in habits:
         hd = dict(h)
-        try:
-            fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
-        except (json.JSONDecodeError, TypeError):
-            fd = None
-        if not fd:
-            continue
+        try: fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
+        except: fd = None
+        if not fd: continue
         if fd.get("type") == "specific_times":
-            times = fd.get("times", [])
-            for t in times:
-                try:
-                    parts = t.split(":")
-                    th = int(parts[0]) + int(parts[1]) / 60.0
-                except (ValueError, IndexError):
-                    continue
-                time_blocks.append({
-                    "type": "habit",
-                    "title": f"{hd.get('icon', '')} {hd['name']}",
-                    "start_hour": th,
-                    "end_hour": min(th + 0.5, 24),
-                    "color": hd.get("color") or "#10b981",
-                    "id": hd["id"],
-                    "done": hd["id"] in done_habit_ids,
-                })
+            for t in fd.get("times",[]):
+                try: parts=t.split(":"); th=int(parts[0])+int(parts[1])/60.0
+                except: continue
+                inner_blocks.append({"type":"habit","title":f"{hd.get('icon','')} {hd['name']}","start_hour":th,"end_hour":min(th+0.5,24),"color":hd.get("color") or "#10b981","id":hd["id"],"done":hd["id"] in done_habit_ids})
         elif fd.get("type") == "every_n_hours":
-            interval = fd.get("interval", 2)
-            if not isinstance(interval, (int, float)) or interval <= 0:
-                interval = 2
-            raw_start = fd.get("start", fd.get("start_hour", "08:00"))
-            raw_end = fd.get("end", fd.get("end_hour", "22:00"))
-            start = int(raw_start.split(":")[0]) + int(raw_start.split(":")[1]) / 60.0 if isinstance(raw_start, str) and ":" in raw_start else (raw_start if isinstance(raw_start, (int, float)) else 8)
-            end = int(raw_end.split(":")[0]) + int(raw_end.split(":")[1]) / 60.0 if isinstance(raw_end, str) and ":" in raw_end else (raw_end if isinstance(raw_end, (int, float)) else 22)
+            interval = fd.get("interval",2); interval = interval if isinstance(interval,(int,float)) and interval>0 else 2
+            rs = fd.get("start",fd.get("start_hour","08:00")); re = fd.get("end",fd.get("end_hour","22:00"))
+            start = int(rs.split(":")[0])+int(rs.split(":")[1])/60.0 if isinstance(rs,str) and ":" in rs else (rs if isinstance(rs,(int,float)) else 8)
+            end = int(re.split(":")[0])+int(re.split(":")[1])/60.0 if isinstance(re,str) and ":" in re else (re if isinstance(re,(int,float)) else 22)
             hour = start
             while hour < end:
-                time_blocks.append({
-                    "type": "habit",
-                    "title": f"{hd.get('icon', '')} {hd['name']}",
-                    "start_hour": hour,
-                    "end_hour": min(hour + 0.5, 24),
-                    "color": hd.get("color") or "#10b981",
-                    "id": hd["id"],
-                    "done": hd["id"] in done_habit_ids,
-                })
+                inner_blocks.append({"type":"habit","title":f"{hd.get('icon','')} {hd['name']}","start_hour":hour,"end_hour":min(hour+0.5,24),"color":hd.get("color") or "#10b981","id":hd["id"],"done":hd["id"] in done_habit_ids})
                 hour += interval
+    inner_blocks.sort(key=lambda b: b["start_hour"])
 
-    time_blocks.sort(key=lambda b: b["start_hour"])
+    outer_blocks = []
+    for ub in user_blocks:
+        try:
+            sp=ub["start_time"].split(":"); ep=ub["end_time"].split(":")
+            start_h=int(sp[0])+int(sp[1])/60.0; end_h=int(ep[0])+int(ep[1])/60.0
+        except: continue
+        if end_h <= start_h: end_h = 24.0
+        outer_blocks.append({"type":"user_block","title":f"{ub.get('icon','')} {ub['title']}".strip(),"start_hour":start_h,"end_hour":end_h,"color":ub.get("color") or "#6366f1","id":ub["id"],"raw_start":ub["start_time"],"raw_end":ub["end_time"]})
+    outer_blocks.sort(key=lambda b: b["start_hour"])
+    time_blocks = outer_blocks + inner_blocks
 
     schedule_list = []
     for ev in events:
-        ev = dict(ev)
-        st = ev.get("start_time", "")
-        et = ev.get("end_time", "")
-        schedule_list.append({
-            "type": "event",
-            "title": ev["title"],
-            "time_label": (st[11:16] if st and "T" in st else "종일") + (" ~ " + et[11:16] if et and "T" in et else ""),
-            "color": ev.get("color") or "#6366f1",
-            "id": ev["id"],
-        })
+        ev = dict(ev); st = ev.get("start_time",""); et = ev.get("end_time","")
+        schedule_list.append({"type":"event","title":ev["title"],"time_label":(st[11:16] if st and "T" in st else "종일")+(" ~ "+et[11:16] if et and "T" in et else ""),"color":ev.get("color") or "#6366f1","id":ev["id"]})
 
     prev_date = (target - timedelta(days=1)).isoformat()
     next_date = (target + timedelta(days=1)).isoformat()
+    color_presets = ["#ef4444","#f59e0b","#10b981","#6366f1","#8b5cf6","#ec4899","#0ea5e9","#64748b"]
+    icon_presets = ["","📚","💼","🏃","🍽️","😴","🎮","🎵","✏️","🧘"]
 
     return render(request, "timetable.html", {
-        "page": "timetable",
-        "target_date": target_str,
-        "target_weekday": weekday_label,
-        "target_day": target.day,
-        "target_month": target.month,
-        "is_today": target == today,
-        "time_blocks": time_blocks,
-        "schedule_list": schedule_list,
-        "todos": [dict(t) for t in todos],
-        "prev_date": prev_date,
-        "next_date": next_date,
-        "categories": [dict(c) for c in categories],
+        "page":"timetable","target_date":target_str,"target_weekday":weekday_label,"target_day":target.day,"target_month":target.month,
+        "is_today":target==today,"time_blocks":time_blocks,"inner_blocks":inner_blocks,"outer_blocks":outer_blocks,
+        "schedule_list":schedule_list,"todos":[dict(t) for t in todos],"prev_date":prev_date,"next_date":next_date,
+        "categories":[dict(c) for c in categories],"user_blocks":[dict(b) if not isinstance(b,dict) else b for b in edit_blocks],
+        "has_blocks":has_blocks,"presets":TIMETABLE_PRESETS,"color_presets":color_presets,"icon_presets":icon_presets,
+        "day_type_labels":DAY_TYPE_LABELS,"day_type_order":DAY_TYPE_ORDER,"edit_day_type":edit_day_type or "default","existing_day_types":existing_day_types,
     })
+
+@app.post("/timetable/blocks", response_class=HTMLResponse)
+async def create_timetable_block(request: Request, start_time: str = Form(""), end_time: str = Form(""), title: str = Form(""), color: str = Form("#6366f1"), icon: str = Form(""), day_type: str = Form("default")):
+    pid = get_profile_id(request)
+    title = clamp_text(fix_mojibake(title), 50).strip()
+    if not title or not start_time or not end_time: return redirect(request, "/timetable")
+    if day_type not in DAY_TYPE_ORDER: day_type = "default"
+    with get_db() as conn:
+        mx = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM timetable_blocks WHERE profile_id=? AND day_type=?", (pid, day_type)).fetchone()[0]
+        conn.execute("INSERT INTO timetable_blocks (profile_id,day_type,start_time,end_time,title,color,icon,sort_order) VALUES (?,?,?,?,?,?,?,?)", (pid,day_type,start_time,end_time,title,color,icon or "",mx+1))
+    return redirect(request, f"/timetable?day_type={day_type}")
+
+@app.put("/timetable/blocks/{block_id}", response_class=HTMLResponse)
+async def update_timetable_block(request: Request, block_id: int, start_time: str = Form(""), end_time: str = Form(""), title: str = Form(""), color: str = Form("#6366f1"), icon: str = Form("")):
+    pid = get_profile_id(request)
+    title = clamp_text(fix_mojibake(title), 50).strip()
+    if not title or not start_time or not end_time: return redirect(request, "/timetable")
+    with get_db() as conn:
+        conn.execute("UPDATE timetable_blocks SET start_time=?,end_time=?,title=?,color=?,icon=? WHERE id=? AND profile_id=?", (start_time,end_time,title,color,icon or "",block_id,pid))
+    return redirect(request, "/timetable")
+
+@app.delete("/timetable/blocks/{block_id}", response_class=HTMLResponse)
+async def delete_timetable_block(request: Request, block_id: int):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        conn.execute("DELETE FROM timetable_blocks WHERE id=? AND profile_id=?", (block_id, pid))
+    return HTMLResponse("") if request.headers.get("HX-Request") else redirect(request, "/timetable")
+
+@app.post("/timetable/templates/copy", response_class=HTMLResponse)
+async def copy_timetable_template(request: Request, from_type: str = Form("default"), to_type: str = Form("")):
+    pid = get_profile_id(request)
+    if not to_type or to_type not in DAY_TYPE_ORDER or from_type not in DAY_TYPE_ORDER: return redirect(request, "/timetable")
+    with get_db() as conn:
+        for row in conn.execute("SELECT start_time,end_time,title,color,icon,sort_order FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order", (pid,from_type)).fetchall():
+            conn.execute("INSERT INTO timetable_blocks (profile_id,day_type,start_time,end_time,title,color,icon,sort_order) VALUES (?,?,?,?,?,?,?,?)", (pid,to_type,row["start_time"],row["end_time"],row["title"],row["color"],row["icon"],row["sort_order"]))
+    return redirect(request, f"/timetable?day_type={to_type}")
+
+@app.post("/timetable/presets/apply", response_class=HTMLResponse)
+async def apply_timetable_preset(request: Request, preset: str = Form("")):
+    pid = get_profile_id(request)
+    if preset not in TIMETABLE_PRESETS: return redirect(request, "/timetable")
+    with get_db() as conn:
+        for i,(st,et,title,color,icon) in enumerate(TIMETABLE_PRESETS[preset]["blocks"]):
+            conn.execute("INSERT INTO timetable_blocks (profile_id,day_type,start_time,end_time,title,color,icon,sort_order) VALUES (?,?,?,?,?,?,?,?)", (pid,"default",st,et,title,color,icon,i))
+    return redirect(request, "/timetable")
 
 
 # Item 20: /today route — unified today view

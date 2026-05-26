@@ -391,6 +391,78 @@ function dismissOnboarding(){
 {% endif %}
 </div>{# end plan-view widget #}
 
+<!-- Timetable Widget -->
+{% if tt_widget_blocks %}
+<div data-widget="timetable" class="work-card rounded-xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold" style="color: var(--color-text);">
+            <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            오늘의 시간표
+        </h3>
+        <a href="/timetable" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center gap-4">
+        <div class="flex-shrink-0">
+            <a href="/timetable">
+            <svg viewBox="0 0 200 200" class="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]" style="filter: drop-shadow(0 1px 4px rgba(0,0,0,0.06));">
+                <circle cx="100" cy="100" r="92" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0);"/>
+                <text x="100" y="14" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">0</text>
+                <text x="192" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">6</text>
+                <text x="100" y="198" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">12</text>
+                <text x="10" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">18</text>
+                {% for b in tt_widget_blocks %}
+                {% set sa = (b.start_hour / 24) * 360 - 90 %}
+                {% set ea = (b.end_hour / 24) * 360 - 90 %}
+                {% set ro = 85 %}{% set ri = 60 %}
+                {% set la = 1 if (b.end_hour - b.start_hour) >= 12 else 0 %}
+                <path d="M {{ 100 + ro * (sa | cos_deg) }} {{ 100 + ro * (sa | sin_deg) }} A {{ ro }} {{ ro }} 0 {{ la }} 1 {{ 100 + ro * (ea | cos_deg) }} {{ 100 + ro * (ea | sin_deg) }} L {{ 100 + ri * (ea | cos_deg) }} {{ 100 + ri * (ea | sin_deg) }} A {{ ri }} {{ ri }} 0 {{ la }} 0 {{ 100 + ri * (sa | cos_deg) }} {{ 100 + ri * (sa | sin_deg) }} Z"
+                      fill="{{ b.color }}25" stroke="{{ b.color }}" stroke-width="1"/>
+                {% endfor %}
+                <line id="miniNeedle" x1="100" y1="100" x2="100" y2="15" stroke-width="1.5" stroke-linecap="round" style="stroke: var(--color-accent, #d97706);" transform="rotate(0, 100, 100)"/>
+                <circle cx="100" cy="100" r="3" style="fill: var(--color-accent, #d97706);"/>
+                <text id="miniTime" x="100" y="96" text-anchor="middle" style="font-size: 14px; font-weight: 800; fill: var(--color-text);"></text>
+                <text x="100" y="110" text-anchor="middle" style="font-size: 9px; fill: var(--color-text-muted);">오늘</text>
+            </svg>
+            </a>
+        </div>
+        <div class="flex-1 min-w-0 space-y-2">
+            {% if tt_current %}
+            <div class="p-2.5 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
+                <p class="text-xs font-semibold mb-0.5" style="color: {{ tt_current.color }};">지금</p>
+                <p class="text-sm font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
+            </div>
+            {% else %}
+            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
+                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">지금</p>
+                <p class="text-sm" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+            </div>
+            {% endif %}
+            {% if tt_next %}
+            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
+                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">다음</p>
+                <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
+                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+(function(){
+    var now = new Date();
+    var h = now.getHours() + now.getMinutes()/60;
+    var angle = (h/24)*360;
+    var needle = document.getElementById('miniNeedle');
+    if(needle) needle.setAttribute('transform','rotate('+angle+',100,100)');
+    var mt = document.getElementById('miniTime');
+    if(mt) mt.textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+})();
+</script>
+{% endif %}
+
 <!-- Time Budget Widget -->
 {% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
 <div data-widget="time-budgets" class="work-card rounded-xl p-4 mb-4">
@@ -583,10 +655,10 @@ function dismissOnboarding(){
 (function() {
 /* ── Feature 1: Widget Customization ── */
 var WIDGET_KEY = 'dashboard_widgets';
-var DEFAULT_WIDGETS = ['widget-row','stat-cards','quick-add','plan-view','time-budgets','notices','worklogs','events','memos','progress'];
+var DEFAULT_WIDGETS = ['widget-row','stat-cards','quick-add','plan-view','timetable','time-budgets','notices','worklogs','events','memos','progress'];
 var WIDGET_LABELS = {
-    'widget-row':'오늘 위젯','stat-cards':'통계 카드','quick-add':'빠른 추가','plan-view':'플랜 뷰','time-budgets':'시간 예산',
-    'notices':'공지','worklogs':'업무일지','events':'일정','memos':'메모','progress':'진행률'
+    'widget-row':'오늘 위젯','stat-cards':'통계 카드','quick-add':'빠른 추가','plan-view':'플랜 뷰','timetable':'시간표',
+    'time-budgets':'시간 예산','notices':'공지','worklogs':'업무일지','events':'일정','memos':'메모','progress':'진행률'
 };
 
 function loadWidgetConfig() {
