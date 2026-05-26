@@ -1382,7 +1382,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 sp = ub["start_time"].split(":"); ep = ub["end_time"].split(":")
                 s_min = int(sp[0])*60+int(sp[1]); e_min = int(ep[0])*60+int(ep[1])
                 start_h = int(sp[0])+int(sp[1])/60.0; end_h = int(ep[0])+int(ep[1])/60.0
-            except: continue
+            except Exception: continue
             if end_h <= start_h: end_h = 24.0; e_min = 1440
             bdata = {"title":f"{ub.get('icon','')} {ub['title']}".strip(),"start_time":ub["start_time"],"end_time":ub["end_time"],"start_hour":start_h,"end_hour":end_h,"color":ub.get("color","#6366f1")}
             tt_widget_blocks.append(bdata)
@@ -2798,12 +2798,12 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
     for h in habits:
         hd = dict(h)
         try: fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
-        except: fd = None
+        except Exception: fd = None
         if not fd: continue
         if fd.get("type") == "specific_times":
             for t in fd.get("times",[]):
                 try: parts=t.split(":"); th=int(parts[0])+int(parts[1])/60.0
-                except: continue
+                except Exception: continue
                 inner_blocks.append({"type":"habit","title":f"{hd.get('icon','')} {hd['name']}","start_hour":th,"end_hour":min(th+0.5,24),"color":hd.get("color") or "#10b981","id":hd["id"],"done":hd["id"] in done_habit_ids})
         elif fd.get("type") == "every_n_hours":
             interval = fd.get("interval",2); interval = interval if isinstance(interval,(int,float)) and interval>0 else 2
@@ -2822,7 +2822,7 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
         try:
             sp=ub["start_time"].split(":"); ep=ub["end_time"].split(":")
             start_h=int(sp[0])+int(sp[1])/60.0; end_h=int(ep[0])+int(ep[1])/60.0
-        except: continue
+        except Exception: continue
         if end_h <= start_h: end_h = 24.0
         outer_blocks.append({"type":"user_block","title":f"{ub.get('icon','')} {ub['title']}".strip(),"start_hour":start_h,"end_hour":end_h,"color":ub.get("color") or "#6366f1","id":ub["id"],"raw_start":ub["start_time"],"raw_end":ub["end_time"]})
     outer_blocks.sort(key=lambda b: b["start_hour"])
