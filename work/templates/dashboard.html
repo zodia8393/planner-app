@@ -70,6 +70,7 @@ function dismissOnboarding(){
 }
 </script>
 
+<!-- Dashboard header: usage tip + edit mode toggle -->
 <div class="flex items-center justify-between mb-4">
     <details class="group">
         <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
@@ -77,652 +78,1824 @@ function dismissOnboarding(){
             사용법
         </summary>
         <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간·월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
+            <p><b class="text-slate-700 dark:text-slate-300">위젯 편집</b> — 편집 버튼으로 위젯 이동/크기 조절/제거. PC와 모바일 레이아웃은 독립</p>
+            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간/월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
             <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 "내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
-            <p><b class="text-slate-700 dark:text-slate-300">위젯 설정</b> — 우측 상단 슬라이더 아이콘으로 표시할 위젯 선택/해제</p>
             <p><b class="text-slate-700 dark:text-slate-300">집중 모드</b> — 우측 하단 시계 버튼으로 포모도로 타이머 시작, 완료 시 업무일지에 자동 기록</p>
-            <p><b class="text-slate-700 dark:text-slate-300">시간 예산</b> — 설정에서 카테고리별 주간 목표 시간을 설정하면 대시보드에서 진행률 확인</p>
         </div>
     </details>
-    <button onclick="toggleWidgetConfig()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors" title="위젯 설정">
+    <button id="editModeBtn" onclick="DashGrid.toggleEditMode()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors" title="위젯 편집">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
         </svg>
     </button>
 </div>
 
-<!-- Widget configuration panel -->
+<!-- Edit mode banner -->
+<div id="editBanner" class="hidden mb-4 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between" style="background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px dashed var(--color-accent);">
+    <span class="edit-banner-pc">위젯을 드래그하여 이동하고, 모서리를 잡아 크기를 조절하세요.</span>
+    <span class="edit-banner-mobile hidden">길게 눌러 이동 / 크기 탭으로 조절</span>
+    <button onclick="DashGrid.toggleEditMode()" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" style="background: var(--color-accent); color: #fff; min-height: 44px; min-width: 60px;">완료</button>
+</div>
+
+<!-- Widget configuration panel (restore removed widgets) -->
 <div id="widgetConfig" class="hidden mb-4 work-card rounded-xl p-4">
-    <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">대시보드 위젯 설정</h4>
+    <h4 class="text-sm font-bold mb-3" style="color: var(--color-text);">위젯 관리</h4>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="widgetToggles"></div>
-    <div class="mt-3 flex justify-end">
-        <button onclick="resetWidgetConfig()" class="text-xs text-slate-400 hover:text-amber-500 transition-colors">초기화</button>
+    <div class="mt-3 flex justify-end gap-2">
+        <button onclick="DashGrid.resetLayout()" class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors" style="color: var(--color-danger);">전체 초기화</button>
+        <button onclick="toggleWidgetConfig()" class="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors" style="color: var(--color-text-faint);">닫기</button>
     </div>
 </div>
 
-<!-- Stat cards -->
-<div data-widget="stat-cards" class="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
-    <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">오늘 업무</span>
-            <span class="text-lg">✅</span>
+<!-- Mobile bottom sheet for adding widgets -->
+<div id="widgetBottomSheet" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" onclick="DashGrid.closeBottomSheet()"></div>
+    <div class="absolute bottom-0 left-0 right-0 rounded-t-2xl p-5 pb-8 transform transition-transform" style="background: var(--color-surface); max-height: 60vh; overflow-y: auto;">
+        <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-bold" style="color: var(--color-text);">위젯 추가</h4>
+            <button onclick="DashGrid.closeBottomSheet()" class="text-xs font-medium px-3 py-1.5 rounded-lg" style="color: var(--color-text-faint); min-height: 44px;">닫기</button>
         </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats.completed_today }}</span>
-            <span class="text-sm text-slate-400">/ {{ stats.total_today }}</span>
-        </div>
-        {% if stats.total_today > 0 %}
-        <div class="mt-2 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full bg-amber-500 rounded-full progress-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
-        </div>
-        {% else %}
-        <a href="/todos" class="text-xs text-amber-500 hover:underline mt-1 inline-block">할일 추가하기</a>
-        {% endif %}
-    </div>
-
-    <div class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">이번 주 일정</span>
-            <span class="text-lg">📅</span>
-        </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold text-slate-800 dark:text-white">{{ stats.week_events }}</span>
-            <span class="text-xs text-slate-400">건</span>
-        </div>
-        {% if stats.week_events > 0 %}
-        <a href="/calendar" class="text-xs text-amber-500 hover:underline mt-1 inline-block">캘린더 보기</a>
-        {% else %}
-        <a href="/calendar" class="text-xs text-amber-500 hover:underline mt-1 inline-block">일정 등록하기</a>
-        {% endif %}
+        <div id="bottomSheetWidgets" class="space-y-2"></div>
     </div>
 </div>
 
-<!-- Today + Quick Stats + Upcoming + Focus widgets -->
-<div data-widget="widget-row" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6"
-     hx-get="/api/widgets/today" hx-trigger="load" hx-swap="none"
-     id="widgetRow">
-    {# Today Widget #}
-    <div data-widget="today" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-3">
-            <div>
-                <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ today.strftime('%m월 %d일') }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}</p>
-            </div>
-            <div class="rounded-xl flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
-                <span class="text-xl" aria-hidden="true">☀️</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-3 text-xs">
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-medium">
-                <span aria-hidden="true">✅</span> 할일 {{ stats.total_today }}개
-            </span>
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-medium">
-                <span aria-hidden="true">📅</span> 일정 {{ stats.week_events }}개
-            </span>
-            {% if stats.overdue > 0 %}
-            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium badge-pulse">
-                <span aria-hidden="true">🔴</span> 지연 {{ stats.overdue }}개
-            </span>
-            {% endif %}
-        </div>
-    </div>
+<!-- ============================================ -->
+<!--  DASHBOARD GRID CONTAINER                     -->
+<!-- ============================================ -->
+<div id="dashboardGrid">
 
-    {# Weekly completion mini card #}
-    <div data-widget="quick-stats" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">주간 완료율</span>
-            <span class="text-lg" aria-hidden="true">📈</span>
+    <!-- Widget: widget-row (Today + Quick Stats + Overdue + Focus) -->
+    <div class="dashboard-widget" data-widget="widget-row"
+         hx-get="/api/widgets/today" hx-trigger="load" hx-swap="none">
+        <div class="widget-header">
+            <span class="widget-title">오늘 위젯</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('widget-row')" title="위젯 제거">&times;</button>
         </div>
-        <div class="flex items-baseline gap-1 mb-2">
-            <span class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.week_rate }}%</span>
+        <!-- Mobile size presets -->
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('widget-row','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('widget-row','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('widget-row','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('widget-row','T')" data-size="T">T</button>
         </div>
-        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
-            <div class="h-full rounded-full progress-bar {% if stats.week_rate >= 80 %}bg-emerald-500{% elif stats.week_rate >= 50 %}bg-amber-500{% else %}bg-amber-500{% endif %}"
-                 style="width: {{ stats.week_rate }}%" role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
-        </div>
-        <p class="text-xs text-slate-400">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
-    </div>
-
-    {# Overdue + upcoming mini card #}
-    <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">지연 업무</span>
-            <span class="text-lg" aria-hidden="true">⚠️</span>
-        </div>
-        <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold {% if stats.overdue > 0 %}text-red-600{% else %}text-slate-800 dark:text-white{% endif %}">{{ stats.overdue }}</span>
-            <span class="text-xs text-slate-400">건</span>
-        </div>
-        {% if stats.overdue > 0 %}
-        <a href="/todos?filter=overdue" class="text-xs text-red-500 hover:underline mt-1 inline-block">확인하기</a>
-        {% else %}
-        <p class="text-xs text-emerald-500 mt-1">지연 없음</p>
-        {% endif %}
-    </div>
-
-    {# Focus quick start card #}
-    <div data-widget="focus-quick" class="work-card rounded-xl p-4 card-hover">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">집중 모드</span>
-            <span class="text-lg" aria-hidden="true">🎯</span>
-        </div>
-        <div class="flex gap-2 mb-2">
-            <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="25분 집중">25분</button>
-            <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="45분 집중">45분</button>
-            <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
-                    class="btn-sm flex-1 font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors" aria-label="60분 집중">60분</button>
-        </div>
-        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span>오늘: <strong class="text-slate-700 dark:text-slate-200">{{ today_work_hours|default(0)|round(1) }}h</strong></span>
-        </div>
-    </div>
-</div>
-
-<div data-widget="heatmap" class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">연간 완료 히트맵</h3>
-    <div class="overflow-x-auto">
-        <div id="heatmap" style="display:flex; gap:3px; min-width:720px"></div>
-    </div>
-    <div class="flex items-center justify-end gap-1.5 mt-2 text-xs text-slate-400" style="font-size:11px">
-        <span>적음</span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#f1f5f9" class="dark:hidden inline-block"></span><span style="width:12px;height:12px;border-radius:2px;background:#334155" class="hidden dark:inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#bbf7d0" class="inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#4ade80" class="inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#16a34a" class="inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#166534" class="inline-block"></span>
-        <span>많음</span>
-    </div>
-</div>
-
-<!-- Quick add -->
-<div data-widget="quick-add" class="work-card rounded-xl overflow-hidden mb-4">
-    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-5 py-3" onsubmit="return handleQuickAdd(event)">
-        <div class="flex gap-2">
-            <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
-            <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
-                   class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"
-                   oninput="previewNaturalDate(this.value)">
-            <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
-                추가
-            </button>
-        </div>
-        <div id="datePreview" class="hidden mt-1.5 text-xs text-amber-500 dark:text-amber-400 pl-1"></div>
-    </form>
-</div>
-
-<!-- Plan view toggle + navigation -->
-<div data-widget="plan-view" class="mb-6">
-<div class="flex flex-wrap items-center gap-2 mb-3">
-    <a href="/?plan_view=week&plan_offset=0"
-       class="btn-sm rounded-lg font-semibold transition-colors
-              {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-        주간
-    </a>
-    <a href="/?plan_view=month&plan_offset=0"
-       class="btn-sm rounded-lg font-semibold transition-colors
-              {% if plan_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-        월간
-    </a>
-    <div class="flex items-center gap-1 ml-auto">
-        <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
-           class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-        </a>
-        <span class="text-sm font-bold text-slate-800 dark:text-white px-2 whitespace-nowrap">{{ nav_label }}</span>
-        <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
-           class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-        </a>
-        {% if plan_offset != 0 %}
-        <a href="/?plan_view={{ plan_view }}&plan_offset=0"
-           class="ml-1 px-2.5 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
-            {{ reset_label }}
-        </a>
-        {% endif %}
-    </div>
-    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-        <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">전체 <b class="text-slate-700 dark:text-slate-200">{{ total_count }}</b></span>
-        <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20">완료 <b class="text-emerald-600 dark:text-emerald-400">{{ done_count }}</b></span>
-        {% if total_count > 0 %}
-        <span class="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/20"><b class="text-amber-600 dark:text-amber-400">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
-        {% endif %}
-    </div>
-</div>
-
-{% if plan_view == 'week' %}
-<!-- ====== WEEK VIEW ====== -->
-<div class="grid grid-cols-1 lg:grid-cols-7 gap-2 mb-6">
-    {% for day in week_days %}
-    <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
-         style="animation-delay: {{ loop.index0 * 40 }}ms">
-        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between
-                    {% if day.is_today %}bg-amber-50 dark:bg-amber-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% endif %}">
-            <div class="flex items-center gap-2">
-                {% if day.is_today %}
-                <span class="w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{{ day.date.day }}</span>
-                {% else %}
-                <span class="text-sm font-bold {% if day.is_weekend %}text-red-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ day.date.day }}</span>
-                {% endif %}
-                <span class="text-xs font-medium {% if day.is_today %}text-amber-600 dark:text-amber-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{{ day.short_label }}</span>
-            </div>
-            {% if day.todos|length > 0 %}
-            <span class="text-xs font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
-                {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
-            </span>
-            {% endif %}
-        </div>
-        <div class="p-2 space-y-1 min-h-[50px] lg:min-h-[80px]">
-            {% for todo in day.todos %}
-            <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <button type="button" onclick="toggleDashTodo(this, {{ todo.id }})" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
-                            {% if todo.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-500 hover:border-amber-400{% endif %}"
-                        data-completed="{{ 'true' if todo.completed else 'false' }}">
-                    {% if todo.completed %}
-                    <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
-                    {% endif %}
-                </button>
-                <div class="flex-1 min-w-0">
-                    <span class="text-xs {% if todo.completed %}line-through text-slate-400{% else %}text-slate-700 dark:text-slate-200{% endif %} truncate block">{{ todo.title }}</span>
-                    {% if todo.category_name %}
-                    <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% else %}
-            <div class="flex items-center justify-center h-full min-h-[40px]">
-                <span class="text-xs text-slate-300 dark:text-slate-600">-</span>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-{% else %}
-<!-- ====== MONTH VIEW ====== -->
-<div class="work-card rounded-xl overflow-hidden mb-6">
-    <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-        {% for wn in weekday_names %}
-        <div class="py-2 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ wn }}</div>
-        {% endfor %}
-    </div>
-    <div class="grid grid-cols-7">
-        {% for week in cal_weeks %}
-        {% for cell_date in week %}
-        {% if cell_date %}
-        {% set ds = cell_date.isoformat() %}
-        {% set cell_todos = todos_by_date.get(ds, []) %}
-        {% set is_today = cell_date == today %}
-        {% set weekday = cell_date.weekday() %}
-        <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-[60px] lg:min-h-[80px]
-                    {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}">
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-xs lg:text-sm font-medium
-                    {% if is_today %}bg-amber-600 text-white w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center
-                    {% elif weekday == 6 %}text-red-400
-                    {% elif weekday == 5 %}text-blue-400
-                    {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ cell_date.day }}</span>
-                {% if cell_todos|length > 0 %}
-                <span class="text-[11px] font-medium px-1 py-0.5 rounded
-                       {% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600
-                       {% else %}bg-slate-100 dark:bg-slate-700 text-slate-500{% endif %}">{{ cell_todos|length }}</span>
-                {% endif %}
-            </div>
-            {% for todo in cell_todos[:3] %}
-            <div class="flex items-center gap-1 mb-0.5">
-                <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
-                <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through text-slate-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ todo.title }}</span>
-            </div>
-            {% endfor %}
-            {% if cell_todos|length > 3 %}
-            <span class="text-[11px] text-slate-400 pl-2">+{{ cell_todos|length - 3 }}개</span>
-            {% endif %}
-        </div>
-        {% else %}
-        <div class="border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20 min-h-[60px] lg:min-h-[80px]"></div>
-        {% endif %}
-        {% endfor %}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-</div>{# end plan-view widget #}
-
-<!-- Timetable Widget -->
-{% if tt_widget_blocks %}
-<div data-widget="timetable" class="work-card rounded-xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold" style="color: var(--color-text);">
-            <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            오늘의 시간표
-        </h3>
-        <a href="/timetable" class="text-xs font-medium" style="color: var(--color-accent);">전체보기</a>
-    </div>
-    <div class="flex flex-col sm:flex-row items-center gap-4">
-        <div class="flex-shrink-0">
-            <a href="/timetable">
-            <svg viewBox="0 0 200 200" class="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]" style="filter: drop-shadow(0 1px 4px rgba(0,0,0,0.06));">
-                <circle cx="100" cy="100" r="92" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0);"/>
-                <text x="100" y="14" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">0</text>
-                <text x="192" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">6</text>
-                <text x="100" y="198" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">12</text>
-                <text x="10" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">18</text>
-                {% for b in tt_widget_blocks %}
-                {% set sa = (b.start_hour / 24) * 360 - 90 %}
-                {% set ea = (b.end_hour / 24) * 360 - 90 %}
-                {% set ro = 85 %}{% set ri = 60 %}
-                {% set la = 1 if (b.end_hour - b.start_hour) >= 12 else 0 %}
-                <path d="M {{ 100 + ro * (sa | cos_deg) }} {{ 100 + ro * (sa | sin_deg) }} A {{ ro }} {{ ro }} 0 {{ la }} 1 {{ 100 + ro * (ea | cos_deg) }} {{ 100 + ro * (ea | sin_deg) }} L {{ 100 + ri * (ea | cos_deg) }} {{ 100 + ri * (ea | sin_deg) }} A {{ ri }} {{ ri }} 0 {{ la }} 0 {{ 100 + ri * (sa | cos_deg) }} {{ 100 + ri * (sa | sin_deg) }} Z"
-                      fill="{{ b.color }}25" stroke="{{ b.color }}" stroke-width="1"/>
-                {% endfor %}
-                <line id="miniNeedle" x1="100" y1="100" x2="100" y2="15" stroke-width="1.5" stroke-linecap="round" style="stroke: var(--color-accent, #d97706);" transform="rotate(0, 100, 100)"/>
-                <circle cx="100" cy="100" r="3" style="fill: var(--color-accent, #d97706);"/>
-                <text id="miniTime" x="100" y="96" text-anchor="middle" style="font-size: 14px; font-weight: 800; fill: var(--color-text);"></text>
-                <text x="100" y="110" text-anchor="middle" style="font-size: 9px; fill: var(--color-text-muted);">오늘</text>
-            </svg>
-            </a>
-        </div>
-        <div class="flex-1 min-w-0 space-y-2">
-            {% if tt_current %}
-            <div class="p-2.5 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
-                <p class="text-xs font-semibold mb-0.5" style="color: {{ tt_current.color }};">지금</p>
-                <p class="text-sm font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
-                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
-            </div>
-            {% else %}
-            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
-                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">지금</p>
-                <p class="text-sm" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
-            </div>
-            {% endif %}
-            {% if tt_next %}
-            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
-                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">다음</p>
-                <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
-                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-<script>
-(function(){
-    var now = new Date();
-    var h = now.getHours() + now.getMinutes()/60;
-    var angle = (h/24)*360;
-    var needle = document.getElementById('miniNeedle');
-    if(needle) needle.setAttribute('transform','rotate('+angle+',100,100)');
-    var mt = document.getElementById('miniTime');
-    if(mt) mt.textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-})();
-</script>
-{% endif %}
-
-<!-- Time Budget Widget -->
-{% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
-<div data-widget="time-budgets" class="work-card rounded-xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
-        <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline">설정</a>
-    </div>
-    <div class="space-y-2">
-        {% for tb in time_budgets|default([]) %}
-        {% if tb.budget > 0 %}
-        <div>
-            <div class="flex justify-between text-xs mb-1">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full" style="background:{{ tb.color }}"></span>
-                    {{ tb.name or '미분류' }}
-                </span>
-                <span class="{% if tb.used > tb.budget %}text-red-500 font-bold{% else %}text-slate-400{% endif %}">
-                    {{ tb.used|round(1) }} / {{ tb.budget }}h
-                </span>
-            </div>
-            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all {% if tb.used > tb.budget %}bg-red-500{% elif tb.used > tb.budget * 0.8 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
-                     style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Bottom row: notices + worklogs + events + progress -->
-<div class="grid lg:grid-cols-2 gap-4 mb-4">
-    <!-- Recent notices -->
-    <div data-widget="notices" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">최근 공지사항</h3>
-            <a href="/notices" class="text-xs text-amber-500 hover:underline">더보기</a>
-        </div>
-        <div class="divide-y divide-slate-100 dark:divide-slate-700">
-            {% for notice in recent_notices %}
-            <div class="px-5 py-2.5">
-                <div class="flex items-center gap-2 mb-0.5">
-                    {% if notice.pinned %}
-                    <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">고정</span>
-                    {% endif %}
-                    {% if notice.priority == 1 %}
-                    <span class="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium">중요</span>
-                    {% endif %}
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ notice.title }}</p>
-                </div>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-xs text-amber-500 font-medium">{{ notice.author_name or '익명' }}</span>
-                    <span class="text-xs text-slate-400">{{ notice.created_at|format_datetime }}</span>
-                </div>
-            </div>
-            {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">공지사항이 없습니다</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Today's work logs -->
-    <div data-widget="worklogs" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <div class="flex items-center gap-2">
-                <h3 class="font-bold text-slate-800 dark:text-white text-sm">오늘 업무일지</h3>
-                {% if today_worklogs_hours > 0 %}
-                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">{{ today_worklogs_hours }}h</span>
-                {% endif %}
-            </div>
-            <a href="/worklogs" class="text-xs text-amber-500 hover:underline">더보기</a>
-        </div>
-        <div class="divide-y divide-slate-100 dark:divide-slate-700">
-            {% for log in today_worklogs %}
-            <div class="px-5 py-2.5">
-                <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ log.title }}</p>
-                    {% if log.hours > 0 %}
-                    <span class="text-xs text-slate-400 flex-shrink-0 ml-2">{{ log.hours }}h</span>
-                    {% endif %}
-                </div>
-                {% if log.category_name %}
-                <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded mt-1"
-                      style="background:{{ log.category_color }}15; color:{{ log.category_color }}">
-                    <span class="w-1.5 h-1.5 rounded-full" style="background:{{ log.category_color }}"></span>
-                    {{ log.category_name }}
-                </span>
-                {% endif %}
-            </div>
-            {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">오늘 기록된 업무가 없습니다</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div class="grid lg:grid-cols-3 gap-4">
-    <!-- This week's events -->
-    <div data-widget="events" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">이번 주 일정</h3>
-            <a href="/calendar" class="text-xs text-amber-500 hover:underline">더보기</a>
-        </div>
-        <div class="divide-y divide-slate-100 dark:divide-slate-700">
-            {% for ev in week_events %}
-            <div class="px-5 py-2.5">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or '#d97706' }}"></div>
-                    <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ ev.title }}</p>
-                </div>
-                <p class="text-xs text-slate-400 mt-0.5 ml-4">{{ ev.start_time|format_datetime }}</p>
-            </div>
-            {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">이번 주 일정이 없습니다</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Recent memos -->
-    <div data-widget="memos" class="work-card rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">최근 메모</h3>
-            <a href="/memos" class="text-xs text-amber-500 hover:underline">더보기</a>
-        </div>
-        <div class="divide-y divide-slate-100 dark:divide-slate-700">
-            {% for memo in recent_memos %}
-            <div class="px-5 py-2.5">
-                {% if memo.title %}
-                <p class="text-sm font-bold text-slate-800 dark:text-white mb-0.5">{{ memo.title }}</p>
-                {% endif %}
-                <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{{ memo.content }}</p>
-                <div class="flex items-center gap-2 mt-1">
-                    {% if memo.category_name %}
-                    <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded"
-                          style="background:{{ memo.category_color }}15; color:{{ memo.category_color }}">
-                        <span class="w-1.5 h-1.5 rounded-full" style="background:{{ memo.category_color }}"></span>
-                        {{ memo.category_name }}
-                    </span>
-                    {% endif %}
-                    <p class="text-xs text-slate-400">{{ memo.created_at|format_datetime }}</p>
-                </div>
-            </div>
-            {% else %}
-            <div class="py-6 text-center">
-                <p class="text-xs text-slate-400">메모가 없습니다</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Project progress -->
-    <div data-widget="progress" class="work-card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-white text-sm">프로젝트 진행률</h3>
-        </div>
-        <div class="p-4 space-y-3">
-            {% for proj in project_progress %}
-            {% set rate = (proj.done / proj.total * 100)|int if proj.total > 0 else 0 %}
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ proj.color }}"></span>
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ proj.name }}</span>
+        <div class="widget-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                {# Today Widget #}
+                <div data-widget="today" class="work-card rounded-xl p-4 card-hover" style="background: var(--gradient-warm); border-color: rgba(217,119,6,0.15);">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--color-accent); letter-spacing: 0.08em;">
+                                {{ ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'][today.weekday()] }}
+                            </p>
+                            <p class="text-2xl font-extrabold mt-0.5" style="color: var(--color-text); letter-spacing: -0.02em;">{{ today.strftime('%m월 %d일') }}</p>
+                        </div>
+                        <div class="rounded-2xl flex items-center justify-center" style="width: 3rem; height: 3rem; background: var(--color-accent-soft); box-shadow: 0 2px 8px rgba(217,119,6,0.1);">
+                            <span class="text-xl" aria-hidden="true">&#9728;&#65039;</span>
+                        </div>
                     </div>
-                    <span class="text-xs text-slate-400">{{ proj.done }}/{{ proj.total }}</span>
+                    <div class="flex items-center gap-2 text-xs flex-wrap">
+                        <!-- Compact: only badge count -->
+                        <span class="widget-detail-compact">
+                            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold" style="background: rgba(217,119,6,0.12); color: var(--color-accent-text);">
+                                할일 {{ stats.total_today }} / 일정 {{ stats.week_events }}
+                            </span>
+                        </span>
+                        <!-- Medium+ details -->
+                        <span class="widget-detail-m">
+                            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold" style="background: rgba(217,119,6,0.12); color: var(--color-accent-text);">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                할일 {{ stats.total_today }}
+                            </span>
+                            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold" style="background: rgba(16,185,129,0.1); color: #059669;">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg>
+                                일정 {{ stats.week_events }}
+                            </span>
+                            {% if stats.overdue > 0 %}
+                            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold badge-pulse" style="background: rgba(220,38,38,0.08); color: #dc2626;">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                지연 {{ stats.overdue }}
+                            </span>
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
-                <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full progress-bar" style="width:{{ rate }}%; background:{{ proj.color }}"></div>
+
+                {# Weekly completion mini card #}
+                <div data-widget="quick-stats" class="work-card rounded-xl p-4 card-hover widget-detail-m">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="stat-label">주간 완료율</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.week_rate >= 80 %}var(--color-success-soft){% else %}var(--color-warning-soft){% endif %};">
+                            <svg class="w-4 h-4" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% else %}var(--color-warning){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-1.5 mb-2">
+                        <span class="stat-number {% if stats.week_rate >= 80 %}text-emerald-600 dark:text-emerald-400{% elif stats.week_rate >= 50 %}text-amber-600 dark:text-amber-400{% endif %}">{{ stats.week_rate }}%</span>
+                    </div>
+                    <div class="progress-premium mb-1.5">
+                        <div class="progress-premium-bar" style="width: {{ stats.week_rate }}%; {% if stats.week_rate >= 80 %}background: linear-gradient(90deg, #16a34a, #22c55e);{% elif stats.week_rate >= 50 %}background: var(--gradient-accent);{% else %}background: var(--gradient-accent);{% endif %}"
+                             role="progressbar" aria-valuenow="{{ stats.week_rate }}" aria-valuemin="0" aria-valuemax="100" aria-label="주간 완료율"></div>
+                    </div>
+                    <p class="text-xs font-medium" style="color: var(--color-text-faint);">{{ stats.week_completed }}/{{ stats.week_total }} 완료</p>
+                </div>
+
+                {# Overdue + upcoming mini card #}
+                <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover widget-detail-m">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="stat-label">지연 업무</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.overdue > 0 %}var(--color-danger-soft){% else %}var(--color-success-soft){% endif %};">
+                            <svg class="w-4 h-4" style="color: {% if stats.overdue > 0 %}var(--color-danger){% else %}var(--color-success){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="stat-number {% if stats.overdue > 0 %}text-red-600 dark:text-red-400{% endif %}">{{ stats.overdue }}</span>
+                        <span class="text-sm font-medium" style="color: var(--color-text-faint);">건</span>
+                    </div>
+                    {% if stats.overdue > 0 %}
+                    <a href="/todos?filter=overdue" class="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 mt-1.5 transition-colors">
+                        확인하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                    </a>
+                    {% else %}
+                    <p class="text-xs font-semibold mt-1.5" style="color: var(--color-success);">지연 없음</p>
+                    {% endif %}
+                </div>
+
+                {# Focus quick start card #}
+                <div data-widget="focus-quick" class="work-card rounded-xl p-4 card-hover widget-detail-l">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="stat-label">집중 모드</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+                            <svg class="w-4 h-4" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mb-3">
+                        <button onclick="document.getElementById('focusCustomMin').value=25;document.getElementById('focusTitle').value='';_focusStart(25)"
+                                class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="25분 집중"
+                                onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">25분</button>
+                        <button onclick="document.getElementById('focusCustomMin').value=45;document.getElementById('focusTitle').value='';_focusStart(45)"
+                                class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="45분 집중"
+                                onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">45분</button>
+                        <button onclick="document.getElementById('focusCustomMin').value=60;document.getElementById('focusTitle').value='';_focusStart(60)"
+                                class="btn-sm flex-1 font-semibold rounded-lg transition-all" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="60분 집중"
+                                onmouseover="this.style.background='rgba(217,119,6,0.18)'" onmouseout="this.style.background='var(--color-accent-soft)'">60분</button>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs" style="color: var(--color-text-faint);">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>오늘: <strong style="color: var(--color-text);">{{ today_worklogs_hours|round(1) }}h</strong></span>
+                    </div>
                 </div>
             </div>
-            {% else %}
-            <div class="py-4 text-center">
-                <p class="text-xs text-slate-400">카테고리별 진행률이 표시됩니다</p>
-            </div>
-            {% endfor %}
         </div>
+        <div class="widget-resize-handle"></div>
     </div>
-</div>
+
+    <!-- Widget: stat-cards -->
+    <div class="dashboard-widget" data-widget="stat-cards">
+        <div class="widget-header">
+            <span class="widget-title">통계 카드</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('stat-cards')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('stat-cards','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('stat-cards','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('stat-cards','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('stat-cards','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <!-- Compact view: single number -->
+            <div class="widget-detail-compact">
+                <div class="work-card rounded-xl p-3 text-center">
+                    <span class="stat-label">완료율</span>
+                    <span class="stat-number block mt-1">{{ stats.week_rate }}%</span>
+                </div>
+            </div>
+            <!-- Medium view: 2x2 grid -->
+            <div class="widget-detail-m">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="work-card rounded-xl p-4 card-hover">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="stat-label">오늘 업무</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+                                <svg class="w-4 h-4" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="stat-number">{{ stats.completed_today }}</span>
+                            <span class="text-sm font-medium" style="color: var(--color-text-faint);">/ {{ stats.total_today }}</span>
+                        </div>
+                        {% if stats.total_today > 0 %}
+                        <div class="progress-premium mt-2.5">
+                            <div class="progress-premium-bar" style="width: {{ (stats.completed_today / stats.total_today * 100)|int }}%"></div>
+                        </div>
+                        {% else %}
+                        <a href="/todos" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                            할일 추가하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="work-card rounded-xl p-4 card-hover">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="stat-label">이번 주 일정</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-info-soft);">
+                                <svg class="w-4 h-4" style="color: var(--color-info);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="stat-number">{{ stats.week_events }}</span>
+                            <span class="text-sm font-medium" style="color: var(--color-text-faint);">건</span>
+                        </div>
+                        {% if stats.week_events > 0 %}
+                        <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                            캘린더 보기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                        </a>
+                        {% else %}
+                        <a href="/calendar" class="inline-flex items-center gap-1 text-xs font-semibold mt-1.5 transition-colors" style="color: var(--color-accent);">
+                            일정 등록하기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: quick-add -->
+    <div class="dashboard-widget" data-widget="quick-add">
+        <div class="widget-header">
+            <span class="widget-title">빠른 추가</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('quick-add')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('quick-add','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('quick-add','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('quick-add','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl overflow-hidden">
+                <form id="quickAddForm" action="/quick-todo" method="POST" class="px-5 py-3.5" onsubmit="return handleQuickAdd(event)">
+                    <div class="flex gap-2">
+                        <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
+                        <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
+                               class="flex-1 px-3.5 py-2.5 text-sm rounded-xl input-premium"
+                               style="background: var(--color-bg); color: var(--color-text);"
+                               oninput="previewNaturalDate(this.value)">
+                        <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">
+                            추가
+                        </button>
+                    </div>
+                    <div id="datePreview" class="hidden mt-1.5 text-xs font-medium pl-1" style="color: var(--color-accent);"></div>
+                </form>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: plan-view -->
+    <div class="dashboard-widget" data-widget="plan-view">
+        <div class="widget-header">
+            <span class="widget-title">플랜 뷰</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('plan-view')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('plan-view','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('plan-view','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <!-- Compact: progress bar only -->
+            <div class="widget-detail-compact">
+                <div class="work-card rounded-xl p-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-medium" style="color: var(--color-text-faint);">진행률</span>
+                        <span class="text-xs font-bold" style="color: var(--color-accent);">{% if total_count > 0 %}{{ ((done_count / total_count) * 100)|round|int }}%{% else %}0%{% endif %}</span>
+                    </div>
+                    <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border);">
+                        <div class="h-full rounded-full" style="background: var(--color-accent); width: {% if total_count > 0 %}{{ ((done_count / total_count) * 100)|round|int }}{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Medium+ full plan view -->
+            <div class="widget-detail-m">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <a href="/?plan_view=week&plan_offset=0"
+                       class="btn-sm rounded-lg font-semibold transition-colors
+                              {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+                        주간
+                    </a>
+                    <a href="/?plan_view=month&plan_offset=0"
+                       class="btn-sm rounded-lg font-semibold transition-colors
+                              {% if plan_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+                        월간
+                    </a>
+                    <div class="flex items-center gap-1 ml-auto">
+                        <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
+                           class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                        </a>
+                        <span class="text-sm font-bold text-slate-800 dark:text-white px-2 whitespace-nowrap">{{ nav_label }}</span>
+                        <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
+                           class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </a>
+                        {% if plan_offset != 0 %}
+                        <a href="/?plan_view={{ plan_view }}&plan_offset=0"
+                           class="ml-1 px-2.5 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+                            {{ reset_label }}
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">전체 <b class="text-slate-700 dark:text-slate-200">{{ total_count }}</b></span>
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20">완료 <b class="text-emerald-600 dark:text-emerald-400">{{ done_count }}</b></span>
+                        {% if total_count > 0 %}
+                        <span class="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/20"><b class="text-amber-600 dark:text-amber-400">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if plan_view == 'week' %}
+                <div class="grid grid-cols-1 lg:grid-cols-7 gap-2">
+                    {% for day in week_days %}
+                    <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
+                         style="animation-delay: {{ loop.index0 * 40 }}ms">
+                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between
+                                    {% if day.is_today %}bg-amber-50 dark:bg-amber-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% endif %}">
+                            <div class="flex items-center gap-2">
+                                {% if day.is_today %}
+                                <span class="w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{{ day.date.day }}</span>
+                                {% else %}
+                                <span class="text-sm font-bold {% if day.is_weekend %}text-red-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ day.date.day }}</span>
+                                {% endif %}
+                                <span class="text-xs font-medium {% if day.is_today %}text-amber-600 dark:text-amber-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{{ day.short_label }}</span>
+                            </div>
+                            {% if day.todos|length > 0 %}
+                            <span class="text-xs font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                                {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="p-2 space-y-1 min-h-[50px] lg:min-h-[80px]">
+                            {% for todo in day.todos %}
+                            <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                                <button type="button" onclick="toggleDashTodo(this, {{ todo.id }})" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
+                                            {% if todo.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-500 hover:border-amber-400{% endif %}"
+                                        data-completed="{{ 'true' if todo.completed else 'false' }}">
+                                    {% if todo.completed %}
+                                    <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg>
+                                    {% endif %}
+                                </button>
+                                <div class="flex-1 min-w-0">
+                                    <span class="text-xs {% if todo.completed %}line-through text-slate-400{% else %}text-slate-700 dark:text-slate-200{% endif %} truncate block">{{ todo.title }}</span>
+                                    {% if todo.category_name %}
+                                    <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="flex items-center justify-center h-full min-h-[40px]">
+                                <span class="text-xs text-slate-300 dark:text-slate-600">-</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="work-card rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+                        {% for wn in weekday_names %}
+                        <div class="py-2 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ wn }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="grid grid-cols-7">
+                        {% for week in cal_weeks %}
+                        {% for cell_date in week %}
+                        {% if cell_date %}
+                        {% set ds = cell_date.isoformat() %}
+                        {% set cell_todos = todos_by_date.get(ds, []) %}
+                        {% set is_today = cell_date == today %}
+                        {% set weekday = cell_date.weekday() %}
+                        <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-[60px] lg:min-h-[80px]
+                                    {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs lg:text-sm font-medium
+                                    {% if is_today %}bg-amber-600 text-white w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center
+                                    {% elif weekday == 6 %}text-red-400
+                                    {% elif weekday == 5 %}text-blue-400
+                                    {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ cell_date.day }}</span>
+                                {% if cell_todos|length > 0 %}
+                                <span class="text-[11px] font-medium px-1 py-0.5 rounded
+                                       {% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600
+                                       {% else %}bg-slate-100 dark:bg-slate-700 text-slate-500{% endif %}">{{ cell_todos|length }}</span>
+                                {% endif %}
+                            </div>
+                            {% for todo in cell_todos[:3] %}
+                            <div class="flex items-center gap-1 mb-0.5">
+                                <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
+                                <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through text-slate-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ todo.title }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if cell_todos|length > 3 %}
+                            <span class="text-[11px] text-slate-400 pl-2">+{{ cell_todos|length - 3 }}개</span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20 min-h-[60px] lg:min-h-[80px]"></div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: timetable -->
+    {% if tt_widget_blocks %}
+    <div class="dashboard-widget" data-widget="timetable">
+        <div class="widget-header">
+            <span class="widget-title">시간표</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('timetable')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('timetable','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('timetable','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('timetable','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('timetable','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold" style="color: var(--color-text);">
+                        <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="widget-detail-compact">시간표</span>
+                        <span class="widget-detail-m">오늘의 시간표</span>
+                    </h3>
+                    <a href="/timetable" class="text-xs font-medium widget-detail-m" style="color: var(--color-accent);">전체보기</a>
+                </div>
+                <!-- Compact: current block text only -->
+                <div class="widget-detail-compact">
+                    {% if tt_current %}
+                    <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+                    <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
+                    {% else %}
+                    <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+                    {% endif %}
+                </div>
+                <!-- Medium+: clock + info -->
+                <div class="widget-detail-m">
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-shrink-0">
+                            <a href="/timetable">
+                            <svg viewBox="0 0 200 200" class="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px]" style="filter: drop-shadow(0 1px 4px rgba(0,0,0,0.06));">
+                                <circle cx="100" cy="100" r="92" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0);"/>
+                                <text x="100" y="14" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">0</text>
+                                <text x="192" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">6</text>
+                                <text x="100" y="198" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">12</text>
+                                <text x="10" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">18</text>
+                                {% for b in tt_widget_blocks %}
+                                {% set sa = (b.start_hour / 24) * 360 - 90 %}
+                                {% set ea = (b.end_hour / 24) * 360 - 90 %}
+                                {% set ro = 85 %}
+                                {% set ri = 60 %}
+                                {% set la = 1 if (b.end_hour - b.start_hour) >= 12 else 0 %}
+                                <path d="M {{ 100 + ro * (sa | cos_deg) }} {{ 100 + ro * (sa | sin_deg) }}
+                                         A {{ ro }} {{ ro }} 0 {{ la }} 1 {{ 100 + ro * (ea | cos_deg) }} {{ 100 + ro * (ea | sin_deg) }}
+                                         L {{ 100 + ri * (ea | cos_deg) }} {{ 100 + ri * (ea | sin_deg) }}
+                                         A {{ ri }} {{ ri }} 0 {{ la }} 0 {{ 100 + ri * (sa | cos_deg) }} {{ 100 + ri * (sa | sin_deg) }}
+                                         Z"
+                                      fill="{{ b.color }}25" stroke="{{ b.color }}" stroke-width="1"/>
+                                {% endfor %}
+                                <line id="miniNeedle" x1="100" y1="100" x2="100" y2="15" stroke-width="1.5" stroke-linecap="round" style="stroke: var(--color-accent, #d97706);" transform="rotate(0, 100, 100)"/>
+                                <circle cx="100" cy="100" r="3" style="fill: var(--color-accent, #d97706);"/>
+                                <text id="miniTime" x="100" y="96" text-anchor="middle" style="font-size: 14px; font-weight: 800; fill: var(--color-text);"></text>
+                                <text x="100" y="110" text-anchor="middle" style="font-size: 9px; fill: var(--color-text-muted);">오늘</text>
+                            </svg>
+                            </a>
+                        </div>
+                        <div class="flex-1 min-w-0 space-y-2">
+                            {% if tt_current %}
+                            <div class="p-2.5 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
+                                <p class="text-xs font-semibold mb-0.5" style="color: {{ tt_current.color }};">지금</p>
+                                <p class="text-sm font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+                                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
+                            </div>
+                            {% else %}
+                            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
+                                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">지금</p>
+                                <p class="text-sm" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+                            </div>
+                            {% endif %}
+                            {% if tt_next %}
+                            <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
+                                <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">다음</p>
+                                <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
+                                <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+    <script>
+    (function(){
+        var now = new Date();
+        var h = now.getHours() + now.getMinutes()/60;
+        var angle = (h/24)*360;
+        var needle = document.getElementById('miniNeedle');
+        if(needle) needle.setAttribute('transform','rotate('+angle+',100,100)');
+        var mt = document.getElementById('miniTime');
+        if(mt) mt.textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    })();
+    </script>
+    {% endif %}
+
+    <!-- Widget: time-budgets -->
+    {% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
+    <div class="dashboard-widget" data-widget="time-budgets">
+        <div class="widget-header">
+            <span class="widget-title">시간 예산</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('time-budgets')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('time-budgets','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('time-budgets','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('time-budgets','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('time-budgets','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
+                    <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline widget-detail-m">설정</a>
+                </div>
+                <!-- Compact: top 1 bar -->
+                <div class="widget-detail-compact">
+                    {% for tb in time_budgets|default([]) %}
+                    {% if tb.budget > 0 and loop.index <= 1 %}
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>{{ tb.name or '미분류' }}</span>
+                        <span>{{ tb.used|round(1) }}/{{ tb.budget }}h</span>
+                    </div>
+                    <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full {% if tb.used > tb.budget %}bg-red-500{% else %}bg-green-500{% endif %}" style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <!-- Medium+: all bars -->
+                <div class="widget-detail-m">
+                    <div class="space-y-2">
+                        {% for tb in time_budgets|default([]) %}
+                        {% if tb.budget > 0 %}
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full" style="background:{{ tb.color }}"></span>
+                                    {{ tb.name or '미분류' }}
+                                </span>
+                                <span class="{% if tb.used > tb.budget %}text-red-500 font-bold{% else %}text-slate-400{% endif %}">
+                                    {{ tb.used|round(1) }} / {{ tb.budget }}h
+                                </span>
+                            </div>
+                            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all {% if tb.used > tb.budget %}bg-red-500{% elif tb.used > tb.budget * 0.8 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
+                                     style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+    {% endif %}
+
+    <!-- Widget: notices -->
+    <div class="dashboard-widget" data-widget="notices">
+        <div class="widget-header">
+            <span class="widget-title">공지</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('notices')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('notices','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('notices','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('notices','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('notices','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl overflow-hidden">
+                <div class="section-header">
+                    <h3>최근 공지사항</h3>
+                    <a href="/notices" class="widget-detail-m">더보기</a>
+                </div>
+                <!-- Compact: badge count -->
+                <div class="widget-detail-compact px-4 py-3">
+                    <span class="text-xs font-bold" style="color: var(--color-text);">{{ recent_notices|length }}건</span>
+                </div>
+                <!-- Medium+: full list -->
+                <div class="widget-detail-m divide-y divide-slate-100 dark:divide-slate-700">
+                    {% for notice in recent_notices %}
+                    <div class="px-5 py-2.5">
+                        <div class="flex items-center gap-2 mb-0.5">
+                            {% if notice.pinned %}
+                            <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">고정</span>
+                            {% endif %}
+                            {% if notice.priority == 1 %}
+                            <span class="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium">중요</span>
+                            {% endif %}
+                            <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ notice.title }}</p>
+                        </div>
+                        {% if notice.content %}
+                        <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 widget-detail-l">{{ notice.content }}</p>
+                        {% endif %}
+                        <p class="text-xs text-slate-400 mt-1">{{ notice.created_at|format_datetime }}</p>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem;">
+                        <p class="text-xs font-medium" style="color: var(--color-text-faint);">공지사항이 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: worklogs -->
+    <div class="dashboard-widget" data-widget="worklogs">
+        <div class="widget-header">
+            <span class="widget-title">업무일지</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('worklogs')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('worklogs','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('worklogs','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('worklogs','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('worklogs','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl overflow-hidden">
+                <div class="section-header">
+                    <h3>오늘 업무일지</h3>
+                    <div class="flex items-center gap-2">
+                        {% if today_worklogs_hours > 0 %}
+                        <span class="badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ today_worklogs_hours }}h</span>
+                        {% endif %}
+                        <a href="/worklogs" class="widget-detail-m">더보기</a>
+                    </div>
+                </div>
+                <!-- Compact: count only -->
+                <div class="widget-detail-compact px-4 py-3">
+                    <span class="text-xs font-bold" style="color: var(--color-text);">{{ today_worklogs|length }}건</span>
+                </div>
+                <!-- Medium+: list -->
+                <div class="widget-detail-m divide-y divide-slate-100 dark:divide-slate-700">
+                    {% for log in today_worklogs[:3] %}
+                    <div class="px-5 py-2.5">
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ log.title }}</p>
+                            {% if log.hours > 0 %}
+                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium flex-shrink-0">{{ log.hours }}h</span>
+                            {% endif %}
+                        </div>
+                        {% if log.category_name %}
+                        <span class="inline-flex items-center gap-1 text-xs mt-0.5 px-1.5 py-0.5 rounded"
+                              style="background:{{ log.category_color }}15; color:{{ log.category_color }}">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background:{{ log.category_color }}"></span>
+                            {{ log.category_name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem;">
+                        <p class="text-xs font-medium" style="color: var(--color-text-faint);">오늘 기록된 업무가 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: events -->
+    <div class="dashboard-widget" data-widget="events">
+        <div class="widget-header">
+            <span class="widget-title">일정</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('events')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('events','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('events','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('events','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('events','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl overflow-hidden">
+                <div class="section-header">
+                    <h3>이번 주 일정</h3>
+                    <a href="/calendar" class="widget-detail-m">더보기</a>
+                </div>
+                <!-- Compact: next 1 event -->
+                <div class="widget-detail-compact px-4 py-3">
+                    {% if week_events %}
+                    <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ week_events[0].title }}</p>
+                    {% else %}
+                    <p class="text-xs" style="color: var(--color-text-faint);">일정 없음</p>
+                    {% endif %}
+                </div>
+                <!-- Medium+: full list -->
+                <div class="widget-detail-m divide-y divide-slate-100 dark:divide-slate-700">
+                    {% for ev in week_events %}
+                    <div class="px-5 py-2.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or '#d97706' }}"></div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ ev.title }}</p>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5 ml-4">{{ ev.start_time|format_datetime }}</p>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem;">
+                        <p class="text-xs font-medium" style="color: var(--color-text-faint);">이번 주 일정이 없습니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Widget: progress -->
+    <div class="dashboard-widget" data-widget="progress">
+        <div class="widget-header">
+            <span class="widget-title">진행률</span>
+            <button class="widget-remove-btn" onclick="DashGrid.removeWidget('progress')" title="위젯 제거">&times;</button>
+        </div>
+        <div class="widget-size-presets">
+            <button onclick="DashGrid.setMobileSize('progress','C')" data-size="C">C</button>
+            <button onclick="DashGrid.setMobileSize('progress','H')" data-size="H">H</button>
+            <button onclick="DashGrid.setMobileSize('progress','FM')" data-size="FM">FM</button>
+            <button onclick="DashGrid.setMobileSize('progress','T')" data-size="T">T</button>
+        </div>
+        <div class="widget-body">
+            <div class="work-card rounded-xl overflow-hidden">
+                <div class="section-header">
+                    <h3>프로젝트 진행률</h3>
+                </div>
+                <!-- Compact: percentage only -->
+                <div class="widget-detail-compact p-3 text-center">
+                    {% if project_progress %}
+                    {% set first = project_progress[0] %}
+                    {% set rate = (first.done / first.total * 100)|int if first.total > 0 else 0 %}
+                    <span class="text-lg font-bold" style="color: var(--color-accent);">{{ rate }}%</span>
+                    {% else %}
+                    <span class="text-xs" style="color: var(--color-text-faint);">-</span>
+                    {% endif %}
+                </div>
+                <!-- Medium+: full bars -->
+                <div class="widget-detail-m p-4 space-y-3">
+                    {% for proj in project_progress %}
+                    {% set rate = (proj.done / proj.total * 100)|int if proj.total > 0 else 0 %}
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ proj.color }}"></span>
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ proj.name }}</span>
+                            </div>
+                            <span class="text-xs text-slate-400">{{ proj.done }}/{{ proj.total }}</span>
+                        </div>
+                        <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full progress-bar" style="width:{{ rate }}%; background:{{ proj.color }}"></div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem;">
+                        <p class="text-xs font-medium" style="color: var(--color-text-faint);">카테고리별 진행률이 표시됩니다</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="widget-resize-handle"></div>
+    </div>
+
+    <!-- Mobile: add widget button (shown in edit mode) -->
+    <div id="addWidgetBtn" class="hidden" style="grid-column: 1 / -1;">
+        <button onclick="DashGrid.openBottomSheet()" class="w-full py-3 rounded-xl text-sm font-semibold transition-colors" style="border: 2px dashed var(--color-border); color: var(--color-text-faint); min-height: 44px;">
+            + 위젯 추가
+        </button>
+    </div>
+
+</div><!-- end #dashboardGrid -->
+
+<!-- ============================================ -->
+<!--  DASHBOARD GRID CSS                           -->
+<!-- ============================================ -->
+<style>
+/* ── Grid Variables ── */
+:root {
+    --grid-row-height: 80px;
+    --grid-row-height-mobile: 60px;
+    --grid-cols: 12;
+    --grid-cols-mobile: 2;
+    --grid-gap: 16px;
+    --grid-gap-mobile: 12px;
+}
+
+/* ── Dashboard Grid Container ── */
+#dashboardGrid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), 1fr);
+    grid-auto-rows: var(--grid-row-height);
+    gap: var(--grid-gap);
+    position: relative;
+}
+
+@media (max-width: 1023px) {
+    #dashboardGrid {
+        grid-template-columns: repeat(var(--grid-cols-mobile), 1fr);
+        grid-auto-rows: var(--grid-row-height-mobile);
+        gap: var(--grid-gap-mobile);
+    }
+}
+
+/* ── Dashboard Widget ── */
+.dashboard-widget {
+    container-type: inline-size;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+    min-height: 0;
+    min-width: 0;
+}
+
+.dashboard-widget .widget-body {
+    height: 100%;
+    overflow: auto;
+}
+
+.dashboard-widget .widget-body > .work-card {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+}
+
+/* ── Widget Header (drag handle) ── */
+.widget-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    cursor: grab;
+    user-select: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-faint);
+    background: var(--color-border-subtle);
+    border-bottom: 1px dashed var(--color-border);
+    position: relative;
+    z-index: 2;
+}
+
+.widget-header:active { cursor: grabbing; }
+
+.widget-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Remove Button ── */
+.widget-remove-btn {
+    display: none;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-faint);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.widget-remove-btn:hover {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+@media (max-width: 1023px) {
+    .widget-remove-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+    }
+}
+
+/* ── Resize Handle ── */
+.widget-resize-handle {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    cursor: nwse-resize;
+    z-index: 5;
+    background: linear-gradient(135deg, transparent 50%, var(--color-border) 50%);
+    border-radius: 0 0 var(--radius-lg) 0;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+.widget-resize-handle:hover { opacity: 1; }
+
+/* ── Size Presets (mobile only) ── */
+.widget-size-presets {
+    display: none;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--color-border-subtle);
+}
+.widget-size-presets button {
+    flex: 1;
+    padding: 6px 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+    color: var(--color-text-faint);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 32px;
+}
+.widget-size-presets button.active {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: var(--color-accent);
+}
+.widget-size-presets button:hover {
+    border-color: var(--color-accent);
+}
+
+/* ── Edit Mode ── */
+body.dash-edit-mode .dashboard-widget {
+    border: 2px dashed var(--color-border);
+}
+body.dash-edit-mode .widget-header {
+    display: flex;
+}
+body.dash-edit-mode .widget-remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PC: show resize handle in edit mode */
+@media (min-width: 1024px) {
+    body.dash-edit-mode .widget-resize-handle {
+        display: block;
+    }
+}
+
+/* Mobile: show size presets in edit mode */
+@media (max-width: 1023px) {
+    body.dash-edit-mode .widget-size-presets {
+        display: flex;
+    }
+    body.dash-edit-mode .widget-resize-handle {
+        display: none;
+    }
+}
+
+/* ── Banner Responsive ── */
+@media (max-width: 1023px) {
+    .edit-banner-pc { display: none !important; }
+    .edit-banner-mobile { display: inline !important; }
+}
+@media (min-width: 1024px) {
+    .edit-banner-pc { display: inline; }
+    .edit-banner-mobile { display: none !important; }
+}
+
+/* ── Content Adaptation (Container Queries) ── */
+.widget-detail-compact { display: block; }
+.widget-detail-m { display: none; }
+.widget-detail-l { display: none; }
+
+@container (min-width: 300px) {
+    .widget-detail-compact { display: none; }
+    .widget-detail-m { display: block; }
+}
+@container (min-width: 550px) {
+    .widget-detail-l { display: block; }
+}
+
+/* Height-based adaptation via data-h classes */
+.dashboard-widget.widget-rows-1 .widget-body { overflow: hidden; }
+.dashboard-widget.widget-rows-1 .widget-detail-l { display: none !important; }
+
+/* ── Drag visual states ── */
+.dashboard-widget.dragging {
+    opacity: 0.6;
+    z-index: 100;
+    box-shadow: var(--shadow-xl);
+    transform: scale(1.02);
+}
+
+.dashboard-widget.drag-over {
+    box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* ── Mobile long-press lift effect ── */
+.dashboard-widget.lifting {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-xl);
+    z-index: 100;
+    opacity: 0.9;
+}
+
+/* ── Grid preview placeholder ── */
+.grid-preview {
+    position: absolute;
+    background: var(--color-accent-soft);
+    border: 2px dashed var(--color-accent);
+    border-radius: var(--radius-lg);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 50;
+    transition: all 0.1s;
+}
+
+/* ── Fade out animation for removed widgets ── */
+.dashboard-widget.removing {
+    animation: widgetFadeOut 0.2s var(--ease-out) forwards;
+}
+@keyframes widgetFadeOut {
+    to { opacity: 0; transform: scale(0.95); }
+}
+
+/* ── Mobile bottom sheet animation ── */
+#widgetBottomSheet > div:last-child {
+    transform: translateY(100%);
+    transition: transform 0.3s var(--ease-out);
+}
+#widgetBottomSheet.active > div:last-child {
+    transform: translateY(0);
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-(function() {
-/* ── Feature 1: Widget Customization ── */
-var WIDGET_KEY = 'dashboard_widgets';
-var DEFAULT_WIDGETS = ['widget-row','stat-cards','heatmap','quick-add','plan-view','timetable','time-budgets','notices','worklogs','events','memos','progress'];
-var WIDGET_LABELS = {
-    'widget-row':'오늘 위젯','stat-cards':'통계 카드','heatmap':'완료 히트맵','quick-add':'빠른 추가','plan-view':'플랜 뷰','timetable':'시간표',
-    'time-budgets':'시간 예산','notices':'공지','worklogs':'업무일지','events':'일정','memos':'메모','progress':'진행률'
-};
+/* ============================================================
+   DashGrid — Dashboard Grid Layout Engine (Vanilla JS + CSS Grid)
+   ============================================================ */
+var DashGrid = (function() {
+    'use strict';
 
-function loadWidgetConfig() {
-    try { return JSON.parse(localStorage.getItem(WIDGET_KEY)) || null; } catch { return null; }
-}
+    /* ── Constants ── */
+    var STORAGE_KEY_PC = 'dashboard_layout_pc';
+    var STORAGE_KEY_MOBILE = 'dashboard_layout_mobile';
+    var PC_COLS = 12;
+    var MOBILE_COLS = 2;
+    var PC_ROW_H = 80;
+    var MOBILE_ROW_H = 60;
+    var BREAKPOINT = 1024;
 
-function applyWidgetConfig() {
-    const config = loadWidgetConfig();
-    if (!config) return;
-    document.querySelectorAll('[data-widget]').forEach(el => {
-        el.style.display = config.includes(el.dataset.widget) ? '' : 'none';
-    });
-}
+    var WIDGET_LABELS = {
+        'widget-row': 'Today / 오늘',
+        'stat-cards': '통계 카드',
+        'quick-add': '빠른 추가',
+        'plan-view': '플랜 뷰',
+        'timetable': '시간표',
+        'time-budgets': '시간 예산',
+        'notices': '공지',
+        'worklogs': '업무일지',
+        'events': '일정',
+        'progress': '진행률'
+    };
 
-function toggleWidget(name) {
-    let config = loadWidgetConfig() || [...DEFAULT_WIDGETS];
-    if (config.includes(name)) config = config.filter(w => w !== name);
-    else config.push(name);
-    localStorage.setItem(WIDGET_KEY, JSON.stringify(config));
-    applyWidgetConfig();
-    renderWidgetToggles();
-}
+    var WIDGET_ICONS = {
+        'widget-row': '&#9728;&#65039;',
+        'stat-cards': '&#128202;',
+        'quick-add': '&#9997;&#65039;',
+        'plan-view': '&#128197;',
+        'timetable': '&#9200;',
+        'time-budgets': '&#9203;',
+        'notices': '&#128226;',
+        'worklogs': '&#128221;',
+        'events': '&#128197;',
+        'progress': '&#128200;'
+    };
 
-function renderWidgetToggles() {
-    const config = loadWidgetConfig() || [...DEFAULT_WIDGETS];
-    const container = document.getElementById('widgetToggles');
-    if (!container) return;
-    container.innerHTML = DEFAULT_WIDGETS.map(w => {
-        const active = config.includes(w);
-        return `<button type="button" onclick="toggleWidget('${w}')" class="px-3 py-2 text-xs rounded-lg border transition-all ${active ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-400'}">${WIDGET_LABELS[w] || w}</button>`;
-    }).join('');
-}
+    /* ── Default Layouts ── */
+    var DEFAULT_LAYOUT_PC = {
+        'widget-row':   { col: 1,  row: 1,  w: 12, h: 2, visible: true },
+        'stat-cards':   { col: 1,  row: 3,  w: 6,  h: 2, visible: true },
+        'quick-add':    { col: 7,  row: 3,  w: 6,  h: 1, visible: true },
+        'plan-view':    { col: 1,  row: 5,  w: 12, h: 4, visible: true },
+        'timetable':    { col: 1,  row: 9,  w: 6,  h: 3, visible: true },
+        'time-budgets': { col: 7,  row: 9,  w: 6,  h: 3, visible: true },
+        'notices':      { col: 1,  row: 12, w: 6,  h: 3, visible: true },
+        'worklogs':     { col: 7,  row: 12, w: 6,  h: 3, visible: true },
+        'events':       { col: 1,  row: 15, w: 6,  h: 3, visible: true },
+        'progress':     { col: 7,  row: 15, w: 6,  h: 3, visible: true }
+    };
 
+    var DEFAULT_LAYOUT_MOBILE = {
+        'widget-row':   { col: 1, row: 1,  w: 2, h: 2, visible: true },
+        'quick-add':    { col: 1, row: 3,  w: 2, h: 1, visible: true },
+        'timetable':    { col: 1, row: 4,  w: 2, h: 3, visible: true },
+        'stat-cards':   { col: 1, row: 7,  w: 2, h: 2, visible: true },
+        'events':       { col: 1, row: 9,  w: 2, h: 2, visible: true },
+        'plan-view':    { col: 1, row: 11, w: 2, h: 3, visible: false },
+        'time-budgets': { col: 1, row: 14, w: 2, h: 2, visible: false },
+        'notices':      { col: 1, row: 16, w: 2, h: 2, visible: false },
+        'worklogs':     { col: 1, row: 18, w: 2, h: 2, visible: false },
+        'progress':     { col: 1, row: 20, w: 2, h: 2, visible: false }
+    };
+
+    /* Mobile size presets mapping */
+    var MOBILE_SIZE_MAP = {
+        'C':  { w: 1, h: 1 },
+        'H':  { w: 1, h: 2 },
+        'FM': { w: 2, h: 2 },
+        'T':  { w: 2, h: 3 }
+    };
+
+    /* ── State ── */
+    var editMode = false;
+    var dragState = null;
+    var resizeState = null;
+    var longPressTimer = null;
+
+    /* ── Helpers ── */
+    function isMobile() {
+        return window.innerWidth < BREAKPOINT;
+    }
+
+    function getStorageKey() {
+        return isMobile() ? STORAGE_KEY_MOBILE : STORAGE_KEY_PC;
+    }
+
+    function getCols() {
+        return isMobile() ? MOBILE_COLS : PC_COLS;
+    }
+
+    function getRowH() {
+        return isMobile() ? MOBILE_ROW_H : PC_ROW_H;
+    }
+
+    function getDefaultLayout() {
+        return isMobile() ? JSON.parse(JSON.stringify(DEFAULT_LAYOUT_MOBILE)) : JSON.parse(JSON.stringify(DEFAULT_LAYOUT_PC));
+    }
+
+    function loadLayout() {
+        try {
+            var raw = localStorage.getItem(getStorageKey());
+            if (raw) {
+                var parsed = JSON.parse(raw);
+                /* Merge with defaults for any missing widgets */
+                var defaults = getDefaultLayout();
+                for (var k in defaults) {
+                    if (!parsed[k]) parsed[k] = defaults[k];
+                }
+                return parsed;
+            }
+        } catch(e) {}
+        return getDefaultLayout();
+    }
+
+    function saveLayout(layout) {
+        try {
+            localStorage.setItem(getStorageKey(), JSON.stringify(layout));
+        } catch(e) {}
+    }
+
+    function getGrid() {
+        return document.getElementById('dashboardGrid');
+    }
+
+    function getWidgets() {
+        return getGrid().querySelectorAll('.dashboard-widget[data-widget]');
+    }
+
+    function getWidget(name) {
+        return getGrid().querySelector('.dashboard-widget[data-widget="' + name + '"]');
+    }
+
+    /* ── Apply Layout ── */
+    function applyLayout() {
+        var layout = loadLayout();
+        var widgets = getWidgets();
+
+        widgets.forEach(function(el) {
+            var name = el.dataset.widget;
+            var cfg = layout[name];
+            if (!cfg) {
+                el.style.display = 'none';
+                return;
+            }
+
+            if (!cfg.visible) {
+                el.style.display = 'none';
+                return;
+            }
+
+            el.style.display = '';
+            el.style.gridColumn = cfg.col + ' / span ' + cfg.w;
+            el.style.gridRow = cfg.row + ' / span ' + cfg.h;
+
+            /* Height adaptation classes */
+            el.classList.toggle('widget-rows-1', cfg.h === 1);
+            el.classList.toggle('widget-rows-2', cfg.h === 2);
+            el.classList.toggle('widget-rows-3', cfg.h >= 3);
+
+            /* Update mobile size preset active states */
+            if (isMobile()) {
+                var presets = el.querySelectorAll('.widget-size-presets button');
+                presets.forEach(function(btn) {
+                    var sz = MOBILE_SIZE_MAP[btn.dataset.size];
+                    btn.classList.toggle('active', sz && sz.w === cfg.w && sz.h === cfg.h);
+                });
+            }
+        });
+
+        /* Show/hide add widget button */
+        var addBtn = document.getElementById('addWidgetBtn');
+        if (addBtn) {
+            addBtn.style.display = (editMode && isMobile()) ? '' : 'none';
+        }
+    }
+
+    /* ── Edit Mode ── */
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle('dash-edit-mode', editMode);
+
+        var banner = document.getElementById('editBanner');
+        if (banner) banner.classList.toggle('hidden', !editMode);
+
+        var editBtn = document.getElementById('editModeBtn');
+        if (editBtn) {
+            editBtn.style.color = editMode ? 'var(--color-accent)' : '';
+            editBtn.style.background = editMode ? 'var(--color-accent-soft)' : '';
+        }
+
+        /* Show widget config panel when entering edit mode */
+        var config = document.getElementById('widgetConfig');
+        if (config) {
+            if (editMode && !isMobile()) {
+                config.classList.remove('hidden');
+                renderWidgetToggles();
+            } else {
+                config.classList.add('hidden');
+            }
+        }
+
+        applyLayout();
+    }
+
+    /* ── Widget Toggles (config panel) ── */
+    function renderWidgetToggles() {
+        var container = document.getElementById('widgetToggles');
+        if (!container) return;
+        var layout = loadLayout();
+        var html = '';
+        for (var name in WIDGET_LABELS) {
+            var cfg = layout[name];
+            var exists = !!getWidget(name);
+            if (!exists) continue;
+            var active = cfg && cfg.visible;
+            html += '<button type="button" onclick="DashGrid.toggleWidgetVisibility(\'' + name + '\')" ' +
+                    'class="px-3 py-2 text-xs rounded-lg border transition-all ' +
+                    (active ?
+                        'border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300" style="background: var(--color-accent-soft);"' :
+                        'border-slate-200 dark:border-slate-600 text-slate-400" style="background: var(--color-border-subtle);"') +
+                    '>' + (WIDGET_LABELS[name] || name) + '</button>';
+        }
+        container.innerHTML = html;
+    }
+
+    function toggleWidgetVisibility(name) {
+        var layout = loadLayout();
+        if (!layout[name]) {
+            var defaults = getDefaultLayout();
+            layout[name] = defaults[name] || { col: 1, row: 1, w: getCols(), h: 2, visible: true };
+        }
+        layout[name].visible = !layout[name].visible;
+
+        /* If making visible, find next free row */
+        if (layout[name].visible) {
+            var maxRow = 1;
+            for (var k in layout) {
+                if (layout[k].visible && k !== name) {
+                    var endRow = layout[k].row + layout[k].h;
+                    if (endRow > maxRow) maxRow = endRow;
+                }
+            }
+            layout[name].row = maxRow;
+        }
+
+        saveLayout(layout);
+        applyLayout();
+        renderWidgetToggles();
+    }
+
+    /* ── Remove Widget ── */
+    function removeWidget(name) {
+        var el = getWidget(name);
+        if (el) {
+            el.classList.add('removing');
+            setTimeout(function() {
+                var layout = loadLayout();
+                if (layout[name]) layout[name].visible = false;
+                saveLayout(layout);
+                applyLayout();
+                renderWidgetToggles();
+            }, 200);
+        }
+    }
+
+    /* ── Reset Layout ── */
+    function resetLayout() {
+        localStorage.removeItem(getStorageKey());
+        applyLayout();
+        renderWidgetToggles();
+    }
+
+    /* ── Mobile Size Presets ── */
+    function setMobileSize(name, size) {
+        if (!isMobile()) return;
+        var sz = MOBILE_SIZE_MAP[size];
+        if (!sz) return;
+        var layout = loadLayout();
+        if (!layout[name]) return;
+        layout[name].w = sz.w;
+        layout[name].h = sz.h;
+        saveLayout(layout);
+        resolveCollisions(layout);
+        saveLayout(layout);
+        applyLayout();
+    }
+
+    /* ── Collision Resolution (push-down) ── */
+    function resolveCollisions(layout) {
+        var cols = getCols();
+        var items = [];
+        for (var k in layout) {
+            if (layout[k].visible) {
+                items.push({ name: k, cfg: layout[k] });
+            }
+        }
+        /* Sort by row then col */
+        items.sort(function(a, b) {
+            return a.cfg.row - b.cfg.row || a.cfg.col - b.cfg.col;
+        });
+
+        for (var i = 0; i < items.length; i++) {
+            for (var j = i + 1; j < items.length; j++) {
+                if (overlaps(items[i].cfg, items[j].cfg)) {
+                    items[j].cfg.row = items[i].cfg.row + items[i].cfg.h;
+                }
+            }
+        }
+    }
+
+    function overlaps(a, b) {
+        return !(a.col + a.w <= b.col || b.col + b.w <= a.col ||
+                 a.row + a.h <= b.row || b.row + b.h <= a.row);
+    }
+
+    /* ── PC Drag Move ── */
+    function initDragMove() {
+        var grid = getGrid();
+        if (!grid) return;
+
+        grid.addEventListener('mousedown', function(e) {
+            if (!editMode) return;
+            var header = e.target.closest('.widget-header');
+            if (!header) return;
+            if (e.target.closest('.widget-remove-btn')) return;
+            e.preventDefault();
+
+            var widget = header.closest('.dashboard-widget');
+            if (!widget) return;
+
+            var name = widget.dataset.widget;
+            var layout = loadLayout();
+            var cfg = layout[name];
+            if (!cfg) return;
+
+            var rect = grid.getBoundingClientRect();
+            var colW = rect.width / getCols();
+            var rowH = getRowH();
+
+            dragState = {
+                name: name,
+                widget: widget,
+                startX: e.clientX,
+                startY: e.clientY,
+                origCol: cfg.col,
+                origRow: cfg.row,
+                colW: colW,
+                rowH: rowH
+            };
+
+            widget.classList.add('dragging');
+
+            /* Create preview element */
+            var preview = document.createElement('div');
+            preview.className = 'grid-preview';
+            preview.id = 'gridPreview';
+            grid.style.position = 'relative';
+            grid.appendChild(preview);
+            updatePreview(preview, cfg, colW, rowH);
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!dragState) return;
+            e.preventDefault();
+
+            var dx = e.clientX - dragState.startX;
+            var dy = e.clientY - dragState.startY;
+            var colDelta = Math.round(dx / dragState.colW);
+            var rowDelta = Math.round(dy / dragState.rowH);
+
+            var layout = loadLayout();
+            var cfg = layout[dragState.name];
+            var newCol = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
+            var newRow = Math.max(1, dragState.origRow + rowDelta);
+
+            var preview = document.getElementById('gridPreview');
+            if (preview) {
+                updatePreview(preview, { col: newCol, row: newRow, w: cfg.w, h: cfg.h }, dragState.colW, dragState.rowH);
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (!dragState) return;
+
+            var dx = e.clientX - dragState.startX;
+            var dy = e.clientY - dragState.startY;
+            var colDelta = Math.round(dx / dragState.colW);
+            var rowDelta = Math.round(dy / dragState.rowH);
+
+            var layout = loadLayout();
+            var cfg = layout[dragState.name];
+            cfg.col = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
+            cfg.row = Math.max(1, dragState.origRow + rowDelta);
+
+            resolveCollisions(layout);
+            saveLayout(layout);
+
+            dragState.widget.classList.remove('dragging');
+            var preview = document.getElementById('gridPreview');
+            if (preview) preview.remove();
+
+            dragState = null;
+            applyLayout();
+        });
+    }
+
+    function updatePreview(el, cfg, colW, rowH) {
+        el.style.left = ((cfg.col - 1) * colW) + 'px';
+        el.style.top = ((cfg.row - 1) * rowH) + 'px';
+        el.style.width = (cfg.w * colW - 8) + 'px';
+        el.style.height = (cfg.h * rowH - 8) + 'px';
+    }
+
+    /* ── PC Resize ── */
+    function initResize() {
+        var grid = getGrid();
+        if (!grid) return;
+
+        grid.addEventListener('mousedown', function(e) {
+            if (!editMode || isMobile()) return;
+            var handle = e.target.closest('.widget-resize-handle');
+            if (!handle) return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            var widget = handle.closest('.dashboard-widget');
+            if (!widget) return;
+
+            var name = widget.dataset.widget;
+            var layout = loadLayout();
+            var cfg = layout[name];
+            if (!cfg) return;
+
+            var rect = grid.getBoundingClientRect();
+            var colW = rect.width / getCols();
+            var rowH = getRowH();
+
+            resizeState = {
+                name: name,
+                widget: widget,
+                startX: e.clientX,
+                startY: e.clientY,
+                origW: cfg.w,
+                origH: cfg.h,
+                colW: colW,
+                rowH: rowH
+            };
+
+            widget.classList.add('dragging');
+
+            var preview = document.createElement('div');
+            preview.className = 'grid-preview';
+            preview.id = 'resizePreview';
+            grid.style.position = 'relative';
+            grid.appendChild(preview);
+            updatePreview(preview, cfg, colW, rowH);
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!resizeState) return;
+            e.preventDefault();
+
+            var dx = e.clientX - resizeState.startX;
+            var dy = e.clientY - resizeState.startY;
+            var wDelta = Math.round(dx / resizeState.colW);
+            var hDelta = Math.round(dy / resizeState.rowH);
+
+            var layout = loadLayout();
+            var cfg = layout[resizeState.name];
+            var newW = Math.max(3, Math.min(getCols() - cfg.col + 1, resizeState.origW + wDelta));
+            var newH = Math.max(1, Math.min(6, resizeState.origH + hDelta));
+
+            var preview = document.getElementById('resizePreview');
+            if (preview) {
+                updatePreview(preview, { col: cfg.col, row: cfg.row, w: newW, h: newH }, resizeState.colW, resizeState.rowH);
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (!resizeState) return;
+
+            var dx = e.clientX - resizeState.startX;
+            var dy = e.clientY - resizeState.startY;
+            var wDelta = Math.round(dx / resizeState.colW);
+            var hDelta = Math.round(dy / resizeState.rowH);
+
+            var layout = loadLayout();
+            var cfg = layout[resizeState.name];
+            cfg.w = Math.max(3, Math.min(getCols() - cfg.col + 1, resizeState.origW + wDelta));
+            cfg.h = Math.max(1, Math.min(6, resizeState.origH + hDelta));
+
+            resolveCollisions(layout);
+            saveLayout(layout);
+
+            resizeState.widget.classList.remove('dragging');
+            var preview = document.getElementById('resizePreview');
+            if (preview) preview.remove();
+
+            resizeState = null;
+            applyLayout();
+        });
+    }
+
+    /* ── Mobile Touch Drag (long-press) ── */
+    function initMobileDrag() {
+        var grid = getGrid();
+        if (!grid) return;
+
+        grid.addEventListener('touchstart', function(e) {
+            if (!editMode || !isMobile()) return;
+            var header = e.target.closest('.widget-header');
+            if (!header) return;
+            if (e.target.closest('.widget-remove-btn')) return;
+
+            var widget = header.closest('.dashboard-widget');
+            if (!widget) return;
+            var name = widget.dataset.widget;
+
+            longPressTimer = setTimeout(function() {
+                if (navigator.vibrate) navigator.vibrate(50);
+                widget.classList.add('lifting');
+
+                var layout = loadLayout();
+                var cfg = layout[name];
+                if (!cfg) return;
+
+                var rect = grid.getBoundingClientRect();
+                var colW = rect.width / getCols();
+                var rowH = getRowH();
+                var touch = e.touches[0];
+
+                dragState = {
+                    name: name,
+                    widget: widget,
+                    startX: touch.clientX,
+                    startY: touch.clientY,
+                    origCol: cfg.col,
+                    origRow: cfg.row,
+                    colW: colW,
+                    rowH: rowH,
+                    isTouch: true
+                };
+            }, 500);
+        }, { passive: true });
+
+        grid.addEventListener('touchmove', function(e) {
+            if (longPressTimer && !dragState) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+                return;
+            }
+            if (!dragState || !dragState.isTouch) return;
+            e.preventDefault();
+
+            var touch = e.touches[0];
+            var dx = touch.clientX - dragState.startX;
+            var dy = touch.clientY - dragState.startY;
+            var colDelta = Math.round(dx / dragState.colW);
+            var rowDelta = Math.round(dy / dragState.rowH);
+
+            var layout = loadLayout();
+            var cfg = layout[dragState.name];
+            var newCol = Math.max(1, Math.min(getCols() - cfg.w + 1, dragState.origCol + colDelta));
+            var newRow = Math.max(1, dragState.origRow + rowDelta);
+
+            /* Live preview by temporarily applying position */
+            dragState.widget.style.gridColumn = newCol + ' / span ' + cfg.w;
+            dragState.widget.style.gridRow = newRow + ' / span ' + cfg.h;
+        }, { passive: false });
+
+        grid.addEventListener('touchend', function(e) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            if (!dragState || !dragState.isTouch) return;
+
+            /* Read final position from style */
+            var layout = loadLayout();
+            var cfg = layout[dragState.name];
+            var style = dragState.widget.style;
+            var colMatch = style.gridColumn.match(/(\d+)/);
+            var rowMatch = style.gridRow.match(/(\d+)/);
+            if (colMatch) cfg.col = parseInt(colMatch[1]);
+            if (rowMatch) cfg.row = parseInt(rowMatch[1]);
+
+            resolveCollisions(layout);
+            saveLayout(layout);
+
+            dragState.widget.classList.remove('lifting');
+            dragState = null;
+            applyLayout();
+        }, { passive: true });
+
+        grid.addEventListener('touchcancel', function() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            if (dragState && dragState.isTouch) {
+                dragState.widget.classList.remove('lifting');
+                dragState = null;
+                applyLayout();
+            }
+        }, { passive: true });
+    }
+
+    /* ── Mobile Bottom Sheet ── */
+    function openBottomSheet() {
+        var sheet = document.getElementById('widgetBottomSheet');
+        if (!sheet) return;
+
+        var container = document.getElementById('bottomSheetWidgets');
+        if (!container) return;
+
+        var layout = loadLayout();
+        var html = '';
+        for (var name in WIDGET_LABELS) {
+            if (!getWidget(name)) continue;
+            var cfg = layout[name];
+            if (cfg && cfg.visible) continue;
+            html += '<button onclick="DashGrid.restoreWidget(\'' + name + '\')" ' +
+                    'class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-left" ' +
+                    'style="background: var(--color-border-subtle); min-height: 44px;">' +
+                    '<span class="text-lg">' + (WIDGET_ICONS[name] || '') + '</span>' +
+                    '<span class="text-sm font-medium" style="color: var(--color-text);">' + (WIDGET_LABELS[name] || name) + '</span>' +
+                    '</button>';
+        }
+
+        if (!html) {
+            html = '<p class="text-sm text-center py-4" style="color: var(--color-text-faint);">모든 위젯이 표시 중입니다</p>';
+        }
+
+        container.innerHTML = html;
+        sheet.classList.remove('hidden');
+        requestAnimationFrame(function() {
+            sheet.classList.add('active');
+        });
+    }
+
+    function closeBottomSheet() {
+        var sheet = document.getElementById('widgetBottomSheet');
+        if (!sheet) return;
+        sheet.classList.remove('active');
+        setTimeout(function() { sheet.classList.add('hidden'); }, 300);
+    }
+
+    function restoreWidget(name) {
+        var layout = loadLayout();
+        if (!layout[name]) {
+            var defaults = getDefaultLayout();
+            layout[name] = defaults[name] || { col: 1, row: 1, w: getCols(), h: 2, visible: true };
+        }
+        layout[name].visible = true;
+
+        /* Place at bottom */
+        var maxRow = 1;
+        for (var k in layout) {
+            if (layout[k].visible && k !== name) {
+                var endRow = layout[k].row + layout[k].h;
+                if (endRow > maxRow) maxRow = endRow;
+            }
+        }
+        layout[name].row = maxRow;
+
+        saveLayout(layout);
+        applyLayout();
+        closeBottomSheet();
+        renderWidgetToggles();
+    }
+
+    /* ── Responsive: switch layout on resize ── */
+    var resizeDebounce = null;
+    function onResize() {
+        clearTimeout(resizeDebounce);
+        resizeDebounce = setTimeout(function() {
+            applyLayout();
+        }, 200);
+    }
+
+    /* ── Initialize ── */
+    function init() {
+        applyLayout();
+        initDragMove();
+        initResize();
+        initMobileDrag();
+        window.addEventListener('resize', onResize);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    /* ── Public API ── */
+    return {
+        toggleEditMode: toggleEditMode,
+        removeWidget: removeWidget,
+        resetLayout: resetLayout,
+        setMobileSize: setMobileSize,
+        openBottomSheet: openBottomSheet,
+        closeBottomSheet: closeBottomSheet,
+        restoreWidget: restoreWidget,
+        toggleWidgetVisibility: toggleWidgetVisibility,
+        applyLayout: applyLayout
+    };
+})();
+
+/* ── Widget config panel toggle (legacy compat) ── */
 function toggleWidgetConfig() {
-    const panel = document.getElementById('widgetConfig');
+    var panel = document.getElementById('widgetConfig');
     panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) renderWidgetToggles();
 }
 
-function resetWidgetConfig() {
-    localStorage.removeItem(WIDGET_KEY);
-    applyWidgetConfig();
-    renderWidgetToggles();
-    document.querySelectorAll('[data-widget]').forEach(el => { el.style.display = ''; });
-}
-
-/* ── Feature 3: Quick Add Natural Language Date Parsing ── */
+/* ── Quick Add Natural Language Date Parsing ── */
+(function() {
 var DAY_MAP = {'월':1,'화':2,'수':3,'목':4,'금':5,'토':6,'일':0};
 var TODAY_ISO = '{{ today.isoformat() }}';
 
 function parseNaturalDate(text) {
-    const today = new Date(TODAY_ISO + 'T00:00:00');
-    let dueDate = null;
-    let cleanTitle = text;
+    var today = new Date(TODAY_ISO + 'T00:00:00');
+    var dueDate = null;
+    var cleanTitle = text;
 
-    const patterns = [
+    var patterns = [
         { regex: /^내일까지\s+/, days: 1 },
         { regex: /^모레까지\s+/, days: 2 },
         { regex: /^오늘까지\s+/, days: 0 },
@@ -731,54 +1904,55 @@ function parseNaturalDate(text) {
         { regex: /^오늘\s+/, days: 0 },
     ];
 
-    for (const p of patterns) {
+    for (var i = 0; i < patterns.length; i++) {
+        var p = patterns[i];
         if (p.regex.test(text)) {
-            const d = new Date(today);
+            var d = new Date(today);
             d.setDate(d.getDate() + p.days);
             dueDate = fmtDate(d);
             cleanTitle = text.replace(p.regex, '');
-            return { title: cleanTitle.trim(), dueDate };
+            return { title: cleanTitle.trim(), dueDate: dueDate };
         }
     }
 
-    let m = text.match(/^이번\s*주\s*(월|화|수|목|금|토|일)\s+/);
+    var m = text.match(/^이번\s*주\s*(월|화|수|목|금|토|일)\s+/);
     if (m) {
         dueDate = fmtDate(getWeekday(today, DAY_MAP[m[1]], false));
         cleanTitle = text.replace(m[0], '');
-        return { title: cleanTitle.trim(), dueDate };
+        return { title: cleanTitle.trim(), dueDate: dueDate };
     }
 
     m = text.match(/^다음\s*주\s*(월|화|수|목|금|토|일)\s+/);
     if (m) {
         dueDate = fmtDate(getWeekday(today, DAY_MAP[m[1]], true));
         cleanTitle = text.replace(m[0], '');
-        return { title: cleanTitle.trim(), dueDate };
+        return { title: cleanTitle.trim(), dueDate: dueDate };
     }
 
     m = text.match(/^(월|화|수|목|금|토|일)요일\s+/);
     if (m) {
         dueDate = fmtDate(getWeekday(today, DAY_MAP[m[1]], false));
         cleanTitle = text.replace(m[0], '');
-        return { title: cleanTitle.trim(), dueDate };
+        return { title: cleanTitle.trim(), dueDate: dueDate };
     }
 
     m = text.match(/\s+(오늘|내일|모레)까지$/);
     if (m) {
-        const dayOffset = m[1] === '오늘' ? 0 : m[1] === '내일' ? 1 : 2;
-        const d = new Date(today);
-        d.setDate(d.getDate() + dayOffset);
-        dueDate = fmtDate(d);
+        var dayOffset = m[1] === '오늘' ? 0 : m[1] === '내일' ? 1 : 2;
+        var d2 = new Date(today);
+        d2.setDate(d2.getDate() + dayOffset);
+        dueDate = fmtDate(d2);
         cleanTitle = text.replace(m[0], '');
-        return { title: cleanTitle.trim(), dueDate };
+        return { title: cleanTitle.trim(), dueDate: dueDate };
     }
 
     return { title: text.trim(), dueDate: null };
 }
 
 function getWeekday(today, targetDay, nextWeek) {
-    const d = new Date(today);
-    const currentDay = d.getDay();
-    let diff = targetDay - currentDay;
+    var d = new Date(today);
+    var currentDay = d.getDay();
+    var diff = targetDay - currentDay;
     if (nextWeek) {
         diff += 7;
         if (diff > 13) diff -= 7;
@@ -793,15 +1967,15 @@ function fmtDate(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
-function previewNaturalDate(text) {
-    const preview = document.getElementById('datePreview');
-    const hidden = document.getElementById('quickDueDate');
+window.previewNaturalDate = function(text) {
+    var preview = document.getElementById('datePreview');
+    var hidden = document.getElementById('quickDueDate');
     if (!text.trim()) {
         preview.classList.add('hidden');
         hidden.value = TODAY_ISO;
         return;
     }
-    const result = parseNaturalDate(text);
+    var result = parseNaturalDate(text);
     if (result.dueDate && result.dueDate !== TODAY_ISO) {
         preview.textContent = '마감: ' + result.dueDate;
         preview.classList.remove('hidden');
@@ -810,31 +1984,31 @@ function previewNaturalDate(text) {
         preview.classList.add('hidden');
         hidden.value = TODAY_ISO;
     }
-}
+};
 
-function handleQuickAdd(e) {
-    const titleInput = document.getElementById('quickTitle');
-    const dueDateInput = document.getElementById('quickDueDate');
-    const result = parseNaturalDate(titleInput.value);
+window.handleQuickAdd = function(e) {
+    var titleInput = document.getElementById('quickTitle');
+    var dueDateInput = document.getElementById('quickDueDate');
+    var result = parseNaturalDate(titleInput.value);
     if (result.dueDate) dueDateInput.value = result.dueDate;
     if (result.title && result.title !== titleInput.value) titleInput.value = result.title;
     return true;
-}
+};
+})();
 
-/* ── Feature: Dashboard Todo Toggle (no page navigation) ── */
+/* ── Dashboard Todo Toggle ── */
 async function toggleDashTodo(btn, todoId) {
     try {
-    const res = await fetch('/todos/' + todoId + '/toggle', {
-        method: 'POST',
-        headers: {'X-No-Redirect': '1'}
-    });
-    if (!res.ok) return;
+        var res = await fetch('/todos/' + todoId + '/toggle', {
+            method: 'POST',
+            headers: {'X-No-Redirect': '1'}
+        });
+        if (!res.ok) return;
     } catch(e) { return; }
 
-    const wasCompleted = btn.dataset.completed === 'true';
+    var wasCompleted = btn.dataset.completed === 'true';
     btn.dataset.completed = wasCompleted ? 'false' : 'true';
 
-    // Toggle checkbox visual
     if (wasCompleted) {
         btn.classList.remove('bg-amber-500', 'border-amber-500');
         btn.classList.add('border-slate-300', 'dark:border-slate-500');
@@ -845,9 +2019,8 @@ async function toggleDashTodo(btn, todoId) {
         btn.innerHTML = '<svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
     }
 
-    // Toggle strikethrough on title
-    const row = btn.closest('.flex');
-    const titleEl = row ? row.querySelector('span.text-xs') : null;
+    var row = btn.closest('.flex');
+    var titleEl = row ? row.querySelector('span.text-xs') : null;
     if (titleEl) {
         titleEl.classList.toggle('line-through');
         titleEl.classList.toggle('text-slate-400');
@@ -858,56 +2031,15 @@ async function toggleDashTodo(btn, todoId) {
         }
     }
 
-    // Update counter badge in the day card header
-    const card = btn.closest('.work-card');
+    var card = btn.closest('.work-card');
     if (card) {
-        const badge = card.querySelector('.border-b span.text-xs.font-medium.px-1\\.5');
+        var badge = card.querySelector('.border-b span.text-xs.font-medium.px-1\\.5');
         if (badge && badge.textContent.includes('/')) {
-            const allBtns = card.querySelectorAll('button[data-completed]');
-            const completed = [...allBtns].filter(b => b.dataset.completed === 'true').length;
+            var allBtns = card.querySelectorAll('button[data-completed]');
+            var completed = Array.from(allBtns).filter(function(b) { return b.dataset.completed === 'true'; }).length;
             badge.textContent = completed + '/' + allBtns.length;
         }
     }
 }
-
-window.toggleWidget = toggleWidget;
-window.toggleWidgetConfig = toggleWidgetConfig;
-window.resetWidgetConfig = resetWidgetConfig;
-window.previewNaturalDate = previewNaturalDate;
-window.handleQuickAdd = handleQuickAdd;
-window.toggleDashTodo = toggleDashTodo;
-
-document.addEventListener('DOMContentLoaded', function() { applyWidgetConfig(); });
-
-(function() {
-    var data = {{ heatmap | tojson }};
-    var container = document.getElementById('heatmap');
-    if (!container) return;
-    var isDark = document.documentElement.classList.contains('dark');
-    var today = new Date('{{ heatmap_today }}');
-    var start = new Date('{{ heatmap_start }}');
-    var dayOfWeek = start.getDay();
-    var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    start.setDate(start.getDate() + mondayOffset);
-    var emptyColor = isDark ? '#334155' : '#f1f5f9';
-    var colors = [emptyColor, '#bbf7d0', '#4ade80', '#16a34a', '#166534'];
-    var current = new Date(start);
-    while (current <= today) {
-        var col = document.createElement('div');
-        col.style.cssText = 'display:flex;flex-direction:column;gap:3px';
-        for (var d = 0; d < 7; d++) {
-            var cell = document.createElement('div');
-            var dateStr = current.getFullYear() + '-' + String(current.getMonth()+1).padStart(2,'0') + '-' + String(current.getDate()).padStart(2,'0');
-            var count = data[dateStr] || 0;
-            var level = count === 0 ? 0 : count <= 2 ? 1 : count <= 4 ? 2 : count <= 7 ? 3 : 4;
-            cell.style.cssText = 'width:12px;height:12px;border-radius:2px;background:' + (current > today ? 'transparent' : colors[level]);
-            cell.title = dateStr + ': ' + count + '건 완료';
-            col.appendChild(cell);
-            current.setDate(current.getDate() + 1);
-        }
-        container.appendChild(col);
-    }
-})();
-})();
 </script>
 {% endblock %}
