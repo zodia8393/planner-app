@@ -17,14 +17,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
     <link rel="stylesheet" href="/static/tailwind.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
     <script src="/static/htmx.min.js"></script>
-    <script src="/static/chart.umd.min.js"></script>
-    <script src="/static/sortable.min.js"></script>
+    {% block head_extra %}{% endblock %}
     <script src="/static/notifications.js" defer></script>
     <script src="/static/shortcuts.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
     <style>
         /* ── Design Tokens ── */
         :root {
@@ -2379,15 +2377,31 @@
         });
     })();
 
-    // Render memo markdown on page load
+    // Render memo markdown on page load (marked + DOMPurify loaded on demand)
+    var _memoLibsLoading = false;
+    function _doMemoRender() {
+        marked.setOptions({ breaks: true, gfm: true });
+        document.querySelectorAll('.memo-content').forEach(function(el) {
+            if (el.dataset.rendered) return;
+            el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
+            el.dataset.rendered = '1';
+        });
+    }
     function renderMemoMarkdown() {
-        if (typeof marked !== 'undefined') {
-            marked.setOptions({ breaks: true, gfm: true });
-            document.querySelectorAll('.memo-content').forEach(function(el) {
-                if (el.dataset.rendered) return;
-                el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
-                el.dataset.rendered = '1';
-            });
+        if (!document.querySelector('.memo-content:not([data-rendered])')) return;
+        if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+            _doMemoRender();
+        } else if (!_memoLibsLoading) {
+            _memoLibsLoading = true;
+            var s1 = document.createElement('script');
+            s1.src = 'https://cdn.jsdelivr.net/npm/marked@12/marked.min.js';
+            s1.onload = function() {
+                var s2 = document.createElement('script');
+                s2.src = 'https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js';
+                s2.onload = function() { _memoLibsLoading = false; _doMemoRender(); };
+                document.head.appendChild(s2);
+            };
+            document.head.appendChild(s1);
         }
     }
     renderMemoMarkdown();

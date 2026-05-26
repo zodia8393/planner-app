@@ -107,11 +107,20 @@ class ProfileCheckMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
+class StaticCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+
 app.add_middleware(ProfileCheckMiddleware)
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(SyncBroadcastMiddleware, event_bus=event_bus,
                    skip_paths=("/worklogs/upload-image",),
                    skip_prefixes=("/files/",))
+app.add_middleware(StaticCacheMiddleware)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 BG_DIR = BASE_DIR / "data" / "backgrounds"
 BG_DIR.mkdir(parents=True, exist_ok=True)

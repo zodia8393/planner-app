@@ -164,10 +164,19 @@ async def lifespan(app):
 
 app = FastAPI(title="Work Planner", docs_url=None, redoc_url=None, lifespan=lifespan)
 
+class StaticCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+
 app.add_middleware(PinAuthMiddleware)
 app.add_middleware(ProfileSelectMiddleware)
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(SyncBroadcastMiddleware, event_bus=event_bus, skip_paths=("/worklogs/upload-image",))
+app.add_middleware(StaticCacheMiddleware)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 WORKLOG_IMG_DIR = BASE_DIR / "data" / "worklog_images"
