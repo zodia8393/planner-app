@@ -2573,7 +2573,7 @@ async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
 TIMETABLE_PRESETS = {
     "worker": {"label": "직장인", "blocks": [("07:00","09:00","출근 준비","#f59e0b",""),("09:00","12:00","업무","#6366f1",""),("12:00","13:00","점심","#10b981",""),("13:00","18:00","업무","#6366f1",""),("18:00","19:00","퇴근","#f59e0b",""),("19:00","23:00","자유시간","#8b5cf6","")]},
     "student": {"label": "학생", "blocks": [("07:00","08:00","등교 준비","#f59e0b",""),("08:00","12:00","수업","#6366f1",""),("12:00","13:00","점심","#10b981",""),("13:00","16:00","수업","#6366f1",""),("16:00","18:00","자습","#8b5cf6",""),("18:00","19:00","저녁","#10b981",""),("19:00","22:00","공부","#6366f1","")]},
-    "free": {"label": "자유", "blocks": []},
+    "free": {"label": "자유", "blocks": [("08:00", "23:00", "자유시간", "#8b5cf6", "")]},
 }
 DAY_TYPE_LABELS = {"default":"기본","weekday":"평일","weekend":"주말","mon":"월","tue":"화","wed":"수","thu":"목","fri":"금","sat":"토","sun":"일"}
 DAY_TYPE_ORDER = ["default","weekday","weekend","mon","tue","wed","thu","fri","sat","sun"]
@@ -2691,8 +2691,11 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
 @app.post("/timetable/blocks", response_class=HTMLResponse)
 async def create_timetable_block(request: Request, start_time: str = Form(""), end_time: str = Form(""), title: str = Form(""), color: str = Form("#6366f1"), icon: str = Form(""), day_type: str = Form("default")):
     pid = get_profile_id(request)
+    if not pid: return redirect(request, "/setup")
     title = clamp_text(fix_mojibake(title), 50).strip()
     if not title or not start_time or not end_time: return redirect(request, "/timetable")
+    import re; time_re = re.compile(r'^\d{2}:\d{2}$')
+    if not time_re.match(start_time) or not time_re.match(end_time) or end_time <= start_time: return redirect(request, "/timetable")
     if day_type not in DAY_TYPE_ORDER: day_type = "default"
     with get_db() as conn:
         mx = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM timetable_blocks WHERE profile_id=? AND day_type=?", (pid, day_type)).fetchone()[0]
@@ -2702,8 +2705,11 @@ async def create_timetable_block(request: Request, start_time: str = Form(""), e
 @app.put("/timetable/blocks/{block_id}", response_class=HTMLResponse)
 async def update_timetable_block(request: Request, block_id: int, start_time: str = Form(""), end_time: str = Form(""), title: str = Form(""), color: str = Form("#6366f1"), icon: str = Form("")):
     pid = get_profile_id(request)
+    if not pid: return redirect(request, "/setup")
     title = clamp_text(fix_mojibake(title), 50).strip()
     if not title or not start_time or not end_time: return redirect(request, "/timetable")
+    import re; time_re = re.compile(r'^\d{2}:\d{2}$')
+    if not time_re.match(start_time) or not time_re.match(end_time) or end_time <= start_time: return redirect(request, "/timetable")
     with get_db() as conn:
         conn.execute("UPDATE timetable_blocks SET start_time=?,end_time=?,title=?,color=?,icon=? WHERE id=? AND profile_id=?", (start_time,end_time,title,color,icon or "",block_id,pid))
     return redirect(request, "/timetable")
@@ -2711,6 +2717,7 @@ async def update_timetable_block(request: Request, block_id: int, start_time: st
 @app.delete("/timetable/blocks/{block_id}", response_class=HTMLResponse)
 async def delete_timetable_block(request: Request, block_id: int):
     pid = get_profile_id(request)
+    if not pid: return redirect(request, "/setup")
     with get_db() as conn:
         conn.execute("DELETE FROM timetable_blocks WHERE id=? AND profile_id=?", (block_id, pid))
     return HTMLResponse("") if request.headers.get("HX-Request") else redirect(request, "/timetable")
@@ -2718,8 +2725,10 @@ async def delete_timetable_block(request: Request, block_id: int):
 @app.post("/timetable/templates/copy", response_class=HTMLResponse)
 async def copy_timetable_template(request: Request, from_type: str = Form("default"), to_type: str = Form("")):
     pid = get_profile_id(request)
+    if not pid: return redirect(request, "/setup")
     if not to_type or to_type not in DAY_TYPE_ORDER or from_type not in DAY_TYPE_ORDER: return redirect(request, "/timetable")
     with get_db() as conn:
+        conn.execute("DELETE FROM timetable_blocks WHERE profile_id=? AND day_type=?", (pid, to_type))
         for row in conn.execute("SELECT start_time,end_time,title,color,icon,sort_order FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order", (pid,from_type)).fetchall():
             conn.execute("INSERT INTO timetable_blocks (profile_id,day_type,start_time,end_time,title,color,icon,sort_order) VALUES (?,?,?,?,?,?,?,?)", (pid,to_type,row["start_time"],row["end_time"],row["title"],row["color"],row["icon"],row["sort_order"]))
     return redirect(request, f"/timetable?day_type={to_type}")
@@ -2727,8 +2736,10 @@ async def copy_timetable_template(request: Request, from_type: str = Form("defau
 @app.post("/timetable/presets/apply", response_class=HTMLResponse)
 async def apply_timetable_preset(request: Request, preset: str = Form("")):
     pid = get_profile_id(request)
+    if not pid: return redirect(request, "/setup")
     if preset not in TIMETABLE_PRESETS: return redirect(request, "/timetable")
     with get_db() as conn:
+        conn.execute("DELETE FROM timetable_blocks WHERE profile_id=? AND day_type='default'", (pid,))
         for i,(st,et,title,color,icon) in enumerate(TIMETABLE_PRESETS[preset]["blocks"]):
             conn.execute("INSERT INTO timetable_blocks (profile_id,day_type,start_time,end_time,title,color,icon,sort_order) VALUES (?,?,?,?,?,?,?,?)", (pid,"default",st,et,title,color,icon,i))
     return redirect(request, "/timetable")

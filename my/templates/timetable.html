@@ -121,6 +121,7 @@
                     data-start="{{ block.start_hour }}"
                     data-end="{{ block.end_hour }}"
                     data-color="{{ block.color }}"
+                    data-icon="{{ block.icon|default('', true)|e }}"
                     data-raw-start="{{ block.raw_start }}"
                     data-raw-end="{{ block.raw_end }}"
                     onclick="clickUserBlock(this)"
@@ -478,7 +479,8 @@ function clickUserBlock(el) {
     var rawEnd = el.getAttribute('data-raw-end');
     var title = el.getAttribute('data-title');
     var color = el.getAttribute('data-color');
-    editBlock(parseInt(id), rawStart, rawEnd, title, color, '');
+    var icon = el.getAttribute('data-icon') || '';
+    editBlock(parseInt(id), rawStart, rawEnd, title, color, icon);
 }
 
 // Add/Edit form logic

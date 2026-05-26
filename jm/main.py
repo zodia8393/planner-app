@@ -2529,7 +2529,9 @@ TIMETABLE_PRESETS = {
     },
     "free": {
         "label": "자유",
-        "blocks": [],
+        "blocks": [
+            ("08:00", "23:00", "자유시간", "#8b5cf6", ""),
+        ],
     },
 }
 
@@ -2843,6 +2845,12 @@ async def create_timetable_block(request: Request,
     title = clamp_text(fix_mojibake(title), 50).strip()
     if not title or not start_time or not end_time:
         return redirect(request, "/timetable")
+    import re
+    time_re = re.compile(r'^\d{2}:\d{2}$')
+    if not time_re.match(start_time) or not time_re.match(end_time):
+        return redirect(request, "/timetable")
+    if end_time <= start_time:
+        return redirect(request, "/timetable")
     if day_type not in DAY_TYPE_ORDER:
         day_type = "default"
     with get_db() as conn:
@@ -2869,6 +2877,12 @@ async def update_timetable_block(request: Request, block_id: int,
     pid = get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 50).strip()
     if not title or not start_time or not end_time:
+        return redirect(request, "/timetable")
+    import re
+    time_re = re.compile(r'^\d{2}:\d{2}$')
+    if not time_re.match(start_time) or not time_re.match(end_time):
+        return redirect(request, "/timetable")
+    if end_time <= start_time:
         return redirect(request, "/timetable")
     with get_db() as conn:
         conn.execute("""
@@ -2897,6 +2911,7 @@ async def copy_timetable_template(request: Request,
     if not to_type or to_type not in DAY_TYPE_ORDER or from_type not in DAY_TYPE_ORDER:
         return redirect(request, "/timetable")
     with get_db() as conn:
+        conn.execute("DELETE FROM timetable_blocks WHERE profile_id=? AND day_type=?", (pid, to_type))
         source = conn.execute(
             "SELECT start_time, end_time, title, color, icon, sort_order FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order",
             (pid, from_type)
@@ -2918,6 +2933,7 @@ async def apply_timetable_preset(request: Request, preset: str = Form("")):
         return redirect(request, "/timetable")
     blocks = TIMETABLE_PRESETS[preset]["blocks"]
     with get_db() as conn:
+        conn.execute("DELETE FROM timetable_blocks WHERE profile_id=? AND day_type='default'", (pid,))
         for i, (st, et, title, color, icon) in enumerate(blocks):
             conn.execute(
                 "INSERT INTO timetable_blocks (profile_id, day_type, start_time, end_time, title, color, icon, sort_order) VALUES (?,?,?,?,?,?,?,?)",
