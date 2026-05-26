@@ -2575,8 +2575,8 @@ TIMETABLE_PRESETS = {
     "student": {"label": "학생", "blocks": [("07:00","08:00","등교 준비","#f59e0b",""),("08:00","12:00","수업","#6366f1",""),("12:00","13:00","점심","#10b981",""),("13:00","16:00","수업","#6366f1",""),("16:00","18:00","자습","#8b5cf6",""),("18:00","19:00","저녁","#10b981",""),("19:00","22:00","공부","#6366f1","")]},
     "free": {"label": "자유", "blocks": [("08:00", "23:00", "자유시간", "#8b5cf6", "")]},
 }
-DAY_TYPE_LABELS = {"default":"기본","weekday":"평일","weekend":"주말","mon":"월","tue":"화","wed":"수","thu":"목","fri":"금","sat":"토","sun":"일"}
-DAY_TYPE_ORDER = ["default","weekday","weekend","mon","tue","wed","thu","fri","sat","sun"]
+DAY_TYPE_LABELS = {"today":"오늘","default":"기본","weekday":"평일","weekend":"주말","mon":"월","tue":"화","wed":"수","thu":"목","fri":"금","sat":"토","sun":"일"}
+DAY_TYPE_ORDER = ["today","default","weekday","weekend","mon","tue","wed","thu","fri","sat","sun"]
 WEEKDAY_TO_DAY_TYPE = {0:"mon",1:"tue",2:"wed",3:"thu",4:"fri",5:"sat",6:"sun"}
 
 def _resolve_timetable_blocks(conn, pid, target):
@@ -2620,7 +2620,9 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
         user_blocks = _resolve_timetable_blocks(conn, pid, target)
         has_blocks = _has_any_blocks(conn, pid)
         edit_day_type = day_type if day_type in DAY_TYPE_ORDER else ""
-        if edit_day_type:
+        if edit_day_type == "today":
+            edit_blocks = user_blocks
+        elif edit_day_type:
             edit_blocks = [dict(b) for b in conn.execute("SELECT * FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order, id", (pid, edit_day_type)).fetchall()]
         else: edit_blocks = user_blocks
         existing_day_types = {r["day_type"] for r in conn.execute("SELECT DISTINCT day_type FROM timetable_blocks WHERE profile_id=?", (pid,)).fetchall()}
@@ -2658,8 +2660,9 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
                 hour += interval
     inner_blocks.sort(key=lambda b: b["start_hour"])
 
+    display_blocks = edit_blocks if edit_day_type else user_blocks
     outer_blocks = []
-    for ub in user_blocks:
+    for ub in display_blocks:
         try:
             sp=ub["start_time"].split(":"); ep=ub["end_time"].split(":")
             start_h=int(sp[0])+int(sp[1])/60.0; end_h=int(ep[0])+int(ep[1])/60.0

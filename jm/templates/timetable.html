@@ -232,9 +232,11 @@
                     시간표
                     <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ user_blocks|length }}</span>
                 </h3>
+                {% if edit_day_type != 'today' %}
                 <button onclick="toggleAddForm()" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
                         style="background: var(--color-accent-soft); color: var(--color-accent);"
                         id="addBlockBtn">+ 추가</button>
+                {% endif %}
             </div>
             <div class="p-3">
                 <!-- Block list -->
@@ -252,7 +254,7 @@
                                 </p>
                                 <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
                             </div>
-                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
                                 <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
                                         class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="편집">
                                     <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

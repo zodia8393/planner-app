@@ -2537,12 +2537,13 @@ TIMETABLE_PRESETS = {
 
 # Day type labels for UI
 DAY_TYPE_LABELS = {
+    "today": "오늘",
     "default": "기본",
     "weekday": "평일",
     "weekend": "주말",
     "mon": "월", "tue": "화", "wed": "수", "thu": "목", "fri": "금", "sat": "토", "sun": "일",
 }
-DAY_TYPE_ORDER = ["default", "weekday", "weekend", "mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+DAY_TYPE_ORDER = ["today", "default", "weekday", "weekend", "mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 WEEKDAY_TO_DAY_TYPE = {0: "mon", 1: "tue", 2: "wed", 3: "thu", 4: "fri", 5: "sat", 6: "sun"}
 
 
@@ -2639,7 +2640,9 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
 
         # For day_type editing: if day_type param given, show those blocks
         edit_day_type = day_type if day_type in DAY_TYPE_ORDER else ""
-        if edit_day_type:
+        if edit_day_type == "today":
+            edit_blocks = user_blocks
+        elif edit_day_type:
             edit_blocks = conn.execute(
                 "SELECT * FROM timetable_blocks WHERE profile_id=? AND day_type=? ORDER BY sort_order, id",
                 (pid, edit_day_type)
@@ -2738,9 +2741,10 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
 
     inner_blocks.sort(key=lambda b: b["start_hour"])
 
-    # Outer track: user-defined timetable blocks
+    # Outer track: user-defined timetable blocks (use edit_blocks when day_type tab is active)
+    display_blocks = edit_blocks if edit_day_type else user_blocks
     outer_blocks = []
-    for ub in user_blocks:
+    for ub in display_blocks:
         try:
             sp = ub["start_time"].split(":")
             ep = ub["end_time"].split(":")
