@@ -203,7 +203,8 @@ async def create_todo(request: Request,
                       rrule_bymonthday: str = Form(""),
                       rrule_end_type: str = Form("never"),
                       rrule_count: int = Form(0),
-                      rrule_until: str = Form("")):
+                      rrule_until: str = Form(""),
+                      reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
@@ -215,6 +216,9 @@ async def create_todo(request: Request,
     due_date = validate_date_str(due_date)
     recurrence_end = validate_date_str(recurrence_end) or ""
     energy_level = max(1, min(3, energy_level))
+    ro = reminder_offsets.strip() if reminder_offsets else None
+    if ro in ("", "[]"):
+        ro = None
 
     # NLP date extraction: if no explicit due_date, try parsing from title
     if not due_date:
@@ -239,9 +243,9 @@ async def create_todo(request: Request,
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
         cur = conn.execute("""
-            INSERT INTO todos (title, description, due_date, priority, category_id, tags, repeat_type, recurrence_end, assignee, sort_order, profile_id, energy_level)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, max_order + 1, pid, energy_level))
+            INSERT INTO todos (title, description, due_date, priority, category_id, tags, repeat_type, recurrence_end, assignee, sort_order, profile_id, energy_level, reminder_offsets)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, max_order + 1, pid, energy_level, ro))
         S.audit_log(conn, "todo", cur.lastrowid, "create", {"title": title}, str(pid))
 
     S.event_bus.emit("todo", {"action": "created", "title": title})
@@ -352,7 +356,8 @@ async def update_todo(request: Request, todo_id: int,
                       rrule_bymonthday: str = Form(""),
                       rrule_end_type: str = Form("never"),
                       rrule_count: int = Form(0),
-                      rrule_until: str = Form("")):
+                      rrule_until: str = Form(""),
+                      reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
@@ -362,6 +367,9 @@ async def update_todo(request: Request, todo_id: int,
     due_date = validate_date_str(due_date)
     recurrence_end = validate_date_str(recurrence_end) or ""
     energy_level = max(1, min(3, energy_level))
+    ro = reminder_offsets.strip() if reminder_offsets else None
+    if ro in ("", "[]"):
+        ro = None
 
     # Build RRULE from custom fields if repeat_type is 'custom'
     if repeat_type == "custom" and rrule_freq:
@@ -380,9 +388,9 @@ async def update_todo(request: Request, todo_id: int,
         old = conn.execute("SELECT title, description, due_date, priority FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         conn.execute("""
             UPDATE todos SET title=?, description=?, due_date=?, priority=?, category_id=?,
-                   tags=?, repeat_type=?, recurrence_end=?, assignee=?, energy_level=?, updated_at=datetime('now','localtime')
+                   tags=?, repeat_type=?, recurrence_end=?, assignee=?, energy_level=?, reminder_offsets=?, updated_at=datetime('now','localtime')
             WHERE id=? AND profile_id=?
-        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, energy_level, todo_id, pid))
+        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, energy_level, ro, todo_id, pid))
         changes = {}
         if old:
             if old["title"] != title:
