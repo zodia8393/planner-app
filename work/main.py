@@ -2533,6 +2533,158 @@ async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
 
 
 # ══════════════════════════════════════════════════════════════════════
+# /timetable — 24h circular timetable
+# ══════════════════════════════════════════════════════════════════════
+
+@app.get("/timetable", response_class=HTMLResponse)
+async def timetable_page(request: Request, dt: str = ""):
+    pid = get_profile_id(request)
+    today = date.today()
+    if dt:
+        try:
+            target = date.fromisoformat(dt)
+        except ValueError:
+            target = today
+    else:
+        target = today
+    target_str = target.isoformat()
+    weekday_names = ['월', '화', '수', '목', '금', '토', '일']
+    weekday_label = weekday_names[target.weekday()]
+
+    with get_db() as conn:
+        events = conn.execute("""
+            SELECT e.*, c.name as category_name
+            FROM events e LEFT JOIN categories c ON e.category_id = c.id
+            WHERE e.profile_id = ? AND date(e.start_time) = ?
+            ORDER BY e.start_time ASC
+        """, (pid, target_str)).fetchall()
+
+        todos = conn.execute("""
+            SELECT t.*, c.name as category_name, c.color as category_color
+            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+            WHERE t.profile_id = ? AND t.due_date = ?
+            ORDER BY t.priority ASC, t.sort_order ASC
+        """, (pid, target_str)).fetchall()
+
+        habits = conn.execute(
+            "SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)
+        ).fetchall()
+
+        habit_logs_today = conn.execute(
+            "SELECT habit_id, log_time FROM habit_logs WHERE profile_id=? AND log_date=?",
+            (pid, target_str)
+        ).fetchall()
+        done_habit_ids = {r["habit_id"] for r in habit_logs_today}
+
+        categories = conn.execute("SELECT * FROM categories ORDER BY sort_order").fetchall()
+
+    time_blocks = []
+    for ev in events:
+        ev = dict(ev)
+        st = ev.get("start_time", "")
+        et = ev.get("end_time", "")
+        if not st or "T" not in st:
+            continue
+        try:
+            sh, sm = int(st[11:13]), int(st[14:16])
+            start_h = sh + sm / 60.0
+        except (ValueError, IndexError):
+            continue
+        if et and "T" in et:
+            try:
+                eh, em = int(et[11:13]), int(et[14:16])
+                end_h = eh + em / 60.0
+            except (ValueError, IndexError):
+                end_h = min(start_h + 1, 24)
+        else:
+            end_h = min(start_h + 1, 24)
+        if end_h <= start_h:
+            end_h = min(start_h + 0.5, 24)
+        time_blocks.append({
+            "type": "event",
+            "title": ev["title"],
+            "start_hour": start_h,
+            "end_hour": end_h,
+            "color": ev.get("color") or "#6366f1",
+            "start_time": st,
+            "end_time": et or "",
+            "id": ev["id"],
+        })
+
+    for h in habits:
+        hd = dict(h)
+        fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
+        if not fd:
+            continue
+        if fd.get("type") == "specific_times":
+            times = fd.get("times", [])
+            for t in times:
+                try:
+                    parts = t.split(":")
+                    th = int(parts[0]) + int(parts[1]) / 60.0
+                except (ValueError, IndexError):
+                    continue
+                time_blocks.append({
+                    "type": "habit",
+                    "title": f"{hd.get('icon', '')} {hd['name']}",
+                    "start_hour": th,
+                    "end_hour": min(th + 0.5, 24),
+                    "color": hd.get("color") or "#10b981",
+                    "id": hd["id"],
+                    "done": hd["id"] in done_habit_ids,
+                })
+        elif fd.get("type") == "every_n_hours":
+            interval = fd.get("interval", 2)
+            start = fd.get("start_hour", 8)
+            end = fd.get("end_hour", 22)
+            hour = start
+            while hour < end:
+                time_blocks.append({
+                    "type": "habit",
+                    "title": f"{hd.get('icon', '')} {hd['name']}",
+                    "start_hour": hour,
+                    "end_hour": min(hour + 0.5, 24),
+                    "color": hd.get("color") or "#10b981",
+                    "id": hd["id"],
+                    "done": hd["id"] in done_habit_ids,
+                })
+                hour += interval
+
+    time_blocks.sort(key=lambda b: b["start_hour"])
+
+    schedule_list = []
+    for ev in events:
+        ev = dict(ev)
+        st = ev.get("start_time", "")
+        et = ev.get("end_time", "")
+        schedule_list.append({
+            "type": "event",
+            "title": ev["title"],
+            "time_label": (st[11:16] if st and "T" in st else "종일") + (" ~ " + et[11:16] if et and "T" in et else ""),
+            "color": ev.get("color") or "#6366f1",
+            "id": ev["id"],
+        })
+
+    prev_date = (target - timedelta(days=1)).isoformat()
+    next_date = (target + timedelta(days=1)).isoformat()
+
+    return render(request, "timetable.html", {
+        "page": "timetable",
+        "target_date": target_str,
+        "target_weekday": weekday_label,
+        "target_day": target.day,
+        "target_month": target.month,
+        "is_today": target == today,
+        "time_blocks": time_blocks,
+        "schedule_list": schedule_list,
+        "todos": [dict(t) for t in todos],
+        "prev_date": prev_date,
+        "next_date": next_date,
+        "categories": [dict(c) for c in categories],
+    })
+
+
+# ══════════════════════════════════════════════════════════════════════
 # /today — unified today view
 # ══════════════════════════════════════════════════════════════════════
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}캘린더 - My Planner{% endblock %}
 {% block page_title %}캘린더{% endblock %}
-{% block page_subtitle %}{{ year }}년 {{ month }}월{% endblock %}
+{% block page_subtitle %}{% if cal_view == 'year' %}{{ year }}년{% else %}{{ year }}년 {{ month }}월{% endif %}{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
@@ -17,11 +17,11 @@
         <p><b class="text-slate-700 dark:text-slate-300">월 이동</b> — 좌우 화살표로 이전/다음 달 이동, "오늘" 버튼으로 복귀</p>
     </div>
 </details>
-<!-- Item 15: Month/Week view toggle -->
+<!-- Month/Week/Year view toggle -->
 <div class="flex items-center gap-2 mb-3">
     <a href="/calendar?view=month"
        class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
-              {% if cal_view != 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+              {% if cal_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         월간
     </a>
     <a href="/calendar?view=week"
@@ -29,10 +29,31 @@
               {% if cal_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
         주간
     </a>
+    <a href="/calendar?view=year&year={{ year }}"
+       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
+              {% if cal_view == 'year' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+        연간
+    </a>
 </div>
 
-<!-- Month navigation -->
+<!-- Navigation -->
 <div class="flex items-center justify-center gap-4 mb-4">
+    {% if cal_view == 'year' %}
+    <a href="/calendar?year={{ year - 1 }}&view=year" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+    </a>
+    <h3 class="text-lg font-bold text-slate-800 dark:text-white min-w-[120px] text-center">{{ year }}년</h3>
+    <a href="/calendar?year={{ year + 1 }}&view=year" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+    </a>
+    <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+        올해
+    </a>
+    {% else %}
     <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -47,9 +68,62 @@
     <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
         오늘
     </a>
+    {% endif %}
 </div>
 
-{% if cal_view == 'week' %}
+{% if cal_view == 'year' %}
+<!-- ====== YEAR VIEW ====== -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+    {% for md in months_data %}
+    {% set mi = md.month %}
+    <div class="work-card rounded-xl overflow-hidden p-2 lg:p-3">
+        <a href="/calendar?year={{ year }}&month={{ mi }}&view=month"
+           class="block text-center text-sm font-bold mb-1.5 hover:text-amber-600 transition-colors"
+           style="color: var(--color-text);">
+            {{ mi }}월
+        </a>
+        <div class="grid grid-cols-7 text-center text-[9px] lg:text-[10px] font-semibold mb-0.5" style="color: var(--color-text-faint);">
+            <span class="text-red-400">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-blue-400">토</span>
+        </div>
+        <div class="grid grid-cols-7 text-center text-[10px] lg:text-[11px] gap-y-0.5">
+            {% for _ in range(md.sun_start) %}
+            <span></span>
+            {% endfor %}
+            {% for day in range(1, md.days_in_month + 1) %}
+            {% set day_str = "%04d-%02d-%02d"|format(year, mi, day) %}
+            {% set weekday = (md.sun_start + day - 1) % 7 %}
+            {% set is_today = day_str == today_str %}
+            {% set holiday = holidays_by_date.get(day_str) %}
+            {% set has_events = day_str in event_dates %}
+            {% set has_todos = day_str in todo_dates %}
+            <a href="/calendar?year={{ year }}&month={{ mi }}&view=month"
+               class="relative flex flex-col items-center cursor-pointer rounded hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
+               {% if holiday %}title="{{ holiday }}"{% endif %}
+               style="padding: 1px 0; min-height: 1.25rem;">
+                <span class="leading-tight
+                    {% if is_today %}text-white rounded-full flex items-center justify-center{% elif holiday or weekday == 0 %}text-red-400{% elif weekday == 6 %}text-blue-400{% else %}{% endif %}"
+                    style="{% if is_today %}background: var(--gradient-accent); width: 1.125rem; height: 1.125rem; font-size: 9px; box-shadow: 0 1px 3px rgba(217,119,6,0.4);{% elif not holiday and weekday != 0 and weekday != 6 %}color: var(--color-text);{% endif %}">{{ day }}</span>
+                {% if has_events or has_todos %}
+                <span class="flex gap-0.5 mt-px">
+                    {% if has_events %}
+                    {% set colors = event_dates.get(day_str, []) %}
+                    {% for c in colors[:3] %}
+                    <span class="w-1 h-1 rounded-full" style="background: {{ c }};"></span>
+                    {% endfor %}
+                    {% endif %}
+                    {% if has_todos %}
+                    <span class="w-1 h-1 rounded-full bg-slate-400"></span>
+                    {% endif %}
+                </span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% elif cal_view == 'week' %}
 <!-- ====== WEEK VIEW ====== -->
 <div class="space-y-0 work-card rounded-xl overflow-hidden mb-6">
     {% for wd in week_days %}

@@ -54,3 +54,9 @@ def get_holidays_for_month(year: int, month: int) -> dict[str, str]:
     """Return holidays dict for a given month: ``{date_str: holiday_name}``."""
     prefix = f"{year:04d}-{month:02d}-"
     return {k: v for k, v in KOREAN_HOLIDAYS.items() if k.startswith(prefix)}
+
+
+def get_holidays_for_year(year: int) -> dict[str, str]:
+    """Return holidays dict for an entire year: ``{date_str: holiday_name}``."""
+    prefix = f"{year:04d}-"
+    return {k: v for k, v in KOREAN_HOLIDAYS.items() if k.startswith(prefix)}

@@ -7,6 +7,7 @@ Usage:
 """
 
 import json
+import math
 import re
 from datetime import datetime, date
 
@@ -161,3 +162,5 @@ def register_filters(templates) -> None:
     templates.env.filters["format_number"] = format_number
     templates.env.filters["format_filesize"] = format_filesize
     templates.env.filters["render_images"] = render_worklog_images
+    templates.env.filters["cos_deg"] = lambda deg: round(math.cos(math.radians(deg)), 6)
+    templates.env.filters["sin_deg"] = lambda deg: round(math.sin(math.radians(deg)), 6)

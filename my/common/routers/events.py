@@ -4,7 +4,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
-from common.holidays import get_holidays_for_month
+from common.holidays import get_holidays_for_month, get_holidays_for_year
 from common.recurrence import expand_recurring_events
 from common.utils import clamp_text, fix_mojibake, validate_date_str, validate_datetime_str
 
@@ -23,6 +23,82 @@ async def calendar_page(request: Request, year: Optional[int] = None, month: Opt
         m = 12; y -= 1
     elif m > 12:
         m = 1; y += 1
+
+    # ── Year view: 12 months in one screen ──
+    if view == "year":
+        year_start = f"{y}-01-01"
+        year_end = f"{y}-12-31"
+        with S.get_db() as conn:
+            events = conn.execute("""
+                SELECT e.*, c.name as category_name
+                FROM events e LEFT JOIN categories c ON e.category_id = c.id
+                WHERE e.profile_id = ?
+                  AND (
+                    (COALESCE(e.recurrence, '') = '' AND date(e.start_time) BETWEEN ? AND ?)
+                    OR (COALESCE(e.recurrence, '') != '' AND date(e.start_time) <= ?)
+                  )
+                ORDER BY e.start_time ASC
+            """, (pid, year_start, year_end, year_end)).fetchall()
+
+            todos = conn.execute("""
+                SELECT t.due_date, t.completed
+                FROM todos t
+                WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
+            """, (year_start, year_end, pid)).fetchall()
+
+            categories = S.get_categories(conn, pid)
+
+        all_events = expand_recurring_events([dict(ev) for ev in events], year_start, year_end)
+
+        # Build a set of dates that have events (with color info)
+        event_dates: dict = {}  # date_str -> list of colors
+        for ev in all_events:
+            try:
+                day_key = ev["start_time"][:10]
+            except (TypeError, IndexError):
+                continue
+            event_dates.setdefault(day_key, []).append(ev.get("color", "#6366f1"))
+
+        todo_dates: set = set()
+        for td in todos:
+            dd = td["due_date"]
+            if dd:
+                todo_dates.add(dd)
+
+        # Build 12 months of data
+        months_data = []
+        for mi in range(1, 13):
+            _, dim = cal_mod.monthrange(y, mi)
+            fd = date(y, mi, 1)
+            sun_start = (fd.weekday() + 1) % 7  # Sunday-start offset
+            months_data.append({
+                "month": mi,
+                "days_in_month": dim,
+                "sun_start": sun_start,
+            })
+
+        return S.render(request, "calendar.html", {
+            "page": "calendar",
+            "year": y,
+            "month": m,
+            "cal_view": "year",
+            "months_data": months_data,
+            "event_dates": event_dates,
+            "todo_dates": todo_dates,
+            "today_str": today.isoformat(),
+            "holidays_by_date": get_holidays_for_year(y),
+            "categories": [dict(c) for c in categories],
+            # Needed for the event modal in year view
+            "days_in_month": 0,
+            "start_weekday": 0,
+            "events_by_date": {},
+            "todos_by_date": {},
+            "prev_year": y - 1,
+            "prev_month": m,
+            "next_year": y + 1,
+            "next_month": m,
+            "week_days": [],
+        })
 
     first_day = date(y, m, 1)
     _, days_in_month = cal_mod.monthrange(y, m)
