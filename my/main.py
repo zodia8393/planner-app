@@ -683,8 +683,8 @@ def init_db():
         except Exception:
             pass
 
-        # notification_settings table
-        conn.execute("""
+        # notification_settings + timetable_blocks tables
+        conn.executescript("""
             CREATE TABLE IF NOT EXISTS notification_settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 profile_id INTEGER NOT NULL,
@@ -706,7 +706,7 @@ def init_db():
                 sort_order INTEGER DEFAULT 0,
                 created_at TEXT DEFAULT (datetime('now', 'localtime'))
             );
-            CREATE INDEX IF NOT EXISTS idx_timetable_blocks_profile ON timetable_blocks(profile_id, day_type)
+            CREATE INDEX IF NOT EXISTS idx_timetable_blocks_profile ON timetable_blocks(profile_id, day_type);
         """)
 
     # One-time cleanup: remove duplicate focus mode worklog entries
