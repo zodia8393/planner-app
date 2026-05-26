@@ -2539,10 +2539,10 @@ async def dismiss_review_prompt(request: Request, action: str = Form("snooze")):
 @app.get("/timetable", response_class=HTMLResponse)
 async def timetable_page(request: Request, dt: str = ""):
     pid = get_profile_id(request)
-    today = date.today()
+    today = date_mod.today()
     if dt:
         try:
-            target = date.fromisoformat(dt)
+            target = date_mod.fromisoformat(dt)
         except ValueError:
             target = today
     else:
@@ -2599,7 +2599,7 @@ async def timetable_page(request: Request, dt: str = ""):
         else:
             end_h = min(start_h + 1, 24)
         if end_h <= start_h:
-            end_h = min(start_h + 0.5, 24)
+            end_h = min(start_h + 1, 24) if end_h == 0 else min(start_h + 0.5, 24)
         time_blocks.append({
             "type": "event",
             "title": ev["title"],
@@ -2613,7 +2613,10 @@ async def timetable_page(request: Request, dt: str = ""):
 
     for h in habits:
         hd = dict(h)
-        fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
+        try:
+            fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
+        except (json.JSONDecodeError, TypeError):
+            fd = None
         if not fd:
             continue
         if fd.get("type") == "specific_times":
@@ -2635,8 +2638,12 @@ async def timetable_page(request: Request, dt: str = ""):
                 })
         elif fd.get("type") == "every_n_hours":
             interval = fd.get("interval", 2)
-            start = fd.get("start_hour", 8)
-            end = fd.get("end_hour", 22)
+            if not isinstance(interval, (int, float)) or interval <= 0:
+                interval = 2
+            raw_start = fd.get("start", fd.get("start_hour", "08:00"))
+            raw_end = fd.get("end", fd.get("end_hour", "22:00"))
+            start = int(raw_start.split(":")[0]) + int(raw_start.split(":")[1]) / 60.0 if isinstance(raw_start, str) and ":" in raw_start else (raw_start if isinstance(raw_start, (int, float)) else 8)
+            end = int(raw_end.split(":")[0]) + int(raw_end.split(":")[1]) / 60.0 if isinstance(raw_end, str) and ":" in raw_end else (raw_end if isinstance(raw_end, (int, float)) else 22)
             hour = start
             while hour < end:
                 time_blocks.append({

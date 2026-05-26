@@ -38,8 +38,6 @@
                 <!-- Hour ticks and labels -->
                 {% for h in range(24) %}
                 {% set angle = (h / 24) * 360 - 90 %}
-                {% set rad = angle * 3.14159265 / 180 %}
-                {% set cos_a = (angle * 3.14159265 / 180) %}
                 <line
                     x1="{{ 200 + 175 * (angle | cos_deg) }}" y1="{{ 200 + 175 * (angle | sin_deg) }}"
                     x2="{{ 200 + 185 * (angle | cos_deg) }}" y2="{{ 200 + 185 * (angle | sin_deg) }}"
@@ -62,7 +60,7 @@
                 {% set end_angle = (block.end_hour / 24) * 360 - 90 %}
                 {% set r_outer = 170 %}
                 {% set r_inner = 130 %}
-                {% set large_arc = 1 if (block.end_hour - block.start_hour) > 12 else 0 %}
+                {% set large_arc = 1 if (block.end_hour - block.start_hour) >= 12 else 0 %}
                 <path
                     d="M {{ 200 + r_outer * (start_angle | cos_deg) }} {{ 200 + r_outer * (start_angle | sin_deg) }}
                        A {{ r_outer }} {{ r_outer }} 0 {{ large_arc }} 1 {{ 200 + r_outer * (end_angle | cos_deg) }} {{ 200 + r_outer * (end_angle | sin_deg) }}
