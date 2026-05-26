@@ -1,35 +1,160 @@
 {% extends "base.html" %}
-{% block title %}습관 트래커 - My Planner{% endblock %}
+{% block title %}습관 트래커 - JM Planner{% endblock %}
 {% block page_title %}습관 트래커{% endblock %}
 {% block page_subtitle %}{{ habits|length }}개 습관{% endblock %}
 
 {% block content %}
-<!-- Add habit form -->
+<!-- Add habit form (expandable) -->
 <div class="work-card rounded-xl p-4 mb-4">
-    <form action="/habits" method="POST" class="flex flex-wrap gap-2 items-end">
-        <div class="flex-1 min-w-[160px]">
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">습관 이름</label>
-            <input type="text" name="name" placeholder="매일 실천할 습관" required maxlength="50"
-                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-        </div>
-        <div>
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">아이콘</label>
-            <select name="icon" class="px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <option value="✅">✅</option><option value="📖">📖</option><option value="🏃">🏃</option>
-                <option value="💧">💧</option><option value="🧘">🧘</option><option value="✍️">✍️</option>
-                <option value="🎯">🎯</option><option value="💪">💪</option><option value="🌅">🌅</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">색상</label>
-            <input type="color" name="color" value="#6366f1" class="rounded border border-slate-200 dark:border-slate-600 cursor-pointer" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
-        </div>
-        <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">추가</button>
-    </form>
+    <details id="habitAddForm">
+        <summary class="flex items-center justify-between cursor-pointer">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">새 습관 추가</span>
+            <span class="text-xs text-amber-600">+</span>
+        </summary>
+        <form action="/habits" method="POST" class="mt-3 space-y-3">
+            <div class="flex flex-wrap gap-2 items-end">
+                <div class="flex-1 min-w-[160px]">
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">습관 이름</label>
+                    <input type="text" name="name" placeholder="매일 실천할 습관" required maxlength="50"
+                           class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">아이콘</label>
+                    <select name="icon" class="px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        <option value="✅">✅</option><option value="📖">📖</option><option value="🏃">🏃</option>
+                        <option value="💧">💧</option><option value="🧘">🧘</option><option value="✍️">✍️</option>
+                        <option value="🎯">🎯</option><option value="💪">💪</option><option value="🌅">🌅</option>
+                        <option value="💊">💊</option><option value="🥗">🥗</option><option value="😴">😴</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">색상</label>
+                    <input type="color" name="color" value="#6366f1" class="rounded border border-slate-200 dark:border-slate-600 cursor-pointer" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);">
+                </div>
+            </div>
+
+            <!-- Tracking type selection -->
+            <div>
+                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">추적 방식</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="trackingTypeGroup">
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-900/20">
+                        <input type="radio" name="tracking_type" value="daily" checked class="w-3.5 h-3.5 text-amber-600" onchange="updateTrackingUI()">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-200">매일 1회</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-900/20">
+                        <input type="radio" name="tracking_type" value="counter" class="w-3.5 h-3.5 text-amber-600" onchange="updateTrackingUI()">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-200">하루 N회</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-900/20">
+                        <input type="radio" name="tracking_type" value="interval" class="w-3.5 h-3.5 text-amber-600" onchange="updateTrackingUI()">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-200">N시간마다</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-900/20">
+                        <input type="radio" name="tracking_type" value="specific" class="w-3.5 h-3.5 text-amber-600" onchange="updateTrackingUI()">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-200">특정 시간</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-900/20">
+                        <input type="radio" name="tracking_type" value="weekly" class="w-3.5 h-3.5 text-amber-600" onchange="updateTrackingUI()">
+                        <span class="text-xs font-medium text-slate-700 dark:text-slate-200">주 N회</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Counter options -->
+            <div id="counterOptions" class="hidden p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                <label class="block text-xs text-slate-500 mb-1">하루 목표 횟수</label>
+                <input type="number" name="target_count" value="8" min="2" max="100"
+                       class="w-24 px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <span class="text-xs text-slate-400 ml-1">회</span>
+            </div>
+
+            <!-- Interval options -->
+            <div id="intervalOptions" class="hidden p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-500">매</label>
+                    <input type="number" name="interval_hours" value="2" min="1" max="12"
+                           class="w-16 px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <span class="text-xs text-slate-500">시간마다</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-500">시작</label>
+                    <input type="time" name="interval_start" value="08:00"
+                           class="px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <label class="text-xs text-slate-500">~</label>
+                    <input type="time" name="interval_end" value="22:00"
+                           class="px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                </div>
+            </div>
+
+            <!-- Specific times options -->
+            <div id="specificOptions" class="hidden p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
+                <label class="text-xs text-slate-500 mb-1 block">실천 시간 (복수 선택)</label>
+                <div id="specificTimesList" class="flex flex-wrap gap-1.5 mb-2"></div>
+                <div class="flex gap-2">
+                    <input type="time" id="newSpecificTime" value="08:00"
+                           class="px-2.5 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                    <button type="button" onclick="addSpecificTime()" class="px-3 py-1.5 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">추가</button>
+                </div>
+            </div>
+
+            <!-- Weekly options -->
+            <div id="weeklyOptions" class="hidden p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                <label class="block text-xs text-slate-500 mb-1">주 목표 횟수</label>
+                <input type="number" name="weekly_count" value="3" min="1" max="7"
+                       class="w-24 px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+                <span class="text-xs text-slate-400 ml-1">회/주</span>
+            </div>
+
+            <!-- Reminder -->
+            <div class="flex items-center gap-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="reminder_enabled" value="1" class="w-4 h-4 rounded text-amber-600">
+                    <span class="text-xs font-medium text-slate-600 dark:text-slate-300">알림 설정</span>
+                </label>
+                <input type="time" name="reminder_time" value="08:00" class="px-2.5 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+            </div>
+
+            <button type="submit" class="w-full py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">습관 추가</button>
+        </form>
+    </details>
 </div>
 
+<script>
+var specificTimes = [];
+
+function updateTrackingUI() {
+    var type = document.querySelector('input[name="tracking_type"]:checked').value;
+    document.getElementById('counterOptions').classList.toggle('hidden', type !== 'counter');
+    document.getElementById('intervalOptions').classList.toggle('hidden', type !== 'interval');
+    document.getElementById('specificOptions').classList.toggle('hidden', type !== 'specific');
+    document.getElementById('weeklyOptions').classList.toggle('hidden', type !== 'weekly');
+}
+
+function addSpecificTime() {
+    var input = document.getElementById('newSpecificTime');
+    var time = input.value;
+    if (!time || specificTimes.indexOf(time) >= 0) return;
+    specificTimes.push(time);
+    specificTimes.sort();
+    renderSpecificTimes();
+}
+
+function removeSpecificTime(idx) {
+    specificTimes.splice(idx, 1);
+    renderSpecificTimes();
+}
+
+function renderSpecificTimes() {
+    var container = document.getElementById('specificTimesList');
+    container.innerHTML = '';
+    specificTimes.forEach(function(t, i) {
+        container.innerHTML += '<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">' + t + ' <button type="button" onclick="removeSpecificTime(' + i + ')" class="text-amber-500 hover:text-red-500">&times;</button><input type="hidden" name="specific_times" value="' + t + '"></span>';
+    });
+}
+</script>
+
 {% if not habits %}
-<!-- Empty state (Item 2/7) -->
+<!-- Empty state -->
 <div class="work-card rounded-xl p-8 text-center">
     <svg class="w-20 h-20 mx-auto mb-4" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="60" cy="60" r="50" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
@@ -41,12 +166,50 @@
     <p class="text-sm text-slate-500 dark:text-slate-400">꾸준한 습관이 큰 변화를 만듭니다</p>
 </div>
 {% else %}
-<!-- Habit list with today toggle -->
+<!-- Habit list -->
 <div class="space-y-3 mb-6">
     {% for h in habits %}
-    <div class="work-card rounded-xl p-4 card-hover touch-item">
+    <div class="work-card rounded-xl p-4 card-hover touch-item group">
         <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                {% if h.tracking_type == 'times_per_day' or h.tracking_type == 'every_n_hours' %}
+                <!-- Counter type: +/- buttons -->
+                <div class="flex flex-col items-center gap-0.5">
+                    <form action="/habits/{{ h.id }}/increment" method="POST" class="inline">
+                        <input type="hidden" name="date" value="{{ today_str }}">
+                        <button type="submit"
+                                class="rounded-lg flex items-center justify-center text-xs transition-all hover:scale-110"
+                                style="width: 2rem; height: 2rem; background: {{ h.color }}15; border: 1.5px solid {{ h.color }}; color: {{ h.color }};"
+                                title="+1">
+                            +
+                        </button>
+                    </form>
+                    <span class="text-xs font-bold" style="color: {{ h.color }};">{{ h.today_count }}/{{ h.target_count }}</span>
+                    {% if h.today_count > 0 %}
+                    <form action="/habits/{{ h.id }}/decrement" method="POST" class="inline">
+                        <input type="hidden" name="date" value="{{ today_str }}">
+                        <button type="submit" class="rounded-lg flex items-center justify-center text-xs text-slate-400 hover:text-red-500" style="width: 1.5rem; height: 1.5rem;" title="-1">&minus;</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% elif h.tracking_type == 'specific_times' %}
+                <!-- Specific time type: show time slots -->
+                <div class="flex flex-wrap gap-1">
+                    {% for t in h.specific_times %}
+                    <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
+                        <input type="hidden" name="date" value="{{ today_str }}">
+                        <input type="hidden" name="log_time" value="{{ t }}">
+                        <button type="submit"
+                                class="px-2 py-1 text-[11px] font-medium rounded-lg transition-all
+                                       {% if t in h.today_time_checks %}shadow-sm{% endif %}"
+                                style="background: {% if t in h.today_time_checks %}{{ h.color }}20{% else %}var(--color-border-subtle){% endif %}; border: 1.5px solid {% if t in h.today_time_checks %}{{ h.color }}{% else %}var(--color-border){% endif %}; color: {% if t in h.today_time_checks %}{{ h.color }}{% else %}var(--color-text-muted){% endif %};">
+                            {{ t }} {% if t in h.today_time_checks %}&#10003;{% endif %}
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <!-- Standard daily toggle -->
                 <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
                     <input type="hidden" name="date" value="{{ today_str }}">
                     <button type="submit"
@@ -57,19 +220,39 @@
                         {% if h.today_done %}{{ h.icon }}{% else %}<span style="opacity:0.3">{{ h.icon }}</span>{% endif %}
                     </button>
                 </form>
-                <div>
-                    <span class="text-sm font-semibold" style="color: var(--color-text);">{{ h.name }}</span>
-                    <div class="flex items-center gap-2 mt-0.5">
+                {% endif %}
+
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        {% if h.tracking_type == 'specific_times' or h.tracking_type == 'times_per_day' or h.tracking_type == 'every_n_hours' %}
+                        <span class="text-sm">{{ h.icon }}</span>
+                        {% endif %}
+                        <span class="text-sm font-semibold truncate" style="color: var(--color-text);">{{ h.name }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                        {% if h.tracking_type == 'times_per_day' or h.tracking_type == 'every_n_hours' %}
+                        <!-- Progress bar for counter type -->
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-20 h-1.5 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
+                                <div class="h-full rounded-full transition-all" style="width: {{ [100, (h.today_count / h.target_count * 100)|int]|min }}%; background: {{ h.color }};"></div>
+                            </div>
+                            <span class="text-[11px] text-slate-400">{{ ((h.today_count / h.target_count * 100)|int) if h.target_count > 0 else 0 }}%</span>
+                        </div>
+                        {% elif h.tracking_type == 'times_per_week' %}
+                        <span class="text-xs px-2 py-0.5 rounded-full" style="background: {{ h.color }}15; color: {{ h.color }};">
+                            이번 주 {{ h.week_count }}/{{ h.weekly_target }}회
+                        </span>
+                        {% endif %}
                         {% if h.streak > 0 %}
                         <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: {{ h.color }}15; color: {{ h.color }};">
-                            🔥 {{ h.streak }}일 연속
+                            {{ h.streak }}일 연속
                         </span>
                         {% endif %}
                     </div>
                 </div>
             </div>
             <button hx-delete="/habits/{{ h.id }}" hx-confirm="이 습관을 삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
-                    class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
+                    class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all lg:opacity-0 lg:group-hover:opacity-100"
                     title="삭제">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -79,7 +262,7 @@
             {% for d in dates %}
             <div class="w-3 h-3 rounded-sm flex-shrink-0 transition-colors"
                  style="background: {% if (h.id, d) in logs_set %}{{ h.color }}{% else %}var(--color-border-subtle){% endif %};"
-                 title="{{ d }}{% if (h.id, d) in logs_set %} ✅{% endif %}"></div>
+                 title="{{ d }}{% if (h.id, d) in logs_set %} done{% endif %}"></div>
             {% endfor %}
         </div>
     </div>

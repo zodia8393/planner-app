@@ -349,55 +349,7 @@ async def focus_complete(request: Request):
     return JSONResponse({"ok": True, "hours": hours})
 
 
-@router.get("/api/reminders")
-async def get_reminders(request: Request):
-    S = request.app.state
-    pid = S.get_profile_id(request)
-    now = datetime.now()
-    today_str = date.today().isoformat()
-    tomorrow_str = (date.today() + timedelta(days=1)).isoformat()
-    reminders = []
-    with S.get_db() as conn:
-        # Overdue todos
-        overdue = conn.execute(
-            "SELECT id, title, due_date FROM todos WHERE profile_id=? AND completed=0 AND due_date < ? AND due_date IS NOT NULL AND due_date != '' ORDER BY due_date LIMIT 10",
-            (pid, today_str),
-        ).fetchall()
-        for t in overdue:
-            reminders.append({
-                "type": "overdue", "id": t["id"], "title": t["title"],
-                "body": f"마감일: {t['due_date']}", "url": "/todos?filter=overdue",
-                "time": t["due_date"] + "T09:00:00",
-            })
-        # Today's todos
-        today_todos = conn.execute(
-            "SELECT id, title FROM todos WHERE profile_id=? AND completed=0 AND due_date=? ORDER BY priority, sort_order LIMIT 10",
-            (pid, today_str),
-        ).fetchall()
-        for t in today_todos:
-            reminders.append({
-                "type": "today", "id": t["id"], "title": t["title"],
-                "body": "오늘 마감", "url": "/todos",
-                "time": today_str + "T09:00:00",
-            })
-        # Upcoming events within next 24 hours
-        now_str = now.strftime("%Y-%m-%d %H:%M")
-        tomorrow_dt_str = (now + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M")
-        upcoming_events = conn.execute(
-            "SELECT id, title, start_time, memo FROM events "
-            "WHERE profile_id=? AND start_time >= ? AND start_time <= ? "
-            "ORDER BY start_time LIMIT 10",
-            (pid, now_str, tomorrow_dt_str),
-        ).fetchall()
-        for ev in upcoming_events:
-            st = ev["start_time"] or ""
-            display_time = st[11:16] if len(st) >= 16 else st[:10]
-            reminders.append({
-                "type": "event", "id": ev["id"], "title": ev["title"],
-                "body": f"시작: {display_time}", "url": "/calendar",
-                "time": st if "T" in st else st.replace(" ", "T"),
-            })
-    return JSONResponse(reminders)
+# /api/reminders is now served by common.routers.notifications
 
 
 @router.get("/sw.js")

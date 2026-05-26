@@ -60,6 +60,74 @@
                                class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
                     </div>
                 </div>
+                <!-- Reminder offsets -->
+                <div>
+                    <label class="text-xs text-slate-500 mb-1 block">알림</label>
+                    <input type="hidden" name="reminder_offsets" id="eventReminderOffsets_{{ event.id }}" value="{{ event.reminder_offsets or '' }}">
+                    <div class="flex flex-wrap gap-1 mb-1.5" id="eventOffsetChips_{{ event.id }}"></div>
+                    <div class="flex gap-1.5">
+                        <select id="eventOffsetSel_{{ event.id }}" class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-lg">
+                            <option value='{"value":0,"unit":"minute"}'>정시</option>
+                            <option value='{"value":5,"unit":"minute"}'>5분 전</option>
+                            <option value='{"value":10,"unit":"minute"}'>10분 전</option>
+                            <option value='{"value":15,"unit":"minute"}'>15분 전</option>
+                            <option value='{"value":30,"unit":"minute"}'>30분 전</option>
+                            <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
+                            <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
+                            <option value='{"value":1,"unit":"day"}'>1일 전</option>
+                        </select>
+                        <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+                    </div>
+                    <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
+                        <input type="checkbox" id="eventUseDefault_{{ event.id }}" onchange="toggleEventDefault({{ event.id }})"
+                               {% if not event.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded text-amber-600">
+                        <span class="text-xs text-slate-500">기본값 사용</span>
+                    </label>
+                </div>
+                <script>
+                (function(){
+                    var eid = {{ event.id }};
+                    var labels = {'0_minute':'정시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','1_day':'1일 전','2_day':'2일 전','1_week':'1주 전'};
+                    var input = document.getElementById('eventReminderOffsets_'+eid);
+                    var offsets = [];
+                    try { offsets = JSON.parse(input.value || '[]'); } catch(e) { offsets = []; }
+                    if (!Array.isArray(offsets)) offsets = [];
+
+                    function render() {
+                        var c = document.getElementById('eventOffsetChips_'+eid);
+                        c.innerHTML = '';
+                        offsets.forEach(function(o, i) {
+                            var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
+                            c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+                        });
+                        input.value = offsets.length ? JSON.stringify(offsets) : '';
+                    }
+                    window['_evOff'+eid] = offsets;
+                    window.addEventOffset = function(id) {
+                        var sel = document.getElementById('eventOffsetSel_'+id);
+                        var o = JSON.parse(sel.value);
+                        var arr = window['_evOff'+id];
+                        if (arr.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
+                        arr.push(o);
+                        offsets = arr;
+                        document.getElementById('eventUseDefault_'+id).checked = false;
+                        render();
+                    };
+                    window.removeEventOffset = function(id, idx) {
+                        window['_evOff'+id].splice(idx, 1);
+                        offsets = window['_evOff'+id];
+                        render();
+                    };
+                    window.toggleEventDefault = function(id) {
+                        if (document.getElementById('eventUseDefault_'+id).checked) {
+                            window['_evOff'+id] = [];
+                            offsets = [];
+                            render();
+                        }
+                    };
+                    render();
+                })();
+                </script>
                 <div class="flex gap-2">
                     <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
                         저장

@@ -1,36 +1,54 @@
 /**
- * Planner Notification System
+ * Planner Notification System v2
  *
- * Client-side scheduled notifications using the Notification API.
- * No server push (VAPID) -- purely polls /api/reminders and fires
- * browser notifications for upcoming items.
+ * Client-side scheduled notifications using the Notification API + Service Worker.
+ * Polls /api/reminders (which now returns notify_at) and fires
+ * browser notifications at the precise configured time.
+ * Also sends schedules to SW for background notification delivery.
  */
 (function () {
     'use strict';
 
-    var CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+    var CHECK_INTERVAL = 60 * 1000; // 1 minute (more precise than old 5 min)
     var STORAGE_KEY = 'planner_notif_schedule';
     var ENABLED_KEY = 'planner_notif_enabled';
-    var NOTIFIED_KEY = 'planner_notified';
+    var NOTIFIED_KEY = 'planner_notified_v2';
 
     // ── Helpers ──
 
     function isEnabled() {
         var val = localStorage.getItem(ENABLED_KEY);
-        // Default to enabled if not explicitly disabled
         return val !== 'false';
     }
 
     function getNotified() {
         try {
-            return JSON.parse(sessionStorage.getItem(NOTIFIED_KEY) || '{}');
+            var data = JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '{}');
+            // Prune old entries (older than 24 hours)
+            var now = Date.now();
+            var cleaned = {};
+            Object.keys(data).forEach(function(key) {
+                if (now - data[key] < 86400000) {
+                    cleaned[key] = data[key];
+                }
+            });
+            return cleaned;
         } catch (e) {
             return {};
         }
     }
 
-    function setNotified(obj) {
-        sessionStorage.setItem(NOTIFIED_KEY, JSON.stringify(obj));
+    function markNotified(key) {
+        var notified = getNotified();
+        notified[key] = Date.now();
+        try {
+            localStorage.setItem(NOTIFIED_KEY, JSON.stringify(notified));
+        } catch (e) {}
+    }
+
+    function wasNotified(key) {
+        var notified = getNotified();
+        return !!notified[key];
     }
 
     // ── Permission ──
@@ -51,10 +69,21 @@
         Notification.requestPermission().then(function (perm) {
             if (callback) callback(perm);
             if (perm === 'granted') {
-                // Start checking immediately after grant
                 checkAndNotify();
             }
         });
+    }
+
+    // ── Send schedule to Service Worker for background notifications ──
+
+    function sendToSW(reminders) {
+        if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+        try {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SCHEDULE_NOTIFICATIONS',
+                reminders: reminders
+            });
+        } catch (e) {}
     }
 
     // ── Core: fetch reminders and fire notifications ──
@@ -69,52 +98,33 @@
             .then(function (items) {
                 if (!Array.isArray(items)) return;
 
-                var notified = getNotified();
-                var schedules = [];
+                var now = Date.now();
+                var pendingForSW = [];
 
                 items.forEach(function (item) {
-                    var key = item.type + '_' + item.id;
-                    schedules.push({ key: key, title: item.title, time: item.time });
+                    var key = item.type + '_' + item.id + '_' + (item.notify_at || item.time);
 
-                    if (notified[key]) return;
+                    if (wasNotified(key)) return;
 
-                    // For events, only notify if within 30 minutes
-                    if (item.type === 'event' && item.time) {
-                        var eventTime = new Date(item.time).getTime();
-                        var now = Date.now();
-                        var diff = eventTime - now;
-                        // Skip if event is more than 30 min away
-                        if (diff > 30 * 60 * 1000) return;
-                        // Skip if event already passed more than 5 min ago
-                        if (diff < -5 * 60 * 1000) return;
+                    // Check if we should fire now based on notify_at
+                    var notifyAt = item.notify_at ? new Date(item.notify_at).getTime() : now;
+                    var diff = notifyAt - now;
+
+                    // Fire if within the polling window (-60s to +60s)
+                    if (diff >= -60000 && diff <= 60000) {
+                        fireNotification(item, key);
+                    } else if (diff > 60000 && diff < 600000) {
+                        // Schedule for SW if within next 10 minutes
+                        pendingForSW.push(item);
+                        // Also set a local timeout
+                        scheduleLocal(item, key, diff);
                     }
-
-                    // Fire notification
-                    try {
-                        var n = new Notification(item.title || 'Planner', {
-                            body: item.body || '',
-                            icon: '/static/icon-192.png',
-                            tag: key,
-                            renotify: false
-                        });
-                        n.onclick = function () {
-                            window.focus();
-                            if (item.url) window.location.href = item.url;
-                            n.close();
-                        };
-                    } catch (e) {
-                        // Notification constructor can fail in some contexts
-                    }
-
-                    notified[key] = true;
                 });
 
-                setNotified(notified);
-
-                // Store schedules for dedup tracking
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(schedules));
-                } catch (e) { }
+                // Send upcoming notifications to SW
+                if (pendingForSW.length > 0) {
+                    sendToSW(pendingForSW);
+                }
 
                 // Update badge
                 var badge = document.getElementById('notifBadge');
@@ -128,6 +138,47 @@
                 }
             })
             .catch(function () { });
+    }
+
+    function fireNotification(item, key) {
+        if (wasNotified(key)) return;
+        try {
+            var n = new Notification(item.title || 'My Planner', {
+                body: item.body || '',
+                icon: '/static/icon-192.png',
+                tag: key,
+                renotify: false,
+                data: { url: item.url || '/' }
+            });
+            n.onclick = function () {
+                window.focus();
+                if (item.url) window.location.href = item.url;
+                n.close();
+            };
+        } catch (e) {
+            // Fallback: use SW showNotification
+            if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                navigator.serviceWorker.ready.then(function(reg) {
+                    reg.showNotification(item.title || 'My Planner', {
+                        body: item.body || '',
+                        icon: '/static/icon-192.png',
+                        tag: key,
+                        data: { url: item.url || '/' }
+                    });
+                });
+            }
+        }
+        markNotified(key);
+    }
+
+    var localTimers = {};
+
+    function scheduleLocal(item, key, delayMs) {
+        if (localTimers[key]) return;
+        localTimers[key] = setTimeout(function() {
+            delete localTimers[key];
+            fireNotification(item, key);
+        }, delayMs);
     }
 
     // ── Settings page helper ──
@@ -172,7 +223,6 @@
 
     // ── Init ──
 
-    // Expose for settings page button
     window.requestNotifPermission = function () {
         requestPermission(function () {
             updateNotifSettingsUI();
@@ -181,7 +231,7 @@
 
     // Start polling if permission granted
     if ('Notification' in window && Notification.permission === 'granted' && isEnabled()) {
-        setTimeout(checkAndNotify, 3000);
+        setTimeout(checkAndNotify, 2000);
         setInterval(checkAndNotify, CHECK_INTERVAL);
     }
 

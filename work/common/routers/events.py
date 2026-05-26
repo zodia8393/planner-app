@@ -132,7 +132,8 @@ async def create_event(request: Request,
                        memo: str = Form(""),
                        recurrence: str = Form(""),
                        recurrence_end: str = Form(""),
-                       also_todo: str = Form("")):
+                       also_todo: str = Form(""),
+                       reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
@@ -146,15 +147,20 @@ async def create_event(request: Request,
     cat_id = int(category_id) if category_id else None
     recurrence_end = validate_date_str(recurrence_end) or ""
 
+    # Parse reminder_offsets (JSON string or empty for global default)
+    r_offsets = reminder_offsets.strip() if reminder_offsets else None
+    if r_offsets == "[]" or r_offsets == "":
+        r_offsets = None
+
     # Push to Google Calendar if available
     gcal_push = getattr(S, "gcal_push_event", None)
     gcal_id = await gcal_push(pid, title, start_time, end_time or "") if gcal_push else ""
 
     with S.get_db() as conn:
         conn.execute("""
-            INSERT INTO events (title, start_time, end_time, color, category_id, memo, profile_id, gcal_event_id, recurrence, recurrence_end)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, start_time, end_time, color, cat_id, memo, pid, gcal_id, recurrence, recurrence_end))
+            INSERT INTO events (title, start_time, end_time, color, category_id, memo, profile_id, gcal_event_id, recurrence, recurrence_end, reminder_offsets)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, start_time, end_time, color, cat_id, memo, pid, gcal_id, recurrence, recurrence_end, r_offsets))
 
         if also_todo:
             event_date = start_time[:10] if start_time else ""
@@ -193,7 +199,8 @@ async def update_event(request: Request, event_id: int,
                        category_id: str = Form(""),
                        memo: str = Form(""),
                        recurrence: str = Form(""),
-                       recurrence_end: str = Form("")):
+                       recurrence_end: str = Form(""),
+                       reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
@@ -203,14 +210,18 @@ async def update_event(request: Request, event_id: int,
     cat_id = int(category_id) if category_id else None
     recurrence_end = validate_date_str(recurrence_end) or ""
 
+    r_offsets = reminder_offsets.strip() if reminder_offsets else None
+    if r_offsets == "[]" or r_offsets == "":
+        r_offsets = None
+
     with S.get_db() as conn:
         row = conn.execute("SELECT gcal_event_id FROM events WHERE id=? AND profile_id=?", (event_id, pid)).fetchone()
         gcal_id = row["gcal_event_id"] if row and row["gcal_event_id"] else ""
         conn.execute("""
             UPDATE events SET title=?, start_time=?, end_time=?, color=?, category_id=?, memo=?,
-                   recurrence=?, recurrence_end=?, updated_at=datetime('now','localtime')
+                   recurrence=?, recurrence_end=?, reminder_offsets=?, updated_at=datetime('now','localtime')
             WHERE id=? AND profile_id=?
-        """, (title, start_time, end_time, color, cat_id, memo, recurrence, recurrence_end, event_id, pid))
+        """, (title, start_time, end_time, color, cat_id, memo, recurrence, recurrence_end, r_offsets, event_id, pid))
 
     gcal_update = getattr(S, "gcal_update_event", None)
     if gcal_update and gcal_id:

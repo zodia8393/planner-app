@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jm-planner-v4';
+const CACHE_NAME = 'jm-planner-v5';
 const OFFLINE_URL = '/static/offline.html';
 const STATIC_ASSETS = [
     '/static/offline.html',
@@ -99,6 +99,26 @@ self.addEventListener('fetch', (e) => {
     );
 });
 
+// ── Notification click handler ──
+self.addEventListener('notificationclick', (e) => {
+    e.notification.close();
+    const url = e.notification.data?.url || '/';
+    e.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+            // Focus existing window if available
+            for (const client of clientList) {
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    client.focus();
+                    client.navigate(url);
+                    return;
+                }
+            }
+            // Open new window
+            return clients.openWindow(url);
+        })
+    );
+});
+
 // ── Background Sync: replay queued form submissions ──
 self.addEventListener('sync', (e) => {
     if (e.tag === 'sync-forms') {
@@ -125,7 +145,6 @@ async function replayQueuedForms() {
                     delTx.objectStore('outbox').delete(entry.id);
                 }
             } catch (err) {
-                // Will retry on next sync
                 break;
             }
         }
@@ -156,7 +175,49 @@ function idbGetAll(store) {
     });
 }
 
-// ── Message handler: queue forms from main thread ──
+// ── Scheduled notification timers ──
+let scheduledTimers = {};
+
+function scheduleNotification(item) {
+    const notifyAt = item.notify_at ? new Date(item.notify_at).getTime() : Date.now();
+    const now = Date.now();
+    const delay = notifyAt - now;
+    const key = item.type + '_' + item.id + '_' + (item.notify_at || item.time);
+
+    if (scheduledTimers[key]) return; // Already scheduled
+    if (delay < -60000) return; // Too far in the past
+    if (delay > 600000) return; // More than 10 min in future - will be re-scheduled next poll
+
+    const fireDelay = Math.max(0, delay);
+    scheduledTimers[key] = setTimeout(() => {
+        delete scheduledTimers[key];
+        self.registration.showNotification(item.title || 'Planner', {
+            body: item.body || '',
+            icon: '/static/icon-192.png',
+            tag: key,
+            data: { url: item.url || '/' },
+            requireInteraction: false
+        });
+    }, fireDelay);
+}
+
+// ── Periodic self-poll for reminders (keep SW alive for notifications) ──
+let pollInterval = null;
+
+function startReminderPoll() {
+    if (pollInterval) return;
+    pollInterval = setInterval(async () => {
+        try {
+            const resp = await fetch('/api/reminders');
+            if (!resp.ok) return;
+            const items = await resp.json();
+            if (!Array.isArray(items)) return;
+            items.forEach(item => scheduleNotification(item));
+        } catch (e) {}
+    }, 60000); // Every minute
+}
+
+// ── Message handler: queue forms + schedule notifications ──
 self.addEventListener('message', (e) => {
     if (e.data && e.data.type === 'QUEUE_FORM') {
         openSyncDB().then(db => {
@@ -168,10 +229,29 @@ self.addEventListener('message', (e) => {
                 body: e.data.body,
                 timestamp: Date.now()
             });
-            // Request background sync if available
             if (self.registration.sync) {
                 self.registration.sync.register('sync-forms');
             }
         }).catch(() => {});
     }
+
+    if (e.data && e.data.type === 'SCHEDULE_NOTIFICATIONS') {
+        const reminders = e.data.reminders || [];
+        reminders.forEach(item => scheduleNotification(item));
+        // Start background poll to keep delivering notifications
+        startReminderPoll();
+    }
+});
+
+// Start polling on SW activation if notifications are likely expected
+self.addEventListener('activate', () => {
+    // Do an initial poll shortly after activation
+    setTimeout(() => {
+        fetch('/api/reminders').then(r => r.json()).then(items => {
+            if (Array.isArray(items) && items.length > 0) {
+                items.forEach(item => scheduleNotification(item));
+                startReminderPoll();
+            }
+        }).catch(() => {});
+    }, 5000);
 });
