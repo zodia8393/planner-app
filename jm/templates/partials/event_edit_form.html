@@ -2,7 +2,7 @@
  <div class="modal-backdrop absolute inset-0" onclick="document.getElementById('editEventContainer').innerHTML=''"></div>
  <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
  <div class="rounded-2xl shadow-2xl p-6 border relative" style="background: var(--color-surface);">
- <button onclick="document.getElementById('editEventContainer').innerHTML=''" class="absolute top-4 right-4 hover-text">
+ <button onclick="document.getElementById('editEventContainer').innerHTML=''" class="absolute top-4 right-4 hover-text" aria-label="닫기">
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
@@ -76,7 +76,7 @@
  <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
  <option value='{"value":1,"unit":"day"}'>1일 전</option>
  </select>
- <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+ <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="eventUseDefault_{{ event.id }}" onchange="toggleEventDefault({{ event.id }})"
@@ -98,7 +98,7 @@
  c.innerHTML = '';
  offsets.forEach(function(o, i) {
  var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="text-amber-500 hover-danger">&times;</button></span>';
  });
  input.value = offsets.length ? JSON.stringify(offsets) : '';
  }
@@ -129,11 +129,11 @@
  })();
  </script>
  <div class="flex gap-2">
- <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
+ <button type="submit" class="flex-1 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm">
  저장
  </button>
  <button type="button" onclick="if(confirm('삭제할까요?'))fetch('/events/{{ event.id }}',{method:'DELETE'}).finally(function(){location.reload()})"
- class="px-4 py-2.5 font-medium rounded-lg hover:bg-red-100 transition-colors text-sm" style="background: var(--color-danger-soft); color: var(--color-danger);">
+ class="px-4 py-2.5 font-medium rounded-lg hover-danger-bg transition-colors text-sm" style="background: var(--color-danger-soft); color: var(--color-danger);">
  삭제
  </button>
  </div>

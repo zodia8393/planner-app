@@ -5,7 +5,7 @@
 
 {% block content %}
 <details class="mb-4 group">
- <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
  </summary>
@@ -18,12 +18,12 @@
 <div class="flex items-center gap-2 mb-4">
  <a href="/plans?view=week&offset=0"
  class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors
- {% if view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);{% endif %}">
+ {% if view == 'week' %}btn-primary shadow-sm{% else %}border" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);{% endif %}">
  주간
  </a>
  <a href="/plans?view=month&offset=0"
  class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors
- {% if view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);{% endif %}">
+ {% if view == 'month' %}btn-primary shadow-sm{% else %}border" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);{% endif %}">
  월간
  </a>
  <div class="flex-1"></div>
@@ -60,7 +60,7 @@
  </a>
  {% if offset != 0 %}
  <a href="/plans?view={{ view }}&offset=0"
- class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-amber-200 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
  {{ reset_label }}
  </a>
  {% endif %}
@@ -77,7 +77,7 @@
  <div class="px-3 py-2 border-b flex items-center justify-between" style="background: {% if day.is_today %}var(--color-accent-soft){% else %}var(--color-surface){% endif %};">
  <div class="flex items-center gap-2">
  {% if day.is_today %}
- <span class="w-7 h-7 bg-amber-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+ <span class="w-7 h-7 btn-primary text-xs font-bold rounded-full flex items-center justify-center">
  {{ day.date.day }}
  </span>
  {% else %}
@@ -157,7 +157,7 @@
  <!-- Date number -->
  <div class="flex items-center justify-between mb-1">
  <span class="text-xs lg:text-sm font-medium
- {% if is_today %}bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center
+ {% if is_today %}btn-primary w-6 h-6 rounded-full flex items-center justify-center
  {% elif weekday == 6 %}text-red-400
  {% elif weekday == 5 %}text-blue-400
  {% else %}{% endif %}">{{ cell_date.day }}</span>

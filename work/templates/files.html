@@ -5,7 +5,7 @@
 
 {% block content %}
 <details class="mb-4 group">
- <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
  </summary>
@@ -32,7 +32,7 @@
 <div class="flex flex-wrap gap-2 mb-4">
  <!-- Upload -->
  <form action="/files/upload/{{ current_path }}" method="POST" enctype="multipart/form-data" id="uploadForm" class="flex gap-2 items-center">
- <label class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors cursor-pointer flex items-center gap-1.5">
+ <label class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors cursor-pointer flex items-center gap-1.5">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
  </svg>
@@ -87,7 +87,7 @@
  {% if item.previewable %}
  <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
  <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
- <span class="text-sm truncate hover:text-amber-500 transition-colors">{{ item.name }}</span>
+ <span class="text-sm truncate hover-accent transition-colors">{{ item.name }}</span>
  </button>
  {% else %}
  <a href="/files/{{ item.path }}" class="flex items-center gap-2.5 min-w-0 {% if item.is_dir %}font-medium{% endif %}">
@@ -107,7 +107,7 @@
  </div>
  <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
  {% if item.previewable %}
- <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 hover:text-amber-500 transition-colors" title="미리보기">
+ <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 hover-accent transition-colors" title="미리보기" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -115,14 +115,14 @@
  </button>
  {% endif %}
  {% if not item.is_dir %}
- <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 hover:text-amber-500 transition-colors" title="다운로드">
+ <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 hover-accent transition-colors" title="다운로드">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
  </svg>
  </a>
  {% endif %}
  <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?')" hx-boost="false" class="inline">
- <button type="submit" class="p-1 hover:text-red-500 transition-colors lg:opacity-0 lg:group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100" title="삭제">
+ <button type="submit" class="p-1 hover-danger transition-colors lg:opacity-0 lg:group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100" title="삭제" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
  </svg>
@@ -134,7 +134,7 @@
  <span class="text-xs" style="color: var(--color-text-muted);">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
  <div class="flex items-center gap-1">
  {% if item.previewable %}
- <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 hover:text-amber-500">
+ <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 hover-accent" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -142,14 +142,14 @@
  </button>
  {% endif %}
  {% if not item.is_dir %}
- <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 hover:text-amber-500">
+ <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 hover-accent">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
  </svg>
  </a>
  {% endif %}
  <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('삭제?')" hx-boost="false" class="inline">
- <button type="submit" class="p-1.5 hover:text-red-500">
+ <button type="submit" class="p-1.5 hover-danger" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
  </svg>
@@ -192,7 +192,7 @@
  </svg>
  <span id="previewTitle" class="text-sm font-semibold truncate"></span>
  </div>
- <button onclick="closePreview()" class="p-1.5 rounded-lg hover-surface transition-colors flex-shrink-0">
+ <button onclick="closePreview()" class="p-1.5 rounded-lg hover-surface transition-colors flex-shrink-0" aria-label="닫기">
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
@@ -220,7 +220,7 @@
  <p id="statusTitle" class="text-sm font-semibold truncate"></p>
  <p id="statusDetail" class="text-xs truncate"></p>
  </div>
- <button onclick="hideStatus()" class="hover-text flex-shrink-0">
+ <button onclick="hideStatus()" class="hover-text flex-shrink-0" aria-label="닫기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>

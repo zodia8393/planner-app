@@ -5,7 +5,7 @@
 
 {% block content %}
 <details class="mb-4 group">
- <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
  </summary>
@@ -101,7 +101,7 @@
  </div>
  <div id="rruleBydayRow" class="flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
- <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover:bg-amber-50" style="background: var(--color-surface);">
+ <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
  <input type="checkbox" class="rrule-byday-auto" value="{{ code }}"> {{ label }}
  </label>
  {% endfor %}
@@ -137,7 +137,7 @@
  <input type="hidden" name="trigger_config" id="hiddenTriggerConfig" value='{"weekday":0}'>
  <input type="hidden" name="action_config" id="hiddenActionConfig" value="{}">
 
- <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700">저장</button>
+ <button type="submit" class="px-4 py-2 btn-primary text-sm rounded-lg">저장</button>
  </form>
 </div>
 
@@ -168,13 +168,13 @@
  <div class="flex items-center gap-2 ml-3">
  <form action="/automations/{{ rule.id }}/toggle" method="POST">
  <button type="submit" class="px-3 py-1.5 text-xs border rounded-lg
- {% if rule.enabled %}text-amber-600 border-amber-200 hover:bg-amber-50
- {% else %}text-green-600 border-green-200 hover:bg-green-50{% endif %}">
+ {% if rule.enabled %}text-amber-600 border-amber-200 hover-accent-bg
+ {% else %}text-green-600 border-green-200 hover-success-bg{% endif %}">
  {% if rule.enabled %}비활성{% else %}활성{% endif %}
  </button>
  </form>
  <button hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
- class="px-3 py-1.5 text-xs text-red-500 border-red-200 rounded-lg hover:bg-red-50">삭제</button>
+ class="px-3 py-1.5 text-xs text-red-500 border-red-200 rounded-lg hover-danger-bg">삭제</button>
  </div>
  </div>
 </div>

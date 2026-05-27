@@ -5,7 +5,7 @@
 
 {% block content %}
 <details class="mb-4 group">
- <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
  </summary>
@@ -23,7 +23,7 @@
  <div id="tplItems" class="space-y-2 mb-3"></div>
  <button type="button" onclick="addTplItem()" class="text-xs text-amber-500 hover:underline">+ 항목 추가</button>
  <div class="mt-3">
- <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700">저장</button>
+ <button type="submit" class="px-4 py-2 btn-primary text-sm rounded-lg">저장</button>
  </div>
  </form>
 </div>
@@ -37,7 +37,7 @@
  <button type="submit" class="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">할일로 생성</button>
  </form>
  <button hx-delete="/todo-templates/{{ tpl.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
- class="px-3 py-1.5 text-xs text-red-500 border-red-200 rounded-lg hover:bg-red-50">삭제</button>
+ class="px-3 py-1.5 text-xs text-red-500 border-red-200 rounded-lg hover-danger-bg">삭제</button>
  </div>
  </div>
  <div class="space-y-1">
@@ -62,7 +62,7 @@
  <p class="empty-state-title">저장된 템플릿이 없습니다</p>
  <p class="empty-state-desc">자주 사용하는 할일을 템플릿으로 저장해보세요</p>
  <button type="button" onclick="document.querySelector('#newTplForm input[name=name]').focus()"
- class="mt-4 px-4 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
  첫 템플릿 만들기
  </button>
 </div>
@@ -78,7 +78,7 @@ function addTplItem() {
  div.innerHTML = '<input type="text" placeholder="할일 제목" class="flex-1 px-2 py-1 text-sm border rounded" data-tpl-title>' +
  '<select class="px-2 py-1 text-xs border rounded" data-tpl-priority>' +
  '<option value="2">보통</option><option value="1">긴급</option><option value="3">낮음</option></select>' +
- '<button type="button" onclick="this.parentElement.remove();updateItemsJson()" class="text-red-400 text-xs hover:text-red-600">&times;</button>';
+ '<button type="button" onclick="this.parentElement.remove();updateItemsJson()" class="text-red-400 text-xs hover-danger">&times;</button>';
  container.appendChild(div);
  div.querySelector('input').addEventListener('input', updateItemsJson);
  div.querySelector('select').addEventListener('change', updateItemsJson);

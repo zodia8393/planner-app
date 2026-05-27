@@ -15,7 +15,7 @@
 }
 </style>
 <details class="mb-4 group">
- <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
  </summary>
@@ -31,17 +31,17 @@
 <div class="flex items-center gap-2 mb-3">
  <a href="/calendar?view=month"
  class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
- {% if cal_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ {% if cal_view == 'month' %}btn-primary shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
  월간
  </a>
  <a href="/calendar?view=week"
  class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
- {% if cal_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ {% if cal_view == 'week' %}btn-primary shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
  주간
  </a>
  <a href="/calendar?view=year&year={{ year }}"
  class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
- {% if cal_view == 'year' %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ {% if cal_view == 'year' %}btn-primary shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
  연간
  </a>
 </div>
@@ -88,7 +88,7 @@
  {% set mi = md.month %}
  <div class="work-card rounded-xl overflow-hidden p-2 lg:p-3">
  <a href="/calendar?year={{ year }}&month={{ mi }}&view=month"
- class="block text-center text-sm font-bold mb-1.5 hover:text-amber-600 transition-colors"
+ class="block text-center text-sm font-bold mb-1.5 hover-accent transition-colors"
  style="color: var(--color-text);">
  {{ mi }}월
  </a>
@@ -145,7 +145,7 @@
  <div class="flex items-center gap-3 mb-2">
  <div class="flex items-center gap-2 min-w-[80px]">
  <span class="text-sm font-bold
- {% if wd.is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center
+ {% if wd.is_today %}btn-primary rounded-full flex items-center justify-center
  {% elif wd.date.weekday() == 6 %}text-red-400
  {% elif wd.date.weekday() == 5 %}text-blue-400
  {% else %}{% endif %}">{{ wd.date.day }}</span>
@@ -269,7 +269,7 @@
  <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
  <div class="rounded-2xl p-6 relative" style="background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-xl);">
  <button onclick="closeEventModal()" class="absolute top-4 right-4 p-1.5 rounded-lg transition-colors" style="color: var(--color-text-faint);"
- onmouseenter="this.style.background='var(--color-border-subtle)'" onmouseleave="this.style.background=''">
+ onmouseenter="this.style.background='var(--color-border-subtle)'" onmouseleave="this.style.background=''" aria-label="닫기">
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
@@ -341,7 +341,7 @@
  <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
  <option value='{"value":1,"unit":"day"}'>1일 전</option>
  </select>
- <button type="button" onclick="addNewEventOffset()" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+ <button type="button" onclick="addNewEventOffset()" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="newEventUseDefault" checked onchange="toggleNewEventDefault()" class="w-3.5 h-3.5 rounded text-amber-600">
@@ -410,7 +410,7 @@ if (location.hash === '#new') { var ti = document.querySelector('input[name="tit
  c.innerHTML = '';
  offsets.forEach(function(o, i) {
  var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewEventOffset('+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewEventOffset('+i+')" class="text-amber-500 hover-danger">&times;</button></span>';
  });
  input.value = offsets.length ? JSON.stringify(offsets) : '';
  }

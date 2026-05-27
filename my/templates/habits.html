@@ -224,7 +224,7 @@ function renderSpecificTimes() {
  c.innerHTML = '';
  specificTimes.forEach(function(t, i) {
  c.innerHTML += '<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full" style="background:var(--color-accent-soft);color:var(--color-accent-text);">' + t +
- ' <button type="button" onclick="removeSpecificTime(' + i + ')" class="hover:text-red-500">&times;</button>' +
+ ' <button type="button" onclick="removeSpecificTime(' + i + ')" class="hover-danger">&times;</button>' +
  '<input type="hidden" name="specific_times" value="' + t + '"></span>';
  });
 }
@@ -377,7 +377,7 @@ function renderSpecificTimes() {
  class="flex-shrink-0 p-2 rounded-lg transition-all lg:opacity-0 lg:group-hover:opacity-100"
  style="color: var(--color-text-faint);"
  onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='var(--color-text-faint)'"
- title="삭제">
+ title="삭제" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
  </button>
  </div>

@@ -69,24 +69,24 @@ table#sheet { table-layout: fixed; }
  </a>
  {% if not is_today %}
  <a href="/forms/{{ tpl.id }}/entries"
- class="ml-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-amber-200 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="ml-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
  오늘
  </a>
  {% endif %}
 </div>
 
 <div class="flex items-center justify-between mb-3">
- <a href="/forms" class="text-xs hover:text-amber-500 transition-colors">&larr; 양식 목록</a>
+ <a href="/forms" class="text-xs hover-accent transition-colors">&larr; 양식 목록</a>
  <div class="flex items-center gap-2">
  <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}"
  class="text-xs px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors font-medium" style="background: var(--color-success-soft); color: var(--color-success);">Excel</a>
  <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}&fmt=csv"
- class="text-xs hover:text-amber-500 transition-colors">CSV</a>
+ class="text-xs hover-accent transition-colors">CSV</a>
  <span class="w-px h-4"></span>
- <button id="btnTableView" onclick="setView('table')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="테이블 보기">
+ <button id="btnTableView" onclick="setView('table')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="테이블 보기" aria-label="테이블 보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125"/></svg>
  </button>
- <button id="btnCardView" onclick="setView('card')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="카드 보기">
+ <button id="btnCardView" onclick="setView('card')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="카드 보기" aria-label="카드 보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
  </button>
  <span id="saveStatus" class="text-xs text-green-500 hidden">저장됨 ✓</span>
@@ -159,7 +159,7 @@ table#sheet { table-layout: fixed; }
  {% endif %}
  {% endfor %}
  <td class="px-1 text-center">
- <button onclick="delRow(this)" class="sheet-del p-1.5 hover:text-red-500 transition-colors">
+ <button onclick="delRow(this)" class="sheet-del p-1.5 hover-danger transition-colors" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
  </button>
  </td>
@@ -168,7 +168,7 @@ table#sheet { table-layout: fixed; }
  <!-- New row -->
  <tr class="sheet-row sheet-new" id="newRow">
  <td class="px-2 py-1 text-center border-r">
- <button onclick="addRow()" class="text-amber-500 hover:text-amber-700 font-bold text-lg p-1" title="행 추가">+</button>
+ <button onclick="addRow()" class="text-amber-500 hover-accent font-bold text-lg p-1" title="행 추가">+</button>
  </td>
  {% if frequency is defined and frequency != 'daily' %}
  <td class="sheet-cell border-r">
@@ -327,7 +327,7 @@ function buildRowHtml(eid, rowNum) {
  }
  html += `</td>`;
  });
- html += `<td class="px-1 text-center"><button onclick="delRow(this)" class="sheet-del p-1.5 hover:text-red-500 transition-colors">
+ html += `<td class="px-1 text-center"><button onclick="delRow(this)" class="sheet-del p-1.5 hover-danger transition-colors" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></td>`;
  html += `</tr>`;
  return html;
@@ -517,7 +517,7 @@ function renderCards() {
  html += `<div class="work-card rounded-xl p-4" data-card-eid="${eid}">`;
  html += `<div class="flex justify-between items-center mb-2">`;
  html += `<span class="text-xs" style="color: var(--color-text-muted);">#${idx + 1}</span>`;
- html += `<button onclick="delRow(document.querySelector('tr[data-eid=&quot;${eid}&quot;] .sheet-del'))" class="p-1.5 hover:text-red-500 transition-colors">
+ html += `<button onclick="delRow(document.querySelector('tr[data-eid=&quot;${eid}&quot;] .sheet-del'))" class="p-1.5 hover-danger transition-colors" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
  html += `</div><div class="space-y-2">`;
  FIELDS.forEach((f, i) => {
@@ -555,7 +555,7 @@ function renderCards() {
  html += `</div></div>`;
  });
  html += `<div class="flex justify-center"><button onclick="addRow(); if(currentView==='card') setTimeout(renderCards, 100);"
- class="px-4 py-2 text-sm font-medium text-amber-500 hover:text-amber-700 rounded-xl hover:bg-amber-100 transition-colors">+ 행 추가</button></div>`;
+ class="px-4 py-2 text-sm font-medium text-amber-500 hover-accent rounded-xl hover-accent-bg transition-colors">+ 행 추가</button></div>`;
  cardView.innerHTML = html;
 }
 

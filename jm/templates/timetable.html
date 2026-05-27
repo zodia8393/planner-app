@@ -257,7 +257,7 @@
  </div>
  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
  <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
- class="p-1 rounded hover-surface" title="편집">
+ class="p-1 rounded hover-surface" title="편집" aria-label="편집">
  <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
  </svg>
@@ -265,7 +265,7 @@
  <button hx-delete="/timetable/blocks/{{ b.id }}"
  hx-target="#block-row-{{ b.id }}"
  hx-swap="outerHTML"
- class="p-1 rounded hover:bg-red-100" title="삭제">
+ class="p-1 rounded hover-danger-bg" title="삭제" aria-label="삭제">
  <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
  </svg>

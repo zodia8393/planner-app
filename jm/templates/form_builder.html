@@ -44,7 +44,7 @@
  <div class="mb-3 flex items-center justify-between">
  <h3 class="text-sm font-bold">필드 구성</h3>
  <button type="button" onclick="addField()"
- class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-amber-200 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
  </svg>
@@ -62,7 +62,7 @@
 
  <!-- Actions -->
  <div class="flex gap-2">
- <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">
+ <button type="submit" class="flex-1 py-2.5 btn-primary font-medium rounded-xl transition-colors text-sm">
  {{ '저장' if mode == 'edit' else '양식 만들기' }}
  </button>
  <a href="/forms" class="px-4 py-2.5 text-sm hover-text rounded-xl hover-surface transition-colors font-medium">
@@ -133,13 +133,13 @@ function addField(data) {
  class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
  </div>
  <div class="flex flex-col gap-1 flex-shrink-0">
- <button type="button" onclick="moveField(this, -1)" class="p-1 rounded hover-surface hover-text">
+ <button type="button" onclick="moveField(this, -1)" class="p-1 rounded hover-surface hover-text" aria-label="위로 이동">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
  </button>
- <button type="button" onclick="moveField(this, 1)" class="p-1 rounded hover-surface hover-text">
+ <button type="button" onclick="moveField(this, 1)" class="p-1 rounded hover-surface hover-text" aria-label="아래로 이동">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
  </button>
- <button type="button" onclick="removeField(this)" class="p-1 rounded hover:bg-red-50 hover:text-red-500">
+ <button type="button" onclick="removeField(this)" class="p-1 rounded hover-danger-bg hover-danger" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
  </button>
  </div>
