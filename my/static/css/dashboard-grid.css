@@ -354,13 +354,17 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
     transition: color 0.15s;
 }
 .widget-empty-action:hover { text-decoration: underline; }
-
-/* Empty widget: reduced presence */
-.dashboard-widget:has(.widget-empty) {
-    opacity: 0.6;
-}
-.dashboard-widget:has(.widget-empty):hover {
+.dashboard-widget:has(.widget-empty) .section-header a {
     opacity: 1;
+    color: var(--color-accent);
+}
+
+/* Empty widget: subtle background differentiation (no opacity fade) */
+.dashboard-widget:has(.widget-empty) {
+    background: var(--color-border-subtle);
+}
+html.dark .dashboard-widget:has(.widget-empty) {
+    background: var(--color-border-subtle);
 }
 
 /* ── Loading Skeleton ── */
@@ -398,4 +402,31 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
 }
 .dashboard-widget[data-widget="plan-view"] .btn-sm {
     transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+/* ── Mobile Touch Target (min 44px) ── */
+@media (max-width: 767px) {
+    .dashboard-widget .widget-list-item {
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
+    }
+    .dashboard-widget .widget-empty {
+        padding: 0.75rem;
+        min-height: 2.75rem;
+    }
+    .dashboard-widget .widget-empty-action {
+        padding: 0.375rem 0.5rem;
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    .dashboard-widget .section-header a {
+        padding: 0.375rem 0.5rem;
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    .dashboard-widget[data-widget="stat-cards"] .work-card {
+        padding: 0.75rem 0.625rem;
+    }
 }

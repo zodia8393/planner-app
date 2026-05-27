@@ -3,8 +3,8 @@
 {% call widget('time-budgets', '시간 예산') %}
 <div class="work-card rounded-xl">
     <div class="flex items-center justify-between mb-1 px-3 pt-1.5">
-        <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
-        <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline widget-detail-m">설정</a>
+        <h3 class="text-xs font-bold" style="color: var(--color-text);">이번 주 시간 예산</h3>
+        <a href="/settings/time-budgets" class="text-xs hover:underline widget-detail-m" style="color: var(--color-accent);">설정</a>
     </div>
     <div class="widget-detail-compact">
         {% for tb in time_budgets|default([]) %}
@@ -13,8 +13,8 @@
             <span>{{ tb.name or '미분류' }}</span>
             <span>{{ tb.used|round(1) }}/{{ tb.budget }}h</span>
         </div>
-        <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full rounded-full {% if tb.used > tb.budget %}bg-red-500{% else %}bg-green-500{% endif %}" style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+        <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+            <div class="h-full rounded-full" style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%; background: {% if tb.used > tb.budget %}var(--color-danger){% else %}var(--color-success){% endif %};"></div>
         </div>
         {% endif %}
         {% endfor %}
@@ -29,13 +29,12 @@
                         <span class="w-2 h-2 rounded-full" style="background:{{ tb.color }}"></span>
                         {{ tb.name or '미분류' }}
                     </span>
-                    <span class="{% if tb.used > tb.budget %}text-red-500 font-bold{% else %}text-slate-400{% endif %}">
+                    <span style="color: {% if tb.used > tb.budget %}var(--color-danger){% else %}var(--color-text-faint){% endif %}; {% if tb.used > tb.budget %}font-weight: 700;{% endif %}">
                         {{ tb.used|round(1) }} / {{ tb.budget }}h
                     </span>
                 </div>
-                <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full transition-all {% if tb.used > tb.budget %}bg-red-500{% elif tb.used > tb.budget * 0.8 %}bg-yellow-500{% else %}bg-green-500{% endif %}"
-                         style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%"></div>
+                <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+                    <div class="h-full rounded-full transition-all" style="width:{{ [tb.used / tb.budget * 100, 100]|min }}%; background: {% if tb.used > tb.budget %}var(--color-danger){% elif tb.used > tb.budget * 0.8 %}var(--color-warning){% else %}var(--color-success){% endif %};"></div>
                 </div>
             </div>
             {% endif %}

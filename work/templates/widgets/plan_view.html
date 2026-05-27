@@ -18,37 +18,38 @@
 <div class="widget-detail-m">
     <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
         <a href="/?plan_view=week&plan_offset=0"
-           class="btn-sm rounded-lg font-semibold transition-colors
-                  {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+           class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'week' %}shadow-sm{% endif %}"
+           style="{% if plan_view == 'week' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
             주간
         </a>
         <a href="/?plan_view=month&plan_offset=0"
-           class="btn-sm rounded-lg font-semibold transition-colors
-                  {% if plan_view == 'month' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
+           class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'month' %}shadow-sm{% endif %}"
+           style="{% if plan_view == 'month' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
             월간
         </a>
         <div class="flex items-center gap-1 ml-auto">
             <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
-               class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+               class="p-1.5 rounded-lg transition-colors" style="color: var(--color-text-muted);">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             </a>
-            <span class="text-sm font-bold text-slate-800 dark:text-white px-2 whitespace-nowrap">{{ nav_label }}</span>
+            <span class="text-sm font-bold px-2 whitespace-nowrap" style="color: var(--color-text);">{{ nav_label }}</span>
             <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
-               class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+               class="p-1.5 rounded-lg transition-colors" style="color: var(--color-text-muted);">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
             </a>
             {% if plan_offset != 0 %}
             <a href="/?plan_view={{ plan_view }}&plan_offset=0"
-               class="ml-1 px-2.5 py-1 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+               class="ml-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors"
+               style="background: var(--color-accent-soft); color: var(--color-accent);">
                 {{ reset_label }}
             </a>
             {% endif %}
         </div>
-        <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-            <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">전체 <b class="text-slate-700 dark:text-slate-200">{{ total_count }}</b></span>
-            <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20">완료 <b class="text-emerald-600 dark:text-emerald-400">{{ done_count }}</b></span>
+        <div class="flex items-center gap-1.5 text-xs" style="color: var(--color-text-muted);">
+            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-border-subtle);">전체 <b style="color: var(--color-text);">{{ total_count }}</b></span>
+            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-success-soft);">완료 <b style="color: var(--color-success);">{{ done_count }}</b></span>
             {% if total_count > 0 %}
-            <span class="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/20"><b class="text-amber-600 dark:text-amber-400">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
+            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-accent-soft);"><b style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
             {% endif %}
         </div>
     </div>
@@ -58,34 +59,34 @@
         {% for day in week_days %}
         <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
              style="animation-delay: {{ loop.index0 * 40 }}ms">
-            <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between
-                        {% if day.is_today %}bg-amber-50 dark:bg-amber-900/20{% elif day.is_weekend %}bg-slate-50/50 dark:bg-slate-800/30{% endif %}">
+            <div class="px-3 py-2 flex items-center justify-between"
+                 style="border-bottom: 1px solid var(--color-border-subtle); {% if day.is_today %}background: var(--color-accent-soft);{% elif day.is_weekend %}background: var(--color-border-subtle);{% endif %}">
                 <div class="flex items-center gap-2">
                     {% if day.is_today %}
-                    <span class="w-6 h-6 bg-amber-600 text-white text-xs font-bold rounded-full flex items-center justify-center">{{ day.date.day }}</span>
+                    <span class="w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center" style="background: var(--color-accent); color: white;">{{ day.date.day }}</span>
                     {% else %}
-                    <span class="text-sm font-bold {% if day.is_weekend %}text-red-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ day.date.day }}</span>
+                    <span class="text-sm font-bold" style="color: {% if day.is_weekend %}var(--color-danger){% else %}var(--color-text){% endif %};">{{ day.date.day }}</span>
                     {% endif %}
-                    <span class="text-xs font-medium {% if day.is_today %}text-amber-600 dark:text-amber-400{% elif day.is_weekend %}text-red-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">{{ day.short_label }}</span>
+                    <span class="text-xs font-medium" style="color: {% if day.is_today %}var(--color-accent){% elif day.is_weekend %}var(--color-danger){% else %}var(--color-text-muted){% endif %};">{{ day.short_label }}</span>
                 </div>
                 {% if day.todos|length > 0 %}
-                <span class="text-xs font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                <span class="text-xs font-medium px-1.5 py-0.5 rounded-md" style="background: var(--color-border-subtle); color: var(--color-text-muted);">
                     {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
                 </span>
                 {% endif %}
             </div>
             <div class="{% if day.todos %}p-1.5 space-y-0.5{% else %}p-0.5{% endif %}">
                 {% for todo in day.todos %}
-                <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
-                                {% if todo.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-500 hover:border-amber-400{% endif %}"
+                <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg transition-colors" style="{% if not todo.completed %}cursor: pointer;{% endif %}">
+                    <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors"
+                            style="{% if todo.completed %}background: var(--color-accent); border-color: var(--color-accent);{% else %}border-color: var(--color-border);{% endif %}"
                             data-completed="{{ 'true' if todo.completed else 'false' }}">
                         {% if todo.completed %}
                         <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                         {% endif %}
                     </button>
                     <div class="flex-1 min-w-0">
-                        <span class="text-xs {% if todo.completed %}line-through text-slate-400{% else %}text-slate-700 dark:text-slate-200{% endif %} truncate block">{{ todo.title }}</span>
+                        <span class="text-xs {% if todo.completed %}line-through{% endif %} truncate block" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text){% endif %};">{{ todo.title }}</span>
                         {% if todo.category_name %}
                         <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
                         {% endif %}
@@ -100,9 +101,9 @@
     </div>
     {% else %}
     <div class="work-card rounded-xl overflow-hidden">
-        <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="grid grid-cols-7 text-center text-xs font-semibold" style="color: var(--color-text-muted); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);">
             {% for wn in weekday_names %}
-            <div class="py-2 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ wn }}</div>
+            <div class="py-2" style="{% if loop.index == 7 %}color: var(--color-danger);{% elif loop.index == 6 %}color: var(--color-info);{% endif %}">{{ wn }}</div>
             {% endfor %}
         </div>
         <div class="grid grid-cols-7">
@@ -113,32 +114,27 @@
             {% set cell_todos = todos_by_date.get(ds, []) %}
             {% set is_today = cell_date == today %}
             {% set weekday = cell_date.weekday() %}
-            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-0
-                        {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}">
+            <div class="p-1.5 min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); {% if is_today %}background: var(--color-accent-soft);{% endif %}">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs lg:text-sm font-medium
-                        {% if is_today %}bg-amber-600 text-white w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center
-                        {% elif weekday == 6 %}text-red-400
-                        {% elif weekday == 5 %}text-blue-400
-                        {% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ cell_date.day }}</span>
+                    <span class="text-xs lg:text-sm font-medium {% if is_today %}w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center{% endif %}"
+                          style="{% if is_today %}background: var(--color-accent); color: white;{% elif weekday == 6 %}color: var(--color-danger);{% elif weekday == 5 %}color: var(--color-info);{% else %}color: var(--color-text-muted);{% endif %}">{{ cell_date.day }}</span>
                     {% if cell_todos|length > 0 %}
-                    <span class="text-[11px] font-medium px-1 py-0.5 rounded
-                           {% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600
-                           {% else %}bg-slate-100 dark:bg-slate-700 text-slate-500{% endif %}">{{ cell_todos|length }}</span>
+                    <span class="text-[11px] font-medium px-1 py-0.5 rounded"
+                          style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>
                     {% endif %}
                 </div>
                 {% for todo in cell_todos[:3] %}
                 <div class="flex items-center gap-1 mb-0.5">
                     <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
-                    <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through text-slate-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">{{ todo.title }}</span>
+                    <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through{% endif %}" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text-muted){% endif %};">{{ todo.title }}</span>
                 </div>
                 {% endfor %}
                 {% if cell_todos|length > 3 %}
-                <span class="text-[11px] text-slate-400 pl-2">+{{ cell_todos|length - 3 }}개</span>
+                <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 3 }}개</span>
                 {% endif %}
             </div>
             {% else %}
-            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20 min-h-0"></div>
+            <div class="min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);"></div>
             {% endif %}
             {% endfor %}
             {% endfor %}

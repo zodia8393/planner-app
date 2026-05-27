@@ -20,11 +20,11 @@
             <div class="flex items-center justify-between mb-1">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ proj.color }}"></span>
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ proj.name }}</span>
+                    <span class="text-sm font-medium" style="color: var(--color-text);">{{ proj.name }}</span>
                 </div>
-                <span class="text-xs text-slate-400">{{ proj.done }}/{{ proj.total }}</span>
+                <span class="text-xs" style="color: var(--color-text-faint);">{{ proj.done }}/{{ proj.total }}</span>
             </div>
-            <div class="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-1.5 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
                 <div class="h-full rounded-full progress-bar" style="width:{{ rate }}%; background:{{ proj.color }}"></div>
             </div>
         </div>

@@ -12,14 +12,14 @@
         <p class="text-xs" style="color: var(--color-text-faint);">일정 없음</p>
         {% endif %}
     </div>
-    <div class="widget-detail-m divide-y divide-slate-100 dark:divide-slate-700">
+    <div class="widget-detail-m divide-y" style="border-color: var(--color-border-subtle);">
         {% for ev in week_events[:3] %}
         <div class="widget-list-item px-3 py-1.5">
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or 'var(--color-accent)' }}"></div>
-                <p class="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">{{ ev.title }}</p>
+                <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ ev.title }}</p>
             </div>
-            <p class="text-xs text-slate-400 ml-4" style="margin-top: 1px;">{{ ev.start_time|format_datetime }}</p>
+            <p class="text-xs ml-4" style="margin-top: 1px; color: var(--color-text-faint);">{{ ev.start_time|format_datetime }}</p>
         </div>
         {% else %}
         <div class="widget-empty">
