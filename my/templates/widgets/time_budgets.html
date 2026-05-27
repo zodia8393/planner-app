@@ -2,11 +2,11 @@
 {% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
 {% call widget('time-budgets', '시간 예산') %}
 <div class="work-card rounded-xl">
- <div class="flex items-center justify-between mb-1 px-3 pt-1.5">
- <h3 class="text-xs font-bold" style="color: var(--color-text);">이번 주 시간 예산</h3>
- <a href="/settings/time-budgets" class="text-xs hover:underline widget-detail-m" style="color: var(--color-accent);">설정</a>
+ <div class="section-header">
+ <h3>이번 주 시간 예산</h3>
+ <a href="/settings/time-budgets" class="widget-detail-m">설정</a>
  </div>
- <div class="widget-detail-compact">
+ <div class="widget-detail-compact px-3 py-1.5">
  {% for tb in time_budgets|default([]) %}
  {% if tb.budget > 0 and loop.index <= 1 %}
  <div class="flex justify-between text-xs mb-1" style="color: var(--color-text-muted);">
@@ -19,7 +19,7 @@
  {% endif %}
  {% endfor %}
  </div>
- <div class="widget-detail-m">
+ <div class="widget-detail-m px-3 py-1.5">
  <div class="space-y-2">
  {% for tb in time_budgets|default([]) %}
  {% if tb.budget > 0 %}

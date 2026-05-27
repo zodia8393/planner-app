@@ -123,14 +123,14 @@
  style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>
  {% endif %}
  </div>
- {% for todo in cell_todos[:3] %}
+ {% for todo in cell_todos[:2] %}
  <div class="flex items-center gap-1 mb-0.5">
  <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
  <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through{% endif %}" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text-muted){% endif %};">{{ todo.title }}</span>
  </div>
  {% endfor %}
- {% if cell_todos|length > 3 %}
- <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 3 }}개</span>
+ {% if cell_todos|length > 2 %}
+ <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 2 }}개</span>
  {% endif %}
  </div>
  {% else %}

@@ -2,15 +2,11 @@
 {% if tt_widget_blocks %}
 {% call widget('timetable', '시간표') %}
 <div class="work-card rounded-xl">
- <div class="flex items-center justify-between mb-1 px-3 pt-1.5">
- <h3 class="text-xs font-bold" style="color: var(--color-text);">
- <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
- <span class="widget-detail-compact">시간표</span>
- <span class="widget-detail-m">오늘의 시간표</span>
- </h3>
- <a href="/timetable" class="text-xs font-medium widget-detail-m" style="color: var(--color-accent);">전체보기</a>
+ <div class="section-header">
+ <h3>오늘의 시간표</h3>
+ <a href="/timetable" class="widget-detail-m">더보기</a>
  </div>
- <div class="widget-detail-compact">
+ <div class="widget-detail-compact px-3 py-1.5">
  {% if tt_current %}
  <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
  <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
