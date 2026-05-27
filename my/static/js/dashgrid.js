@@ -238,10 +238,10 @@ var DashGrid = (function() {
                 hasMissing = true;
             }
         }
-        if (hasMissing) {
-            compactLayout(layout);
-            saveLayoutImmediate(layout);
-        }
+        if (hasMissing) compactLayout(layout);
+
+        // Always persist (handles first load + version migration)
+        saveLayoutDebounced(layout);
 
         widgets.forEach(function(el) {
             var name = el.dataset.widget;
@@ -550,7 +550,6 @@ var DashGrid = (function() {
             }
 
             resolveCollisions(layout);
-            compactLayout(layout);
             saveLayoutImmediate(layout);
 
             d.widget.classList.remove('dragging', 'lifting');
