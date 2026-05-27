@@ -36,6 +36,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Stre
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 import uvicorn
 
@@ -125,6 +126,7 @@ app.add_middleware(SyncBroadcastMiddleware, event_bus=event_bus,
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(StaticCacheMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=500, compresslevel=6)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 BG_DIR = BASE_DIR / "data" / "backgrounds"
 BG_DIR.mkdir(parents=True, exist_ok=True)

@@ -38,6 +38,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Stre
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 import uvicorn
 
@@ -177,6 +178,7 @@ app.add_middleware(ProfileSelectMiddleware)
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(SyncBroadcastMiddleware, event_bus=event_bus, skip_paths=("/worklogs/upload-image",))
 app.add_middleware(StaticCacheMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=500, compresslevel=6)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 WORKLOG_IMG_DIR = BASE_DIR / "data" / "worklog_images"
