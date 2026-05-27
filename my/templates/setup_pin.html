@@ -14,14 +14,14 @@
 </head>
 <body class="h-full flex items-center justify-center">
     <div class="w-full max-w-sm mx-4">
-        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 text-center border border-slate-200/60">
+        <div class="rounded-2xl shadow-xl p-8 text-center border" style="background: var(--color-surface); border-color: var(--color-border);">
             <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/30">
                 <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold text-slate-800 mb-2">PIN 설정</h1>
-            <p class="text-sm text-slate-400 mb-6">보안을 위해 4자리 이상 PIN을 설정해주세요</p>
+            <h1 class="text-xl font-bold mb-2" style="color: var(--color-text);">PIN 설정</h1>
+            <p class="text-sm mb-6" style="color: var(--color-text-faint);">보안을 위해 4자리 이상 PIN을 설정해주세요</p>
 
             {% if error %}
             <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ error }}</div>
@@ -29,11 +29,11 @@
 
             <form action="/auth/setup-pin" method="POST" id="pinForm">
                 <input type="password" name="pin" id="pinInput" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required autofocus
-                       class="pin-input w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-4"
+                       class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-4" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
 
                 <input type="password" name="pin_confirm" id="pinConfirm" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required
-                       class="pin-input w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-2"
+                       class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-2" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
                 <p id="matchError" class="text-xs text-red-500 mb-4 hidden">PIN이 일치하지 않습니다</p>
 
@@ -42,7 +42,7 @@
                 </button>
             </form>
 
-            <a href="/" class="inline-block mt-4 text-xs text-slate-400 hover:text-slate-600 transition-colors">나중에 설정하기</a>
+            <a href="/" class="inline-block mt-4 text-xs hover-text transition-colors" style="color: var(--color-text-faint);">나중에 설정하기</a>
         </div>
     </div>
     <script>

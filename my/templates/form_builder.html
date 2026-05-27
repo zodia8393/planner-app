@@ -1,211 +1,211 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}{{ '양식 편집' if mode == 'edit' else '새 양식' }} - My Planner{% endblock %}
 {% block page_title %}{{ '양식 편집' if mode == 'edit' else '새 양식 만들기' }}{% endblock %}
 {% block page_subtitle %}필드를 추가하여 양식을 구성하세요{% endblock %}
 
 {% block content %}
 <form {% if mode == 'edit' %}hx-put="/forms/{{ tpl.id }}" hx-target="body"{% else %}action="/forms" method="POST"{% endif %} id="builderForm">
-    <!-- Template info -->
-    <div class="work-card rounded-xl p-4 mb-4 space-y-3">
-        <div class="flex gap-2">
-            <div class="w-16">
-                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">아이콘</label>
-                <input type="text" name="emoji" value="{{ tpl.emoji if tpl and tpl.emoji else '' }}" placeholder="📝" maxlength="2"
-                       class="w-full px-3 py-2 text-sm text-center bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            </div>
-            <div class="w-16">
-                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">색상</label>
-                <input type="color" name="color" value="{{ tpl.color if tpl and tpl.color else '#d97706' }}"
-                       class="w-full h-[38px] p-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer">
-            </div>
-            <div class="flex-1">
-                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">양식 이름 *</label>
-                <input type="text" name="name" value="{{ tpl.name if tpl else '' }}" placeholder="예: 일일 업무보고서" required
-                       class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            </div>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">설명</label>
-            <input type="text" name="description" value="{{ tpl.description if tpl else '' }}" placeholder="양식에 대한 간단한 설명"
-                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">작성 빈도</label>
-            <select name="frequency" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <option value="daily" {{ 'selected' if tpl and tpl.frequency == 'daily' }}>일간 (매일)</option>
-                <option value="weekly" {{ 'selected' if tpl and tpl.frequency == 'weekly' }}>주간 (매주)</option>
-                <option value="monthly" {{ 'selected' if tpl and tpl.frequency == 'monthly' }}>월간 (매월)</option>
-                <option value="yearly" {{ 'selected' if tpl and tpl.frequency == 'yearly' }}>연간 (매년)</option>
-            </select>
-        </div>
-    </div>
+ <!-- Template info -->
+ <div class="work-card rounded-xl p-4 mb-4 space-y-3">
+ <div class="flex gap-2">
+ <div class="w-16">
+ <label class="block text-xs font-semibold mb-1">아이콘</label>
+ <input type="text" name="emoji" value="{{ tpl.emoji if tpl and tpl.emoji else '' }}" placeholder="📝" maxlength="2"
+ class="w-full px-3 py-2 text-sm text-center border rounded-lg focus:ring-2 focus:ring-amber-400">
+ </div>
+ <div class="w-16">
+ <label class="block text-xs font-semibold mb-1">색상</label>
+ <input type="color" name="color" value="{{ tpl.color if tpl and tpl.color else '#d97706' }}"
+ class="w-full h-[38px] p-1 border rounded-lg cursor-pointer">
+ </div>
+ <div class="flex-1">
+ <label class="block text-xs font-semibold mb-1">양식 이름 *</label>
+ <input type="text" name="name" value="{{ tpl.name if tpl else '' }}" placeholder="예: 일일 업무보고서" required
+ class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ </div>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold mb-1">설명</label>
+ <input type="text" name="description" value="{{ tpl.description if tpl else '' }}" placeholder="양식에 대한 간단한 설명"
+ class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ </div>
+ <div>
+ <label class="block text-xs font-semibold mb-1">작성 빈도</label>
+ <select name="frequency" class="w-full px-3 py-2 text-sm border rounded-lg">
+ <option value="daily" {{ 'selected' if tpl and tpl.frequency == 'daily' }}>일간 (매일)</option>
+ <option value="weekly" {{ 'selected' if tpl and tpl.frequency == 'weekly' }}>주간 (매주)</option>
+ <option value="monthly" {{ 'selected' if tpl and tpl.frequency == 'monthly' }}>월간 (매월)</option>
+ <option value="yearly" {{ 'selected' if tpl and tpl.frequency == 'yearly' }}>연간 (매년)</option>
+ </select>
+ </div>
+ </div>
 
-    <!-- Fields -->
-    <div class="mb-3 flex items-center justify-between">
-        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">필드 구성</h3>
-        <button type="button" onclick="addField()"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            필드 추가
-        </button>
-    </div>
+ <!-- Fields -->
+ <div class="mb-3 flex items-center justify-between">
+ <h3 class="text-sm font-bold">필드 구성</h3>
+ <button type="button" onclick="addField()"
+ class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-amber-200 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+ </svg>
+ 필드 추가
+ </button>
+ </div>
 
-    <div id="fieldList" class="space-y-2 mb-4">
-        <!-- Fields rendered by JS -->
-    </div>
+ <div id="fieldList" class="space-y-2 mb-4">
+ <!-- Fields rendered by JS -->
+ </div>
 
-    <div id="emptyFields" class="py-8 text-center text-sm text-slate-400 hidden">
-        위의 "필드 추가" 버튼으로 양식 필드를 추가하세요
-    </div>
+ <div id="emptyFields" class="py-8 text-center text-sm hidden">
+ 위의"필드 추가" 버튼으로 양식 필드를 추가하세요
+ </div>
 
-    <!-- Actions -->
-    <div class="flex gap-2">
-        <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">
-            {{ '저장' if mode == 'edit' else '양식 만들기' }}
-        </button>
-        <a href="/forms" class="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium">
-            취소
-        </a>
-    </div>
+ <!-- Actions -->
+ <div class="flex gap-2">
+ <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">
+ {{ '저장' if mode == 'edit' else '양식 만들기' }}
+ </button>
+ <a href="/forms" class="px-4 py-2.5 text-sm hover-text rounded-xl hover-surface transition-colors font-medium">
+ 취소
+ </a>
+ </div>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 const FIELD_TYPES = [
-    {value: 'text', label: '한줄 텍스트'},
-    {value: 'textarea', label: '여러줄 텍스트'},
-    {value: 'number', label: '숫자'},
-    {value: 'dropdown', label: '드롭다운'},
-    {value: 'date', label: '날짜'},
-    {value: 'checkbox', label: '체크박스'},
-    {value: 'table', label: '표 (행/열)'},
+ {value: 'text', label: '한줄 텍스트'},
+ {value: 'textarea', label: '여러줄 텍스트'},
+ {value: 'number', label: '숫자'},
+ {value: 'dropdown', label: '드롭다운'},
+ {value: 'date', label: '날짜'},
+ {value: 'checkbox', label: '체크박스'},
+ {value: 'table', label: '표 (행/열)'},
 ];
 
 let fieldCount = 0;
 
 function addField(data) {
-    const idx = fieldCount++;
-    const d = data || {label: '', type: 'text', required: false, options: [], columns: [], default_val: '', copy_prev: false};
-    const container = document.getElementById('fieldList');
-    const div = document.createElement('div');
-    div.className = 'work-card rounded-xl p-3 fade-in';
-    div.dataset.fieldIdx = idx;
+ const idx = fieldCount++;
+ const d = data || {label: '', type: 'text', required: false, options: [], columns: [], default_val: '', copy_prev: false};
+ const container = document.getElementById('fieldList');
+ const div = document.createElement('div');
+ div.className = 'work-card rounded-xl p-3 fade-in';
+ div.dataset.fieldIdx = idx;
 
-    const optionsVal = (d.type === 'table' ? (d.columns || []) : (d.options || [])).join(', ');
-    const optionsHidden = (d.type === 'dropdown' || d.type === 'table') ? '' : 'hidden';
-    const optionsPlaceholder = d.type === 'table' ? '열 이름 (쉼표 구분: 작업, 담당자, 시간, 비고)' : '옵션 (쉼표 구분: 옵션1, 옵션2, 옵션3)';
+ const optionsVal = (d.type === 'table' ? (d.columns || []) : (d.options || [])).join(', ');
+ const optionsHidden = (d.type === 'dropdown' || d.type === 'table') ? '' : 'hidden';
+ const optionsPlaceholder = d.type === 'table' ? '열 이름 (쉼표 구분: 작업, 담당자, 시간, 비고)' : '옵션 (쉼표 구분: 옵션1, 옵션2, 옵션3)';
 
-    div.innerHTML = `
-        <div class="flex items-start gap-2">
-            <div class="drag-handle cursor-grab active:cursor-grabbing p-1 text-slate-300 hover:text-slate-500 flex-shrink-0 mt-1.5">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                </svg>
-            </div>
-            <div class="flex-1 space-y-2">
-                <div class="flex gap-2">
-                    <input type="text" name="field_${idx}_label" value="${escHtml(d.label)}" placeholder="필드명" required
-                           class="flex-1 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                    <select name="field_${idx}_type" onchange="onTypeChange(this, ${idx})"
-                            class="w-32 px-2 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                        ${FIELD_TYPES.map(t => `<option value="${t.value}" ${t.value === d.type ? 'selected' : ''}>${t.label}</option>`).join('')}
-                    </select>
-                </div>
-                <div id="options_${idx}" class="${optionsHidden}">
-                    <input type="text" name="field_${idx}_options" value="${escHtml(optionsVal)}" placeholder="${optionsPlaceholder}"
-                           class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" name="field_${idx}_required" ${d.required ? 'checked' : ''}
-                               class="w-3.5 h-3.5 rounded border-slate-300 text-amber-600 focus:ring-amber-400">
-                        <span class="text-xs text-slate-500">필수</span>
-                    </label>
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" name="field_${idx}_copy_prev" ${d.copy_prev ? 'checked' : ''}
-                               class="w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-400">
-                        <span class="text-xs text-slate-500">어제값 복사</span>
-                    </label>
-                </div>
-                <input type="text" name="field_${idx}_default" value="${escHtml(d.default_val || '')}" placeholder="기본값 (선택)"
-                       class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            </div>
-            <div class="flex flex-col gap-1 flex-shrink-0">
-                <button type="button" onclick="moveField(this, -1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
-                </button>
-                <button type="button" onclick="moveField(this, 1)" class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
-                </button>
-                <button type="button" onclick="removeField(this)" class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        </div>
-    `;
-    container.appendChild(div);
-    updateEmptyState();
+ div.innerHTML = `
+ <div class="flex items-start gap-2">
+ <div class="drag-handle cursor-grab active:cursor-grabbing p-1 hover: flex-shrink-0 mt-1.5">
+ <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+ <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+ </svg>
+ </div>
+ <div class="flex-1 space-y-2">
+ <div class="flex gap-2">
+ <input type="text" name="field_${idx}_label" value="${escHtml(d.label)}" placeholder="필드명" required
+ class="flex-1 px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <select name="field_${idx}_type" onchange="onTypeChange(this, ${idx})"
+ class="w-32 px-2 py-1.5 text-sm border rounded-lg">
+ ${FIELD_TYPES.map(t => `<option value="${t.value}" ${t.value === d.type ? 'selected' : ''}>${t.label}</option>`).join('')}
+ </select>
+ </div>
+ <div id="options_${idx}" class="${optionsHidden}">
+ <input type="text" name="field_${idx}_options" value="${escHtml(optionsVal)}" placeholder="${optionsPlaceholder}"
+ class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ </div>
+ <div class="flex items-center gap-3 flex-wrap">
+ <label class="inline-flex items-center gap-1.5 cursor-pointer">
+ <input type="checkbox" name="field_${idx}_required" ${d.required ? 'checked' : ''}
+ class="w-3.5 h-3.5 rounded text-amber-600 focus:ring-amber-400">
+ <span class="text-xs" style="color: var(--color-text-muted);">필수</span>
+ </label>
+ <label class="inline-flex items-center gap-1.5 cursor-pointer">
+ <input type="checkbox" name="field_${idx}_copy_prev" ${d.copy_prev ? 'checked' : ''}
+ class="w-3.5 h-3.5 rounded text-emerald-600 focus:ring-emerald-400">
+ <span class="text-xs" style="color: var(--color-text-muted);">어제값 복사</span>
+ </label>
+ </div>
+ <input type="text" name="field_${idx}_default" value="${escHtml(d.default_val || '')}" placeholder="기본값 (선택)"
+ class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ </div>
+ <div class="flex flex-col gap-1 flex-shrink-0">
+ <button type="button" onclick="moveField(this, -1)" class="p-1 rounded hover-surface hover-text">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+ </button>
+ <button type="button" onclick="moveField(this, 1)" class="p-1 rounded hover-surface hover-text">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+ </button>
+ <button type="button" onclick="removeField(this)" class="p-1 rounded hover:bg-red-50 hover:text-red-500">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+ </button>
+ </div>
+ </div>
+ `;
+ container.appendChild(div);
+ updateEmptyState();
 }
 
 function removeField(btn) {
-    btn.closest('[data-field-idx]').remove();
-    reindex();
-    updateEmptyState();
+ btn.closest('[data-field-idx]').remove();
+ reindex();
+ updateEmptyState();
 }
 
 function moveField(btn, dir) {
-    const card = btn.closest('[data-field-idx]');
-    const list = document.getElementById('fieldList');
-    const sibling = dir === -1 ? card.previousElementSibling : card.nextElementSibling;
-    if (!sibling) return;
-    if (dir === -1) list.insertBefore(card, sibling);
-    else list.insertBefore(sibling, card);
-    reindex();
+ const card = btn.closest('[data-field-idx]');
+ const list = document.getElementById('fieldList');
+ const sibling = dir === -1 ? card.previousElementSibling : card.nextElementSibling;
+ if (!sibling) return;
+ if (dir === -1) list.insertBefore(card, sibling);
+ else list.insertBefore(sibling, card);
+ reindex();
 }
 
 function reindex() {
-    const cards = document.querySelectorAll('#fieldList [data-field-idx]');
-    cards.forEach((card, i) => {
-        const oldIdx = card.dataset.fieldIdx;
-        card.dataset.fieldIdx = i;
-        card.querySelectorAll('[name]').forEach(el => {
-            el.name = el.name.replace(/field_\d+_/, `field_${i}_`);
-        });
-        const optDiv = card.querySelector(`[id^="options_"]`);
-        if (optDiv) optDiv.id = `options_${i}`;
-        const selects = card.querySelectorAll('select');
-        selects.forEach(s => {
-            const handler = s.getAttribute('onchange');
-            if (handler) s.setAttribute('onchange', handler.replace(/\d+\)/, `${i})`));
-        });
-    });
-    fieldCount = cards.length;
+ const cards = document.querySelectorAll('#fieldList [data-field-idx]');
+ cards.forEach((card, i) => {
+ const oldIdx = card.dataset.fieldIdx;
+ card.dataset.fieldIdx = i;
+ card.querySelectorAll('[name]').forEach(el => {
+ el.name = el.name.replace(/field_\d+_/, `field_${i}_`);
+ });
+ const optDiv = card.querySelector(`[id^="options_"]`);
+ if (optDiv) optDiv.id = `options_${i}`;
+ const selects = card.querySelectorAll('select');
+ selects.forEach(s => {
+ const handler = s.getAttribute('onchange');
+ if (handler) s.setAttribute('onchange', handler.replace(/\d+\)/, `${i})`));
+ });
+ });
+ fieldCount = cards.length;
 }
 
 function onTypeChange(sel, idx) {
-    const optDiv = document.getElementById(`options_${idx}`);
-    const input = optDiv.querySelector('input');
-    if (sel.value === 'dropdown' || sel.value === 'table') {
-        optDiv.classList.remove('hidden');
-        input.placeholder = sel.value === 'table' ? '열 이름 (쉼표 구분: 작업, 담당자, 시간, 비고)' : '옵션 (쉼표 구분: 옵션1, 옵션2, 옵션3)';
-    } else {
-        optDiv.classList.add('hidden');
-    }
+ const optDiv = document.getElementById(`options_${idx}`);
+ const input = optDiv.querySelector('input');
+ if (sel.value === 'dropdown' || sel.value === 'table') {
+ optDiv.classList.remove('hidden');
+ input.placeholder = sel.value === 'table' ? '열 이름 (쉼표 구분: 작업, 담당자, 시간, 비고)' : '옵션 (쉼표 구분: 옵션1, 옵션2, 옵션3)';
+ } else {
+ optDiv.classList.add('hidden');
+ }
 }
 
 function updateEmptyState() {
-    const list = document.getElementById('fieldList');
-    const empty = document.getElementById('emptyFields');
-    if (list.children.length === 0) empty.classList.remove('hidden');
-    else empty.classList.add('hidden');
+ const list = document.getElementById('fieldList');
+ const empty = document.getElementById('emptyFields');
+ if (list.children.length === 0) empty.classList.remove('hidden');
+ else empty.classList.add('hidden');
 }
 
 function escHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = s || '';
-    return d.innerHTML;
+ const d = document.createElement('div');
+ d.textContent = s || '';
+ return d.innerHTML;
 }
 
 // Init existing fields
@@ -218,10 +218,10 @@ updateEmptyState();
 
 // Drag-and-drop reordering
 new Sortable(document.getElementById('fieldList'), {
-    handle: '.drag-handle',
-    animation: 150,
-    ghostClass: 'opacity-30',
-    onEnd: () => reindex()
+ handle: '.drag-handle',
+ animation: 150,
+ ghostClass: 'opacity-30',
+ onEnd: () => reindex()
 });
 </script>
 {% endblock %}

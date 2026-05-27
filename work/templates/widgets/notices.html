@@ -1,34 +1,34 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('notices', '공지') %}
 <div class="work-card rounded-xl overflow-hidden">
-    <div class="section-header">
-        <h3>최근 공지사항</h3>
-        <a href="/notices" class="widget-detail-m">더보기</a>
-    </div>
-    <div class="widget-detail-compact px-3 py-1.5">
-        <span class="text-xs font-bold" style="color: var(--color-text);">{{ recent_notices|length }}건</span>
-    </div>
-    <div class="widget-detail-m divide-y" style="border-color: var(--color-border-subtle);">
-        {% for notice in recent_notices[:2] %}
-        <div class="widget-list-item px-3 py-1.5">
-            <div class="flex items-center gap-1.5">
-                {% if notice.pinned %}
-                <span class="text-xs px-1 py-0.5 rounded font-medium" style="background: var(--color-accent-soft); color: var(--color-accent);">고정</span>
-                {% endif %}
-                {% if notice.priority == 1 %}
-                <span class="text-xs px-1 py-0.5 rounded font-medium" style="background: var(--color-danger-soft); color: var(--color-danger);">중요</span>
-                {% endif %}
-                <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ notice.title }}</p>
-            </div>
-            <p class="text-xs" style="margin-top: 1px; color: var(--color-text-faint);">{{ notice.created_at|format_datetime }}</p>
-        </div>
-        {% else %}
-        <div class="widget-empty">
-            <span class="widget-empty-icon">&#128226;</span>
-            <p class="widget-empty-text">공지사항이 없습니다</p>
-            <a href="/notices" class="widget-empty-action">바로가기</a>
-        </div>
-        {% endfor %}
-    </div>
+ <div class="section-header">
+ <h3>최근 공지사항</h3>
+ <a href="/notices" class="widget-detail-m">더보기</a>
+ </div>
+ <div class="widget-detail-compact px-3 py-1.5">
+ <span class="text-xs font-bold" style="color: var(--color-text);">{{ recent_notices|length }}건</span>
+ </div>
+ <div class="widget-detail-m divide-y" style="border-color: var(--color-border-subtle);">
+ {% for notice in recent_notices[:2] %}
+ <div class="widget-list-item px-3 py-1.5">
+ <div class="flex items-center gap-1.5">
+ {% if notice.pinned %}
+ <span class="text-xs px-1 py-0.5 rounded font-medium" style="background: var(--color-accent-soft); color: var(--color-accent);">고정</span>
+ {% endif %}
+ {% if notice.priority == 1 %}
+ <span class="text-xs px-1 py-0.5 rounded font-medium" style="background: var(--color-danger-soft); color: var(--color-danger);">중요</span>
+ {% endif %}
+ <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ notice.title }}</p>
+ </div>
+ <p class="text-xs" style="margin-top: 1px; color: var(--color-text-faint);">{{ notice.created_at|format_datetime }}</p>
+ </div>
+ {% else %}
+ <div class="widget-empty">
+ <span class="widget-empty-icon">&#128226;</span>
+ <p class="widget-empty-text">공지사항이 없습니다</p>
+ <a href="/notices" class="widget-empty-action">바로가기</a>
+ </div>
+ {% endfor %}
+ </div>
 </div>
 {% endcall %}

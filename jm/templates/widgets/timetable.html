@@ -1,76 +1,76 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% if tt_widget_blocks %}
 {% call widget('timetable', '시간표') %}
 <div class="work-card rounded-xl">
-    <div class="flex items-center justify-between mb-1 px-3 pt-1.5">
-        <h3 class="text-xs font-bold" style="color: var(--color-text);">
-            <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="widget-detail-compact">시간표</span>
-            <span class="widget-detail-m">오늘의 시간표</span>
-        </h3>
-        <a href="/timetable" class="text-xs font-medium widget-detail-m" style="color: var(--color-accent);">전체보기</a>
-    </div>
-    <div class="widget-detail-compact">
-        {% if tt_current %}
-        <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
-        <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
-        {% else %}
-        <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
-        {% endif %}
-    </div>
-    <div class="widget-detail-m px-3 pb-1">
-        <div class="flex flex-col sm:flex-row items-center gap-2">
-            <div class="flex-shrink-0">
-                <a href="/timetable">
-                <svg viewBox="0 0 200 200" class="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" style="filter: drop-shadow(0 1px 4px rgba(0,0,0,0.06));">
-                    <circle cx="100" cy="100" r="92" fill="none" stroke-width="0.5" style="stroke: var(--color-border);"/>
-                    <text x="100" y="14" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">0</text>
-                    <text x="192" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">6</text>
-                    <text x="100" y="198" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">12</text>
-                    <text x="10" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">18</text>
-                    {% for b in tt_widget_blocks %}
-                    {% set sa = (b.start_hour / 24) * 360 - 90 %}
-                    {% set ea = (b.end_hour / 24) * 360 - 90 %}
-                    {% set ro = 85 %}
-                    {% set ri = 60 %}
-                    {% set la = 1 if (b.end_hour - b.start_hour) >= 12 else 0 %}
-                    <path d="M {{ 100 + ro * (sa | cos_deg) }} {{ 100 + ro * (sa | sin_deg) }}
-                             A {{ ro }} {{ ro }} 0 {{ la }} 1 {{ 100 + ro * (ea | cos_deg) }} {{ 100 + ro * (ea | sin_deg) }}
-                             L {{ 100 + ri * (ea | cos_deg) }} {{ 100 + ri * (ea | sin_deg) }}
-                             A {{ ri }} {{ ri }} 0 {{ la }} 0 {{ 100 + ri * (sa | cos_deg) }} {{ 100 + ri * (sa | sin_deg) }}
-                             Z"
-                          fill="{{ b.color }}25" stroke="{{ b.color }}" stroke-width="1"/>
-                    {% endfor %}
-                    <line id="miniNeedle" x1="100" y1="100" x2="100" y2="15" stroke-width="1.5" stroke-linecap="round" style="stroke: var(--color-accent);" transform="rotate(0, 100, 100)"/>
-                    <circle cx="100" cy="100" r="3" style="fill: var(--color-accent);"/>
-                    <text id="miniTime" x="100" y="96" text-anchor="middle" style="font-size: 14px; font-weight: 800; fill: var(--color-text);"></text>
-                    <text x="100" y="110" text-anchor="middle" style="font-size: 9px; fill: var(--color-text-muted);">오늘</text>
-                </svg>
-                </a>
-            </div>
-            <div class="flex-1 min-w-0 space-y-1.5">
-                {% if tt_current %}
-                <div class="p-2 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
-                    <p class="text-xs font-semibold" style="color: {{ tt_current.color }};">지금</p>
-                    <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
-                    <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
-                </div>
-                {% else %}
-                <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
-                    <p class="text-xs font-semibold" style="color: var(--color-text-muted);">지금</p>
-                    <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
-                </div>
-                {% endif %}
-                {% if tt_next %}
-                <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
-                    <p class="text-xs font-semibold" style="color: var(--color-text-muted);">다음</p>
-                    <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
-                    <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+ <div class="flex items-center justify-between mb-1 px-3 pt-1.5">
+ <h3 class="text-xs font-bold" style="color: var(--color-text);">
+ <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ <span class="widget-detail-compact">시간표</span>
+ <span class="widget-detail-m">오늘의 시간표</span>
+ </h3>
+ <a href="/timetable" class="text-xs font-medium widget-detail-m" style="color: var(--color-accent);">전체보기</a>
+ </div>
+ <div class="widget-detail-compact">
+ {% if tt_current %}
+ <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
+ {% else %}
+ <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+ {% endif %}
+ </div>
+ <div class="widget-detail-m px-3 pb-1">
+ <div class="flex flex-col sm:flex-row items-center gap-2">
+ <div class="flex-shrink-0">
+ <a href="/timetable">
+ <svg viewBox="0 0 200 200" class="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" style="filter: drop-shadow(0 1px 4px rgba(0,0,0,0.06));">
+ <circle cx="100" cy="100" r="92" fill="none" stroke-width="0.5" style="stroke: var(--color-border);"/>
+ <text x="100" y="14" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">0</text>
+ <text x="192" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">6</text>
+ <text x="100" y="198" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">12</text>
+ <text x="10" y="104" text-anchor="middle" style="font-size: 9px; font-weight: 700; fill: var(--color-text-faint);">18</text>
+ {% for b in tt_widget_blocks %}
+ {% set sa = (b.start_hour / 24) * 360 - 90 %}
+ {% set ea = (b.end_hour / 24) * 360 - 90 %}
+ {% set ro = 85 %}
+ {% set ri = 60 %}
+ {% set la = 1 if (b.end_hour - b.start_hour) >= 12 else 0 %}
+ <path d="M {{ 100 + ro * (sa | cos_deg) }} {{ 100 + ro * (sa | sin_deg) }}
+ A {{ ro }} {{ ro }} 0 {{ la }} 1 {{ 100 + ro * (ea | cos_deg) }} {{ 100 + ro * (ea | sin_deg) }}
+ L {{ 100 + ri * (ea | cos_deg) }} {{ 100 + ri * (ea | sin_deg) }}
+ A {{ ri }} {{ ri }} 0 {{ la }} 0 {{ 100 + ri * (sa | cos_deg) }} {{ 100 + ri * (sa | sin_deg) }}
+ Z"
+ fill="{{ b.color }}25" stroke="{{ b.color }}" stroke-width="1"/>
+ {% endfor %}
+ <line id="miniNeedle" x1="100" y1="100" x2="100" y2="15" stroke-width="1.5" stroke-linecap="round" style="stroke: var(--color-accent);" transform="rotate(0, 100, 100)"/>
+ <circle cx="100" cy="100" r="3" style="fill: var(--color-accent);"/>
+ <text id="miniTime" x="100" y="96" text-anchor="middle" style="font-size: 14px; font-weight: 800; fill: var(--color-text);"></text>
+ <text x="100" y="110" text-anchor="middle" style="font-size: 9px; fill: var(--color-text-muted);">오늘</text>
+ </svg>
+ </a>
+ </div>
+ <div class="flex-1 min-w-0 space-y-1.5">
+ {% if tt_current %}
+ <div class="p-2 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
+ <p class="text-xs font-semibold" style="color: {{ tt_current.color }};">지금</p>
+ <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
+ </div>
+ {% else %}
+ <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
+ <p class="text-xs font-semibold" style="color: var(--color-text-muted);">지금</p>
+ <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+ </div>
+ {% endif %}
+ {% if tt_next %}
+ <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
+ <p class="text-xs font-semibold" style="color: var(--color-text-muted);">다음</p>
+ <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
+ </div>
+ {% endif %}
+ </div>
+ </div>
+ </div>
 </div>
 {% endcall %}
 {% endif %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}습관 트래커 - JM Planner{% endblock %}
 {% block page_title %}습관 트래커{% endblock %}
 {% block page_subtitle %}{{ habits|length }}개 습관{% endblock %}
@@ -6,392 +6,392 @@
 {% block content %}
 <style>
 .habit-card {
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-    transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
-    border-left: 4px solid transparent;
+ border-radius: var(--radius-lg);
+ padding: 1rem 1.25rem;
+ transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+ border-left: 4px solid transparent;
 }
 .habit-card:active { transform: scale(0.985); }
 .habit-heatmap-dot {
-    width: 10px; height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
+ width: 10px; height: 10px;
+ border-radius: 2px;
+ flex-shrink: 0;
 }
 .habit-heatmap-empty { background: #ddd9d6; }
 .dark .habit-heatmap-empty { background: #3c3835; }
 .habit-progress-ring {
-    transform: rotate(-90deg);
-    transform-origin: center;
+ transform: rotate(-90deg);
+ transform-origin: center;
 }
 .habit-progress-ring circle {
-    transition: stroke-dashoffset 0.4s ease;
+ transition: stroke-dashoffset 0.4s ease;
 }
 .habit-check-btn {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.25rem;
-    transition: all var(--duration-fast) var(--ease-out);
-    border: 2px solid var(--color-border);
-    background: var(--color-surface);
-    cursor: pointer;
+ width: 44px; height: 44px;
+ border-radius: 12px;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 1.25rem;
+ transition: all var(--duration-fast) var(--ease-out);
+ border: 2px solid var(--color-border);
+ background: var(--color-surface);
+ cursor: pointer;
 }
 .habit-check-btn:hover { transform: scale(1.05); }
 .habit-check-btn.done {
-    border-color: var(--btn-color);
-    background: color-mix(in srgb, var(--btn-color) 12%, transparent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-color) 8%, transparent);
+ border-color: var(--btn-color);
+ background: color-mix(in srgb, var(--btn-color) 12%, transparent);
+ box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-color) 8%, transparent);
 }
 .habit-counter-btn {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 600;
-    transition: all var(--duration-fast) var(--ease-out);
-    cursor: pointer; border: none;
+ width: 36px; height: 36px;
+ border-radius: 10px;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 1.1rem; font-weight: 600;
+ transition: all var(--duration-fast) var(--ease-out);
+ cursor: pointer; border: none;
 }
 .habit-counter-btn:hover { transform: scale(1.08); }
 .habit-time-chip {
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem; font-weight: 600;
-    transition: all var(--duration-fast) var(--ease-out);
-    cursor: pointer; border: 1.5px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text-muted);
+ padding: 0.375rem 0.75rem;
+ border-radius: var(--radius-full);
+ font-size: 0.75rem; font-weight: 600;
+ transition: all var(--duration-fast) var(--ease-out);
+ cursor: pointer; border: 1.5px solid var(--color-border);
+ background: var(--color-surface);
+ color: var(--color-text-muted);
 }
 .habit-time-chip.checked {
-    border-color: var(--chip-color);
-    background: color-mix(in srgb, var(--chip-color) 12%, transparent);
-    color: var(--chip-color);
+ border-color: var(--chip-color);
+ background: color-mix(in srgb, var(--chip-color) 12%, transparent);
+ color: var(--chip-color);
 }
 .habit-type-badge {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.03em;
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
+ font-size: 10px; font-weight: 700;
+ letter-spacing: 0.03em;
+ padding: 2px 8px;
+ border-radius: var(--radius-full);
 }
 </style>
 
 <!-- Add habit form (expandable) -->
 <div class="work-card rounded-xl p-4 mb-5">
-    <details id="habitAddForm">
-        <summary class="flex items-center justify-between cursor-pointer select-none">
-            <span class="text-sm font-semibold" style="color: var(--color-text);">새 습관 추가</span>
-            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent);">+</span>
-        </summary>
-        <form action="/habits" method="POST" class="mt-4 space-y-3">
-            <div class="flex flex-wrap gap-2 items-end">
-                <div class="flex-1 min-w-[160px]">
-                    <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">습관 이름</label>
-                    <input type="text" name="name" placeholder="매일 실천할 습관" required maxlength="50"
-                           class="w-full px-3 py-2 text-sm rounded-lg border focus:ring-2 focus:ring-amber-400"
-                           style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">아이콘</label>
-                    <select name="icon" class="px-3 py-2.5 text-sm rounded-lg border"
-                            style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
-                        <option value="✅">✅</option><option value="📖">📖</option><option value="🏃">🏃</option>
-                        <option value="💧">💧</option><option value="🧘">🧘</option><option value="✍️">✍️</option>
-                        <option value="🎯">🎯</option><option value="💪">💪</option><option value="🌅">🌅</option>
-                        <option value="💊">💊</option><option value="🥗">🥗</option><option value="😴">😴</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">색상</label>
-                    <input type="color" name="color" value="#6366f1" class="rounded-lg border cursor-pointer"
-                           style="width: 2.5rem; height: 2.5rem; border-color: var(--color-border);">
-                </div>
-            </div>
+ <details id="habitAddForm">
+ <summary class="flex items-center justify-between cursor-pointer select-none">
+ <span class="text-sm font-semibold" style="color: var(--color-text);">새 습관 추가</span>
+ <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent);">+</span>
+ </summary>
+ <form action="/habits" method="POST" class="mt-4 space-y-3">
+ <div class="flex flex-wrap gap-2 items-end">
+ <div class="flex-1 min-w-[160px]">
+ <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">습관 이름</label>
+ <input type="text" name="name" placeholder="매일 실천할 습관" required maxlength="50"
+ class="w-full px-3 py-2 text-sm rounded-lg border focus:ring-2 focus:ring-amber-400"
+ style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
+ </div>
+ <div>
+ <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">아이콘</label>
+ <select name="icon" class="px-3 py-2.5 text-sm rounded-lg border"
+ style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
+ <option value="✅">✅</option><option value="📖">📖</option><option value="🏃">🏃</option>
+ <option value="💧">💧</option><option value="🧘">🧘</option><option value="✍️">✍️</option>
+ <option value="🎯">🎯</option><option value="💪">💪</option><option value="🌅">🌅</option>
+ <option value="💊">💊</option><option value="🥗">🥗</option><option value="😴">😴</option>
+ </select>
+ </div>
+ <div>
+ <label class="block text-xs font-medium mb-1" style="color: var(--color-text-faint);">색상</label>
+ <input type="color" name="color" value="#6366f1" class="rounded-lg border cursor-pointer"
+ style="width: 2.5rem; height: 2.5rem; border-color: var(--color-border);">
+ </div>
+ </div>
 
-            <!-- Tracking type selection -->
-            <div>
-                <label class="block text-xs font-medium mb-2" style="color: var(--color-text-faint);">추적 방식</label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="trackingTypeGroup">
-                    {% for val, label in [('daily','매일 1회'), ('counter','하루 N회'), ('interval','N시간마다'), ('specific','특정 시간'), ('weekly','주 N회')] %}
-                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors has-[:checked]:border-amber-500"
-                           style="border-color: var(--color-border); color: var(--color-text);"
-                           onmouseenter="this.style.background='var(--color-accent-soft)'" onmouseleave="this.style.background=''">
-                        <input type="radio" name="tracking_type" value="{{ val }}" {% if val=='daily' %}checked{% endif %}
-                               class="w-3.5 h-3.5 text-amber-600 accent-amber-600" onchange="updateTrackingUI()">
-                        <span class="text-xs font-medium">{{ label }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
+ <!-- Tracking type selection -->
+ <div>
+ <label class="block text-xs font-medium mb-2" style="color: var(--color-text-faint);">추적 방식</label>
+ <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="trackingTypeGroup">
+ {% for val, label in [('daily','매일 1회'), ('counter','하루 N회'), ('interval','N시간마다'), ('specific','특정 시간'), ('weekly','주 N회')] %}
+ <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors has-[:checked]:border-amber-500"
+ style="border-color: var(--color-border); color: var(--color-text);"
+ onmouseenter="this.style.background='var(--color-accent-soft)'" onmouseleave="this.style.background=''">
+ <input type="radio" name="tracking_type" value="{{ val }}" {% if val=='daily' %}checked{% endif %}
+ class="w-3.5 h-3.5 text-amber-600 accent-amber-600" onchange="updateTrackingUI()">
+ <span class="text-xs font-medium">{{ label }}</span>
+ </label>
+ {% endfor %}
+ </div>
+ </div>
 
-            <!-- Counter options -->
-            <div id="counterOptions" class="hidden p-3 rounded-lg border space-y-1" style="background: var(--color-bg); border-color: var(--color-border);">
-                <label class="block text-xs" style="color: var(--color-text-faint);">하루 목표 횟수</label>
-                <div class="flex items-center gap-2">
-                    <input type="number" name="target_count" value="8" min="2" max="100"
-                           class="w-24 px-3 py-2 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                    <span class="text-xs" style="color: var(--color-text-faint);">회</span>
-                </div>
-            </div>
+ <!-- Counter options -->
+ <div id="counterOptions" class="hidden p-3 rounded-lg border space-y-1" style="background: var(--color-bg); border-color: var(--color-border);">
+ <label class="block text-xs" style="color: var(--color-text-faint);">하루 목표 횟수</label>
+ <div class="flex items-center gap-2">
+ <input type="number" name="target_count" value="8" min="2" max="100"
+ class="w-24 px-3 py-2 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <span class="text-xs" style="color: var(--color-text-faint);">회</span>
+ </div>
+ </div>
 
-            <!-- Interval options -->
-            <div id="intervalOptions" class="hidden p-3 rounded-lg border space-y-2" style="background: var(--color-bg); border-color: var(--color-border);">
-                <div class="flex items-center gap-2">
-                    <label class="text-xs" style="color: var(--color-text-faint);">매</label>
-                    <input type="number" name="interval_hours" value="2" min="1" max="12"
-                           class="w-16 px-2 py-1.5 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                    <span class="text-xs" style="color: var(--color-text-faint);">시간마다</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label class="text-xs" style="color: var(--color-text-faint);">시작</label>
-                    <input type="time" name="interval_start" value="08:00"
-                           class="px-2 py-1.5 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                    <span class="text-xs" style="color: var(--color-text-faint);">~</span>
-                    <input type="time" name="interval_end" value="22:00"
-                           class="px-2 py-1.5 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                </div>
-            </div>
+ <!-- Interval options -->
+ <div id="intervalOptions" class="hidden p-3 rounded-lg border space-y-2" style="background: var(--color-bg); border-color: var(--color-border);">
+ <div class="flex items-center gap-2">
+ <label class="text-xs" style="color: var(--color-text-faint);">매</label>
+ <input type="number" name="interval_hours" value="2" min="1" max="12"
+ class="w-16 px-2 py-1.5 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <span class="text-xs" style="color: var(--color-text-faint);">시간마다</span>
+ </div>
+ <div class="flex items-center gap-2">
+ <label class="text-xs" style="color: var(--color-text-faint);">시작</label>
+ <input type="time" name="interval_start" value="08:00"
+ class="px-2 py-1.5 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <span class="text-xs" style="color: var(--color-text-faint);">~</span>
+ <input type="time" name="interval_end" value="22:00"
+ class="px-2 py-1.5 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ </div>
+ </div>
 
-            <!-- Specific times options -->
-            <div id="specificOptions" class="hidden p-3 rounded-lg border space-y-2" style="background: var(--color-bg); border-color: var(--color-border);">
-                <label class="text-xs block" style="color: var(--color-text-faint);">실천 시간 (복수 선택)</label>
-                <div id="specificTimesList" class="flex flex-wrap gap-1.5 mb-2"></div>
-                <div class="flex gap-2">
-                    <input type="time" id="newSpecificTime" value="08:00"
-                           class="px-2.5 py-1.5 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                    <button type="button" onclick="addSpecificTime()"
-                            class="px-3 py-1.5 text-xs font-medium text-white rounded-lg"
-                            style="background: var(--color-accent);">추가</button>
-                </div>
-            </div>
+ <!-- Specific times options -->
+ <div id="specificOptions" class="hidden p-3 rounded-lg border space-y-2" style="background: var(--color-bg); border-color: var(--color-border);">
+ <label class="text-xs block" style="color: var(--color-text-faint);">실천 시간 (복수 선택)</label>
+ <div id="specificTimesList" class="flex flex-wrap gap-1.5 mb-2"></div>
+ <div class="flex gap-2">
+ <input type="time" id="newSpecificTime" value="08:00"
+ class="px-2.5 py-1.5 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <button type="button" onclick="addSpecificTime()"
+ class="px-3 py-1.5 text-xs font-medium text-white rounded-lg"
+ style="background: var(--color-accent);">추가</button>
+ </div>
+ </div>
 
-            <!-- Weekly options -->
-            <div id="weeklyOptions" class="hidden p-3 rounded-lg border" style="background: var(--color-bg); border-color: var(--color-border);">
-                <label class="block text-xs mb-1" style="color: var(--color-text-faint);">주 목표 횟수</label>
-                <div class="flex items-center gap-2">
-                    <input type="number" name="weekly_count" value="3" min="1" max="7"
-                           class="w-24 px-3 py-2 text-sm rounded-lg border"
-                           style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-                    <span class="text-xs" style="color: var(--color-text-faint);">회/주</span>
-                </div>
-            </div>
+ <!-- Weekly options -->
+ <div id="weeklyOptions" class="hidden p-3 rounded-lg border" style="background: var(--color-bg); border-color: var(--color-border);">
+ <label class="block text-xs mb-1" style="color: var(--color-text-faint);">주 목표 횟수</label>
+ <div class="flex items-center gap-2">
+ <input type="number" name="weekly_count" value="3" min="1" max="7"
+ class="w-24 px-3 py-2 text-sm rounded-lg border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <span class="text-xs" style="color: var(--color-text-faint);">회/주</span>
+ </div>
+ </div>
 
-            <!-- Reminder -->
-            <div class="flex items-center gap-3">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" name="reminder_enabled" value="1" class="w-4 h-4 rounded accent-amber-600">
-                    <span class="text-xs font-medium" style="color: var(--color-text-muted);">알림 설정</span>
-                </label>
-                <input type="time" name="reminder_time" value="08:00"
-                       class="px-2.5 py-1.5 text-sm rounded-lg border"
-                       style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
-            </div>
+ <!-- Reminder -->
+ <div class="flex items-center gap-3">
+ <label class="flex items-center gap-2 cursor-pointer">
+ <input type="checkbox" name="reminder_enabled" value="1" class="w-4 h-4 rounded accent-amber-600">
+ <span class="text-xs font-medium" style="color: var(--color-text-muted);">알림 설정</span>
+ </label>
+ <input type="time" name="reminder_time" value="08:00"
+ class="px-2.5 py-1.5 text-sm rounded-lg border"
+ style="background: var(--color-bg); border-color: var(--color-border); color: var(--color-text);">
+ </div>
 
-            <button type="submit" class="w-full py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
-                    style="background: var(--color-accent);"
-                    onmouseenter="this.style.background='var(--color-accent-hover)'" onmouseleave="this.style.background='var(--color-accent)'">
-                습관 추가
-            </button>
-        </form>
-    </details>
+ <button type="submit" class="w-full py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
+ style="background: var(--color-accent);"
+ onmouseenter="this.style.background='var(--color-accent-hover)'" onmouseleave="this.style.background='var(--color-accent)'">
+ 습관 추가
+ </button>
+ </form>
+ </details>
 </div>
 
 <script>
 var specificTimes = [];
 function updateTrackingUI() {
-    var type = document.querySelector('input[name="tracking_type"]:checked').value;
-    document.getElementById('counterOptions').classList.toggle('hidden', type !== 'counter');
-    document.getElementById('intervalOptions').classList.toggle('hidden', type !== 'interval');
-    document.getElementById('specificOptions').classList.toggle('hidden', type !== 'specific');
-    document.getElementById('weeklyOptions').classList.toggle('hidden', type !== 'weekly');
+ var type = document.querySelector('input[name="tracking_type"]:checked').value;
+ document.getElementById('counterOptions').classList.toggle('hidden', type !== 'counter');
+ document.getElementById('intervalOptions').classList.toggle('hidden', type !== 'interval');
+ document.getElementById('specificOptions').classList.toggle('hidden', type !== 'specific');
+ document.getElementById('weeklyOptions').classList.toggle('hidden', type !== 'weekly');
 }
 function addSpecificTime() {
-    var input = document.getElementById('newSpecificTime');
-    var time = input.value;
-    if (!time || specificTimes.indexOf(time) >= 0) return;
-    specificTimes.push(time);
-    specificTimes.sort();
-    renderSpecificTimes();
+ var input = document.getElementById('newSpecificTime');
+ var time = input.value;
+ if (!time || specificTimes.indexOf(time) >= 0) return;
+ specificTimes.push(time);
+ specificTimes.sort();
+ renderSpecificTimes();
 }
 function removeSpecificTime(idx) {
-    specificTimes.splice(idx, 1);
-    renderSpecificTimes();
+ specificTimes.splice(idx, 1);
+ renderSpecificTimes();
 }
 function renderSpecificTimes() {
-    var c = document.getElementById('specificTimesList');
-    c.innerHTML = '';
-    specificTimes.forEach(function(t, i) {
-        c.innerHTML += '<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full" style="background:var(--color-accent-soft);color:var(--color-accent-text);">' + t +
-            ' <button type="button" onclick="removeSpecificTime(' + i + ')" class="hover:text-red-500">&times;</button>' +
-            '<input type="hidden" name="specific_times" value="' + t + '"></span>';
-    });
+ var c = document.getElementById('specificTimesList');
+ c.innerHTML = '';
+ specificTimes.forEach(function(t, i) {
+ c.innerHTML += '<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full" style="background:var(--color-accent-soft);color:var(--color-accent-text);">' + t +
+ ' <button type="button" onclick="removeSpecificTime(' + i + ')" class="hover:text-red-500">&times;</button>' +
+ '<input type="hidden" name="specific_times" value="' + t + '"></span>';
+ });
 }
 </script>
 
 {% if not habits %}
 <!-- Empty state -->
 <div class="work-card rounded-xl p-8 text-center">
-    <svg class="w-20 h-20 mx-auto mb-4" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="60" r="50" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
-        <path d="M40 60l10 10 20-20" stroke="var(--color-accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="85" cy="35" r="8" fill="var(--color-accent)" opacity="0.3"/>
-        <circle cx="30" cy="45" r="5" fill="var(--color-accent)" opacity="0.2"/>
-    </svg>
-    <h3 class="text-lg font-bold mb-2" style="color: var(--color-text);">매일 실천할 습관을 만들어보세요</h3>
-    <p class="text-sm" style="color: var(--color-text-muted);">꾸준한 습관이 큰 변화를 만듭니다</p>
+ <svg class="w-20 h-20 mx-auto mb-4" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+ <circle cx="60" cy="60" r="50" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
+ <path d="M40 60l10 10 20-20" stroke="var(--color-accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="85" cy="35" r="8" fill="var(--color-accent)" opacity="0.3"/>
+ <circle cx="30" cy="45" r="5" fill="var(--color-accent)" opacity="0.2"/>
+ </svg>
+ <h3 class="text-lg font-bold mb-2" style="color: var(--color-text);">매일 실천할 습관을 만들어보세요</h3>
+ <p class="text-sm" style="color: var(--color-text-muted);">꾸준한 습관이 큰 변화를 만듭니다</p>
 </div>
 {% else %}
 <!-- Habit list -->
 <div class="grid gap-3 lg:grid-cols-2 mb-6">
-    {% for h in habits %}
-    {% set pct = ((h.today_count / h.target_count * 100)|int) if (h.tracking_type in ('times_per_day','every_n_hours') and h.target_count > 0) else 0 %}
-    <div class="habit-card work-card group" style="border-left-color: {{ h.color }};">
-        <div class="flex items-start gap-3">
-            <!-- Left: Action area -->
-            <div class="flex-shrink-0 pt-0.5">
-                {% if h.tracking_type in ('times_per_day', 'every_n_hours') %}
-                <!-- Counter: circular progress + count -->
-                <div class="relative" style="width: 48px; height: 48px;">
-                    <svg class="habit-progress-ring" width="48" height="48" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="var(--color-border-subtle)" stroke-width="3"/>
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="{{ h.color }}" stroke-width="3"
-                                stroke-dasharray="{{ 125.66 }}" stroke-dashoffset="{{ 125.66 - (125.66 * [pct, 100]|min / 100) }}"
-                                stroke-linecap="round"/>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-xs font-bold" style="color: {{ h.color }};">{{ h.today_count }}/{{ h.target_count }}</span>
-                    </div>
-                </div>
-                {% elif h.tracking_type == 'times_per_week' %}
-                <!-- Weekly: circular progress -->
-                {% set wpct = ((h.week_count / h.weekly_target * 100)|int) if h.weekly_target > 0 else 0 %}
-                <div class="relative" style="width: 48px; height: 48px;">
-                    <svg class="habit-progress-ring" width="48" height="48" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="var(--color-border-subtle)" stroke-width="3"/>
-                        <circle cx="24" cy="24" r="20" fill="none" stroke="{{ h.color }}" stroke-width="3"
-                                stroke-dasharray="{{ 125.66 }}" stroke-dashoffset="{{ 125.66 - (125.66 * [wpct, 100]|min / 100) }}"
-                                stroke-linecap="round"/>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-[11px] font-bold" style="color: {{ h.color }};">{{ h.week_count }}/{{ h.weekly_target }}</span>
-                    </div>
-                </div>
-                {% else %}
-                <!-- Daily / specific_times: check button -->
-                <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
-                    <input type="hidden" name="date" value="{{ today_str }}">
-                    <button type="submit" class="habit-check-btn {% if h.today_done %}done{% endif %}"
-                            style="--btn-color: {{ h.color }};"
-                            title="{% if h.today_done %}완료 취소{% else %}오늘 완료{% endif %}">
-                        {% if h.today_done %}
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ h.color }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                        {% else %}
-                        <span style="opacity: 0.4; font-size: 1.25rem;">{{ h.icon }}</span>
-                        {% endif %}
-                    </button>
-                </form>
-                {% endif %}
-            </div>
+ {% for h in habits %}
+ {% set pct = ((h.today_count / h.target_count * 100)|int) if (h.tracking_type in ('times_per_day','every_n_hours') and h.target_count > 0) else 0 %}
+ <div class="habit-card work-card group" style="border-left-color: {{ h.color }};">
+ <div class="flex items-start gap-3">
+ <!-- Left: Action area -->
+ <div class="flex-shrink-0 pt-0.5">
+ {% if h.tracking_type in ('times_per_day', 'every_n_hours') %}
+ <!-- Counter: circular progress + count -->
+ <div class="relative" style="width: 48px; height: 48px;">
+ <svg class="habit-progress-ring" width="48" height="48" viewBox="0 0 48 48">
+ <circle cx="24" cy="24" r="20" fill="none" stroke="var(--color-border-subtle)" stroke-width="3"/>
+ <circle cx="24" cy="24" r="20" fill="none" stroke="{{ h.color }}" stroke-width="3"
+ stroke-dasharray="{{ 125.66 }}" stroke-dashoffset="{{ 125.66 - (125.66 * [pct, 100]|min / 100) }}"
+ stroke-linecap="round"/>
+ </svg>
+ <div class="absolute inset-0 flex items-center justify-center">
+ <span class="text-xs font-bold" style="color: {{ h.color }};">{{ h.today_count }}/{{ h.target_count }}</span>
+ </div>
+ </div>
+ {% elif h.tracking_type == 'times_per_week' %}
+ <!-- Weekly: circular progress -->
+ {% set wpct = ((h.week_count / h.weekly_target * 100)|int) if h.weekly_target > 0 else 0 %}
+ <div class="relative" style="width: 48px; height: 48px;">
+ <svg class="habit-progress-ring" width="48" height="48" viewBox="0 0 48 48">
+ <circle cx="24" cy="24" r="20" fill="none" stroke="var(--color-border-subtle)" stroke-width="3"/>
+ <circle cx="24" cy="24" r="20" fill="none" stroke="{{ h.color }}" stroke-width="3"
+ stroke-dasharray="{{ 125.66 }}" stroke-dashoffset="{{ 125.66 - (125.66 * [wpct, 100]|min / 100) }}"
+ stroke-linecap="round"/>
+ </svg>
+ <div class="absolute inset-0 flex items-center justify-center">
+ <span class="text-[11px] font-bold" style="color: {{ h.color }};">{{ h.week_count }}/{{ h.weekly_target }}</span>
+ </div>
+ </div>
+ {% else %}
+ <!-- Daily / specific_times: check button -->
+ <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
+ <input type="hidden" name="date" value="{{ today_str }}">
+ <button type="submit" class="habit-check-btn {% if h.today_done %}done{% endif %}"
+ style="--btn-color: {{ h.color }};"
+ title="{% if h.today_done %}완료 취소{% else %}오늘 완료{% endif %}">
+ {% if h.today_done %}
+ <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ h.color }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+ {% else %}
+ <span style="opacity: 0.4; font-size: 1.25rem;">{{ h.icon }}</span>
+ {% endif %}
+ </button>
+ </form>
+ {% endif %}
+ </div>
 
-            <!-- Center: Info -->
-            <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="text-sm">{{ h.icon }}</span>
-                    <span class="text-sm font-bold truncate" style="color: var(--color-text);">{{ h.name }}</span>
-                    {% if h.tracking_type == 'times_per_day' %}
-                    <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">하루 {{ h.target_count }}회</span>
-                    {% elif h.tracking_type == 'every_n_hours' %}
-                    <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">{{ h.interval_hours|default(2) }}h 간격</span>
-                    {% elif h.tracking_type == 'times_per_week' %}
-                    <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">주 {{ h.weekly_target }}회</span>
-                    {% elif h.tracking_type == 'specific_times' %}
-                    <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">시간대별</span>
-                    {% endif %}
-                </div>
+ <!-- Center: Info -->
+ <div class="flex-1 min-w-0">
+ <div class="flex items-center gap-2 mb-1">
+ <span class="text-sm">{{ h.icon }}</span>
+ <span class="text-sm font-bold truncate" style="color: var(--color-text);">{{ h.name }}</span>
+ {% if h.tracking_type == 'times_per_day' %}
+ <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">하루 {{ h.target_count }}회</span>
+ {% elif h.tracking_type == 'every_n_hours' %}
+ <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">{{ h.interval_hours|default(2) }}h 간격</span>
+ {% elif h.tracking_type == 'times_per_week' %}
+ <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">주 {{ h.weekly_target }}회</span>
+ {% elif h.tracking_type == 'specific_times' %}
+ <span class="habit-type-badge" style="background: {{ h.color }}15; color: {{ h.color }};">시간대별</span>
+ {% endif %}
+ </div>
 
-                {% if h.tracking_type in ('times_per_day', 'every_n_hours') %}
-                <!-- Counter: +/- row + progress bar -->
-                <div class="flex items-center gap-2 mb-2">
-                    <form action="/habits/{{ h.id }}/increment" method="POST" class="inline">
-                        <input type="hidden" name="date" value="{{ today_str }}">
-                        <button type="submit" class="habit-counter-btn" style="background: {{ h.color }}18; color: {{ h.color }};" title="+1">+</button>
-                    </form>
-                    {% if h.today_count > 0 %}
-                    <form action="/habits/{{ h.id }}/decrement" method="POST" class="inline">
-                        <input type="hidden" name="date" value="{{ today_str }}">
-                        <button type="submit" class="habit-counter-btn" style="background: var(--color-border-subtle); color: var(--color-text-faint);" title="-1">&minus;</button>
-                    </form>
-                    {% endif %}
-                    <span class="text-xs font-medium" style="color: var(--color-text-faint);">{{ pct }}%</span>
-                </div>
-                <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
-                    <div class="h-full rounded-full transition-all" style="width: {{ [100, pct]|min }}%; background: {{ h.color }};"></div>
-                </div>
+ {% if h.tracking_type in ('times_per_day', 'every_n_hours') %}
+ <!-- Counter: +/- row + progress bar -->
+ <div class="flex items-center gap-2 mb-2">
+ <form action="/habits/{{ h.id }}/increment" method="POST" class="inline">
+ <input type="hidden" name="date" value="{{ today_str }}">
+ <button type="submit" class="habit-counter-btn" style="background: {{ h.color }}18; color: {{ h.color }};" title="+1">+</button>
+ </form>
+ {% if h.today_count > 0 %}
+ <form action="/habits/{{ h.id }}/decrement" method="POST" class="inline">
+ <input type="hidden" name="date" value="{{ today_str }}">
+ <button type="submit" class="habit-counter-btn" style="background: var(--color-border-subtle); color: var(--color-text-faint);" title="-1">&minus;</button>
+ </form>
+ {% endif %}
+ <span class="text-xs font-medium" style="color: var(--color-text-faint);">{{ pct }}%</span>
+ </div>
+ <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+ <div class="h-full rounded-full transition-all" style="width: {{ [100, pct]|min }}%; background: {{ h.color }};"></div>
+ </div>
 
-                {% elif h.tracking_type == 'specific_times' %}
-                <!-- Time slot chips -->
-                <div class="flex flex-wrap gap-1.5 mt-1">
-                    {% for t in h.specific_times %}
-                    <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
-                        <input type="hidden" name="date" value="{{ today_str }}">
-                        <input type="hidden" name="log_time" value="{{ t }}">
-                        <button type="submit" class="habit-time-chip {% if t in h.today_time_checks %}checked{% endif %}"
-                                style="--chip-color: {{ h.color }};">
-                            {{ t }} {% if t in h.today_time_checks %}&#10003;{% endif %}
-                        </button>
-                    </form>
-                    {% endfor %}
-                </div>
+ {% elif h.tracking_type == 'specific_times' %}
+ <!-- Time slot chips -->
+ <div class="flex flex-wrap gap-1.5 mt-1">
+ {% for t in h.specific_times %}
+ <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
+ <input type="hidden" name="date" value="{{ today_str }}">
+ <input type="hidden" name="log_time" value="{{ t }}">
+ <button type="submit" class="habit-time-chip {% if t in h.today_time_checks %}checked{% endif %}"
+ style="--chip-color: {{ h.color }};">
+ {{ t }} {% if t in h.today_time_checks %}&#10003;{% endif %}
+ </button>
+ </form>
+ {% endfor %}
+ </div>
 
-                {% elif h.tracking_type == 'times_per_week' %}
-                <!-- Weekly progress -->
-                <div class="flex items-center gap-2 mt-1">
-                    <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
-                        <input type="hidden" name="date" value="{{ today_str }}">
-                        <button type="submit"
-                                class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
-                                style="background: {% if h.today_done %}{{ h.color }}15{% else %}{{ h.color }}{% endif %}; color: {% if h.today_done %}{{ h.color }}{% else %}white{% endif %}; border: 1.5px solid {{ h.color }};">
-                            {% if (h.id, today_str) in logs_set %}오늘 완료 ✓{% else %}오늘 체크{% endif %}
-                        </button>
-                    </form>
-                    <span class="text-xs font-medium" style="color: var(--color-text-faint);">이번 주 {{ h.week_count }}/{{ h.weekly_target }}회</span>
-                </div>
+ {% elif h.tracking_type == 'times_per_week' %}
+ <!-- Weekly progress -->
+ <div class="flex items-center gap-2 mt-1">
+ <form action="/habits/{{ h.id }}/toggle" method="POST" class="inline">
+ <input type="hidden" name="date" value="{{ today_str }}">
+ <button type="submit"
+ class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
+ style="background: {% if h.today_done %}{{ h.color }}15{% else %}{{ h.color }}{% endif %}; color: {% if h.today_done %}{{ h.color }}{% else %}white{% endif %}; border: 1.5px solid {{ h.color }};">
+ {% if (h.id, today_str) in logs_set %}오늘 완료 ✓{% else %}오늘 체크{% endif %}
+ </button>
+ </form>
+ <span class="text-xs font-medium" style="color: var(--color-text-faint);">이번 주 {{ h.week_count }}/{{ h.weekly_target }}회</span>
+ </div>
 
-                {% else %}
-                <!-- Daily: streak info -->
-                {% if h.streak > 0 %}
-                <div class="flex items-center gap-1 mt-0.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="{{ h.color }}" opacity="0.7"><path d="M12 2c.5 2.5 3 5 4 7 1.5 3 0 7-4 9-4-2-5.5-6-4-9 1-2 3.5-4.5 4-7z"/></svg>
-                    <span class="text-xs font-semibold" style="color: {{ h.color }};">{{ h.streak }}일 연속</span>
-                </div>
-                {% else %}
-                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">오늘부터 시작해보세요</p>
-                {% endif %}
-                {% endif %}
-            </div>
+ {% else %}
+ <!-- Daily: streak info -->
+ {% if h.streak > 0 %}
+ <div class="flex items-center gap-1 mt-0.5">
+ <svg width="14" height="14" viewBox="0 0 24 24" fill="{{ h.color }}" opacity="0.7"><path d="M12 2c.5 2.5 3 5 4 7 1.5 3 0 7-4 9-4-2-5.5-6-4-9 1-2 3.5-4.5 4-7z"/></svg>
+ <span class="text-xs font-semibold" style="color: {{ h.color }};">{{ h.streak }}일 연속</span>
+ </div>
+ {% else %}
+ <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">오늘부터 시작해보세요</p>
+ {% endif %}
+ {% endif %}
+ </div>
 
-            <!-- Right: Delete -->
-            <button hx-delete="/habits/{{ h.id }}" hx-confirm="이 습관을 삭제할까요?" hx-target="closest .habit-card" hx-swap="outerHTML"
-                    class="flex-shrink-0 p-2 rounded-lg transition-all lg:opacity-0 lg:group-hover:opacity-100"
-                    style="color: var(--color-text-faint);"
-                    onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='var(--color-text-faint)'"
-                    title="삭제">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
+ <!-- Right: Delete -->
+ <button hx-delete="/habits/{{ h.id }}" hx-confirm="이 습관을 삭제할까요?" hx-target="closest .habit-card" hx-swap="outerHTML"
+ class="flex-shrink-0 p-2 rounded-lg transition-all lg:opacity-0 lg:group-hover:opacity-100"
+ style="color: var(--color-text-faint);"
+ onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='var(--color-text-faint)'"
+ title="삭제">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+ </button>
+ </div>
 
-        <!-- 30-day heatmap -->
-        <div class="flex gap-[3px] mt-3 pt-3 overflow-x-auto" style="border-top: 1px solid var(--color-border-subtle);">
-            {% for d in dates %}
-            <div class="habit-heatmap-dot {% if not (h.id, d) in logs_set %}habit-heatmap-empty{% endif %}"
-                 {% if (h.id, d) in logs_set %}style="background: {{ h.color }}; box-shadow: 0 0 0 1px {{ h.color }}40;"{% endif %}
-                 title="{{ d }}{% if (h.id, d) in logs_set %} ✓{% endif %}"></div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endfor %}
+ <!-- 30-day heatmap -->
+ <div class="flex gap-[3px] mt-3 pt-3 overflow-x-auto" style="border-top: 1px solid var(--color-border-subtle);">
+ {% for d in dates %}
+ <div class="habit-heatmap-dot {% if not (h.id, d) in logs_set %}habit-heatmap-empty{% endif %}"
+ {% if (h.id, d) in logs_set %}style="background: {{ h.color }}; box-shadow: 0 0 0 1px {{ h.color }}40;"{% endif %}
+ title="{{ d }}{% if (h.id, d) in logs_set %} ✓{% endif %}"></div>
+ {% endfor %}
+ </div>
+ </div>
+ {% endfor %}
 </div>
 {% endif %}
 {% endblock %}

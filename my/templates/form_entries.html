@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}{{ tpl.name }} - My Planner{% endblock %}
 {% block page_title %}{{ tpl.name }}{% endblock %}
 {% block page_subtitle %}{{ period_label if frequency is defined and frequency != 'daily' else current_date }} ({{ entries|length }}건){% endblock %}
@@ -7,8 +7,8 @@
 <style>
 .sheet-cell { min-width: 3.75rem; position: relative; }
 .sheet-cell input, .sheet-cell select, .sheet-cell textarea {
-    width: 100%; border: none; background: transparent; outline: none;
-    padding: 0.375rem 0.5rem; font-size: 1rem; color: inherit;
+ width: 100%; border: none; background: transparent; outline: none;
+ padding: 0.375rem 0.5rem; font-size: 1rem; color: inherit;
 }
 .sheet-cell textarea { resize: none; min-height: 2rem; }
 .sheet-cell:focus-within { background: rgba(99,102,241,0.06); box-shadow: inset 0 0 0 2px #d97706; }
@@ -22,21 +22,21 @@
 
 /* Card view */
 .card-field-input {
-    width: 100%; border: none; background: transparent; outline: none;
-    padding: 0.25rem 0.5rem; font-size: 0.875rem; color: inherit;
-    border-radius: 0.375rem;
+ width: 100%; border: none; background: transparent; outline: none;
+ padding: 0.25rem 0.5rem; font-size: 0.875rem; color: inherit;
+ border-radius: 0.375rem;
 }
 .card-field-input:focus { background: rgba(99,102,241,0.06); box-shadow: inset 0 0 0 2px #d97706; }
 .view-toggle-btn { transition: all 0.15s; }
 .view-toggle-btn.active { background: rgba(99,102,241,0.15); color: #d97706; }
 .col-resize-handle {
-    position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
-    cursor: col-resize; z-index: 10; user-select: none;
+ position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
+ cursor: col-resize; z-index: 10; user-select: none;
 }
 .col-resize-handle:hover, .col-resize-handle.active { background: rgba(99,102,241,0.4); }
 .row-resize-handle {
-    position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
-    cursor: row-resize; z-index: 10; user-select: none;
+ position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+ cursor: row-resize; z-index: 10; user-select: none;
 }
 .row-resize-handle:hover, .row-resize-handle.active { background: rgba(99,102,241,0.4); }
 #sheet th { position: relative; overflow: visible; }
@@ -47,185 +47,185 @@ table#sheet { table-layout: fixed; }
 
 <!-- Date navigation -->
 <div class="flex items-center justify-center gap-3 mb-4">
-    <a href="/forms/{{ tpl.id }}/entries?date={{ prev_date }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-    </a>
-    {% if frequency is not defined or frequency == 'daily' %}
-    <input type="date" value="{{ current_date }}"
-           onchange="if(this.value) location.href='/forms/{{ tpl.id }}/entries?date='+this.value"
-           class="text-lg font-bold text-slate-800 dark:text-white bg-transparent border-none cursor-pointer text-center px-1"
-           style="color-scheme: light dark">
-    {% else %}
-    <span class="text-lg font-bold text-slate-800 dark:text-white text-center px-2">{{ period_label }}</span>
-    {% endif %}
-    <a href="/forms/{{ tpl.id }}/entries?date={{ next_date }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-    </a>
-    {% if not is_today %}
-    <a href="/forms/{{ tpl.id }}/entries"
-       class="ml-1 px-3 py-1.5 text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
-        오늘
-    </a>
-    {% endif %}
+ <a href="/forms/{{ tpl.id }}/entries?date={{ prev_date }}"
+ class="p-2 rounded-lg hover-surface transition-colors">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+ </svg>
+ </a>
+ {% if frequency is not defined or frequency == 'daily' %}
+ <input type="date" value="{{ current_date }}"
+ onchange="if(this.value) location.href='/forms/{{ tpl.id }}/entries?date='+this.value"
+ class="text-lg font-bold bg-transparent border-none cursor-pointer text-center px-1" style="color: var(--color-text);"
+ style="color-scheme: light dark">
+ {% else %}
+ <span class="text-lg font-bold text-center px-2" style="color: var(--color-text);">{{ period_label }}</span>
+ {% endif %}
+ <a href="/forms/{{ tpl.id }}/entries?date={{ next_date }}"
+ class="p-2 rounded-lg hover-surface transition-colors">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+ </svg>
+ </a>
+ {% if not is_today %}
+ <a href="/forms/{{ tpl.id }}/entries"
+ class="ml-1 px-3 py-1.5 text-xs font-semibold rounded-lg hover:bg-amber-200 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ 오늘
+ </a>
+ {% endif %}
 </div>
 
 <div class="flex items-center justify-between mb-3">
-    <a href="/forms" class="text-xs text-slate-400 hover:text-amber-500 transition-colors">&larr; 양식 목록</a>
-    <div class="flex items-center gap-2">
-        <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}"
-           class="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors font-medium">Excel</a>
-        <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}&fmt=csv"
-           class="text-xs text-slate-400 hover:text-amber-500 transition-colors">CSV</a>
-        <span class="w-px h-4 bg-slate-200 dark:bg-slate-600"></span>
-        <button id="btnTableView" onclick="setView('table')" class="view-toggle-btn p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" title="테이블 보기">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125"/></svg>
-        </button>
-        <button id="btnCardView" onclick="setView('card')" class="view-toggle-btn p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" title="카드 보기">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
-        </button>
-        <span id="saveStatus" class="text-xs text-green-500 hidden">저장됨 ✓</span>
-        <span id="saveError" class="text-xs text-red-500 hidden">저장 실패 ✗</span>
-    </div>
+ <a href="/forms" class="text-xs hover:text-amber-500 transition-colors">&larr; 양식 목록</a>
+ <div class="flex items-center gap-2">
+ <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}"
+ class="text-xs px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors font-medium" style="background: var(--color-success-soft); color: var(--color-success);">Excel</a>
+ <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}&fmt=csv"
+ class="text-xs hover:text-amber-500 transition-colors">CSV</a>
+ <span class="w-px h-4"></span>
+ <button id="btnTableView" onclick="setView('table')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="테이블 보기">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125"/></svg>
+ </button>
+ <button id="btnCardView" onclick="setView('card')" class="view-toggle-btn p-1.5 rounded-lg hover-text" title="카드 보기">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+ </button>
+ <span id="saveStatus" class="text-xs text-green-500 hidden">저장됨 ✓</span>
+ <span id="saveError" class="text-xs text-red-500 hidden">저장 실패 ✗</span>
+ </div>
 </div>
 
 <!-- Spreadsheet -->
 <div class="work-card rounded-xl overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse" id="sheet">
-            <thead>
-                <tr class="bg-slate-100 dark:bg-slate-700/80">
-                    <th class="px-2 py-2 text-center text-xs font-bold text-slate-400 dark:text-slate-500 w-8 border-b border-r border-slate-200 dark:border-slate-600">#</th>
-                    {% if frequency is defined and frequency != 'daily' %}
-                    <th class="px-2 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 border-b border-r border-slate-200 dark:border-slate-600 sheet-cell">날짜</th>
-                    {% endif %}
-                    {% for field in tpl.fields %}
-                    {% if field.type != 'table' %}
-                    <th class="px-2 py-2 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 border-b border-r border-slate-200 dark:border-slate-600 sheet-cell">
-                        {{ field.label }}
-                        {% if field.type == 'number' %}<span class="text-slate-400 font-normal">(숫자)</span>{% endif %}
-                    </th>
-                    {% endif %}
-                    {% endfor %}
-                    <th class="w-10 border-b border-slate-200 dark:border-slate-600"></th>
-                </tr>
-            </thead>
-            <tbody id="sheetBody">
-                {% for entry in entries %}
-                <tr class="sheet-row border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/30" data-eid="{{ entry.id }}">
-                    <td class="px-2 py-1 text-center text-xs text-slate-400 border-r border-slate-100 dark:border-slate-700">{{ loop.index }}</td>
-                    {% if frequency is defined and frequency != 'daily' %}
-                    <td class="sheet-cell border-r border-slate-100 dark:border-slate-700">
-                        <span class="px-2 py-1 text-xs text-slate-600 dark:text-slate-300">{{ entry.entry_date }}</span>
-                    </td>
-                    {% endif %}
-                    {% for field in tpl.fields %}
-                    {% if field.type != 'table' %}
-                    {% set val = entry.data.get(field.label, '') %}
-                    <td class="sheet-cell border-r border-slate-100 dark:border-slate-700">
-                        {% if field.type == 'checkbox' %}
-                        <div class="px-2 py-1"><input type="checkbox" data-fi="{{ loop.index0 }}" {% if val %}checked{% endif %}
-                            class="w-5 h-5 rounded border-slate-300 text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveRow(this)"></div>
-                        {% elif field.type == 'dropdown' %}
-                        <select data-fi="{{ loop.index0 }}" onchange="saveRow(this)"
-                                class="text-slate-700 dark:text-slate-200">
-                            <option value=""></option>
-                            {% for opt in field.get('options', []) %}
-                            <option value="{{ opt }}" {% if opt == val %}selected{% endif %}>{{ opt }}</option>
-                            {% endfor %}
-                        </select>
-                        {% elif field.type == 'textarea' %}
-                        <textarea data-fi="{{ loop.index0 }}" rows="1" onblur="saveRow(this)" onkeydown="cellNav(event)"
-                                  class="text-slate-700 dark:text-slate-200">{{ val }}</textarea>
-                        {% elif field.type == 'number' %}
-                        <input type="number" step="any" data-fi="{{ loop.index0 }}" value="{{ val }}"
-                               onblur="saveRow(this)" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200">
-                        {% elif field.type == 'date' %}
-                        <input type="date" data-fi="{{ loop.index0 }}" value="{{ val }}"
-                               onchange="saveRow(this)" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200" style="color-scheme:light dark">
-                        {% else %}
-                        <input type="text" data-fi="{{ loop.index0 }}" value="{{ val }}"
-                               onblur="saveRow(this)" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200">
-                        {% endif %}
-                    </td>
-                    {% endif %}
-                    {% endfor %}
-                    <td class="px-1 text-center">
-                        <button onclick="delRow(this)" class="sheet-del p-1.5 text-slate-300 hover:text-red-500 transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-                <!-- New row -->
-                <tr class="sheet-row sheet-new" id="newRow">
-                    <td class="px-2 py-1 text-center border-r border-slate-100 dark:border-slate-700">
-                        <button onclick="addRow()" class="text-amber-500 hover:text-amber-700 font-bold text-lg p-1" title="행 추가">+</button>
-                    </td>
-                    {% if frequency is defined and frequency != 'daily' %}
-                    <td class="sheet-cell border-r border-slate-100 dark:border-slate-700">
-                        <input type="date" data-entry-date min="{{ period_start }}" max="{{ period_end }}" value="{{ current_date }}"
-                               class="text-slate-700 dark:text-slate-200" style="color-scheme:light dark">
-                    </td>
-                    {% endif %}
-                    {% for field in tpl.fields %}
-                    {% if field.type != 'table' %}
-                    <td class="sheet-cell border-r border-slate-100 dark:border-slate-700">
-                        {% if field.type == 'checkbox' %}
-                        <div class="px-2 py-1"><input type="checkbox" data-fi="{{ loop.index0 }}"
-                            class="w-5 h-5 rounded border-slate-300 text-amber-600 focus:ring-amber-400 cursor-pointer"></div>
-                        {% elif field.type == 'dropdown' %}
-                        <select data-fi="{{ loop.index0 }}" class="text-slate-500">
-                            <option value=""></option>
-                            {% for opt in field.get('options', []) %}
-                            <option value="{{ opt }}">{{ opt }}</option>
-                            {% endfor %}
-                        </select>
-                        {% elif field.type == 'textarea' %}
-                        <textarea data-fi="{{ loop.index0 }}" rows="1" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
-                                  class="text-slate-700 dark:text-slate-200 placeholder:text-slate-300"></textarea>
-                        {% elif field.type == 'number' %}
-                        <input type="number" step="any" data-fi="{{ loop.index0 }}" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200 placeholder:text-slate-300">
-                        {% elif field.type == 'date' %}
-                        <input type="date" data-fi="{{ loop.index0 }}" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200" style="color-scheme:light dark">
-                        {% else %}
-                        <input type="text" data-fi="{{ loop.index0 }}" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
-                               class="text-slate-700 dark:text-slate-200 placeholder:text-slate-300">
-                        {% endif %}
-                    </td>
-                    {% endif %}
-                    {% endfor %}
-                    <td></td>
-                </tr>
-            </tbody>
-            <tfoot id="sheetFoot">
-                <tr class="bg-slate-100 dark:bg-slate-700/80 font-bold">
-                    <td class="px-2 py-2 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-r border-slate-200 dark:border-slate-600">합계</td>
-                    {% if frequency is defined and frequency != 'daily' %}
-                    <td class="border-t border-r border-slate-200 dark:border-slate-600"></td>
-                    {% endif %}
-                    {% for field in tpl.fields %}
-                    {% if field.type != 'table' %}
-                    <td class="px-2 py-2 text-right text-sm text-slate-700 dark:text-slate-200 border-t border-r border-slate-200 dark:border-slate-600" data-sum-fi="{{ loop.index0 }}">
-                        {% if field.type == 'number' %}0{% endif %}
-                    </td>
-                    {% endif %}
-                    {% endfor %}
-                    <td class="border-t border-slate-200 dark:border-slate-600"></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+ <div class="overflow-x-auto">
+ <table class="w-full border-collapse" id="sheet">
+ <thead>
+ <tr>
+ <th class="px-2 py-2 text-center text-xs font-bold w-8 border-b border-r">#</th>
+ {% if frequency is defined and frequency != 'daily' %}
+ <th class="px-2 py-2 text-left text-xs font-semibold border-b border-r sheet-cell">날짜</th>
+ {% endif %}
+ {% for field in tpl.fields %}
+ {% if field.type != 'table' %}
+ <th class="px-2 py-2 text-left text-xs font-semibold border-b border-r sheet-cell">
+ {{ field.label }}
+ {% if field.type == 'number' %}<span class="font-normal">(숫자)</span>{% endif %}
+ </th>
+ {% endif %}
+ {% endfor %}
+ <th class="w-10 border-b"></th>
+ </tr>
+ </thead>
+ <tbody id="sheetBody">
+ {% for entry in entries %}
+ <tr class="sheet-row border-b hover-surface/50" data-eid="{{ entry.id }}">
+ <td class="px-2 py-1 text-center text-xs border-r">{{ loop.index }}</td>
+ {% if frequency is defined and frequency != 'daily' %}
+ <td class="sheet-cell border-r">
+ <span class="px-2 py-1 text-xs" style="color: var(--color-text-muted);">{{ entry.entry_date }}</span>
+ </td>
+ {% endif %}
+ {% for field in tpl.fields %}
+ {% if field.type != 'table' %}
+ {% set val = entry.data.get(field.label, '') %}
+ <td class="sheet-cell border-r">
+ {% if field.type == 'checkbox' %}
+ <div class="px-2 py-1"><input type="checkbox" data-fi="{{ loop.index0 }}" {% if val %}checked{% endif %}
+ class="w-5 h-5 rounded text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveRow(this)"></div>
+ {% elif field.type == 'dropdown' %}
+ <select data-fi="{{ loop.index0 }}" onchange="saveRow(this)"
+ >
+ <option value=""></option>
+ {% for opt in field.get('options', []) %}
+ <option value="{{ opt }}" {% if opt == val %}selected{% endif %}>{{ opt }}</option>
+ {% endfor %}
+ </select>
+ {% elif field.type == 'textarea' %}
+ <textarea data-fi="{{ loop.index0 }}" rows="1" onblur="saveRow(this)" onkeydown="cellNav(event)"
+ >{{ val }}</textarea>
+ {% elif field.type == 'number' %}
+ <input type="number" step="any" data-fi="{{ loop.index0 }}" value="{{ val }}"
+ onblur="saveRow(this)" onkeydown="cellNav(event)"
+ >
+ {% elif field.type == 'date' %}
+ <input type="date" data-fi="{{ loop.index0 }}" value="{{ val }}"
+ onchange="saveRow(this)" onkeydown="cellNav(event)"
+ style="color-scheme:light dark">
+ {% else %}
+ <input type="text" data-fi="{{ loop.index0 }}" value="{{ val }}"
+ onblur="saveRow(this)" onkeydown="cellNav(event)"
+ >
+ {% endif %}
+ </td>
+ {% endif %}
+ {% endfor %}
+ <td class="px-1 text-center">
+ <button onclick="delRow(this)" class="sheet-del p-1.5 hover:text-red-500 transition-colors">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+ </button>
+ </td>
+ </tr>
+ {% endfor %}
+ <!-- New row -->
+ <tr class="sheet-row sheet-new" id="newRow">
+ <td class="px-2 py-1 text-center border-r">
+ <button onclick="addRow()" class="text-amber-500 hover:text-amber-700 font-bold text-lg p-1" title="행 추가">+</button>
+ </td>
+ {% if frequency is defined and frequency != 'daily' %}
+ <td class="sheet-cell border-r">
+ <input type="date" data-entry-date min="{{ period_start }}" max="{{ period_end }}" value="{{ current_date }}"
+ style="color-scheme:light dark">
+ </td>
+ {% endif %}
+ {% for field in tpl.fields %}
+ {% if field.type != 'table' %}
+ <td class="sheet-cell border-r">
+ {% if field.type == 'checkbox' %}
+ <div class="px-2 py-1"><input type="checkbox" data-fi="{{ loop.index0 }}"
+ class="w-5 h-5 rounded text-amber-600 focus:ring-amber-400 cursor-pointer"></div>
+ {% elif field.type == 'dropdown' %}
+ <select data-fi="{{ loop.index0 }}">
+ <option value=""></option>
+ {% for opt in field.get('options', []) %}
+ <option value="{{ opt }}">{{ opt }}</option>
+ {% endfor %}
+ </select>
+ {% elif field.type == 'textarea' %}
+ <textarea data-fi="{{ loop.index0 }}" rows="1" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
+ class="placeholder:"></textarea>
+ {% elif field.type == 'number' %}
+ <input type="number" step="any" data-fi="{{ loop.index0 }}" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
+ class="placeholder:">
+ {% elif field.type == 'date' %}
+ <input type="date" data-fi="{{ loop.index0 }}" onkeydown="cellNav(event)"
+ style="color-scheme:light dark">
+ {% else %}
+ <input type="text" data-fi="{{ loop.index0 }}" placeholder="{{ field.label }}" onkeydown="cellNav(event)"
+ class="placeholder:">
+ {% endif %}
+ </td>
+ {% endif %}
+ {% endfor %}
+ <td></td>
+ </tr>
+ </tbody>
+ <tfoot id="sheetFoot">
+ <tr class="font-bold">
+ <td class="px-2 py-2 text-center text-xs border-t border-r">합계</td>
+ {% if frequency is defined and frequency != 'daily' %}
+ <td class="border-t border-r"></td>
+ {% endif %}
+ {% for field in tpl.fields %}
+ {% if field.type != 'table' %}
+ <td class="px-2 py-2 text-right text-sm border-t border-r" data-sum-fi="{{ loop.index0 }}">
+ {% if field.type == 'number' %}0{% endif %}
+ </td>
+ {% endif %}
+ {% endfor %}
+ <td class="border-t"></td>
+ </tr>
+ </tfoot>
+ </table>
+ </div>
 </div>
 
 <!-- Card view -->
@@ -233,18 +233,18 @@ table#sheet { table-layout: fixed; }
 
 <!-- Card sum footer -->
 <div class="work-card rounded-xl p-4 mt-3 hidden" id="cardSumFooter">
-    <div class="flex items-center gap-2 mb-2">
-        <span class="text-xs font-bold text-slate-500 dark:text-slate-400">합계</span>
-    </div>
-    <div class="space-y-1" id="cardSumBody"></div>
+ <div class="flex items-center gap-2 mb-2">
+ <span class="text-xs font-bold">합계</span>
+ </div>
+ <div class="space-y-1" id="cardSumBody"></div>
 </div>
 
-<p class="text-xs text-slate-400 mt-2 text-center">Tab: 다음 셀 · Enter: 행 추가 · 편집 후 자동 저장 · 열/행 경계 드래그로 크기 조절</p>
+<p class="text-xs mt-2 text-center" style="color: var(--color-text-muted);">Tab: 다음 셀 · Enter: 행 추가 · 편집 후 자동 저장 · 열/행 경계 드래그로 크기 조절</p>
 
 <script>
 const TPL_ID = {{ tpl.id }};
 const DATE = '{{ current_date }}';
-const FREQUENCY = '{{ frequency if frequency is defined else "daily" }}';
+const FREQUENCY = '{{ frequency if frequency is defined else"daily" }}';
 const PERIOD_START = '{{ period_start if period_start is defined else current_date }}';
 const PERIOD_END = '{{ period_end if period_end is defined else current_date }}';
 const FIELDS = {{ tpl.fields | tojson }};
@@ -252,231 +252,231 @@ const FIELD_DEFAULTS = {{ field_defaults | tojson }};
 let saveTimer = null;
 
 function collectRow(tr) {
-    const fd = new FormData();
-    if (FREQUENCY !== 'daily') {
-        const dateEl = tr.querySelector('[data-entry-date]');
-        fd.append('entry_date', dateEl ? dateEl.value : DATE);
-    } else {
-        fd.append('entry_date', DATE);
-    }
-    FIELDS.forEach((f, i) => {
-        if (f.type === 'table') return;
-        const el = tr.querySelector(`[data-fi="${i}"]`);
-        if (!el) return;
-        if (f.type === 'checkbox') fd.append(`field_${i}`, el.checked ? 'on' : '');
-        else fd.append(`field_${i}`, el.value);
-    });
-    return fd;
+ const fd = new FormData();
+ if (FREQUENCY !== 'daily') {
+ const dateEl = tr.querySelector('[data-entry-date]');
+ fd.append('entry_date', dateEl ? dateEl.value : DATE);
+ } else {
+ fd.append('entry_date', DATE);
+ }
+ FIELDS.forEach((f, i) => {
+ if (f.type === 'table') return;
+ const el = tr.querySelector(`[data-fi="${i}"]`);
+ if (!el) return;
+ if (f.type === 'checkbox') fd.append(`field_${i}`, el.checked ? 'on' : '');
+ else fd.append(`field_${i}`, el.value);
+ });
+ return fd;
 }
 
 function saveRow(el) {
-    const tr = el.closest('tr');
-    const eid = tr.dataset.eid;
-    if (!eid) return;
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-        fetch(`/forms/${TPL_ID}/entries/${eid}`, {
-            method: 'PUT', headers: {'X-Inline': '1'}, body: collectRow(tr)
-        }).then(r => {
-            if (r.ok) { flashSave(tr); showStatus('ok'); }
-            else { showStatus('error'); tr.classList.add('save-error'); setTimeout(() => tr.classList.remove('save-error'), 1000); }
-        }).catch(() => {
-            showStatus('error');
-        });
-    }, 300);
+ const tr = el.closest('tr');
+ const eid = tr.dataset.eid;
+ if (!eid) return;
+ clearTimeout(saveTimer);
+ saveTimer = setTimeout(() => {
+ fetch(`/forms/${TPL_ID}/entries/${eid}`, {
+ method: 'PUT', headers: {'X-Inline': '1'}, body: collectRow(tr)
+ }).then(r => {
+ if (r.ok) { flashSave(tr); showStatus('ok'); }
+ else { showStatus('error'); tr.classList.add('save-error'); setTimeout(() => tr.classList.remove('save-error'), 1000); }
+ }).catch(() => {
+ showStatus('error');
+ });
+ }, 300);
 }
 
 function buildRowHtml(eid, rowNum) {
-    let html = `<tr class="sheet-row border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 save-flash" data-eid="${eid}">`;
-    html += `<td class="px-2 py-1 text-center text-xs text-slate-400 border-r border-slate-100 dark:border-slate-700">${rowNum}</td>`;
+ let html = `<tr class="sheet-row border-b hover-surface/50 save-flash" data-eid="${eid}">`;
+ html += `<td class="px-2 py-1 text-center text-xs border-r">${rowNum}</td>`;
 
-    const newRow = document.getElementById('newRow');
-    if (FREQUENCY !== 'daily') {
-        const dateEl = newRow.querySelector('[data-entry-date]');
-        const dateVal = dateEl ? dateEl.value : DATE;
-        html += `<td class="sheet-cell border-r border-slate-100 dark:border-slate-700"><span class="px-2 py-1 text-xs text-slate-600 dark:text-slate-300">${escHtml(dateVal)}</span></td>`;
-    }
-    FIELDS.forEach((f, i) => {
-        if (f.type === 'table') return;
-        const el = newRow.querySelector(`[data-fi="${i}"]`);
-        if (!el) return;
-        const val = f.type === 'checkbox' ? el.checked : el.value;
-        html += `<td class="sheet-cell border-r border-slate-100 dark:border-slate-700">`;
+ const newRow = document.getElementById('newRow');
+ if (FREQUENCY !== 'daily') {
+ const dateEl = newRow.querySelector('[data-entry-date]');
+ const dateVal = dateEl ? dateEl.value : DATE;
+ html += `<td class="sheet-cell border-r"><span class="px-2 py-1 text-xs" style="color: var(--color-text-muted);">${escHtml(dateVal)}</span></td>`;
+ }
+ FIELDS.forEach((f, i) => {
+ if (f.type === 'table') return;
+ const el = newRow.querySelector(`[data-fi="${i}"]`);
+ if (!el) return;
+ const val = f.type === 'checkbox' ? el.checked : el.value;
+ html += `<td class="sheet-cell border-r">`;
 
-        if (f.type === 'checkbox') {
-            html += `<div class="px-2 py-1"><input type="checkbox" data-fi="${i}" ${val ? 'checked' : ''}
-                class="w-5 h-5 rounded border-slate-300 text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveRow(this)"></div>`;
-        } else if (f.type === 'dropdown') {
-            html += `<select data-fi="${i}" onchange="saveRow(this)" class="text-slate-700 dark:text-slate-200"><option value=""></option>`;
-            (f.options || []).forEach(opt => {
-                html += `<option value="${escHtml(opt)}" ${opt === val ? 'selected' : ''}>${escHtml(opt)}</option>`;
-            });
-            html += `</select>`;
-        } else if (f.type === 'textarea') {
-            html += `<textarea data-fi="${i}" rows="1" onblur="saveRow(this)" onkeydown="cellNav(event)"
-                class="text-slate-700 dark:text-slate-200">${escHtml(val)}</textarea>`;
-        } else if (f.type === 'number') {
-            html += `<input type="number" step="any" data-fi="${i}" value="${escHtml(val)}"
-                onblur="saveRow(this)" onkeydown="cellNav(event)" class="text-slate-700 dark:text-slate-200">`;
-        } else if (f.type === 'date') {
-            html += `<input type="date" data-fi="${i}" value="${escHtml(val)}"
-                onchange="saveRow(this)" onkeydown="cellNav(event)" class="text-slate-700 dark:text-slate-200" style="color-scheme:light dark">`;
-        } else {
-            html += `<input type="text" data-fi="${i}" value="${escHtml(val)}"
-                onblur="saveRow(this)" onkeydown="cellNav(event)" class="text-slate-700 dark:text-slate-200">`;
-        }
-        html += `</td>`;
-    });
-    html += `<td class="px-1 text-center"><button onclick="delRow(this)" class="sheet-del p-1.5 text-slate-300 hover:text-red-500 transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></td>`;
-    html += `</tr>`;
-    return html;
+ if (f.type === 'checkbox') {
+ html += `<div class="px-2 py-1"><input type="checkbox" data-fi="${i}" ${val ? 'checked' : ''}
+ class="w-5 h-5 rounded text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveRow(this)"></div>`;
+ } else if (f.type === 'dropdown') {
+ html += `<select data-fi="${i}" onchange="saveRow(this)"><option value=""></option>`;
+ (f.options || []).forEach(opt => {
+ html += `<option value="${escHtml(opt)}" ${opt === val ? 'selected' : ''}>${escHtml(opt)}</option>`;
+ });
+ html += `</select>`;
+ } else if (f.type === 'textarea') {
+ html += `<textarea data-fi="${i}" rows="1" onblur="saveRow(this)" onkeydown="cellNav(event)"
+ >${escHtml(val)}</textarea>`;
+ } else if (f.type === 'number') {
+ html += `<input type="number" step="any" data-fi="${i}" value="${escHtml(val)}"
+ onblur="saveRow(this)" onkeydown="cellNav(event)">`;
+ } else if (f.type === 'date') {
+ html += `<input type="date" data-fi="${i}" value="${escHtml(val)}"
+ onchange="saveRow(this)" onkeydown="cellNav(event)" style="color-scheme:light dark">`;
+ } else {
+ html += `<input type="text" data-fi="${i}" value="${escHtml(val)}"
+ onblur="saveRow(this)" onkeydown="cellNav(event)">`;
+ }
+ html += `</td>`;
+ });
+ html += `<td class="px-1 text-center"><button onclick="delRow(this)" class="sheet-del p-1.5 hover:text-red-500 transition-colors">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></td>`;
+ html += `</tr>`;
+ return html;
 }
 
 function addRow() {
-    const tr = document.getElementById('newRow');
-    const fd = collectRow(tr);
-    fetch(`/forms/${TPL_ID}/entries`, {
-        method: 'POST', headers: {'X-Inline': '1'}, body: fd
-    }).then(r => r.json()).then(data => {
-        if (data.id) {
-            const existing = document.querySelectorAll('#sheetBody tr[data-eid]');
-            const rowNum = existing.length + 1;
-            tr.insertAdjacentHTML('beforebegin', buildRowHtml(data.id, rowNum));
-            clearNewRow();
-            const newTr = document.querySelector(`tr[data-eid="${data.id}"]`);
-            if (newTr) setTimeout(() => newTr.classList.remove('save-flash'), 600);
-            const first = tr.querySelector('[data-fi]');
-            if (first) first.focus();
-            showStatus('ok');
-        }
-    }).catch(() => showStatus('error'));
+ const tr = document.getElementById('newRow');
+ const fd = collectRow(tr);
+ fetch(`/forms/${TPL_ID}/entries`, {
+ method: 'POST', headers: {'X-Inline': '1'}, body: fd
+ }).then(r => r.json()).then(data => {
+ if (data.id) {
+ const existing = document.querySelectorAll('#sheetBody tr[data-eid]');
+ const rowNum = existing.length + 1;
+ tr.insertAdjacentHTML('beforebegin', buildRowHtml(data.id, rowNum));
+ clearNewRow();
+ const newTr = document.querySelector(`tr[data-eid="${data.id}"]`);
+ if (newTr) setTimeout(() => newTr.classList.remove('save-flash'), 600);
+ const first = tr.querySelector('[data-fi]');
+ if (first) first.focus();
+ showStatus('ok');
+ }
+ }).catch(() => showStatus('error'));
 }
 
 function clearNewRow() {
-    applyDefaults();
+ applyDefaults();
 }
 
 function applyDefaults() {
-    const tr = document.getElementById('newRow');
-    tr.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(el => el.value = '');
-    tr.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
-    tr.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
-    // Apply field defaults (static or copy_prev from backend)
-    FIELDS.forEach((f, i) => {
-        if (f.type === 'table') return;
-        const defVal = FIELD_DEFAULTS[f.label];
-        if (defVal === undefined || defVal === null || defVal === '') return;
-        const el = tr.querySelector(`[data-fi="${i}"]`);
-        if (!el) return;
-        if (f.type === 'checkbox') {
-            el.checked = !!defVal;
-        } else if (f.type === 'dropdown') {
-            for (let opt of el.options) {
-                if (opt.value === String(defVal)) { opt.selected = true; break; }
-            }
-        } else {
-            el.value = defVal;
-        }
-    });
+ const tr = document.getElementById('newRow');
+ tr.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(el => el.value = '');
+ tr.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+ tr.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+ // Apply field defaults (static or copy_prev from backend)
+ FIELDS.forEach((f, i) => {
+ if (f.type === 'table') return;
+ const defVal = FIELD_DEFAULTS[f.label];
+ if (defVal === undefined || defVal === null || defVal === '') return;
+ const el = tr.querySelector(`[data-fi="${i}"]`);
+ if (!el) return;
+ if (f.type === 'checkbox') {
+ el.checked = !!defVal;
+ } else if (f.type === 'dropdown') {
+ for (let opt of el.options) {
+ if (opt.value === String(defVal)) { opt.selected = true; break; }
+ }
+ } else {
+ el.value = defVal;
+ }
+ });
 }
 
 function delRow(btn) {
-    const tr = btn.closest('tr');
-    const eid = tr.dataset.eid;
-    if (!eid || !confirm('이 행을 삭제하시겠습니까?')) return;
-    fetch(`/forms/${TPL_ID}/entries/${eid}`, {method: 'DELETE'}).then(r => {
-        if (r.ok) { tr.remove(); renumber(); }
-        else showStatus('error');
-    }).catch(() => showStatus('error'));
+ const tr = btn.closest('tr');
+ const eid = tr.dataset.eid;
+ if (!eid || !confirm('이 행을 삭제하시겠습니까?')) return;
+ fetch(`/forms/${TPL_ID}/entries/${eid}`, {method: 'DELETE'}).then(r => {
+ if (r.ok) { tr.remove(); renumber(); }
+ else showStatus('error');
+ }).catch(() => showStatus('error'));
 }
 
 function renumber() {
-    document.querySelectorAll('#sheetBody tr[data-eid]').forEach((tr, i) => {
-        tr.children[0].textContent = i + 1;
-    });
+ document.querySelectorAll('#sheetBody tr[data-eid]').forEach((tr, i) => {
+ tr.children[0].textContent = i + 1;
+ });
 }
 
 function flashSave(tr) {
-    tr.classList.add('save-flash');
-    setTimeout(() => tr.classList.remove('save-flash'), 600);
+ tr.classList.add('save-flash');
+ setTimeout(() => tr.classList.remove('save-flash'), 600);
 }
 
 function showStatus(type) {
-    const ok = document.getElementById('saveStatus');
-    const err = document.getElementById('saveError');
-    if (type === 'ok') {
-        ok.classList.remove('hidden'); err.classList.add('hidden');
-        clearTimeout(ok._t);
-        ok._t = setTimeout(() => ok.classList.add('hidden'), 2000);
-    } else {
-        err.classList.remove('hidden'); ok.classList.add('hidden');
-        clearTimeout(err._t);
-        err._t = setTimeout(() => err.classList.add('hidden'), 4000);
-    }
+ const ok = document.getElementById('saveStatus');
+ const err = document.getElementById('saveError');
+ if (type === 'ok') {
+ ok.classList.remove('hidden'); err.classList.add('hidden');
+ clearTimeout(ok._t);
+ ok._t = setTimeout(() => ok.classList.add('hidden'), 2000);
+ } else {
+ err.classList.remove('hidden'); ok.classList.add('hidden');
+ clearTimeout(err._t);
+ err._t = setTimeout(() => err.classList.add('hidden'), 4000);
+ }
 }
 
 function cellNav(e) {
-    if (e.key === 'Tab') return;
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        const tr = e.target.closest('tr');
-        if (tr.id === 'newRow') {
-            addRow();
-        } else {
-            const next = tr.nextElementSibling;
-            if (next) {
-                const fi = e.target.dataset.fi;
-                const target = next.querySelector(`[data-fi="${fi}"]`);
-                if (target) target.focus();
-            }
-        }
-    }
+ if (e.key === 'Tab') return;
+ if (e.key === 'Enter' && !e.shiftKey) {
+ e.preventDefault();
+ const tr = e.target.closest('tr');
+ if (tr.id === 'newRow') {
+ addRow();
+ } else {
+ const next = tr.nextElementSibling;
+ if (next) {
+ const fi = e.target.dataset.fi;
+ const target = next.querySelector(`[data-fi="${fi}"]`);
+ if (target) target.focus();
+ }
+ }
+ }
 }
 
 function escHtml(s) {
-    if (s === undefined || s === null || s === false) return '';
-    if (s === true) return 'true';
-    const d = document.createElement('div');
-    d.textContent = String(s);
-    return d.innerHTML.replace(/"/g, '&quot;');
+ if (s === undefined || s === null || s === false) return '';
+ if (s === true) return 'true';
+ const d = document.createElement('div');
+ d.textContent = String(s);
+ return d.innerHTML.replace(/"/g, '&quot;');
 }
 
 // --- Feature 1: Auto-sum footer ---
 function updateSums() {
-    const rows = document.querySelectorAll('#sheetBody tr[data-eid]');
-    const sums = {};
-    FIELDS.forEach((f, i) => {
-        if (f.type === 'number') sums[i] = 0;
-    });
-    rows.forEach(tr => {
-        FIELDS.forEach((f, i) => {
-            if (f.type !== 'number') return;
-            const el = tr.querySelector(`[data-fi="${i}"]`);
-            if (el) sums[i] += parseFloat(el.value) || 0;
-        });
-    });
-    Object.keys(sums).forEach(i => {
-        const cell = document.querySelector(`#sheetFoot [data-sum-fi="${i}"]`);
-        if (cell) {
-            const v = sums[i];
-            cell.textContent = v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, {maximumFractionDigits: 2});
-        }
-    });
-    const cardSumBody = document.getElementById('cardSumBody');
-    if (cardSumBody) {
-        let html = '';
-        FIELDS.forEach((f, i) => {
-            if (f.type !== 'number') return;
-            const v = sums[i];
-            const display = v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, {maximumFractionDigits: 2});
-            html += `<div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 flex-shrink-0">${escHtml(f.label)}</span>
-                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${display}</span>
-            </div>`;
-        });
-        cardSumBody.innerHTML = html;
-    }
+ const rows = document.querySelectorAll('#sheetBody tr[data-eid]');
+ const sums = {};
+ FIELDS.forEach((f, i) => {
+ if (f.type === 'number') sums[i] = 0;
+ });
+ rows.forEach(tr => {
+ FIELDS.forEach((f, i) => {
+ if (f.type !== 'number') return;
+ const el = tr.querySelector(`[data-fi="${i}"]`);
+ if (el) sums[i] += parseFloat(el.value) || 0;
+ });
+ });
+ Object.keys(sums).forEach(i => {
+ const cell = document.querySelector(`#sheetFoot [data-sum-fi="${i}"]`);
+ if (cell) {
+ const v = sums[i];
+ cell.textContent = v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, {maximumFractionDigits: 2});
+ }
+ });
+ const cardSumBody = document.getElementById('cardSumBody');
+ if (cardSumBody) {
+ let html = '';
+ FIELDS.forEach((f, i) => {
+ if (f.type !== 'number') return;
+ const v = sums[i];
+ const display = v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, {maximumFractionDigits: 2});
+ html += `<div class="flex items-center gap-2">
+ <span class="text-xs font-semibold w-20 flex-shrink-0">${escHtml(f.label)}</span>
+ <span class="text-sm font-bold">${display}</span>
+ </div>`;
+ });
+ cardSumBody.innerHTML = html;
+ }
 }
 
 // --- Feature 2: Card view toggle ---
@@ -484,125 +484,125 @@ let currentView = 'table';
 const VIEW_STORAGE_KEY = `form_view_${TPL_ID}`;
 
 function setView(mode) {
-    currentView = mode;
-    localStorage.setItem(VIEW_STORAGE_KEY, mode);
-    const tableWrap = document.querySelector('#sheet').closest('.work-card');
-    const cardView = document.getElementById('cardView');
-    const cardSumFooter = document.getElementById('cardSumFooter');
-    const btnTable = document.getElementById('btnTableView');
-    const btnCard = document.getElementById('btnCardView');
-    if (mode === 'card') {
-        tableWrap.classList.add('hidden');
-        cardView.classList.remove('hidden');
-        cardSumFooter.classList.remove('hidden');
-        btnCard.classList.add('active');
-        btnTable.classList.remove('active');
-        renderCards();
-    } else {
-        tableWrap.classList.remove('hidden');
-        cardView.classList.add('hidden');
-        cardSumFooter.classList.add('hidden');
-        btnTable.classList.add('active');
-        btnCard.classList.remove('active');
-    }
-    updateSums();
+ currentView = mode;
+ localStorage.setItem(VIEW_STORAGE_KEY, mode);
+ const tableWrap = document.querySelector('#sheet').closest('.work-card');
+ const cardView = document.getElementById('cardView');
+ const cardSumFooter = document.getElementById('cardSumFooter');
+ const btnTable = document.getElementById('btnTableView');
+ const btnCard = document.getElementById('btnCardView');
+ if (mode === 'card') {
+ tableWrap.classList.add('hidden');
+ cardView.classList.remove('hidden');
+ cardSumFooter.classList.remove('hidden');
+ btnCard.classList.add('active');
+ btnTable.classList.remove('active');
+ renderCards();
+ } else {
+ tableWrap.classList.remove('hidden');
+ cardView.classList.add('hidden');
+ cardSumFooter.classList.add('hidden');
+ btnTable.classList.add('active');
+ btnCard.classList.remove('active');
+ }
+ updateSums();
 }
 
 function renderCards() {
-    const cardView = document.getElementById('cardView');
-    const rows = document.querySelectorAll('#sheetBody tr[data-eid]');
-    let html = '';
-    rows.forEach((tr, idx) => {
-        const eid = tr.dataset.eid;
-        html += `<div class="work-card rounded-xl p-4" data-card-eid="${eid}">`;
-        html += `<div class="flex justify-between items-center mb-2">`;
-        html += `<span class="text-xs text-slate-400">#${idx + 1}</span>`;
-        html += `<button onclick="delRow(document.querySelector('tr[data-eid=&quot;${eid}&quot;] .sheet-del'))" class="p-1.5 text-slate-300 hover:text-red-500 transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
-        html += `</div><div class="space-y-2">`;
-        FIELDS.forEach((f, i) => {
-            if (f.type === 'table') return;
-            const el = tr.querySelector(`[data-fi="${i}"]`);
-            if (!el) return;
-            const val = f.type === 'checkbox' ? el.checked : el.value;
-            html += `<div class="flex items-center gap-2">`;
-            html += `<span class="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 flex-shrink-0">${escHtml(f.label)}</span>`;
-            if (f.type === 'checkbox') {
-                html += `<input type="checkbox" data-card-fi="${i}" data-card-eid="${eid}" ${val ? 'checked' : ''}
-                    class="w-5 h-5 rounded border-slate-300 text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveCardField(this)">`;
-            } else if (f.type === 'dropdown') {
-                html += `<select data-card-fi="${i}" data-card-eid="${eid}" onchange="saveCardField(this)"
-                    class="card-field-input text-slate-700 dark:text-slate-200 flex-1"><option value=""></option>`;
-                (f.options || []).forEach(opt => {
-                    html += `<option value="${escHtml(opt)}" ${opt === val ? 'selected' : ''}>${escHtml(opt)}</option>`;
-                });
-                html += `</select>`;
-            } else if (f.type === 'textarea') {
-                html += `<textarea data-card-fi="${i}" data-card-eid="${eid}" rows="1" onblur="saveCardField(this)"
-                    class="card-field-input text-slate-700 dark:text-slate-200 flex-1">${escHtml(val)}</textarea>`;
-            } else if (f.type === 'number') {
-                html += `<input type="number" step="any" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
-                    onblur="saveCardField(this)" class="card-field-input text-slate-700 dark:text-slate-200 flex-1">`;
-            } else if (f.type === 'date') {
-                html += `<input type="date" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
-                    onchange="saveCardField(this)" class="card-field-input text-slate-700 dark:text-slate-200 flex-1" style="color-scheme:light dark">`;
-            } else {
-                html += `<input type="text" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
-                    onblur="saveCardField(this)" class="card-field-input text-slate-700 dark:text-slate-200 flex-1">`;
-            }
-            html += `</div>`;
-        });
-        html += `</div></div>`;
-    });
-    html += `<div class="flex justify-center"><button onclick="addRow(); if(currentView==='card') setTimeout(renderCards, 100);"
-        class="px-4 py-2 text-sm font-medium text-amber-500 hover:text-amber-700 bg-amber-50 dark:bg-amber-900/20 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">+ 행 추가</button></div>`;
-    cardView.innerHTML = html;
+ const cardView = document.getElementById('cardView');
+ const rows = document.querySelectorAll('#sheetBody tr[data-eid]');
+ let html = '';
+ rows.forEach((tr, idx) => {
+ const eid = tr.dataset.eid;
+ html += `<div class="work-card rounded-xl p-4" data-card-eid="${eid}">`;
+ html += `<div class="flex justify-between items-center mb-2">`;
+ html += `<span class="text-xs" style="color: var(--color-text-muted);">#${idx + 1}</span>`;
+ html += `<button onclick="delRow(document.querySelector('tr[data-eid=&quot;${eid}&quot;] .sheet-del'))" class="p-1.5 hover:text-red-500 transition-colors">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+ html += `</div><div class="space-y-2">`;
+ FIELDS.forEach((f, i) => {
+ if (f.type === 'table') return;
+ const el = tr.querySelector(`[data-fi="${i}"]`);
+ if (!el) return;
+ const val = f.type === 'checkbox' ? el.checked : el.value;
+ html += `<div class="flex items-center gap-2">`;
+ html += `<span class="text-xs font-semibold w-20 flex-shrink-0">${escHtml(f.label)}</span>`;
+ if (f.type === 'checkbox') {
+ html += `<input type="checkbox" data-card-fi="${i}" data-card-eid="${eid}" ${val ? 'checked' : ''}
+ class="w-5 h-5 rounded text-amber-600 focus:ring-amber-400 cursor-pointer" onchange="saveCardField(this)">`;
+ } else if (f.type === 'dropdown') {
+ html += `<select data-card-fi="${i}" data-card-eid="${eid}" onchange="saveCardField(this)"
+ class="card-field-input flex-1"><option value=""></option>`;
+ (f.options || []).forEach(opt => {
+ html += `<option value="${escHtml(opt)}" ${opt === val ? 'selected' : ''}>${escHtml(opt)}</option>`;
+ });
+ html += `</select>`;
+ } else if (f.type === 'textarea') {
+ html += `<textarea data-card-fi="${i}" data-card-eid="${eid}" rows="1" onblur="saveCardField(this)"
+ class="card-field-input flex-1">${escHtml(val)}</textarea>`;
+ } else if (f.type === 'number') {
+ html += `<input type="number" step="any" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
+ onblur="saveCardField(this)" class="card-field-input flex-1">`;
+ } else if (f.type === 'date') {
+ html += `<input type="date" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
+ onchange="saveCardField(this)" class="card-field-input flex-1" style="color-scheme:light dark">`;
+ } else {
+ html += `<input type="text" data-card-fi="${i}" data-card-eid="${eid}" value="${escHtml(val)}"
+ onblur="saveCardField(this)" class="card-field-input flex-1">`;
+ }
+ html += `</div>`;
+ });
+ html += `</div></div>`;
+ });
+ html += `<div class="flex justify-center"><button onclick="addRow(); if(currentView==='card') setTimeout(renderCards, 100);"
+ class="px-4 py-2 text-sm font-medium text-amber-500 hover:text-amber-700 rounded-xl hover:bg-amber-100 transition-colors">+ 행 추가</button></div>`;
+ cardView.innerHTML = html;
 }
 
 function saveCardField(el) {
-    const eid = el.dataset.cardEid;
-    const fi = el.dataset.cardFi;
-    const tr = document.querySelector(`tr[data-eid="${eid}"]`);
-    if (!tr) return;
-    const tableEl = tr.querySelector(`[data-fi="${fi}"]`);
-    if (!tableEl) return;
-    const f = FIELDS[parseInt(fi)];
-    if (f.type === 'checkbox') tableEl.checked = el.checked;
-    else tableEl.value = el.value;
-    saveRow(tableEl);
-    updateSums();
+ const eid = el.dataset.cardEid;
+ const fi = el.dataset.cardFi;
+ const tr = document.querySelector(`tr[data-eid="${eid}"]`);
+ if (!tr) return;
+ const tableEl = tr.querySelector(`[data-fi="${fi}"]`);
+ if (!tableEl) return;
+ const f = FIELDS[parseInt(fi)];
+ if (f.type === 'checkbox') tableEl.checked = el.checked;
+ else tableEl.value = el.value;
+ saveRow(tableEl);
+ updateSums();
 }
 
 const _origSaveRow = saveRow;
 saveRow = function(el) {
-    _origSaveRow(el);
-    setTimeout(updateSums, 400);
+ _origSaveRow(el);
+ setTimeout(updateSums, 400);
 };
 
 const _origDelRow = delRow;
 delRow = function(btn) {
-    _origDelRow(btn);
-    setTimeout(() => {
-        updateSums();
-        if (currentView === 'card') renderCards();
-    }, 300);
+ _origDelRow(btn);
+ setTimeout(() => {
+ updateSums();
+ if (currentView === 'card') renderCards();
+ }, 300);
 };
 
 const _origAddRow = addRow;
 addRow = function() {
-    _origAddRow();
-    setTimeout(() => {
-        updateSums();
-        if (currentView === 'card') renderCards();
-    }, 300);
+ _origAddRow();
+ setTimeout(() => {
+ updateSums();
+ if (currentView === 'card') renderCards();
+ }, 300);
 };
 
 function initView() {
-    const saved = localStorage.getItem(VIEW_STORAGE_KEY);
-    const isMobile = window.innerWidth < 768;
-    const mode = saved || (isMobile ? 'card' : 'table');
-    setView(mode);
-    updateSums();
+ const saved = localStorage.getItem(VIEW_STORAGE_KEY);
+ const isMobile = window.innerWidth < 768;
+ const mode = saved || (isMobile ? 'card' : 'table');
+ setView(mode);
+ updateSums();
 }
 
 // Apply defaults to new row on page load
@@ -611,63 +611,63 @@ if (document.readyState !== 'loading') applyDefaults();
 
 {% if not entries %}
 document.addEventListener('DOMContentLoaded', () => {
-    const first = document.querySelector('#newRow [data-fi]');
-    if (first) first.focus();
+ const first = document.querySelector('#newRow [data-fi]');
+ if (first) first.focus();
 });
 {% endif %}
 
 (function() {
-    const table = document.getElementById('sheet');
-    if (!table) return;
-    const STORAGE_KEY = `form_resize_${TPL_ID}`;
-    function loadSizes() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
-    function saveSizes(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+ const table = document.getElementById('sheet');
+ if (!table) return;
+ const STORAGE_KEY = `form_resize_${TPL_ID}`;
+ function loadSizes() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+ function saveSizes(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
 
-    function initResize() {
-        const sizes = loadSizes();
-        const ths = table.querySelectorAll('thead th');
-        ths.forEach((th, i) => { if (sizes[`col_${i}`]) th.style.width = sizes[`col_${i}`] + 'px'; });
-        table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => { if (sizes[`row_${i}`]) tr.style.height = sizes[`row_${i}`] + 'px'; });
-        ths.forEach((th, i) => {
-            if (i === ths.length - 1) return;
-            const h = document.createElement('div'); h.className = 'col-resize-handle';
-            h.addEventListener('mousedown', (e) => startColResize(e, th, i));
-            h.addEventListener('touchstart', (e) => startColResize(e.touches[0], th, i), {passive:false});
-            th.appendChild(h);
-        });
-        addRowHandles();
-    }
-    function addRowHandles() {
-        table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => {
-            const td = tr.children[0]; if (!td || td.querySelector('.row-resize-handle')) return;
-            td.style.position = 'relative';
-            const h = document.createElement('div'); h.className = 'row-resize-handle';
-            h.addEventListener('mousedown', (e) => startRowResize(e, tr, i));
-            h.addEventListener('touchstart', (e) => startRowResize(e.touches[0], tr, i), {passive:false});
-            td.appendChild(h);
-        });
-    }
-    function startColResize(e, th, colIdx) {
-        e.preventDefault(); e.stopPropagation();
-        const startX = e.clientX, startW = th.offsetWidth;
-        th.querySelector('.col-resize-handle').classList.add('active');
-        document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
-        function onMove(ev) { const x = ev.touches ? ev.touches[0].clientX : ev.clientX; th.style.width = Math.max(40, startW + x - startX) + 'px'; }
-        function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); th.querySelector('.col-resize-handle').classList.remove('active'); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`col_${colIdx}`]=th.offsetWidth; saveSizes(s); }
-        document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
-    }
-    function startRowResize(e, tr, rowIdx) {
-        e.preventDefault(); e.stopPropagation();
-        const startY = e.clientY, startH = tr.offsetHeight;
-        document.body.style.cursor = 'row-resize'; document.body.style.userSelect = 'none';
-        function onMove(ev) { const y = ev.touches ? ev.touches[0].clientY : ev.clientY; tr.style.height = Math.max(28, startH + y - startY) + 'px'; }
-        function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`row_${rowIdx}`]=tr.offsetHeight; saveSizes(s); }
-        document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
-    }
-    const origAddRow = window.addRow;
-    window.addRow = function() { origAddRow(); setTimeout(addRowHandles, 50); };
-    document.addEventListener('DOMContentLoaded', initResize);
-    if (document.readyState !== 'loading') initResize();
+ function initResize() {
+ const sizes = loadSizes();
+ const ths = table.querySelectorAll('thead th');
+ ths.forEach((th, i) => { if (sizes[`col_${i}`]) th.style.width = sizes[`col_${i}`] + 'px'; });
+ table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => { if (sizes[`row_${i}`]) tr.style.height = sizes[`row_${i}`] + 'px'; });
+ ths.forEach((th, i) => {
+ if (i === ths.length - 1) return;
+ const h = document.createElement('div'); h.className = 'col-resize-handle';
+ h.addEventListener('mousedown', (e) => startColResize(e, th, i));
+ h.addEventListener('touchstart', (e) => startColResize(e.touches[0], th, i), {passive:false});
+ th.appendChild(h);
+ });
+ addRowHandles();
+ }
+ function addRowHandles() {
+ table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => {
+ const td = tr.children[0]; if (!td || td.querySelector('.row-resize-handle')) return;
+ td.style.position = 'relative';
+ const h = document.createElement('div'); h.className = 'row-resize-handle';
+ h.addEventListener('mousedown', (e) => startRowResize(e, tr, i));
+ h.addEventListener('touchstart', (e) => startRowResize(e.touches[0], tr, i), {passive:false});
+ td.appendChild(h);
+ });
+ }
+ function startColResize(e, th, colIdx) {
+ e.preventDefault(); e.stopPropagation();
+ const startX = e.clientX, startW = th.offsetWidth;
+ th.querySelector('.col-resize-handle').classList.add('active');
+ document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+ function onMove(ev) { const x = ev.touches ? ev.touches[0].clientX : ev.clientX; th.style.width = Math.max(40, startW + x - startX) + 'px'; }
+ function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); th.querySelector('.col-resize-handle').classList.remove('active'); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`col_${colIdx}`]=th.offsetWidth; saveSizes(s); }
+ document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
+ }
+ function startRowResize(e, tr, rowIdx) {
+ e.preventDefault(); e.stopPropagation();
+ const startY = e.clientY, startH = tr.offsetHeight;
+ document.body.style.cursor = 'row-resize'; document.body.style.userSelect = 'none';
+ function onMove(ev) { const y = ev.touches ? ev.touches[0].clientY : ev.clientY; tr.style.height = Math.max(28, startH + y - startY) + 'px'; }
+ function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`row_${rowIdx}`]=tr.offsetHeight; saveSizes(s); }
+ document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
+ }
+ const origAddRow = window.addRow;
+ window.addRow = function() { origAddRow(); setTimeout(addRowHandles, 50); };
+ document.addEventListener('DOMContentLoaded', initResize);
+ if (document.readyState !== 'loading') initResize();
 })();
 
 document.addEventListener('DOMContentLoaded', initView);

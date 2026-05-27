@@ -1,192 +1,192 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}자동화 - JM Planner{% endblock %}
 {% block page_title %}자동화 규칙{% endblock %}
 {% block page_subtitle %}{{ rules|length }}개{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">규칙 만들기</b> — 조건(마감일, 카테고리 등)과 동작(자동 완료, 알림 등)을 설정</p>
-        <p><b class="text-slate-700 dark:text-slate-300">활성/비활성</b> — 토글로 규칙을 켜고 끌 수 있습니다</p>
-        <p><b class="text-slate-700 dark:text-slate-300">실행 주기</b> — 규칙은 매일 자동으로 실행됩니다</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>규칙 만들기</b> — 조건(마감일, 카테고리 등)과 동작(자동 완료, 알림 등)을 설정</p>
+ <p><b>활성/비활성</b> — 토글로 규칙을 켜고 끌 수 있습니다</p>
+ <p><b>실행 주기</b> — 규칙은 매일 자동으로 실행됩니다</p>
+ </div>
 </details>
 <!-- Item 13: Starter Automation Suggestions -->
 {% if rules|length == 0 %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">추천 자동화</h3>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">클릭 한 번으로 유용한 규칙을 바로 적용하세요</p>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <form action="/automations/apply-starter" method="POST" class="inline">
-            <input type="hidden" name="preset" value="daily_standup">
-            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
-                <span class="text-lg">🌅</span>
-                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매일 업무 정리</p>
-                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매일 "업무 우선순위 정리" 할일 생성</p>
-            </button>
-        </form>
-        <form action="/automations/apply-starter" method="POST" class="inline">
-            <input type="hidden" name="preset" value="weekly_review">
-            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
-                <span class="text-lg">📋</span>
-                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매주 금요일 리뷰</p>
-                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">금요일마다 "주간 리뷰" 할일 생성</p>
-            </button>
-        </form>
-        <form action="/automations/apply-starter" method="POST" class="inline">
-            <input type="hidden" name="preset" value="monthly_report">
-            <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
-                <span class="text-lg">📊</span>
-                <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매월 1일 보고서</p>
-                <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매월 1일 "월간 보고서" 할일 생성</p>
-            </button>
-        </form>
-    </div>
+ <h3 class="text-sm font-bold mb-2">추천 자동화</h3>
+ <p class="text-xs mb-3" style="color: var(--color-text-muted);">클릭 한 번으로 유용한 규칙을 바로 적용하세요</p>
+ <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+ <form action="/automations/apply-starter" method="POST" class="inline">
+ <input type="hidden" name="preset" value="daily_standup">
+ <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <span class="text-lg">🌅</span>
+ <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매일 업무 정리</p>
+ <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매일"업무 우선순위 정리" 할일 생성</p>
+ </button>
+ </form>
+ <form action="/automations/apply-starter" method="POST" class="inline">
+ <input type="hidden" name="preset" value="weekly_review">
+ <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <span class="text-lg">📋</span>
+ <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매주 금요일 리뷰</p>
+ <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">금요일마다"주간 리뷰" 할일 생성</p>
+ </button>
+ </form>
+ <form action="/automations/apply-starter" method="POST" class="inline">
+ <input type="hidden" name="preset" value="monthly_report">
+ <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <span class="text-lg">📊</span>
+ <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매월 1일 보고서</p>
+ <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매월 1일"월간 보고서" 할일 생성</p>
+ </button>
+ </form>
+ </div>
 </div>
 {% endif %}
 
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">새 규칙 만들기</h3>
-    <form action="/automations" method="POST" id="automationForm">
-        <input type="text" name="name" placeholder="규칙 이름 (예: 매주 월요일 회의 준비)" required
-               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-3">
+ <h3 class="text-sm font-bold mb-3">새 규칙 만들기</h3>
+ <form action="/automations" method="POST" id="automationForm">
+ <input type="text" name="name" placeholder="규칙 이름 (예: 매주 월요일 회의 준비)" required
+ class="w-full px-3 py-2 text-sm border rounded-lg mb-3">
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <div>
-                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">트리거</label>
-                <select id="triggerType" onchange="updateTriggerUI()"
-                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="daily">매일</option>
-                    <option value="weekly" selected>매주</option>
-                    <option value="monthly">매월</option>
-                    <option value="rrule">사용자정의 (RRULE)</option>
-                </select>
-            </div>
-            <div id="triggerExtra">
-                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">요일</label>
-                <select id="triggerWeekday"
-                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="0">월요일</option>
-                    <option value="1">화요일</option>
-                    <option value="2">수요일</option>
-                    <option value="3">목요일</option>
-                    <option value="4">금요일</option>
-                    <option value="5">토요일</option>
-                    <option value="6">일요일</option>
-                </select>
-                <select id="triggerDay" style="display:none"
-                        class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    {% for d in range(1, 29) %}
-                    <option value="{{ d }}">{{ d }}일</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <!-- RRULE custom trigger panel -->
-        <div id="rruleTriggerPanel" style="display:none" class="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2 mb-3">
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500">매</span>
-                <input type="number" id="rruleInterval" value="1" min="1" max="99"
-                       class="w-16 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <select id="rruleFreq" onchange="updateRruleExtra()"
-                        class="px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="DAILY">일</option>
-                    <option value="WEEKLY" selected>주</option>
-                    <option value="MONTHLY">개월</option>
-                </select>
-            </div>
-            <div id="rruleBydayRow" class="flex flex-wrap gap-1">
-                {% for code, label in rrule_day_options %}
-                <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                    <input type="checkbox" class="rrule-byday-auto" value="{{ code }}"> {{ label }}
-                </label>
-                {% endfor %}
-            </div>
-            <div id="rruleBymonthdayRow" style="display:none">
-                <input type="text" id="rruleBymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
-                       class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-            </div>
-        </div>
+ <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+ <div>
+ <label class="block text-xs font-medium mb-1">트리거</label>
+ <select id="triggerType" onchange="updateTriggerUI()"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ <option value="daily">매일</option>
+ <option value="weekly" selected>매주</option>
+ <option value="monthly">매월</option>
+ <option value="rrule">사용자정의 (RRULE)</option>
+ </select>
+ </div>
+ <div id="triggerExtra">
+ <label class="block text-xs font-medium mb-1">요일</label>
+ <select id="triggerWeekday"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ <option value="0">월요일</option>
+ <option value="1">화요일</option>
+ <option value="2">수요일</option>
+ <option value="3">목요일</option>
+ <option value="4">금요일</option>
+ <option value="5">토요일</option>
+ <option value="6">일요일</option>
+ </select>
+ <select id="triggerDay" style="display:none"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ {% for d in range(1, 29) %}
+ <option value="{{ d }}">{{ d }}일</option>
+ {% endfor %}
+ </select>
+ </div>
+ </div>
+ <!-- RRULE custom trigger panel -->
+ <div id="rruleTriggerPanel" style="display:none" class="p-3 border rounded-lg space-y-2 mb-3">
+ <div class="flex items-center gap-2">
+ <span class="text-xs" style="color: var(--color-text-muted);">매</span>
+ <input type="number" id="rruleInterval" value="1" min="1" max="99"
+ class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="rruleFreq" onchange="updateRruleExtra()"
+ class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <option value="DAILY">일</option>
+ <option value="WEEKLY" selected>주</option>
+ <option value="MONTHLY">개월</option>
+ </select>
+ </div>
+ <div id="rruleBydayRow" class="flex flex-wrap gap-1">
+ {% for code, label in rrule_day_options %}
+ <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover:bg-amber-50" style="background: var(--color-surface);">
+ <input type="checkbox" class="rrule-byday-auto" value="{{ code }}"> {{ label }}
+ </label>
+ {% endfor %}
+ </div>
+ <div id="rruleBymonthdayRow" style="display:none">
+ <input type="text" id="rruleBymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+ class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ </div>
+ </div>
 
-        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 mb-3">
-            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">생성할 할일</label>
-            <input type="text" id="actionTitle" placeholder="할일 제목" required
-                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg mb-2">
-            <div class="grid grid-cols-2 gap-2">
-                <select id="actionPriority"
-                        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="1">긴급</option>
-                    <option value="2" selected>보통</option>
-                    <option value="3">낮음</option>
-                </select>
-                <select id="actionCategory"
-                        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="">카테고리 없음</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
+ <div class="border-t pt-3 mb-3">
+ <label class="block text-xs font-medium mb-2">생성할 할일</label>
+ <input type="text" id="actionTitle" placeholder="할일 제목" required
+ class="w-full px-3 py-2 text-sm border rounded-lg mb-2">
+ <div class="grid grid-cols-2 gap-2">
+ <select id="actionPriority"
+ class="px-3 py-2 text-sm border rounded-lg">
+ <option value="1">긴급</option>
+ <option value="2" selected>보통</option>
+ <option value="3">낮음</option>
+ </select>
+ <select id="actionCategory"
+ class="px-3 py-2 text-sm border rounded-lg">
+ <option value="">카테고리 없음</option>
+ {% for cat in categories %}
+ <option value="{{ cat.id }}">{{ cat.name }}</option>
+ {% endfor %}
+ </select>
+ </div>
+ </div>
 
-        <input type="hidden" name="trigger_type" id="hiddenTriggerType" value="weekly">
-        <input type="hidden" name="trigger_config" id="hiddenTriggerConfig" value='{"weekday":0}'>
-        <input type="hidden" name="action_config" id="hiddenActionConfig" value="{}">
+ <input type="hidden" name="trigger_type" id="hiddenTriggerType" value="weekly">
+ <input type="hidden" name="trigger_config" id="hiddenTriggerConfig" value='{"weekday":0}'>
+ <input type="hidden" name="action_config" id="hiddenActionConfig" value="{}">
 
-        <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700">저장</button>
-    </form>
+ <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700">저장</button>
+ </form>
 </div>
 
 {% for rule in rules %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <div class="flex items-center justify-between">
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 truncate">{{ rule.name }}</h3>
-                {% if rule.enabled %}
-                <span class="px-1.5 py-0.5 text-[10px] font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">활성</span>
-                {% else %}
-                <span class="px-1.5 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 rounded">비활성</span>
-                {% endif %}
-            </div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">
-                {% if rule.trigger_type == 'daily' %}매일
-                {% elif rule.trigger_type == 'weekly' %}매주 {{ ['월','화','수','목','금','토','일'][rule._tc.get('weekday', 0)] }}요일
-                {% elif rule.trigger_type == 'monthly' %}매월 {{ rule._tc.get('day', 1) }}일
-                {% elif rule.trigger_type == 'rrule' %}{{ rule._trigger_desc or 'RRULE' }}
-                {% endif %}
-                &rarr; "{{ rule._ac.get('title', '') }}" 생성
-            </div>
-            {% if rule.last_run %}
-            <div class="text-[10px] text-slate-400 mt-0.5">마지막 실행: {{ rule.last_run }}</div>
-            {% endif %}
-        </div>
-        <div class="flex items-center gap-2 ml-3">
-            <form action="/automations/{{ rule.id }}/toggle" method="POST">
-                <button type="submit" class="px-3 py-1.5 text-xs border rounded-lg
-                    {% if rule.enabled %}text-amber-600 border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-900/30
-                    {% else %}text-green-600 border-green-200 hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/30{% endif %}">
-                    {% if rule.enabled %}비활성{% else %}활성{% endif %}
-                </button>
-            </form>
-            <button hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
-                    class="px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/30">삭제</button>
-        </div>
-    </div>
+ <div class="flex items-center justify-between">
+ <div class="flex-1 min-w-0">
+ <div class="flex items-center gap-2 mb-1">
+ <h3 class="text-sm font-bold truncate">{{ rule.name }}</h3>
+ {% if rule.enabled %}
+ <span class="px-1.5 py-0.5 text-[10px] font-medium rounded" style="background: var(--color-success-soft); color: var(--color-success);">활성</span>
+ {% else %}
+ <span class="px-1.5 py-0.5 text-[10px] font-medium rounded">비활성</span>
+ {% endif %}
+ </div>
+ <div class="text-xs" style="color: var(--color-text-muted);">
+ {% if rule.trigger_type == 'daily' %}매일
+ {% elif rule.trigger_type == 'weekly' %}매주 {{ ['월','화','수','목','금','토','일'][rule._tc.get('weekday', 0)] }}요일
+ {% elif rule.trigger_type == 'monthly' %}매월 {{ rule._tc.get('day', 1) }}일
+ {% elif rule.trigger_type == 'rrule' %}{{ rule._trigger_desc or 'RRULE' }}
+ {% endif %}
+ &rarr;"{{ rule._ac.get('title', '') }}" 생성
+ </div>
+ {% if rule.last_run %}
+ <div class="text-[10px] mt-0.5">마지막 실행: {{ rule.last_run }}</div>
+ {% endif %}
+ </div>
+ <div class="flex items-center gap-2 ml-3">
+ <form action="/automations/{{ rule.id }}/toggle" method="POST">
+ <button type="submit" class="px-3 py-1.5 text-xs border rounded-lg
+ {% if rule.enabled %}text-amber-600 border-amber-200 hover:bg-amber-50
+ {% else %}text-green-600 border-green-200 hover:bg-green-50{% endif %}">
+ {% if rule.enabled %}비활성{% else %}활성{% endif %}
+ </button>
+ </form>
+ <button hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
+ class="px-3 py-1.5 text-xs text-red-500 border-red-200 rounded-lg hover:bg-red-50">삭제</button>
+ </div>
+ </div>
 </div>
 {% else %}
 <div class="empty-state">
-    <div class="empty-state-icon">
-        <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
-        </svg>
-    </div>
-    <p class="empty-state-title">등록된 자동화 규칙이 없습니다</p>
-    <p class="empty-state-desc">위의 추천 자동화를 사용하거나 직접 규칙을 만들어보세요</p>
+ <div class="empty-state-icon">
+ <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+ </svg>
+ </div>
+ <p class="empty-state-title">등록된 자동화 규칙이 없습니다</p>
+ <p class="empty-state-desc">위의 추천 자동화를 사용하거나 직접 규칙을 만들어보세요</p>
 </div>
 {% endfor %}
 {% endblock %}
@@ -196,69 +196,69 @@
 var WEEKDAYS = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
 
 function updateTriggerUI() {
-    var type = document.getElementById('triggerType').value;
-    var weekdaySel = document.getElementById('triggerWeekday');
-    var daySel = document.getElementById('triggerDay');
-    var extraLabel = document.querySelector('#triggerExtra label');
-    var rrulePanel = document.getElementById('rruleTriggerPanel');
-    if (type === 'daily') {
-        weekdaySel.style.display = 'none';
-        daySel.style.display = 'none';
-        rrulePanel.style.display = 'none';
-        extraLabel.textContent = '';
-    } else if (type === 'weekly') {
-        weekdaySel.style.display = '';
-        daySel.style.display = 'none';
-        rrulePanel.style.display = 'none';
-        extraLabel.textContent = '요일';
-    } else if (type === 'monthly') {
-        weekdaySel.style.display = 'none';
-        daySel.style.display = '';
-        rrulePanel.style.display = 'none';
-        extraLabel.textContent = '날짜';
-    } else if (type === 'rrule') {
-        weekdaySel.style.display = 'none';
-        daySel.style.display = 'none';
-        rrulePanel.style.display = '';
-        extraLabel.textContent = '';
-    }
+ var type = document.getElementById('triggerType').value;
+ var weekdaySel = document.getElementById('triggerWeekday');
+ var daySel = document.getElementById('triggerDay');
+ var extraLabel = document.querySelector('#triggerExtra label');
+ var rrulePanel = document.getElementById('rruleTriggerPanel');
+ if (type === 'daily') {
+ weekdaySel.style.display = 'none';
+ daySel.style.display = 'none';
+ rrulePanel.style.display = 'none';
+ extraLabel.textContent = '';
+ } else if (type === 'weekly') {
+ weekdaySel.style.display = '';
+ daySel.style.display = 'none';
+ rrulePanel.style.display = 'none';
+ extraLabel.textContent = '요일';
+ } else if (type === 'monthly') {
+ weekdaySel.style.display = 'none';
+ daySel.style.display = '';
+ rrulePanel.style.display = 'none';
+ extraLabel.textContent = '날짜';
+ } else if (type === 'rrule') {
+ weekdaySel.style.display = 'none';
+ daySel.style.display = 'none';
+ rrulePanel.style.display = '';
+ extraLabel.textContent = '';
+ }
 }
 function updateRruleExtra() {
-    var freq = document.getElementById('rruleFreq').value;
-    document.getElementById('rruleBydayRow').style.display = (freq === 'WEEKLY') ? '' : 'none';
-    document.getElementById('rruleBymonthdayRow').style.display = (freq === 'MONTHLY') ? '' : 'none';
+ var freq = document.getElementById('rruleFreq').value;
+ document.getElementById('rruleBydayRow').style.display = (freq === 'WEEKLY') ? '' : 'none';
+ document.getElementById('rruleBymonthdayRow').style.display = (freq === 'MONTHLY') ? '' : 'none';
 }
 
 document.getElementById('automationForm').addEventListener('submit', function() {
-    var type = document.getElementById('triggerType').value;
-    document.getElementById('hiddenTriggerType').value = type;
-    var tc = {};
-    if (type === 'weekly') tc = {weekday: parseInt(document.getElementById('triggerWeekday').value)};
-    else if (type === 'monthly') tc = {day: parseInt(document.getElementById('triggerDay').value)};
-    else if (type === 'rrule') {
-        var freq = document.getElementById('rruleFreq').value;
-        var interval = parseInt(document.getElementById('rruleInterval').value) || 1;
-        var parts = ['FREQ=' + freq];
-        if (interval > 1) parts.push('INTERVAL=' + interval);
-        if (freq === 'WEEKLY') {
-            var days = Array.from(document.querySelectorAll('.rrule-byday-auto:checked')).map(function(c) { return c.value; });
-            if (days.length) parts.push('BYDAY=' + days.join(','));
-        } else if (freq === 'MONTHLY') {
-            var md = document.getElementById('rruleBymonthday').value.trim();
-            if (md) parts.push('BYMONTHDAY=' + md);
-        }
-        tc = {rrule: parts.join(';')};
-    }
-    document.getElementById('hiddenTriggerConfig').value = JSON.stringify(tc);
+ var type = document.getElementById('triggerType').value;
+ document.getElementById('hiddenTriggerType').value = type;
+ var tc = {};
+ if (type === 'weekly') tc = {weekday: parseInt(document.getElementById('triggerWeekday').value)};
+ else if (type === 'monthly') tc = {day: parseInt(document.getElementById('triggerDay').value)};
+ else if (type === 'rrule') {
+ var freq = document.getElementById('rruleFreq').value;
+ var interval = parseInt(document.getElementById('rruleInterval').value) || 1;
+ var parts = ['FREQ=' + freq];
+ if (interval > 1) parts.push('INTERVAL=' + interval);
+ if (freq === 'WEEKLY') {
+ var days = Array.from(document.querySelectorAll('.rrule-byday-auto:checked')).map(function(c) { return c.value; });
+ if (days.length) parts.push('BYDAY=' + days.join(','));
+ } else if (freq === 'MONTHLY') {
+ var md = document.getElementById('rruleBymonthday').value.trim();
+ if (md) parts.push('BYMONTHDAY=' + md);
+ }
+ tc = {rrule: parts.join(';')};
+ }
+ document.getElementById('hiddenTriggerConfig').value = JSON.stringify(tc);
 
-    var ac = {
-        title: document.getElementById('actionTitle').value.trim(),
-        priority: parseInt(document.getElementById('actionPriority').value),
-        category_id: document.getElementById('actionCategory').value ? parseInt(document.getElementById('actionCategory').value) : null,
-        description: '',
-        tags: ''
-    };
-    document.getElementById('hiddenActionConfig').value = JSON.stringify(ac);
+ var ac = {
+ title: document.getElementById('actionTitle').value.trim(),
+ priority: parseInt(document.getElementById('actionPriority').value),
+ category_id: document.getElementById('actionCategory').value ? parseInt(document.getElementById('actionCategory').value) : null,
+ description: '',
+ tags: ''
+ };
+ document.getElementById('hiddenActionConfig').value = JSON.stringify(ac);
 });
 </script>
 {% endblock %}

@@ -1,111 +1,111 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block head_extra %}<script src="/static/chart.umd.min.js" defer></script>{% endblock %}
 {% block title %}리뷰{% endblock %}
 {% block page_title %}{{ label }} 리뷰{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">주간 리뷰</b> — 이번 주 완료·미완료 할일, 업무일지를 한눈에 확인</p>
-        <p><b class="text-slate-700 dark:text-slate-300">시간 분석</b> — 카테고리별 투자 시간과 생산성을 분석합니다</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>주간 리뷰</b> — 이번 주 완료·미완료 할일, 업무일지를 한눈에 확인</p>
+ <p><b>시간 분석</b> — 카테고리별 투자 시간과 생산성을 분석합니다</p>
+ </div>
 </details>
 <div class="flex items-center justify-between mb-4">
-    <div class="flex gap-2">
-        <a href="/review?period=week&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='week' %}bg-amber-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700{% endif %}">주간</a>
-        <a href="/review?period=month&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='month' %}bg-amber-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700{% endif %}">월간</a>
-    </div>
-    <div class="flex gap-2">
-        <a href="/review?period={{ period }}&offset={{ offset - 1 }}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">이전</a>
-        <a href="/review?period={{ period }}&offset=0" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">이번 {{ '주' if period=='week' else '달' }}</a>
-        {% if offset < 0 %}
-        <a href="/review?period={{ period }}&offset={{ offset + 1 }}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">다음</a>
-        {% endif %}
-    </div>
+ <div class="flex gap-2">
+ <a href="/review?period=week&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='week' %}bg-amber-600 text-white{% else %}border" style="background: var(--color-surface);{% endif %}">주간</a>
+ <a href="/review?period=month&offset={{ offset }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if period=='month' %}bg-amber-600 text-white{% else %}border" style="background: var(--color-surface);{% endif %}">월간</a>
+ </div>
+ <div class="flex gap-2">
+ <a href="/review?period={{ period }}&offset={{ offset - 1 }}" class="px-3 py-1.5 border rounded-lg text-xs" style="background: var(--color-surface);">이전</a>
+ <a href="/review?period={{ period }}&offset=0" class="px-3 py-1.5 border rounded-lg text-xs" style="background: var(--color-surface);">이번 {{ '주' if period=='week' else '달' }}</a>
+ {% if offset < 0 %}
+ <a href="/review?period={{ period }}&offset={{ offset + 1 }}" class="px-3 py-1.5 border rounded-lg text-xs" style="background: var(--color-surface);">다음</a>
+ {% endif %}
+ </div>
 </div>
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-    <div class="work-card rounded-xl p-4 text-center card-hover">
-        <p class="stat-number" style="color: var(--color-accent);">{{ completion_rate }}%</p>
-        <p class="stat-label mt-1">완료율</p>
-    </div>
-    <div class="work-card rounded-xl p-4 text-center card-hover">
-        <p class="stat-number">{{ completed_todos }}/{{ total_todos }}</p>
-        <p class="stat-label mt-1">할일 완료</p>
-    </div>
-    <div class="work-card rounded-xl p-4 text-center card-hover">
-        <p class="stat-number" style="color: var(--color-success);">{{ total_hours }}h</p>
-        <p class="stat-label mt-1">총 투자 시간</p>
-    </div>
-    <div class="work-card rounded-xl p-4 text-center card-hover">
-        <p class="stat-number">{{ log_count }}</p>
-        <p class="stat-label mt-1">업무일지</p>
-    </div>
+ <div class="work-card rounded-xl p-4 text-center card-hover">
+ <p class="stat-number" style="color: var(--color-accent);">{{ completion_rate }}%</p>
+ <p class="stat-label mt-1" style="color: var(--color-text-muted);">완료율</p>
+ </div>
+ <div class="work-card rounded-xl p-4 text-center card-hover">
+ <p class="stat-number">{{ completed_todos }}/{{ total_todos }}</p>
+ <p class="stat-label mt-1" style="color: var(--color-text-muted);">할일 완료</p>
+ </div>
+ <div class="work-card rounded-xl p-4 text-center card-hover">
+ <p class="stat-number" style="color: var(--color-success);">{{ total_hours }}h</p>
+ <p class="stat-label mt-1" style="color: var(--color-text-muted);">총 투자 시간</p>
+ </div>
+ <div class="work-card rounded-xl p-4 text-center card-hover">
+ <p class="stat-number">{{ log_count }}</p>
+ <p class="stat-label mt-1" style="color: var(--color-text-muted);">업무일지</p>
+ </div>
 </div>
 
 {% if cat_stats %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 완료 현황</h3>
-    <div class="space-y-2">
-        {% for cat in cat_stats %}
-        <div>
-            <div class="flex justify-between text-xs mb-1">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full" style="background:{{ cat.color or '#94a3b8' }}"></span>
-                    {{ cat.name or '미분류' }}
-                </span>
-                <span class="text-slate-400">{{ cat.done }}/{{ cat.total }}</span>
-            </div>
-            <div class="progress-premium">
-                <div class="h-full bg-amber-500 rounded-full" style="width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+ <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 완료 현황</h3>
+ <div class="space-y-2">
+ {% for cat in cat_stats %}
+ <div>
+ <div class="flex justify-between text-xs mb-1" style="color: var(--color-text-muted);">
+ <span class="flex items-center gap-1.5">
+ <span class="w-2 h-2 rounded-full" style="background:{{ cat.color or '#94a3b8' }}"></span>
+ {{ cat.name or '미분류' }}
+ </span>
+ <span>{{ cat.done }}/{{ cat.total }}</span>
+ </div>
+ <div class="progress-premium">
+ <div class="h-full bg-amber-500 rounded-full" style="width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
 </div>
 {% endif %}
 
 {% if hours_by_cat %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 시간 투자</h3>
-    <div class="space-y-2">
-        {% for h in hours_by_cat %}
-        <div class="flex justify-between items-center text-sm">
-            <span class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full" style="background:{{ h.color or '#94a3b8' }}"></span>
-                {{ h.name or '미분류' }}
-            </span>
-            <span class="font-medium text-slate-700 dark:text-slate-300">{{ h.hours|round(1) }}h</span>
-        </div>
-        {% endfor %}
-    </div>
+ <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 시간 투자</h3>
+ <div class="space-y-2">
+ {% for h in hours_by_cat %}
+ <div class="flex justify-between items-center text-sm">
+ <span class="flex items-center gap-1.5">
+ <span class="w-2 h-2 rounded-full" style="background:{{ h.color or '#94a3b8' }}"></span>
+ {{ h.name or '미분류' }}
+ </span>
+ <span class="font-medium">{{ h.hours|round(1) }}h</span>
+ </div>
+ {% endfor %}
+ </div>
 </div>
 {% endif %}
 
 {% if daily_completed %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">일별 완료 추이</h3>
-    <canvas id="dailyChart" height="120"></canvas>
+ <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">일별 완료 추이</h3>
+ <canvas id="dailyChart" height="120"></canvas>
 </div>
 {% endif %}
 
 {% if not cat_stats and not hours_by_cat and not daily_completed %}
 <div class="work-card rounded-xl p-8 text-center">
-    <div class="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
-        <svg class="w-8 h-8 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/>
-        </svg>
-    </div>
-    <p class="text-sm text-slate-400 dark:text-slate-500 font-medium">이 기간에 분석할 데이터가 없습니다</p>
-    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">할일을 완료하거나 업무일지를 작성하면 리뷰 데이터가 표시됩니다</p>
-    <div class="flex gap-2 justify-center mt-4">
-        <a href="/todos" class="px-3 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors">할일 보기</a>
-        <a href="/worklogs" class="px-3 py-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-100 transition-colors">업무일지</a>
-    </div>
+ <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3" style="background: var(--gradient-warm);">
+ <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/>
+ </svg>
+ </div>
+ <p class="text-sm font-medium">이 기간에 분석할 데이터가 없습니다</p>
+ <p class="text-xs mt-1" style="color: var(--color-text-muted);">할일을 완료하거나 업무일지를 작성하면 리뷰 데이터가 표시됩니다</p>
+ <div class="flex gap-2 justify-center mt-4">
+ <a href="/todos" class="px-3 py-1.5 text-xs font-medium rounded-lg hover:bg-amber-100 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">할일 보기</a>
+ <a href="/worklogs" class="px-3 py-1.5 text-xs font-medium rounded-lg hover:bg-amber-100 transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">업무일지</a>
+ </div>
 </div>
 {% endif %}
 {% endblock %}
@@ -114,23 +114,23 @@
 {% if daily_completed %}
 <script>
 new Chart(document.getElementById('dailyChart'), {
-    type: 'bar',
-    data: {
-        labels: {{ daily_completed|map(attribute='d')|list|tojson }},
-        datasets: [{
-            data: {{ daily_completed|map(attribute='cnt')|list|tojson }},
-            backgroundColor: 'rgba(99,102,241,0.5)',
-            borderRadius: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } },
-            x: { ticks: { font: { size: 10 } } }
-        }
-    }
+ type: 'bar',
+ data: {
+ labels: {{ daily_completed|map(attribute='d')|list|tojson }},
+ datasets: [{
+ data: {{ daily_completed|map(attribute='cnt')|list|tojson }},
+ backgroundColor: 'rgba(99,102,241,0.5)',
+ borderRadius: 4
+ }]
+ },
+ options: {
+ responsive: true,
+ plugins: { legend: { display: false } },
+ scales: {
+ y: { beginAtZero: true, ticks: { stepSize: 1 } },
+ x: { ticks: { font: { size: 10 } } }
+ }
+ }
 });
 </script>
 {% endif %}

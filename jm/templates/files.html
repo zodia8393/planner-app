@@ -1,179 +1,179 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}공유폴더 - JM Planner{% endblock %}
 {% block page_title %}공유폴더{% endblock %}
 {% block page_subtitle %}팀 공유 파일{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">업로드</b> — "파일 업로드" 버튼 또는 드래그 앤 드롭으로 파일 업로드</p>
-        <p><b class="text-slate-700 dark:text-slate-300">미리보기</b> — 이미지, PDF, 텍스트 파일 클릭 시 미리보기 지원</p>
-        <p><b class="text-slate-700 dark:text-slate-300">폴더 관리</b> — 폴더 생성으로 파일을 체계적으로 정리</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>업로드</b> —"파일 업로드" 버튼 또는 드래그 앤 드롭으로 파일 업로드</p>
+ <p><b>미리보기</b> — 이미지, PDF, 텍스트 파일 클릭 시 미리보기 지원</p>
+ <p><b>폴더 관리</b> — 폴더 생성으로 파일을 체계적으로 정리</p>
+ </div>
 </details>
 <div hx-boost="false">
 <!-- Breadcrumb -->
 <div class="flex items-center gap-1.5 mb-4 overflow-x-auto text-sm">
-    {% for bc in breadcrumbs %}
-    {% if not loop.last %}
-    <a href="/files/{{ bc.path }}" class="text-amber-500 hover:underline font-medium whitespace-nowrap">{{ bc.name }}</a>
-    <span class="text-slate-300 dark:text-slate-600">/</span>
-    {% else %}
-    <span class="text-slate-700 dark:text-slate-200 font-medium whitespace-nowrap">{{ bc.name }}</span>
-    {% endif %}
-    {% endfor %}
+ {% for bc in breadcrumbs %}
+ {% if not loop.last %}
+ <a href="/files/{{ bc.path }}" class="text-amber-500 hover:underline font-medium whitespace-nowrap">{{ bc.name }}</a>
+ <span>/</span>
+ {% else %}
+ <span class="font-medium whitespace-nowrap">{{ bc.name }}</span>
+ {% endif %}
+ {% endfor %}
 </div>
 
 <!-- Actions bar -->
 <div class="flex flex-wrap gap-2 mb-4">
-    <!-- Upload -->
-    <form action="/files/upload/{{ current_path }}" method="POST" enctype="multipart/form-data" id="uploadForm" class="flex gap-2 items-center">
-        <label class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors cursor-pointer flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-            </svg>
-            파일 업로드
-            <input type="file" name="files" multiple class="hidden" onchange="uploadFiles(this.files)">
-        </label>
-    </form>
+ <!-- Upload -->
+ <form action="/files/upload/{{ current_path }}" method="POST" enctype="multipart/form-data" id="uploadForm" class="flex gap-2 items-center">
+ <label class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors cursor-pointer flex items-center gap-1.5">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+ </svg>
+ 파일 업로드
+ <input type="file" name="files" multiple class="hidden" onchange="uploadFiles(this.files)">
+ </label>
+ </form>
 
-    <!-- New folder -->
-    <form action="/files/mkdir/{{ current_path }}" method="POST" class="flex gap-2 items-center" hx-boost="false">
-        <input type="text" name="folder_name" placeholder="새 폴더명" required
-               class="px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 w-36">
-        <button type="submit" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.06-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-            </svg>
-            폴더 생성
-        </button>
-    </form>
+ <!-- New folder -->
+ <form action="/files/mkdir/{{ current_path }}" method="POST" class="flex gap-2 items-center" hx-boost="false">
+ <input type="text" name="folder_name" placeholder="새 폴더명" required
+ class="px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400 w-36" style="background: var(--color-surface);">
+ <button type="submit" class="px-3 py-2 text-sm font-medium rounded-lg hover-surface transition-colors flex items-center gap-1">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.06-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+ </svg>
+ 폴더 생성
+ </button>
+ </form>
 
-    {% if parent_path is not none %}
-    <a href="/files/{{ parent_path }}" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-1">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-        </svg>
-        상위 폴더
-    </a>
-    {% endif %}
+ {% if parent_path is not none %}
+ <a href="/files/{{ parent_path }}" class="px-3 py-2 text-sm font-medium rounded-lg hover-surface transition-colors flex items-center gap-1">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+ </svg>
+ 상위 폴더
+ </a>
+ {% endif %}
 </div>
 
 <!-- Drop zone -->
-<div id="dropZone" class="hidden mb-4 p-8 border-2 border-dashed border-amber-300 dark:border-amber-700 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 text-center">
-    <span class="text-3xl">📥</span>
-    <p class="text-sm text-amber-600 dark:text-amber-400 font-medium mt-2">파일을 여기에 놓으세요</p>
+<div id="dropZone" class="hidden mb-4 p-8 border-2 border-dashed rounded-xl text-center" style="border-color: var(--color-accent); background: var(--color-accent-soft);">
+ <span class="text-3xl">📥</span>
+ <p class="text-sm font-medium mt-2" style="color: var(--color-accent);">파일을 여기에 놓으세요</p>
 </div>
 
 <!-- File list -->
 <div class="work-card rounded-xl overflow-hidden">
-    <!-- Header -->
-    <div class="hidden sm:grid grid-cols-12 gap-2 px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700 text-xs font-medium text-slate-500 dark:text-slate-400">
-        <div class="col-span-5">이름</div>
-        <div class="col-span-2">업로더</div>
-        <div class="col-span-2 text-right">크기</div>
-        <div class="col-span-2">수정일</div>
-        <div class="col-span-1"></div>
-    </div>
+ <!-- Header -->
+ <div class="hidden sm:grid grid-cols-12 gap-2 px-5 py-3 border-b text-xs font-medium">
+ <div class="col-span-5">이름</div>
+ <div class="col-span-2">업로더</div>
+ <div class="col-span-2 text-right">크기</div>
+ <div class="col-span-2">수정일</div>
+ <div class="col-span-1"></div>
+ </div>
 
-    <div class="divide-y divide-slate-100 dark:divide-slate-700">
-        {% for item in items %}
-        <div class="group grid grid-cols-12 gap-2 items-center px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors fade-in">
-            <div class="col-span-12 sm:col-span-5">
-                {% if item.previewable %}
-                <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
-                    <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
-                    <span class="text-sm text-slate-700 dark:text-slate-200 truncate hover:text-amber-500 transition-colors">{{ item.name }}</span>
-                </button>
-                {% else %}
-                <a href="/files/{{ item.path }}" class="flex items-center gap-2.5 min-w-0 {% if item.is_dir %}font-medium{% endif %}">
-                    <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
-                    <span class="text-sm text-slate-700 dark:text-slate-200 truncate">{{ item.name }}</span>
-                </a>
-                {% endif %}
-            </div>
-            <div class="hidden sm:block col-span-2">
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ item.uploader }}</span>
-            </div>
-            <div class="hidden sm:block col-span-2 text-right">
-                <span class="text-xs text-slate-400">{{ item.size }}</span>
-            </div>
-            <div class="hidden sm:block col-span-2">
-                <span class="text-xs text-slate-400">{{ item.modified }}</span>
-            </div>
-            <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
-                {% if item.previewable %}
-                <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="미리보기">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </button>
-                {% endif %}
-                {% if not item.is_dir %}
-                <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="다운로드">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                </a>
-                {% endif %}
-                <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?')" hx-boost="false" class="inline">
-                    <button type="submit" class="p-1 text-slate-400 hover:text-red-500 transition-colors lg:opacity-0 lg:group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100" title="삭제">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                    </button>
-                </form>
-            </div>
-            <!-- Mobile: size + actions -->
-            <div class="col-span-12 sm:hidden flex items-center justify-between pl-8 -mt-1">
-                <span class="text-xs text-slate-400">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
-                <div class="flex items-center gap-1">
-                    {% if item.previewable %}
-                    <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 text-slate-400 hover:text-amber-500">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </button>
-                    {% endif %}
-                    {% if not item.is_dir %}
-                    <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 text-slate-400 hover:text-amber-500">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                    </a>
-                    {% endif %}
-                    <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('삭제?')" hx-boost="false" class="inline">
-                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-500">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon"><span>📂</span></div>
-            <p class="empty-state-title">폴더가 비어있습니다</p>
-            <p class="empty-state-desc">파일을 업로드하거나 새 폴더를 만드세요</p>
-        </div>
-        {% endfor %}
-    </div>
+ <div class="divide-y" style="border-color: var(--color-border-subtle);">
+ {% for item in items %}
+ <div class="group grid grid-cols-12 gap-2 items-center px-5 py-3 hover-surface/50 transition-colors fade-in">
+ <div class="col-span-12 sm:col-span-5">
+ {% if item.previewable %}
+ <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
+ <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
+ <span class="text-sm truncate hover:text-amber-500 transition-colors">{{ item.name }}</span>
+ </button>
+ {% else %}
+ <a href="/files/{{ item.path }}" class="flex items-center gap-2.5 min-w-0 {% if item.is_dir %}font-medium{% endif %}">
+ <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
+ <span class="text-sm truncate">{{ item.name }}</span>
+ </a>
+ {% endif %}
+ </div>
+ <div class="hidden sm:block col-span-2">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ item.uploader }}</span>
+ </div>
+ <div class="hidden sm:block col-span-2 text-right">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ item.size }}</span>
+ </div>
+ <div class="hidden sm:block col-span-2">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ item.modified }}</span>
+ </div>
+ <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
+ {% if item.previewable %}
+ <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 hover:text-amber-500 transition-colors" title="미리보기">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ </button>
+ {% endif %}
+ {% if not item.is_dir %}
+ <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1 hover:text-amber-500 transition-colors" title="다운로드">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+ </svg>
+ </a>
+ {% endif %}
+ <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?')" hx-boost="false" class="inline">
+ <button type="submit" class="p-1 hover:text-red-500 transition-colors lg:opacity-0 lg:group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100" title="삭제">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+ </svg>
+ </button>
+ </form>
+ </div>
+ <!-- Mobile: size + actions -->
+ <div class="col-span-12 sm:hidden flex items-center justify-between pl-8 -mt-1">
+ <span class="text-xs" style="color: var(--color-text-muted);">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
+ <div class="flex items-center gap-1">
+ {% if item.previewable %}
+ <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 hover:text-amber-500">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ </button>
+ {% endif %}
+ {% if not item.is_dir %}
+ <a href="/files/{{ item.path }}" onclick="return downloadFile(event, this)" class="p-1.5 hover:text-amber-500">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+ </svg>
+ </a>
+ {% endif %}
+ <form action="/files/delete/{{ item.path }}" method="POST" onsubmit="return confirm('삭제?')" hx-boost="false" class="inline">
+ <button type="submit" class="p-1.5 hover:text-red-500">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+ </svg>
+ </button>
+ </form>
+ </div>
+ </div>
+ </div>
+ {% else %}
+ <div class="empty-state">
+ <div class="empty-state-icon"><span>📂</span></div>
+ <p class="empty-state-title">폴더가 비어있습니다</p>
+ <p class="empty-state-desc">파일을 업로드하거나 새 폴더를 만드세요</p>
+ </div>
+ {% endfor %}
+ </div>
 
-    {% if items %}
-    <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700">
-        <p class="text-xs text-slate-400">
-            {{ items|selectattr("is_dir")|list|length }}개 폴더, {{ items|rejectattr("is_dir")|list|length }}개 파일
-        </p>
-    </div>
-    {% endif %}
+ {% if items %}
+ <div class="px-5 py-3 border-t">
+ <p class="text-xs" style="color: var(--color-text-muted);">
+ {{ items|selectattr("is_dir")|list|length }}개 폴더, {{ items|rejectattr("is_dir")|list|length }}개 파일
+ </p>
+ </div>
+ {% endif %}
 </div>
 </div><!-- close hx-boost="false" -->
 {% endblock %}
@@ -181,56 +181,56 @@
 {% block scripts %}
 <!-- Preview modal -->
 <div id="previewModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePreview()"></div>
-    <div class="absolute inset-3 sm:inset-6 lg:inset-12 flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
-        <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
-            <div class="flex items-center gap-2 min-w-0">
-                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span id="previewTitle" class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate"></span>
-            </div>
-            <button onclick="closePreview()" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex-shrink-0">
-                <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <!-- Content -->
-        <div id="previewContent" class="flex-1 overflow-auto p-0"></div>
-    </div>
+ <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePreview()"></div>
+ <div class="absolute inset-3 sm:inset-6 lg:inset-12 flex flex-col rounded-2xl shadow-2xl overflow-hidden" style="background: var(--color-surface);">
+ <!-- Header -->
+ <div class="flex items-center justify-between px-5 py-3 border-b flex-shrink-0">
+ <div class="flex items-center gap-2 min-w-0">
+ <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ <span id="previewTitle" class="text-sm font-semibold truncate"></span>
+ </div>
+ <button onclick="closePreview()" class="p-1.5 rounded-lg hover-surface transition-colors flex-shrink-0">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ </div>
+ <!-- Content -->
+ <div id="previewContent" class="flex-1 overflow-auto p-0"></div>
+ </div>
 </div>
 
 <!-- Status toast -->
 <div id="fileStatus" class="fixed bottom-6 right-6 z-50 hidden max-w-sm w-full">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4">
-        <div class="flex items-center gap-3 mb-2">
-            <div id="statusIcon" class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 animate-spin" id="statusSpinner" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-                <svg class="w-4 h-4 text-green-600 hidden" id="statusCheck" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p id="statusTitle" class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate"></p>
-                <p id="statusDetail" class="text-xs text-slate-400 truncate"></p>
-            </div>
-            <button onclick="hideStatus()" class="text-slate-400 hover:text-slate-600 flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-            <div id="statusBar" class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-        </div>
-        <p id="statusPercent" class="text-xs text-slate-400 mt-1 text-right"></p>
-    </div>
+ <div class="rounded-xl shadow-2xl border p-4" style="background: var(--color-surface);">
+ <div class="flex items-center gap-3 mb-2">
+ <div id="statusIcon" class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--color-accent-soft);">
+ <svg class="w-4 h-4 animate-spin" style="color: var(--color-accent);" id="statusSpinner" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+ </svg>
+ <svg class="w-4 h-4 text-green-600 hidden" id="statusCheck" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+ </svg>
+ </div>
+ <div class="flex-1 min-w-0">
+ <p id="statusTitle" class="text-sm font-semibold truncate"></p>
+ <p id="statusDetail" class="text-xs truncate"></p>
+ </div>
+ <button onclick="hideStatus()" class="hover-text flex-shrink-0">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ </div>
+ <div class="w-full rounded-full h-1.5 overflow-hidden">
+ <div id="statusBar" class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+ </div>
+ <p id="statusPercent" class="text-xs mt-1 text-right"></p>
+ </div>
 </div>
 
 <script>
@@ -245,161 +245,161 @@ const statusCheck = document.getElementById('statusCheck');
 let hideTimer = null;
 
 function showStatus(title, detail) {
-    clearTimeout(hideTimer);
-    statusTitle.textContent = title;
-    statusDetail.textContent = detail || '';
-    statusBar.style.width = '0%';
-    statusPercent.textContent = '';
-    statusSpinner.classList.remove('hidden');
-    statusCheck.classList.add('hidden');
-    statusEl.classList.remove('hidden');
+ clearTimeout(hideTimer);
+ statusTitle.textContent = title;
+ statusDetail.textContent = detail || '';
+ statusBar.style.width = '0%';
+ statusPercent.textContent = '';
+ statusSpinner.classList.remove('hidden');
+ statusCheck.classList.add('hidden');
+ statusEl.classList.remove('hidden');
 }
 
 function updateProgress(pct, detail) {
-    statusBar.style.width = pct + '%';
-    statusPercent.textContent = pct + '%';
-    if (detail) statusDetail.textContent = detail;
+ statusBar.style.width = pct + '%';
+ statusPercent.textContent = pct + '%';
+ if (detail) statusDetail.textContent = detail;
 }
 
 function showComplete(title) {
-    statusTitle.textContent = title;
-    statusBar.style.width = '100%';
-    statusPercent.textContent = '';
-    statusSpinner.classList.add('hidden');
-    statusCheck.classList.remove('hidden');
-    hideTimer = setTimeout(hideStatus, 2500);
+ statusTitle.textContent = title;
+ statusBar.style.width = '100%';
+ statusPercent.textContent = '';
+ statusSpinner.classList.add('hidden');
+ statusCheck.classList.remove('hidden');
+ hideTimer = setTimeout(hideStatus, 2500);
 }
 
 function hideStatus() {
-    statusEl.classList.add('hidden');
+ statusEl.classList.add('hidden');
 }
 
 function formatBytes(b) {
-    if (b < 1024) return b + ' B';
-    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-    return (b/1048576).toFixed(1) + ' MB';
+ if (b < 1024) return b + ' B';
+ if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+ return (b/1048576).toFixed(1) + ' MB';
 }
 
 function uploadFiles(fileList) {
-    if (!fileList || fileList.length === 0) return;
-    const fd = new FormData();
-    let totalSize = 0;
-    for (const f of fileList) { fd.append('files', f); totalSize += f.size; }
+ if (!fileList || fileList.length === 0) return;
+ const fd = new FormData();
+ let totalSize = 0;
+ for (const f of fileList) { fd.append('files', f); totalSize += f.size; }
 
-    const count = fileList.length;
-    const names = count === 1 ? fileList[0].name : count + '개 파일';
-    showStatus('업로드 중...', names + ' (' + formatBytes(totalSize) + ')');
+ const count = fileList.length;
+ const names = count === 1 ? fileList[0].name : count + '개 파일';
+ showStatus('업로드 중...', names + ' (' + formatBytes(totalSize) + ')');
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', UPLOAD_URL);
-    xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-            const pct = Math.round(e.loaded / e.total * 100);
-            updateProgress(pct, formatBytes(e.loaded) + ' / ' + formatBytes(e.total));
-        }
-    };
-    xhr.onload = () => {
-        showComplete('업로드 완료 (' + names + ')');
-        setTimeout(() => window.location.reload(), 800);
-    };
-    xhr.onerror = () => {
-        statusTitle.textContent = '업로드 실패';
-        statusBar.style.width = '100%';
-        statusBar.classList.add('bg-red-500');
-        statusBar.classList.remove('bg-amber-500');
-        statusSpinner.classList.add('hidden');
-    };
-    xhr.send(fd);
+ const xhr = new XMLHttpRequest();
+ xhr.open('POST', UPLOAD_URL);
+ xhr.upload.onprogress = (e) => {
+ if (e.lengthComputable) {
+ const pct = Math.round(e.loaded / e.total * 100);
+ updateProgress(pct, formatBytes(e.loaded) + ' / ' + formatBytes(e.total));
+ }
+ };
+ xhr.onload = () => {
+ showComplete('업로드 완료 (' + names + ')');
+ setTimeout(() => window.location.reload(), 800);
+ };
+ xhr.onerror = () => {
+ statusTitle.textContent = '업로드 실패';
+ statusBar.style.width = '100%';
+ statusBar.classList.add('bg-red-500');
+ statusBar.classList.remove('bg-amber-500');
+ statusSpinner.classList.add('hidden');
+ };
+ xhr.send(fd);
 }
 
 function downloadFile(e, el) {
-    e.preventDefault();
-    const url = el.getAttribute('href');
-    const fname = decodeURIComponent(url.split('/').pop());
-    showStatus('다운로드 중...', fname);
+ e.preventDefault();
+ const url = el.getAttribute('href');
+ const fname = decodeURIComponent(url.split('/').pop());
+ showStatus('다운로드 중...', fname);
 
-    fetch(url).then(resp => {
-        const total = parseInt(resp.headers.get('content-length') || '0');
-        const reader = resp.body.getReader();
-        let loaded = 0;
-        const chunks = [];
+ fetch(url).then(resp => {
+ const total = parseInt(resp.headers.get('content-length') || '0');
+ const reader = resp.body.getReader();
+ let loaded = 0;
+ const chunks = [];
 
-        function pump() {
-            return reader.read().then(({done, value}) => {
-                if (done) {
-                    const blob = new Blob(chunks);
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = fname;
-                    a.click();
-                    URL.revokeObjectURL(a.href);
-                    showComplete('다운로드 완료 (' + fname + ')');
-                    return;
-                }
-                chunks.push(value);
-                loaded += value.length;
-                if (total > 0) {
-                    const pct = Math.round(loaded / total * 100);
-                    updateProgress(pct, formatBytes(loaded) + ' / ' + formatBytes(total));
-                } else {
-                    statusDetail.textContent = formatBytes(loaded);
-                }
-                return pump();
-            });
-        }
-        return pump();
-    }).catch(() => {
-        statusTitle.textContent = '다운로드 실패';
-        statusSpinner.classList.add('hidden');
-    });
-    return false;
+ function pump() {
+ return reader.read().then(({done, value}) => {
+ if (done) {
+ const blob = new Blob(chunks);
+ const a = document.createElement('a');
+ a.href = URL.createObjectURL(blob);
+ a.download = fname;
+ a.click();
+ URL.revokeObjectURL(a.href);
+ showComplete('다운로드 완료 (' + fname + ')');
+ return;
+ }
+ chunks.push(value);
+ loaded += value.length;
+ if (total > 0) {
+ const pct = Math.round(loaded / total * 100);
+ updateProgress(pct, formatBytes(loaded) + ' / ' + formatBytes(total));
+ } else {
+ statusDetail.textContent = formatBytes(loaded);
+ }
+ return pump();
+ });
+ }
+ return pump();
+ }).catch(() => {
+ statusTitle.textContent = '다운로드 실패';
+ statusSpinner.classList.add('hidden');
+ });
+ return false;
 }
 
 // Preview
 function openPreview(url, name, type) {
-    const modal = document.getElementById('previewModal');
-    const content = document.getElementById('previewContent');
-    const title = document.getElementById('previewTitle');
-    title.textContent = name;
-    content.innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full"></div></div>';
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+ const modal = document.getElementById('previewModal');
+ const content = document.getElementById('previewContent');
+ const title = document.getElementById('previewTitle');
+ title.textContent = name;
+ content.innerHTML = '<div class="flex items-center justify-center h-full"><div class="animate-spin w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full"></div></div>';
+ modal.classList.remove('hidden');
+ document.body.style.overflow = 'hidden';
 
-    if (type === 'image') {
-        const img = new Image();
-        img.onload = () => {
-            content.innerHTML = '';
-            content.className = 'flex-1 overflow-auto flex items-center justify-center bg-slate-100 dark:bg-slate-800 p-4';
-            img.className = 'max-w-full max-h-full object-contain rounded-lg shadow-lg';
-            content.appendChild(img);
-        };
-        img.onerror = () => { content.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">이미지를 불러올 수 없습니다</div>'; };
-        img.src = url;
-    } else if (type === 'pdf') {
-        content.className = 'flex-1 overflow-hidden p-0';
-        content.innerHTML = '<iframe src="' + url + '" class="w-full h-full border-0"></iframe>';
-    } else {
-        fetch(url).then(r => r.text()).then(text => {
-            content.className = 'flex-1 overflow-auto p-0';
-            const pre = document.createElement('pre');
-            pre.className = 'p-5 text-sm text-slate-700 dark:text-slate-200 font-mono leading-relaxed whitespace-pre-wrap break-words bg-slate-50 dark:bg-slate-800 min-h-full';
-            pre.textContent = text;
-            content.innerHTML = '';
-            content.appendChild(pre);
-        }).catch(() => {
-            content.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 text-sm">파일을 불러올 수 없습니다</div>';
-        });
-    }
+ if (type === 'image') {
+ const img = new Image();
+ img.onload = () => {
+ content.innerHTML = '';
+ content.className = 'flex-1 overflow-auto flex items-center justify-center p-4';
+ img.className = 'max-w-full max-h-full object-contain rounded-lg shadow-lg';
+ content.appendChild(img);
+ };
+ img.onerror = () => { content.innerHTML = '<div class="flex items-center justify-center h-full text-sm">이미지를 불러올 수 없습니다</div>'; };
+ img.src = url;
+ } else if (type === 'pdf') {
+ content.className = 'flex-1 overflow-hidden p-0';
+ content.innerHTML = '<iframe src="' + url + '" class="w-full h-full border-0"></iframe>';
+ } else {
+ fetch(url).then(r => r.text()).then(text => {
+ content.className = 'flex-1 overflow-auto p-0';
+ const pre = document.createElement('pre');
+ pre.className = 'p-5 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words min-h-full';
+ pre.textContent = text;
+ content.innerHTML = '';
+ content.appendChild(pre);
+ }).catch(() => {
+ content.innerHTML = '<div class="flex items-center justify-center h-full text-sm">파일을 불러올 수 없습니다</div>';
+ });
+ }
 }
 
 function closePreview() {
-    document.getElementById('previewModal').classList.add('hidden');
-    document.getElementById('previewContent').innerHTML = '';
-    document.body.style.overflow = '';
+ document.getElementById('previewModal').classList.add('hidden');
+ document.getElementById('previewContent').innerHTML = '';
+ document.body.style.overflow = '';
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closePreview();
+ if (e.key === 'Escape') closePreview();
 });
 
 // Drag & drop
@@ -409,10 +409,10 @@ document.body.addEventListener('dragenter', (e) => { e.preventDefault(); dragCou
 document.body.addEventListener('dragleave', (e) => { e.preventDefault(); dragCount--; if (dragCount <= 0) { dz.classList.add('hidden'); dragCount = 0; } });
 document.body.addEventListener('dragover', (e) => e.preventDefault());
 document.body.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dz.classList.add('hidden');
-    dragCount = 0;
-    if (e.dataTransfer.files.length > 0) uploadFiles(e.dataTransfer.files);
+ e.preventDefault();
+ dz.classList.add('hidden');
+ dragCount = 0;
+ if (e.dataTransfer.files.length > 0) uploadFiles(e.dataTransfer.files);
 });
 </script>
 {% endblock %}

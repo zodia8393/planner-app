@@ -1,116 +1,116 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}검색 - JM Planner{% endblock %}
 {% block page_title %}검색{% endblock %}
 {% block page_subtitle %}{% if q %}"{{ q }}" 검색 결과 {{ total }}건{% endif %}{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">통합 검색</b> — 할일, 일정, 메모, 공지, 업무일지를 한번에 검색합니다</p>
-        <p><b class="text-slate-700 dark:text-slate-300">검색어</b> — 2글자 이상 입력하면 제목과 내용에서 키워드를 찾아 하이라이트 표시</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>통합 검색</b> — 할일, 일정, 메모, 공지, 업무일지를 한번에 검색합니다</p>
+ <p><b>검색어</b> — 2글자 이상 입력하면 제목과 내용에서 키워드를 찾아 하이라이트 표시</p>
+ </div>
 </details>
 <form action="/search" method="GET" class="mb-4">
-    <div class="flex gap-2">
-        <label for="search-input" class="sr-only">검색어</label>
-        <input type="text" name="q" id="search-input" value="{{ q }}" placeholder="할일, 일정, 메모, 공지, 업무일지 검색..." autofocus
-               class="flex-1 px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-400"
-               hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#searchResults" hx-swap="innerHTML"
-               hx-include="[name='q']" hx-push-url="true">
-        <button type="submit" class="px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">검색</button>
-    </div>
+ <div class="flex gap-2">
+ <label for="search-input" class="sr-only">검색어</label>
+ <input type="text" name="q" id="search-input" value="{{ q }}" placeholder="할일, 일정, 메모, 공지, 업무일지 검색..." autofocus
+ class="flex-1 px-4 py-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-amber-400"
+ hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#searchResults" hx-swap="innerHTML"
+ hx-include="[name='q']" hx-push-url="true">
+ <button type="submit" class="px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm">검색</button>
+ </div>
 </form>
 
 <div id="searchResults">
 {% if not q %}
 <div class="empty-state">
-    <div class="empty-state-icon">
-        <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0z" />
-        </svg>
-    </div>
-    <p class="empty-state-title">검색어를 입력하세요</p>
-    <p class="empty-state-desc">할일, 일정, 메모, 공지, 업무일지를 한번에 검색합니다</p>
+ <div class="empty-state-icon">
+ <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0z" />
+ </svg>
+ </div>
+ <p class="empty-state-title">검색어를 입력하세요</p>
+ <p class="empty-state-desc">할일, 일정, 메모, 공지, 업무일지를 한번에 검색합니다</p>
 </div>
 {% elif q and total == 0 %}
 <div class="empty-state" style="padding: 2rem 1.5rem;">
-    <p class="empty-state-desc">검색 결과가 없습니다</p>
+ <p class="empty-state-desc">검색 결과가 없습니다</p>
 </div>
 {% endif %}
 
 {% if results.todos %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">할일 ({{ results.todos|length }})</h3>
-    {% for t in results.todos %}
-    <a href="/todos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="font-medium">{{ t.title }}</span> <span class="text-xs text-slate-400">{{ t.due_date or '' }}</span>
-        {% if t.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ t.snippet|safe }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">할일 ({{ results.todos|length }})</h3>
+ {% for t in results.todos %}
+ <a href="/todos" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="font-medium">{{ t.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ t.due_date or '' }}</span>
+ {% if t.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ t.snippet|safe }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 
 {% if results.events %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">일정 ({{ results.events|length }})</h3>
-    {% for e in results.events %}
-    <a href="/calendar" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="font-medium">{{ e.title }}</span> <span class="text-xs text-slate-400">{{ e.start_time[:10] if e.start_time else '' }}</span>
-        {% if e.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ e.snippet|safe }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">일정 ({{ results.events|length }})</h3>
+ {% for e in results.events %}
+ <a href="/calendar" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="font-medium">{{ e.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ e.start_time[:10] if e.start_time else '' }}</span>
+ {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 
 {% if results.memos %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">메모 ({{ results.memos|length }})</h3>
-    {% for m in results.memos %}
-    <a href="/memos" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="text-xs text-slate-400">{{ m.created_at[:10] }}</span>
-        {% if m.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ m.snippet|safe }}</div>{% else %}<div class="truncate">{{ m.content[:100] }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">메모 ({{ results.memos|length }})</h3>
+ {% for m in results.memos %}
+ <a href="/memos" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ m.created_at[:10] }}</span>
+ {% if m.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ m.snippet|safe }}</div>{% else %}<div class="truncate">{{ m.content[:100] }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 
 {% if results.notices %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">공지 ({{ results.notices|length }})</h3>
-    {% for n in results.notices %}
-    <a href="/notices" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="font-medium">{{ n.title }}</span> <span class="text-xs text-slate-400">{{ n.created_at[:10] if n.created_at else '' }}</span>
-        {% if n.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ n.snippet|safe }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">공지 ({{ results.notices|length }})</h3>
+ {% for n in results.notices %}
+ <a href="/notices" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="font-medium">{{ n.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ n.created_at[:10] if n.created_at else '' }}</span>
+ {% if n.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ n.snippet|safe }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 
 {% if results.worklogs %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">업무일지 ({{ results.worklogs|length }})</h3>
-    {% for w in results.worklogs %}
-    <a href="/worklogs" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="text-xs text-slate-400">{{ w.log_date }}</span>
-        {% if w.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ w.snippet|safe }}</div>{% else %}<div class="truncate">{{ w.content[:100] }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">업무일지 ({{ results.worklogs|length }})</h3>
+ {% for w in results.worklogs %}
+ <a href="/worklogs" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ w.log_date }}</span>
+ {% if w.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ w.snippet|safe }}</div>{% else %}<div class="truncate">{{ w.content[:100] }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 
 {% if results.entries %}
 <div class="work-card rounded-xl p-4 mb-3">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">양식 기록 ({{ results.entries|length }})</h3>
-    {% for e in results.entries %}
-    <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-amber-500">
-        <span class="font-medium">[{{ e.tpl_name }}]</span> <span class="text-xs text-slate-400">{{ e.entry_date }}</span>
-        {% if e.snippet %}<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ e.snippet|safe }}</div>{% endif %}
-    </a>
-    {% endfor %}
+ <h3 class="text-sm font-bold mb-2">양식 기록 ({{ results.entries|length }})</h3>
+ {% for e in results.entries %}
+ <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm hover:text-amber-500">
+ <span class="font-medium">[{{ e.tpl_name }}]</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ e.entry_date }}</span>
+ {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe }}</div>{% endif %}
+ </a>
+ {% endfor %}
 </div>
 {% endif %}
 </div>

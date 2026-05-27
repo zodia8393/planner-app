@@ -1,15 +1,15 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('quick-add', '빠른 추가') %}
 <div class="work-card rounded-xl overflow-hidden">
-    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-3 py-2">
-        <div class="flex gap-2">
-            <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
-            <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
-                   class="flex-1 px-3.5 py-2.5 text-sm rounded-xl input-premium"
-                   style="background: var(--color-bg); color: var(--color-text);">
-            <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">추가</button>
-        </div>
-        <div id="datePreview" class="hidden mt-1.5 text-xs font-medium pl-1" style="color: var(--color-accent);"></div>
-    </form>
+ <form id="quickAddForm" action="/quick-todo" method="POST" class="px-3 py-2">
+ <div class="flex gap-2">
+ <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
+ <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"
+ class="flex-1 px-3.5 py-2.5 text-sm rounded-xl input-premium"
+ style="background: var(--color-bg); color: var(--color-text);">
+ <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">추가</button>
+ </div>
+ <div id="datePreview" class="hidden mt-1.5 text-xs font-medium pl-1" style="color: var(--color-accent);"></div>
+ </form>
 </div>
 {% endcall %}

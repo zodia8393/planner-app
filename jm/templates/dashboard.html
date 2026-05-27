@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}대시보드 - {{ config.planner_name|default('JM Planner') }}{% endblock %}
 {% block page_title %}대시보드{% endblock %}
 {% block page_subtitle %}오늘의 업무 현황{% endblock %}
@@ -9,35 +9,35 @@
 
 {% block content %}
 {# ── Onboarding ── #}
-{% include "partials/_onboarding.html" %}
+{% include"partials/_onboarding.html" %}
 
 {# ── Usage Tip ── #}
 <div class="mb-4">
-    <details class="group">
-        <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-            사용법
-        </summary>
-        <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-            <p><b class="text-slate-700 dark:text-slate-300">주간/월간 전환</b> — 상단 탭으로 주간/월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
-            <p><b class="text-slate-700 dark:text-slate-300">빠른 추가</b> — 입력창에 "내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
-            <p><b class="text-slate-700 dark:text-slate-300">집중 모드</b> — 우측 하단 시계 버튼으로 포모도로 타이머 시작, 완료 시 업무일지에 자동 기록</p>
-        </div>
-    </details>
+ <details class="group">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>주간/월간 전환</b> — 상단 탭으로 주간/월간 플랜 뷰 전환, 화살표로 이전/다음 이동</p>
+ <p><b>빠른 추가</b> — 입력창에"내일 보고서 작성" 같은 자연어 입력 시 날짜 자동 인식</p>
+ <p><b>집중 모드</b> — 우측 하단 시계 버튼으로 포모도로 타이머 시작, 완료 시 업무일지에 자동 기록</p>
+ </div>
+ </details>
 </div>
 
 {# ── Dashboard Grid ── #}
 <div id="dashboardGrid">
-    {% include "widgets/widget_row.html" %}
-    {% include "widgets/quick_add.html" %}
-    {% include "widgets/plan_view.html" %}
-    {% include "widgets/stat_cards.html" %}
-    {% include "widgets/progress.html" %}
-    {% include "widgets/worklogs.html" %}
-    {% include "widgets/events.html" %}
-    {% include "widgets/notices.html" %}
-    {% include "widgets/timetable.html" %}
-    {% include "widgets/time_budgets.html" %}
+ {% include"widgets/widget_row.html" %}
+ {% include"widgets/quick_add.html" %}
+ {% include"widgets/plan_view.html" %}
+ {% include"widgets/stat_cards.html" %}
+ {% include"widgets/progress.html" %}
+ {% include"widgets/worklogs.html" %}
+ {% include"widgets/events.html" %}
+ {% include"widgets/notices.html" %}
+ {% include"widgets/timetable.html" %}
+ {% include"widgets/time_budgets.html" %}
 </div>
 {% endblock %}
 

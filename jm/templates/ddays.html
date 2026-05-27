@@ -1,79 +1,79 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}D-day - JM Planner{% endblock %}
 {% block page_title %}D-day{% endblock %}
 {% block page_subtitle %}마감일 관리{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">D-day 추가</b> — 제목과 목표 날짜를 입력하면 자동으로 남은 일수(D-day) 계산</p>
-        <p><b class="text-slate-700 dark:text-slate-300">표시 방식</b> — 미래 날짜는 "D-N", 오늘은 "D-Day", 지난 날짜는 "D+N"으로 표시</p>
-        <p><b class="text-slate-700 dark:text-slate-300">삭제</b> — 항목에 마우스를 올리면 삭제 버튼이 표시됩니다</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>D-day 추가</b> — 제목과 목표 날짜를 입력하면 자동으로 남은 일수(D-day) 계산</p>
+ <p><b>표시 방식</b> — 미래 날짜는"D-N", 오늘은"D-Day", 지난 날짜는"D+N"으로 표시</p>
+ <p><b>삭제</b> — 항목에 마우스를 올리면 삭제 버튼이 표시됩니다</p>
+ </div>
 </details>
 <!-- Add D-day -->
 <div class="work-card rounded-xl p-5 mb-6">
-    <form action="/ddays" method="POST" class="flex flex-wrap gap-3 items-end">
-        <div>
-            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">아이콘</label>
-            <input type="text" name="icon" value="🎯" maxlength="4"
-                   class="w-14 px-2 py-2.5 text-center text-lg rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
-        </div>
-        <div class="flex-1 min-w-40">
-            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">제목</label>
-            <input type="text" name="title" placeholder="D-day 제목" required
-                   class="w-full px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
-        </div>
-        <div>
-            <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">날짜</label>
-            <input type="date" name="target_date" required
-                   class="px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
-        </div>
-        <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">추가</button>
-    </form>
+ <form action="/ddays" method="POST" class="flex flex-wrap gap-3 items-end">
+ <div>
+ <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">아이콘</label>
+ <input type="text" name="icon" value="🎯" maxlength="4"
+ class="w-14 px-2 py-2.5 text-center text-lg rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
+ </div>
+ <div class="flex-1 min-w-40">
+ <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">제목</label>
+ <input type="text" name="title" placeholder="D-day 제목" required
+ class="w-full px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
+ </div>
+ <div>
+ <label class="text-xs font-medium mb-1.5 block" style="color: var(--color-text-faint);">날짜</label>
+ <input type="date" name="target_date" required
+ class="px-4 py-2.5 text-sm rounded-xl input-premium" style="background: var(--color-bg); color: var(--color-text);">
+ </div>
+ <button type="submit" class="px-5 py-2.5 text-sm font-semibold rounded-xl btn-accent" style="border: none;">추가</button>
+ </form>
 </div>
 
 <!-- D-day list -->
 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-    {% for dd in ddays %}
-    <div class="work-card rounded-xl p-5 card-hover group relative" data-dday-id="{{ dd.id }}">
-        <button hx-delete="/ddays/{{ dd.id }}" hx-target="closest [data-dday-id]" hx-swap="outerHTML"
-                hx-confirm="삭제할까요?"
-                class="absolute top-3 right-3 lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <div class="flex items-center gap-3 mb-3">
-            <span class="text-2xl">{{ dd.icon }}</span>
-            <div>
-                <p class="font-bold text-slate-800 dark:text-white">{{ dd.title }}</p>
-                <p class="text-xs text-slate-400">{{ dd.target_date|format_date('%Y.%m.%d') }}</p>
-            </div>
-        </div>
-        <div class="text-center py-3.5 rounded-xl {% if dd.dday > 0 and dd.dday <= 3 %}{% elif dd.dday == 0 %}{% endif %}"
-             style="background: {% if dd.dday > 0 and dd.dday <= 3 %}var(--color-danger-soft){% elif dd.dday > 0 %}var(--color-accent-soft){% elif dd.dday == 0 %}var(--color-success-soft){% else %}var(--color-border-subtle){% endif %};">
-            {% if dd.dday > 0 %}
-            <span class="text-2xl font-extrabold {% if dd.dday <= 3 %}text-red-600 dark:text-red-400{% else %}text-amber-600 dark:text-amber-400{% endif %}" style="letter-spacing: -0.02em;">D-{{ dd.dday }}</span>
-            {% elif dd.dday == 0 %}
-            <span class="text-2xl font-extrabold badge-pulse" style="color: var(--color-success); letter-spacing: -0.02em;">D-Day!</span>
-            {% else %}
-            <span class="text-2xl font-extrabold" style="color: var(--color-text-faint); letter-spacing: -0.02em;">D+{{ -dd.dday }}</span>
-            {% endif %}
-        </div>
-    </div>
-    {% else %}
-    <div class="col-span-full empty-state">
-        <div class="empty-state-icon">
-            <span>🎯</span>
-        </div>
-        <p class="empty-state-title">D-day가 없습니다</p>
-        <p class="empty-state-desc">위에서 새 마감일을 추가해보세요</p>
-    </div>
-    {% endfor %}
+ {% for dd in ddays %}
+ <div class="work-card rounded-xl p-5 card-hover group relative" data-dday-id="{{ dd.id }}">
+ <button hx-delete="/ddays/{{ dd.id }}" hx-target="closest [data-dday-id]" hx-swap="outerHTML"
+ hx-confirm="삭제할까요?"
+ class="absolute top-3 right-3 lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 hover:text-red-500 transition-all">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ <div class="flex items-center gap-3 mb-3">
+ <span class="text-2xl">{{ dd.icon }}</span>
+ <div>
+ <p class="font-bold" style="color: var(--color-text);">{{ dd.title }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ dd.target_date|format_date('%Y.%m.%d') }}</p>
+ </div>
+ </div>
+ <div class="text-center py-3.5 rounded-xl"
+ style="background: {% if dd.dday > 0 and dd.dday <= 3 %}var(--color-danger-soft){% elif dd.dday > 0 %}var(--color-accent-soft){% elif dd.dday == 0 %}var(--color-success-soft){% else %}var(--color-border-subtle){% endif %};">
+ {% if dd.dday > 0 %}
+ <span class="text-2xl font-extrabold" style="color: {% if dd.dday <= 3 %}var(--color-danger){% else %}var(--color-accent){% endif %}; letter-spacing: -0.02em;">D-{{ dd.dday }}</span>
+ {% elif dd.dday == 0 %}
+ <span class="text-2xl font-extrabold badge-pulse" style="color: var(--color-success); letter-spacing: -0.02em;">D-Day!</span>
+ {% else %}
+ <span class="text-2xl font-extrabold" style="color: var(--color-text-faint); letter-spacing: -0.02em;">D+{{ -dd.dday }}</span>
+ {% endif %}
+ </div>
+ </div>
+ {% else %}
+ <div class="col-span-full empty-state">
+ <div class="empty-state-icon">
+ <span>🎯</span>
+ </div>
+ <p class="empty-state-title">D-day가 없습니다</p>
+ <p class="empty-state-desc">위에서 새 마감일을 추가해보세요</p>
+ </div>
+ {% endfor %}
 </div>
 {% endblock %}

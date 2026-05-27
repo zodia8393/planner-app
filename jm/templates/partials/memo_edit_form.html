@@ -1,25 +1,25 @@
-<div class="work-card rounded-xl p-4 fade-in border-2 border-amber-300 dark:border-amber-600" data-memo-id="{{ memo.id }}">
-    <form hx-put="/memos/{{ memo.id }}" hx-target="closest [data-memo-id]" hx-swap="outerHTML" class="space-y-2">
-        <div class="flex items-center justify-between mb-1">
-            <h4 class="font-bold text-sm text-amber-600 dark:text-amber-400">메모 편집</h4>
-        </div>
-        <input type="text" name="title" value="{{ memo.title or '' }}" placeholder="제목"
-               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-        <textarea name="content" rows="3" required placeholder="내용"
-                  class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none">{{ memo.content }}</textarea>
-        <div class="flex gap-2 items-center">
-            <select name="category_id" class="flex-1 px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <option value="">카테고리 없음</option>
-                {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if cat.id == memo.category_id %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-            <input type="date" name="created_at" value="{{ memo.created_at[:10] if memo.created_at else '' }}"
-                   class="px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400"
-                   title="메모 날짜">
-            <button type="button" hx-get="/memos/{{ memo.id }}/view" hx-target="closest [data-memo-id]" hx-swap="outerHTML"
-                    class="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">취소</button>
-            <button type="submit" class="px-4 py-1.5 bg-amber-600 text-white font-medium text-sm rounded-lg hover:bg-amber-700 transition-colors">저장</button>
-        </div>
-    </form>
+<div class="work-card rounded-xl p-4 fade-in border-2" style="border-color: var(--color-accent);" data-memo-id="{{ memo.id }}">
+ <form hx-put="/memos/{{ memo.id }}" hx-target="closest [data-memo-id]" hx-swap="outerHTML" class="space-y-2">
+ <div class="flex items-center justify-between mb-1">
+ <h4 class="font-bold text-sm" style="color: var(--color-accent);">메모 편집</h4>
+ </div>
+ <input type="text" name="title" value="{{ memo.title or '' }}" placeholder="제목"
+ class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <textarea name="content" rows="3" required placeholder="내용"
+ class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400 resize-none">{{ memo.content }}</textarea>
+ <div class="flex gap-2 items-center">
+ <select name="category_id" class="flex-1 px-3 py-1.5 text-sm border rounded-lg">
+ <option value="">카테고리 없음</option>
+ {% for cat in categories %}
+ <option value="{{ cat.id }}" {% if cat.id == memo.category_id %}selected{% endif %}>{{ cat.name }}</option>
+ {% endfor %}
+ </select>
+ <input type="date" name="created_at" value="{{ memo.created_at[:10] if memo.created_at else '' }}"
+ class="px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400"
+ title="메모 날짜">
+ <button type="button" hx-get="/memos/{{ memo.id }}/view" hx-target="closest [data-memo-id]" hx-swap="outerHTML"
+ class="px-3 py-1.5 text-sm hover-text rounded-lg hover-surface">취소</button>
+ <button type="submit" class="px-4 py-1.5 bg-amber-600 text-white font-medium text-sm rounded-lg hover:bg-amber-700 transition-colors">저장</button>
+ </div>
+ </form>
 </div>

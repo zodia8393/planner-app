@@ -1,146 +1,146 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}업무 양식 - JM Planner{% endblock %}
 {% block page_title %}업무 양식{% endblock %}
 {% block page_subtitle %}{{ templates|length }}개 양식{% endblock %}
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">양식 만들기</b> — 텍스트, 숫자, 드롭다운 등 필드를 조합해 커스텀 양식 생성</p>
-        <p><b class="text-slate-700 dark:text-slate-300">작성하기</b> — 양식 카드를 클릭하면 해당 양식으로 기록을 작성합니다</p>
-        <p><b class="text-slate-700 dark:text-slate-300">복제/편집</b> — 기존 양식을 복제하거나 수정하여 빠르게 새 양식 생성</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>양식 만들기</b> — 텍스트, 숫자, 드롭다운 등 필드를 조합해 커스텀 양식 생성</p>
+ <p><b>작성하기</b> — 양식 카드를 클릭하면 해당 양식으로 기록을 작성합니다</p>
+ <p><b>복제/편집</b> — 기존 양식을 복제하거나 수정하여 빠르게 새 양식 생성</p>
+ </div>
 </details>
 
 <!-- Item 4: Differentiator badge/banner -->
 <div class="mb-4 px-4 py-3 rounded-xl flex items-center gap-3" style="background: linear-gradient(135deg, var(--color-accent-soft), rgba(217,119,6,0.05)); border: 1px solid rgba(217,119,6,0.2);">
-    <span class="text-2xl">📋</span>
-    <div>
-        <p class="text-sm font-semibold" style="color: var(--color-accent-text);">13종 업무 양식 기본 제공</p>
-        <p class="text-xs" style="color: var(--color-text-muted);">품의서, 회의록, 출장보고서, 지출결의서 등 바로 작성하세요</p>
-    </div>
+ <span class="text-2xl">📋</span>
+ <div>
+ <p class="text-sm font-semibold" style="color: var(--color-accent-text);">13종 업무 양식 기본 제공</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">품의서, 회의록, 출장보고서, 지출결의서 등 바로 작성하세요</p>
+ </div>
 </div>
 
 <!-- Action buttons -->
 <div class="mb-4 flex flex-wrap gap-2">
-    <a href="/forms/new"
-       class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm shadow-sm">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-        새 양식
-    </a>
-    <button onclick="document.getElementById('fileUpload').click()"
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors text-sm shadow-sm">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-        </svg>
-        파일로 양식 만들기
-    </button>
-    <button onclick="document.getElementById('jsonImport').click()"
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm shadow-sm">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-        </svg>
-        JSON 가져오기
-    </button>
-    <form id="uploadForm" action="/forms/upload" method="POST" enctype="multipart/form-data" class="hidden">
-        <input type="file" id="fileUpload" name="file" accept=".xlsx,.xls,.csv"
-               onchange="if(this.files.length){document.getElementById('uploadSpinner').classList.remove('hidden');document.getElementById('uploadSpinner').classList.add('inline-flex');this.form.submit()}">
-    </form>
-    <input type="file" id="jsonImport" accept=".json" class="hidden"
-           onchange="if(this.files.length){const f=this.files[0];const fd=new FormData();fd.append('file',f);fetch('/forms/import-json',{method:'POST',body:fd}).then(r=>{if(r.ok)location.reload();else r.text().then(t=>alert('가져오기 실패: '+t))}).catch(function(){alert('가져오기 실패')});this.value=''}">
-    <span id="uploadSpinner" class="hidden items-center gap-2 px-4 py-2.5 text-sm text-slate-500">
-        <svg class="w-4 h-4 loading-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-        업로드 중...
-    </span>
+ <a href="/forms/new"
+ class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm shadow-sm">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+ </svg>
+ 새 양식
+ </a>
+ <button onclick="document.getElementById('fileUpload').click()"
+ class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors text-sm shadow-sm">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+ </svg>
+ 파일로 양식 만들기
+ </button>
+ <button onclick="document.getElementById('jsonImport').click()"
+ class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white font-medium rounded-xl hover:bg-amber-700 transition-colors text-sm shadow-sm">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+ </svg>
+ JSON 가져오기
+ </button>
+ <form id="uploadForm" action="/forms/upload" method="POST" enctype="multipart/form-data" class="hidden">
+ <input type="file" id="fileUpload" name="file" accept=".xlsx,.xls,.csv"
+ onchange="if(this.files.length){document.getElementById('uploadSpinner').classList.remove('hidden');document.getElementById('uploadSpinner').classList.add('inline-flex');this.form.submit()}">
+ </form>
+ <input type="file" id="jsonImport" accept=".json" class="hidden"
+ onchange="if(this.files.length){const f=this.files[0];const fd=new FormData();fd.append('file',f);fetch('/forms/import-json',{method:'POST',body:fd}).then(r=>{if(r.ok)location.reload();else r.text().then(t=>alert('가져오기 실패: '+t))}).catch(function(){alert('가져오기 실패')});this.value=''}">
+ <span id="uploadSpinner" class="hidden items-center gap-2 px-4 py-2.5 text-sm">
+ <svg class="w-4 h-4 loading-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+ 업로드 중...
+ </span>
 </div>
 
 <!-- Template list -->
 <div class="space-y-3">
-    {% for tpl in templates %}
-    <div class="work-card rounded-xl p-4 card-hover fade-in group relative" data-tpl-id="{{ tpl.id }}">
-        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: var(--color-accent)"></div>
-        <a href="/forms/{{ tpl.id }}/entries" class="block">
-            <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-slate-800 dark:text-white truncate">
-                        {{ tpl.emoji or '📝' }} {{ tpl.name }}
-                        {% if tpl.profile_id == 0 %}
-                        <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">기본 양식</span>
-                        {% endif %}
-                    </p>
-                    {% if tpl.description %}
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{{ tpl.description }}</p>
-                    {% endif %}
-                    <div class="flex items-center gap-3 mt-2">
-                        <span class="text-xs text-slate-400">{{ field_counts.get(tpl.id, 0) }}개 필드</span>
-                        <span class="text-xs text-slate-400">{{ entry_counts.get(tpl.id, 0) }}건 작성</span>
-                        {% if tpl.frequency and tpl.frequency != 'daily' %}
-                        <span class="text-xs px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-500">
-                            {{ {'weekly': '주간', 'monthly': '월간', 'yearly': '연간'}.get(tpl.frequency, '') }}
-                        </span>
-                        {% endif %}
-                        <span class="text-xs text-slate-400">{{ tpl.updated_at[:10] }}</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1 flex-shrink-0 ml-2">
-                    <a href="/forms/{{ tpl.id }}/edit"
-                       onclick="event.stopPropagation(); event.preventDefault(); location.href=this.href"
-                       class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
-                    </a>
-                    <form action="/forms/{{ tpl.id }}/clone" method="POST" style="display:inline" onclick="event.stopPropagation()">
-                        <button type="submit"
-                                class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-slate-400 hover:text-green-500 transition-all">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
-                            </svg>
-                        </button>
-                    </form>
-                    <div class="relative" onclick="event.stopPropagation()">
-                        <button onclick="event.preventDefault(); var m=this.nextElementSibling; m.classList.toggle('hidden')"
-                                class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-400 hover:text-amber-500 transition-all"
-                                title="내보내기">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                            </svg>
-                        </button>
-                        <div class="hidden absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg z-20 py-1 min-w-[120px]">
-                            <a href="/forms/{{ tpl.id }}/entries/export?fmt=xlsx" class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">Excel (.xlsx)</a>
-                            <a href="/forms/{{ tpl.id }}/entries/export?fmt=csv" class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">CSV (.csv)</a>
-                            <a href="/forms/{{ tpl.id }}/export-json" download class="block px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">JSON (양식)</a>
-                        </div>
-                    </div>
-                    <button onclick="event.stopPropagation(); event.preventDefault(); if(confirm('이 양식을 삭제하시겠습니까?')) fetch('/forms/{{ tpl.id }}',{method:'DELETE'}).then(function(){location.reload()}).catch(function(){location.reload()})"
-                            class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </a>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-state-icon"><span>📝</span></div>
-        <p class="empty-state-title">등록된 양식이 없습니다</p>
-        <p class="empty-state-desc">새 양식을 만들어 업무일지를 체계적으로 작성해보세요</p>
-    </div>
-    {% endfor %}
+ {% for tpl in templates %}
+ <div class="work-card rounded-xl p-4 card-hover fade-in group relative" data-tpl-id="{{ tpl.id }}">
+ <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background-color: var(--color-accent)"></div>
+ <a href="/forms/{{ tpl.id }}/entries" class="block">
+ <div class="flex items-start justify-between">
+ <div class="flex-1 min-w-0">
+ <p class="text-sm font-bold truncate" style="color: var(--color-text);">
+ {{ tpl.emoji or '📝' }} {{ tpl.name }}
+ {% if tpl.profile_id == 0 %}
+ <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium" style="background: var(--color-accent-soft); color: var(--color-accent);">기본 양식</span>
+ {% endif %}
+ </p>
+ {% if tpl.description %}
+ <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">{{ tpl.description }}</p>
+ {% endif %}
+ <div class="flex items-center gap-3 mt-2">
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ field_counts.get(tpl.id, 0) }}개 필드</span>
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ entry_counts.get(tpl.id, 0) }}건 작성</span>
+ {% if tpl.frequency and tpl.frequency != 'daily' %}
+ <span class="text-xs px-1.5 py-0.5 rounded text-amber-500" style="background: var(--color-accent-soft);">
+ {{ {'weekly': '주간', 'monthly': '월간', 'yearly': '연간'}.get(tpl.frequency, '') }}
+ </span>
+ {% endif %}
+ <span class="text-xs" style="color: var(--color-text-muted);">{{ tpl.updated_at[:10] }}</span>
+ </div>
+ </div>
+ <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+ <a href="/forms/{{ tpl.id }}/edit"
+ onclick="event.stopPropagation(); event.preventDefault(); location.href=this.href"
+ class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 hover:text-amber-500 transition-all">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+ </svg>
+ </a>
+ <form action="/forms/{{ tpl.id }}/clone" method="POST" style="display:inline" onclick="event.stopPropagation()">
+ <button type="submit"
+ class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-green-50 hover:text-green-500 transition-all">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+ </svg>
+ </button>
+ </form>
+ <div class="relative" onclick="event.stopPropagation()">
+ <button onclick="event.preventDefault(); var m=this.nextElementSibling; m.classList.toggle('hidden')"
+ class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-amber-50 hover:text-amber-500 transition-all"
+ title="내보내기">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+ </svg>
+ </button>
+ <div class="hidden absolute right-0 top-full mt-1 border rounded-lg shadow-lg z-20 py-1 min-w-[120px]" style="background: var(--color-surface);">
+ <a href="/forms/{{ tpl.id }}/entries/export?fmt=xlsx" class="block px-3 py-1.5 text-xs hover-surface">Excel (.xlsx)</a>
+ <a href="/forms/{{ tpl.id }}/entries/export?fmt=csv" class="block px-3 py-1.5 text-xs hover-surface">CSV (.csv)</a>
+ <a href="/forms/{{ tpl.id }}/export-json" download class="block px-3 py-1.5 text-xs hover-surface">JSON (양식)</a>
+ </div>
+ </div>
+ <button onclick="event.stopPropagation(); event.preventDefault(); if(confirm('이 양식을 삭제하시겠습니까?')) fetch('/forms/{{ tpl.id }}',{method:'DELETE'}).then(function(){location.reload()}).catch(function(){location.reload()})"
+ class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover:bg-red-50 hover:text-red-500 transition-all">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+ </svg>
+ </button>
+ </div>
+ </div>
+ </a>
+ </div>
+ {% else %}
+ <div class="empty-state">
+ <div class="empty-state-icon"><span>📝</span></div>
+ <p class="empty-state-title">등록된 양식이 없습니다</p>
+ <p class="empty-state-desc">새 양식을 만들어 업무일지를 체계적으로 작성해보세요</p>
+ </div>
+ {% endfor %}
 </div>
 <script>
 document.addEventListener('click', function(e) {
-    document.querySelectorAll('.space-y-3 .relative > div.absolute, .space-y-3 .relative > div[class*="absolute"]').forEach(function(m) {
-        if (!m.classList.contains('hidden') && !m.parentElement.contains(e.target)) m.classList.add('hidden');
-    });
+ document.querySelectorAll('.space-y-3 .relative > div.absolute, .space-y-3 .relative > div[class*="absolute"]').forEach(function(m) {
+ if (!m.classList.contains('hidden') && !m.parentElement.contains(e.target)) m.classList.add('hidden');
+ });
 });
 </script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block head_extra %}<script src="/static/sortable.min.js"></script>{% endblock %}
 {% block title %}업무 - Work Planner{% endblock %}
 {% block page_title %}업무 관리{% endblock %}
@@ -6,269 +6,268 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">할일 추가</b> — 제목, 마감일, 우선순위, 카테고리, 반복, 에너지 레벨, 태그 설정. "+ 설명"으로 상세 내용 추가</p>
-        <p><b class="text-slate-700 dark:text-slate-300">목록/칸반</b> — 상단 토글로 목록 보기 ↔ 칸반 보드(할일·진행중·완료) 전환</p>
-        <p><b class="text-slate-700 dark:text-slate-300">필터</b> — 상태(전체/미완료/완료) + 카테고리 + 에너지 레벨 조합 필터링</p>
-        <p><b class="text-slate-700 dark:text-slate-300">일괄 처리</b> — "일괄" 버튼으로 여러 할일 선택 후 완료/삭제 일괄 처리</p>
-        <p><b class="text-slate-700 dark:text-slate-300">반복 설정</b> — 매일/매주/매월/매년 또는 커스텀 RRULE 반복 지원</p>
-        <p><b class="text-slate-700 dark:text-slate-300">수정/삭제</b> — 항목에 마우스를 올리면 편집·삭제 버튼 표시, 드래그로 순서 변경</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>할일 추가</b> — 제목, 마감일, 우선순위, 카테고리, 반복, 에너지 레벨, 태그 설정."+ 설명"으로 상세 내용 추가</p>
+ <p><b>목록/칸반</b> — 상단 토글로 목록 보기 ↔ 칸반 보드(할일·진행중·완료) 전환</p>
+ <p><b>필터</b> — 상태(전체/미완료/완료) + 카테고리 + 에너지 레벨 조합 필터링</p>
+ <p><b>일괄 처리</b> —"일괄" 버튼으로 여러 할일 선택 후 완료/삭제 일괄 처리</p>
+ <p><b>반복 설정</b> — 매일/매주/매월/매년 또는 커스텀 RRULE 반복 지원</p>
+ <p><b>수정/삭제</b> — 항목에 마우스를 올리면 편집·삭제 버튼 표시, 드래그로 순서 변경</p>
+ </div>
 </details>
 <!-- View toggle -->
 <div class="flex items-center gap-2 mb-3">
-    <a href="/todos"
-       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-amber-600 text-white shadow-sm">
-        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
-        목록 보기
-    </a>
-    <a href="/todos/kanban"
-       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400">
-        <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
-        칸반 보기
-    </a>
+ <a href="/todos"
+ class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-amber-600 text-white shadow-sm">
+ <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm0 5.25h.007v.008H3.75V12zm0 5.25h.007v.008H3.75v-.008z"/></svg>
+ 목록 보기
+ </a>
+ <a href="/todos/kanban"
+ class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);">
+ <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+ 칸반 보기
+ </a>
 </div>
 
 <!-- Filters -->
 <div class="flex flex-wrap items-center gap-2 mb-3 overflow-x-auto pb-1">
-    {% set filters = [("all", "전체"), ("active", "미완료"), ("completed", "완료")] %}
-    {% for fk, fl in filters %}
-    <a href="/todos?filter={{ fk }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
-       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
-              {% if current_filter == fk %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-        {{ fl }}
-    </a>
-    {% endfor %}
-    <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
-    <a href="/todos?filter={{ current_filter }}"
-       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
-              {% if not current_category_id %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-        전체
-    </a>
-    {% for cat in categories %}
-    <a href="/todos?filter={{ current_filter }}&category_id={{ cat.id }}"
-       class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5
-              {% if current_category_id == cat.id %}text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}"
-       {% if current_category_id == cat.id %}style="background:{{ cat.color }}"{% endif %}>
-        <span class="w-2 h-2 rounded-full flex-shrink-0 {% if current_category_id != cat.id %}block{% else %}hidden{% endif %}" style="background:{{ cat.color }}"></span>
-        {{ cat.name }}
-    </a>
-    {% endfor %}
-    <span class="text-slate-300 dark:text-slate-600 text-xs">|</span>
-    <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-        일괄
-    </button>
+ {% set filters = [("all","전체"), ("active","미완료"), ("completed","완료")] %}
+ {% for fk, fl in filters %}
+ <a href="/todos?filter={{ fk }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+ class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
+ {% if current_filter == fk %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ {{ fl }}
+ </a>
+ {% endfor %}
+ <span class="text-xs" style="color: var(--color-text-faint);">|</span>
+ <a href="/todos?filter={{ current_filter }}"
+ class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap
+ {% if not current_category_id %}bg-amber-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ 전체
+ </a>
+ {% for cat in categories %}
+ <a href="/todos?filter={{ current_filter }}&category_id={{ cat.id }}"
+ class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap flex items-center gap-1.5
+ {% if current_category_id == cat.id %}text-white shadow-sm" style="background:{{ cat.color }}"{% else %}border" style="background: var(--color-surface);"{% endif %}>
+ <span class="w-2 h-2 rounded-full flex-shrink-0 {% if current_category_id != cat.id %}block{% else %}hidden{% endif %}" style="background:{{ cat.color }}"></span>
+ {{ cat.name }}
+ </a>
+ {% endfor %}
+ <span class="text-xs" style="color: var(--color-text-faint);">|</span>
+ <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
+ 일괄
+ </button>
 </div>
 
 <!-- Item 18: Tag filter indicator -->
 {% if current_tag %}
 <div class="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg" style="background: var(--color-accent-soft);">
-    <span class="text-xs font-medium" style="color: var(--color-accent-text);">태그 필터: "{{ current_tag }}"</span>
-    <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
-       class="text-xs font-bold" style="color: var(--color-accent);">해제</a>
+ <span class="text-xs font-medium" style="color: var(--color-accent-text);">태그 필터:"{{ current_tag }}"</span>
+ <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+ class="text-xs font-bold" style="color: var(--color-accent);">해제</a>
 </div>
 {% endif %}
 
 <!-- Secondary filters (energy) -- collapsible -->
 <details class="mb-3" {% if current_energy %}open{% endif %}>
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"/></svg>
-        정렬/필터{% if current_energy %} (에너지 필터 활성){% endif %}
-    </summary>
-    <div class="flex items-center gap-2 mt-2">
-        <span class="text-xs text-slate-300 dark:text-slate-500">에너지:</span>
-        <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
-           class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
-                  {% if not current_energy %}bg-slate-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-            전체
-        </a>
-        <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=1"
-           class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
-                  {% if current_energy == 1 %}bg-green-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-            🟢 저
-        </a>
-        <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=2"
-           class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
-                  {% if current_energy == 2 %}bg-blue-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-            🔵 중
-        </a>
-        <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=3"
-           class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
-                  {% if current_energy == 3 %}bg-red-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
-            🔥 고
-        </a>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"/></svg>
+ 정렬/필터{% if current_energy %} (에너지 필터 활성){% endif %}
+ </summary>
+ <div class="flex items-center gap-2 mt-2">
+ <span class="text-xs" style="color: var(--color-text-muted);">에너지:</span>
+ <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
+ {% if not current_energy %} text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ 전체
+ </a>
+ <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=1"
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
+ {% if current_energy == 1 %}bg-green-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ 🟢 저
+ </a>
+ <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=2"
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
+ {% if current_energy == 2 %}bg-blue-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ 🔵 중
+ </a>
+ <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=3"
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
+ {% if current_energy == 3 %}bg-red-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ 🔥 고
+ </a>
+ </div>
 </details>
 
 <!-- Add form -->
 <div class="work-card rounded-xl p-4 mb-4" id="addForm">
-    <form action="/todos" method="POST">
-        <div class="flex gap-2">
-            <input type="text" name="title" placeholder="새 업무 추가..." required
-                   class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
-            <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
-                추가
-            </button>
-        </div>
-        <!-- Collapsible options -->
-        <details id="addFormOptions">
-            <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none mt-2 mb-1">
-                <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                옵션 더보기
-            </summary>
-        <div class="flex flex-wrap items-center gap-1.5">
-            <input type="date" name="due_date" value="{{ today.isoformat() }}"
-                   class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            <select name="priority" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                {% for pk, pv in priority_map.items() %}
-                <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
-                {% endfor %}
-            </select>
-            <select name="category_id" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                <option value="">카테고리</option>
-                {% for cat in categories %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-            <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
-                    class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                {% for rk, rv in repeat_map.items() %}
-                <option value="{{ rk }}">{{ rv }}</option>
-                {% endfor %}
-            </select>
-            <select name="energy_level" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                <option value="1">🟢 저에너지</option>
-                <option value="2" selected>🔵 보통에너지</option>
-                <option value="3">🔥 고에너지</option>
-            </select>
-            <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
-                   class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
-            <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
-        </div>
-        <!-- Reminder offsets for new todo -->
-        <div class="mt-2">
-            <label class="text-xs text-slate-500 mb-1 block">🔔 알림</label>
-            <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="">
-            <div class="flex flex-wrap gap-1 mb-1.5" id="newTodoOffsetChips"></div>
-            <div class="flex gap-1.5">
-                <select id="newTodoOffsetSel" class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-lg">
-                    <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
-                    <option value='{"value":5,"unit":"minute"}'>5분 전</option>
-                    <option value='{"value":10,"unit":"minute"}'>10분 전</option>
-                    <option value='{"value":15,"unit":"minute"}'>15분 전</option>
-                    <option value='{"value":30,"unit":"minute"}'>30분 전</option>
-                    <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
-                    <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
-                    <option value='{"value":3,"unit":"hour"}'>3시간 전</option>
-                    <option value='{"value":1,"unit":"day"}'>1일 전</option>
-                    <option value='{"value":2,"unit":"day"}'>2일 전</option>
-                    <option value='{"value":3,"unit":"day"}'>3일 전</option>
-                    <option value='{"value":1,"unit":"week"}'>1주 전</option>
-                </select>
-                <button type="button" onclick="addNewTodoOffset()" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
-            </div>
-            <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
-                <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded text-amber-600">
-                <span class="text-xs text-slate-500">기본값 사용</span>
-            </label>
-        </div>
-        <!-- Custom RRULE builder for add form -->
-        <div id="addRrulePanel" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500 whitespace-nowrap">매</span>
-                <input type="number" name="rrule_interval" value="1" min="1" max="99"
-                       class="w-16 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <select name="rrule_freq" id="addRruleFreq" onchange="toggleAddRruleExtra()"
-                        class="px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="DAILY">일</option>
-                    <option value="WEEKLY" selected>주</option>
-                    <option value="MONTHLY">개월</option>
-                    <option value="YEARLY">년</option>
-                </select>
-            </div>
-            <div id="addBydayRow" class="flex flex-wrap gap-1">
-                {% for code, label in rrule_day_options %}
-                <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                    <input type="checkbox" class="rrule-byday-add" value="{{ code }}"> {{ label }}
-                </label>
-                {% endfor %}
-            </div>
-            <div id="addBymonthdayRow" class="hidden">
-                <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
-                       class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500 whitespace-nowrap">종료:</span>
-                <select name="rrule_end_type" id="addRruleEndType" onchange="toggleAddEndFields()"
-                        class="px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    <option value="never">무제한</option>
-                    <option value="count">횟수</option>
-                    <option value="until">날짜</option>
-                </select>
-                <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
-                       class="hidden w-20 px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                <input type="date" name="rrule_until" id="addRruleUntil"
-                       class="hidden px-2.5 py-1.5 text-xs bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-            </div>
-            <div id="addRrulePreview" class="text-[11px] text-amber-500"></div>
-        </div>
-        <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
-        <textarea name="description" placeholder="설명 (선택)" rows="2"
-                  class="w-full mt-2 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 hidden" id="descField"></textarea>
-        </details>
-    </form>
+ <form action="/todos" method="POST">
+ <div class="flex gap-2">
+ <input type="text" name="title" placeholder="새 업무 추가..." required
+ class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
+ <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
+ 추가
+ </button>
+ </div>
+ <!-- Collapsible options -->
+ <details id="addFormOptions">
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none mt-2 mb-1">
+ <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+ 옵션 더보기
+ </summary>
+ <div class="flex flex-wrap items-center gap-1.5">
+ <input type="date" name="due_date" value="{{ today.isoformat() }}"
+ class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <select name="priority" class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ {% for pk, pv in priority_map.items() %}
+ <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
+ {% endfor %}
+ </select>
+ <select name="category_id" class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <option value="">카테고리</option>
+ {% for cat in categories %}
+ <option value="{{ cat.id }}">{{ cat.name }}</option>
+ {% endfor %}
+ </select>
+ <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
+ class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ {% for rk, rv in repeat_map.items() %}
+ <option value="{{ rk }}">{{ rv }}</option>
+ {% endfor %}
+ </select>
+ <select name="energy_level" class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <option value="1">🟢 저에너지</option>
+ <option value="2" selected>🔵 보통에너지</option>
+ <option value="3">🔥 고에너지</option>
+ </select>
+ <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
+ class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
+ <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
+ </div>
+ <!-- Reminder offsets for new todo -->
+ <div class="mt-2">
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">🔔 알림</label>
+ <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="">
+ <div class="flex flex-wrap gap-1 mb-1.5" id="newTodoOffsetChips"></div>
+ <div class="flex gap-1.5">
+ <select id="newTodoOffsetSel" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
+ <option value='{"value":5,"unit":"minute"}'>5분 전</option>
+ <option value='{"value":10,"unit":"minute"}'>10분 전</option>
+ <option value='{"value":15,"unit":"minute"}'>15분 전</option>
+ <option value='{"value":30,"unit":"minute"}'>30분 전</option>
+ <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
+ <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
+ <option value='{"value":3,"unit":"hour"}'>3시간 전</option>
+ <option value='{"value":1,"unit":"day"}'>1일 전</option>
+ <option value='{"value":2,"unit":"day"}'>2일 전</option>
+ <option value='{"value":3,"unit":"day"}'>3일 전</option>
+ <option value='{"value":1,"unit":"week"}'>1주 전</option>
+ </select>
+ <button type="button" onclick="addNewTodoOffset()" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+ </div>
+ <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
+ <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded text-amber-600">
+ <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
+ </label>
+ </div>
+ <!-- Custom RRULE builder for add form -->
+ <div id="addRrulePanel" class="hidden mt-2 p-3 border rounded-lg space-y-2">
+ <div class="flex items-center gap-2">
+ <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
+ <input type="number" name="rrule_interval" value="1" min="1" max="99"
+ class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select name="rrule_freq" id="addRruleFreq" onchange="toggleAddRruleExtra()"
+ class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <option value="DAILY">일</option>
+ <option value="WEEKLY" selected>주</option>
+ <option value="MONTHLY">개월</option>
+ <option value="YEARLY">년</option>
+ </select>
+ </div>
+ <div id="addBydayRow" class="flex flex-wrap gap-1">
+ {% for code, label in rrule_day_options %}
+ <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover:bg-amber-50" style="background: var(--color-surface);">
+ <input type="checkbox" class="rrule-byday-add" value="{{ code }}"> {{ label }}
+ </label>
+ {% endfor %}
+ </div>
+ <div id="addBymonthdayRow" class="hidden">
+ <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+ class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ </div>
+ <div class="flex items-center gap-2">
+ <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
+ <select name="rrule_end_type" id="addRruleEndType" onchange="toggleAddEndFields()"
+ class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <option value="never">무제한</option>
+ <option value="count">횟수</option>
+ <option value="until">날짜</option>
+ </select>
+ <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
+ class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <input type="date" name="rrule_until" id="addRruleUntil"
+ class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ </div>
+ <div id="addRrulePreview" class="text-[11px] text-amber-500"></div>
+ </div>
+ <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
+ <textarea name="description" placeholder="설명 (선택)" rows="2"
+ class="w-full mt-2 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400 hidden" id="descField"></textarea>
+ </details>
+ </form>
 </div>
 
 <!-- Bulk action bar -->
-<div id="bulkBar" class="hidden mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl flex items-center gap-3 text-sm">
-    <span class="text-amber-700 dark:text-amber-300 font-medium"><span id="bulkCount">0</span>개 선택</span>
-    <button onclick="bulkSelectAll()" class="btn-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
-    <div class="flex-1"></div>
-    <button onclick="bulkAction('complete')" class="btn-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
-    <button onclick="bulkAction('delete')" class="btn-sm bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
-    <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">취소</button>
+<div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex items-center gap-3 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
+ <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
+ <button onclick="bulkSelectAll()" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
+ <div class="flex-1"></div>
+ <button onclick="bulkAction('complete')" class="btn-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
+ <button onclick="bulkAction('delete')" class="btn-sm bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
+ <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs hover-text">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->
 <div id="todoList" class="space-y-4">
-    {% for date_key, todos in todo_groups.items() %}
-    <div>
-        <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1.5">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm
-                {% if date_key == today.isoformat() %}text-white{% elif date_key and date_key < today.isoformat() %}text-red-600 dark:text-red-400{% elif date_key %}text-slate-600 dark:text-slate-300{% else %}text-slate-400{% endif %}"
-                style="{% if date_key == today.isoformat() %}background: var(--gradient-accent); box-shadow: var(--shadow-btn-accent);{% elif date_key and date_key < today.isoformat() %}background: var(--color-danger-soft);{% elif date_key %}background: var(--color-surface); border: 1px solid var(--color-border);{% else %}background: var(--color-bg); border: 1px solid var(--color-border-subtle);{% endif %}">
-                {% if date_key == today.isoformat() %}
-                    오늘 <span class="font-normal ml-1 opacity-80">{{ date_key|format_date }}</span>
-                {% elif date_key %}
-                    {{ date_key|relative_date }} <span class="font-normal ml-1 opacity-60">{{ date_key|format_date }}</span>
-                {% else %}
-                    날짜 없음
-                {% endif %}
-            </div>
-            <span class="text-[11px] font-medium" style="color: var(--color-text-faint);">{{ todos|length }}건</span>
-            <div class="flex-1 border-t" style="border-color: var(--color-border-subtle);"></div>
-        </div>
-        <div class="space-y-2">
-            {% for todo in todos %}
-            {% include "partials/todo_item.html" %}
-            {% endfor %}
-        </div>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-        <p class="empty-state-title">업무가 없습니다</p>
-        <p class="empty-state-desc">위에서 새 업무를 추가해보세요</p>
-    </div>
-    {% endfor %}
+ {% for date_key, todos in todo_groups.items() %}
+ <div>
+ <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1.5">
+ <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm
+ {% if date_key == today.isoformat() %}text-white{% endif %}"
+ style="{% if date_key == today.isoformat() %}background: var(--gradient-accent); box-shadow: var(--shadow-btn-accent);{% elif date_key and date_key < today.isoformat() %}background: var(--color-danger-soft); color: var(--color-danger);{% elif date_key %}background: var(--color-surface); border: 1px solid var(--color-border);{% else %}background: var(--color-bg); border: 1px solid var(--color-border-subtle);{% endif %}">
+ {% if date_key == today.isoformat() %}
+ 오늘 <span class="font-normal ml-1 opacity-80">{{ date_key|format_date }}</span>
+ {% elif date_key %}
+ {{ date_key|relative_date }} <span class="font-normal ml-1 opacity-60">{{ date_key|format_date }}</span>
+ {% else %}
+ 날짜 없음
+ {% endif %}
+ </div>
+ <span class="text-[11px] font-medium" style="color: var(--color-text-faint);">{{ todos|length }}건</span>
+ <div class="flex-1 border-t" style="border-color: var(--color-border-subtle);"></div>
+ </div>
+ <div class="space-y-2">
+ {% for todo in todos %}
+ {% include"partials/todo_item.html" %}
+ {% endfor %}
+ </div>
+ </div>
+ {% else %}
+ <div class="empty-state">
+ <div class="empty-state-icon">
+ <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+ </svg>
+ </div>
+ <p class="empty-state-title">업무가 없습니다</p>
+ <p class="empty-state-desc">위에서 새 업무를 추가해보세요</p>
+ </div>
+ {% endfor %}
 </div>
 
 {% endblock %}
@@ -277,154 +276,154 @@
 <script>
 /* RRULE panel controls for add form */
 function toggleAddRrule() {
-    var sel = document.getElementById('addRepeatType');
-    var panel = document.getElementById('addRrulePanel');
-    if (sel.value === 'custom') { panel.classList.remove('hidden'); } else { panel.classList.add('hidden'); }
+ var sel = document.getElementById('addRepeatType');
+ var panel = document.getElementById('addRrulePanel');
+ if (sel.value === 'custom') { panel.classList.remove('hidden'); } else { panel.classList.add('hidden'); }
 }
 function toggleAddRruleExtra() {
-    var freq = document.getElementById('addRruleFreq').value;
-    document.getElementById('addBydayRow').classList.toggle('hidden', freq !== 'WEEKLY');
-    document.getElementById('addBymonthdayRow').classList.toggle('hidden', freq !== 'MONTHLY');
-    updateAddRrulePreview();
+ var freq = document.getElementById('addRruleFreq').value;
+ document.getElementById('addBydayRow').classList.toggle('hidden', freq !== 'WEEKLY');
+ document.getElementById('addBymonthdayRow').classList.toggle('hidden', freq !== 'MONTHLY');
+ updateAddRrulePreview();
 }
 function toggleAddEndFields() {
-    var et = document.getElementById('addRruleEndType').value;
-    document.getElementById('addRruleCount').classList.toggle('hidden', et !== 'count');
-    document.getElementById('addRruleUntil').classList.toggle('hidden', et !== 'until');
-    updateAddRrulePreview();
+ var et = document.getElementById('addRruleEndType').value;
+ document.getElementById('addRruleCount').classList.toggle('hidden', et !== 'count');
+ document.getElementById('addRruleUntil').classList.toggle('hidden', et !== 'until');
+ updateAddRrulePreview();
 }
 function updateAddRrulePreview() {
-    var freq = document.getElementById('addRruleFreq').value;
-    var interval = document.querySelector('[name="rrule_interval"]');
-    var iv = interval ? parseInt(interval.value) || 1 : 1;
-    var freqKr = {DAILY: '일', WEEKLY: '주', MONTHLY: '개월', YEARLY: '년'};
-    var txt = '매 ' + (iv > 1 ? iv : '') + (freqKr[freq] || freq);
-    if (freq === 'WEEKLY') {
-        var days = Array.from(document.querySelectorAll('.rrule-byday-add:checked')).map(function(c) { return c.parentElement.textContent.trim(); });
-        if (days.length) txt += ' ' + days.join(',');
-    }
-    document.getElementById('addRrulePreview').textContent = txt;
+ var freq = document.getElementById('addRruleFreq').value;
+ var interval = document.querySelector('[name="rrule_interval"]');
+ var iv = interval ? parseInt(interval.value) || 1 : 1;
+ var freqKr = {DAILY: '일', WEEKLY: '주', MONTHLY: '개월', YEARLY: '년'};
+ var txt = '매 ' + (iv > 1 ? iv : '') + (freqKr[freq] || freq);
+ if (freq === 'WEEKLY') {
+ var days = Array.from(document.querySelectorAll('.rrule-byday-add:checked')).map(function(c) { return c.parentElement.textContent.trim(); });
+ if (days.length) txt += ' ' + days.join(',');
+ }
+ document.getElementById('addRrulePreview').textContent = txt;
 }
 /* Collect byday before form submit */
 document.addEventListener('submit', function(e) {
-    if (e.target.closest('#addForm')) {
-        var checks = document.querySelectorAll('.rrule-byday-add:checked');
-        var vals = Array.from(checks).map(function(c) { return c.value; });
-        document.getElementById('addRruleByday').value = vals.join(',');
-    }
+ if (e.target.closest('#addForm')) {
+ var checks = document.querySelectorAll('.rrule-byday-add:checked');
+ var vals = Array.from(checks).map(function(c) { return c.value; });
+ document.getElementById('addRruleByday').value = vals.join(',');
+ }
 }, true);
 
 document.addEventListener('DOMContentLoaded', function() {
-    const list = document.getElementById('todoList');
-    if (list && typeof Sortable !== 'undefined') {
-        Sortable.create(list, {
-            animation: 150,
-            handle: '.drag-handle',
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            onEnd: function(evt) {
-                const items = list.querySelectorAll('[data-todo-id]');
-                const order = Array.from(items).map(el => el.dataset.todoId);
-                fetch('/todos/reorder', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({order: order})
-                }).catch(function(){});
-            }
-        });
-    }
+ const list = document.getElementById('todoList');
+ if (list && typeof Sortable !== 'undefined') {
+ Sortable.create(list, {
+ animation: 150,
+ handle: '.drag-handle',
+ ghostClass: 'sortable-ghost',
+ chosenClass: 'sortable-chosen',
+ onEnd: function(evt) {
+ const items = list.querySelectorAll('[data-todo-id]');
+ const order = Array.from(items).map(el => el.dataset.todoId);
+ fetch('/todos/reorder', {
+ method: 'POST',
+ headers: {'Content-Type': 'application/json'},
+ body: JSON.stringify({order: order})
+ }).catch(function(){});
+ }
+ });
+ }
 });
 
 var _bulkSelected = new Set();
 function _updateBulkUI() {
-    document.getElementById('bulkCount').textContent = _bulkSelected.size;
+ document.getElementById('bulkCount').textContent = _bulkSelected.size;
 }
 function bulkModeOn() {
-    _bulkSelected.clear();
-    document.getElementById('bulkBar').classList.remove('hidden');
-    document.getElementById('bulkToggle').classList.add('hidden');
-    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', _bulkToggleItem);
-    });
-    _updateBulkUI();
+ _bulkSelected.clear();
+ document.getElementById('bulkBar').classList.remove('hidden');
+ document.getElementById('bulkToggle').classList.add('hidden');
+ document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+ el.style.cursor = 'pointer';
+ el.addEventListener('click', _bulkToggleItem);
+ });
+ _updateBulkUI();
 }
 function bulkModeOff() {
-    _bulkSelected.clear();
-    document.getElementById('bulkBar').classList.add('hidden');
-    document.getElementById('bulkToggle').classList.remove('hidden');
-    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
-        el.style.cursor = '';
-        el.classList.remove('ring-2', 'ring-amber-400');
-        el.removeEventListener('click', _bulkToggleItem);
-    });
+ _bulkSelected.clear();
+ document.getElementById('bulkBar').classList.add('hidden');
+ document.getElementById('bulkToggle').classList.remove('hidden');
+ document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+ el.style.cursor = '';
+ el.classList.remove('ring-2', 'ring-amber-400');
+ el.removeEventListener('click', _bulkToggleItem);
+ });
 }
 function _bulkToggleItem(e) {
-    if (e.target.closest('button, a, input, form')) return;
-    var id = this.dataset.todoId;
-    if (_bulkSelected.has(id)) {
-        _bulkSelected.delete(id);
-        this.classList.remove('ring-2', 'ring-amber-400');
-    } else {
-        _bulkSelected.add(id);
-        this.classList.add('ring-2', 'ring-amber-400');
-    }
-    _updateBulkUI();
+ if (e.target.closest('button, a, input, form')) return;
+ var id = this.dataset.todoId;
+ if (_bulkSelected.has(id)) {
+ _bulkSelected.delete(id);
+ this.classList.remove('ring-2', 'ring-amber-400');
+ } else {
+ _bulkSelected.add(id);
+ this.classList.add('ring-2', 'ring-amber-400');
+ }
+ _updateBulkUI();
 }
 function bulkSelectAll() {
-    document.querySelectorAll('[data-todo-id]').forEach(function(el) {
-        _bulkSelected.add(el.dataset.todoId);
-        el.classList.add('ring-2', 'ring-amber-400');
-    });
-    _updateBulkUI();
+ document.querySelectorAll('[data-todo-id]').forEach(function(el) {
+ _bulkSelected.add(el.dataset.todoId);
+ el.classList.add('ring-2', 'ring-amber-400');
+ });
+ _updateBulkUI();
 }
 function bulkAction(action) {
-    if (_bulkSelected.size === 0) return;
-    var msg = action === 'delete' ? _bulkSelected.size + '개 항목을 삭제할까요?' : _bulkSelected.size + '개 항목을 완료 처리할까요?';
-    if (!confirm(msg)) return;
-    fetch('/todos/bulk', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
-    }).finally(function() { location.reload(); });
+ if (_bulkSelected.size === 0) return;
+ var msg = action === 'delete' ? _bulkSelected.size + '개 항목을 삭제할까요?' : _bulkSelected.size + '개 항목을 완료 처리할까요?';
+ if (!confirm(msg)) return;
+ fetch('/todos/bulk', {
+ method: 'POST',
+ headers: {'Content-Type': 'application/json'},
+ body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
+ }).finally(function() { location.reload(); });
 }
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
 
 // --- New Todo Reminder Offsets ---
 (function(){
-    var labels = {'0_minute':'당일 오전 9시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','3_hour':'3시간 전','1_day':'1일 전','2_day':'2일 전','3_day':'3일 전','1_week':'1주 전'};
-    var offsets = [];
-    var input = document.getElementById('newTodoReminderOffsets');
+ var labels = {'0_minute':'당일 오전 9시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','3_hour':'3시간 전','1_day':'1일 전','2_day':'2일 전','3_day':'3일 전','1_week':'1주 전'};
+ var offsets = [];
+ var input = document.getElementById('newTodoReminderOffsets');
 
-    function render() {
-        var c = document.getElementById('newTodoOffsetChips');
-        c.innerHTML = '';
-        offsets.forEach(function(o, i) {
-            var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':o.unit==='day'?'일':'주')+' 전');
-            c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewTodoOffset('+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
-        });
-        input.value = offsets.length ? JSON.stringify(offsets) : '';
-    }
+ function render() {
+ var c = document.getElementById('newTodoOffsetChips');
+ c.innerHTML = '';
+ offsets.forEach(function(o, i) {
+ var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':o.unit==='day'?'일':'주')+' 전');
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewTodoOffset('+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+ });
+ input.value = offsets.length ? JSON.stringify(offsets) : '';
+ }
 
-    window.addNewTodoOffset = function() {
-        var sel = document.getElementById('newTodoOffsetSel');
-        var o = JSON.parse(sel.value);
-        if (offsets.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
-        offsets.push(o);
-        document.getElementById('newTodoUseDefault').checked = false;
-        render();
-    };
-    window.removeNewTodoOffset = function(idx) {
-        offsets.splice(idx, 1);
-        render();
-    };
-    window.toggleNewTodoDefault = function() {
-        if (document.getElementById('newTodoUseDefault').checked) {
-            offsets = [];
-            render();
-        }
-    };
-    render();
+ window.addNewTodoOffset = function() {
+ var sel = document.getElementById('newTodoOffsetSel');
+ var o = JSON.parse(sel.value);
+ if (offsets.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
+ offsets.push(o);
+ document.getElementById('newTodoUseDefault').checked = false;
+ render();
+ };
+ window.removeNewTodoOffset = function(idx) {
+ offsets.splice(idx, 1);
+ render();
+ };
+ window.toggleNewTodoDefault = function() {
+ if (document.getElementById('newTodoUseDefault').checked) {
+ offsets = [];
+ render();
+ }
+ };
+ render();
 })();
 </script>
 {% endblock %}

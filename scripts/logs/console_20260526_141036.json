@@ -1,0 +1,412 @@
+{
+  "collected_at": "2026-05-26 14:10:36",
+  "results": [
+    {
+      "planner": "JM",
+      "route": "/",
+      "url": "https://hj-jm-planner.fly.dev/",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/todos",
+      "url": "https://hj-jm-planner.fly.dev/todos",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/todos/kanban",
+      "url": "https://hj-jm-planner.fly.dev/todos/kanban",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/calendar",
+      "url": "https://hj-jm-planner.fly.dev/calendar",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/today",
+      "url": "https://hj-jm-planner.fly.dev/today",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/habits",
+      "url": "https://hj-jm-planner.fly.dev/habits",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/worklogs",
+      "url": "https://hj-jm-planner.fly.dev/worklogs",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/memos",
+      "url": "https://hj-jm-planner.fly.dev/memos",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/forms",
+      "url": "https://hj-jm-planner.fly.dev/forms",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/notices",
+      "url": "https://hj-jm-planner.fly.dev/notices",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/ddays",
+      "url": "https://hj-jm-planner.fly.dev/ddays",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/links",
+      "url": "https://hj-jm-planner.fly.dev/links",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/stats",
+      "url": "https://hj-jm-planner.fly.dev/stats",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/review",
+      "url": "https://hj-jm-planner.fly.dev/review",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/search",
+      "url": "https://hj-jm-planner.fly.dev/search",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/settings",
+      "url": "https://hj-jm-planner.fly.dev/settings",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/todo-templates",
+      "url": "https://hj-jm-planner.fly.dev/todo-templates",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/automations",
+      "url": "https://hj-jm-planner.fly.dev/automations",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/categories",
+      "url": "https://hj-jm-planner.fly.dev/categories",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/audit-log",
+      "url": "https://hj-jm-planner.fly.dev/audit-log",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/plans",
+      "url": "https://hj-jm-planner.fly.dev/plans",
+      "status": 200,
+      "console": [],
+      "errors": []
+    },
+    {
+      "planner": "JM",
+      "route": "/files",
+      "url": "https://hj-jm-planner.fly.dev/files",
+      "status": 404,
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 ()",
+          "location": "{'url': 'https://hj-jm-planner.fly.dev/files', 'lineNumber': 0, 'columnNumber': 0}"
+        },
+        {
+          "type": "warning",
+          "text": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+          "location": "{'url': 'https://cdn.tailwindcss.com/', 'lineNumber': 63, 'columnNumber': 1710}"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "planner": "My",
+      "route": "/",
+      "url": "https://hj-my-planner.fly.dev/",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/todos",
+      "url": "https://hj-my-planner.fly.dev/todos",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/todos/kanban",
+      "url": "https://hj-my-planner.fly.dev/todos/kanban",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/calendar",
+      "url": "https://hj-my-planner.fly.dev/calendar",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/today",
+      "url": "https://hj-my-planner.fly.dev/today",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/habits",
+      "url": "https://hj-my-planner.fly.dev/habits",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/worklogs",
+      "url": "https://hj-my-planner.fly.dev/worklogs",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/memos",
+      "url": "https://hj-my-planner.fly.dev/memos",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/forms",
+      "url": "https://hj-my-planner.fly.dev/forms",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/notices",
+      "url": "https://hj-my-planner.fly.dev/notices",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/ddays",
+      "url": "https://hj-my-planner.fly.dev/ddays",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/links",
+      "url": "https://hj-my-planner.fly.dev/links",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/stats",
+      "url": "https://hj-my-planner.fly.dev/stats",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/review",
+      "url": "https://hj-my-planner.fly.dev/review",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/search",
+      "url": "https://hj-my-planner.fly.dev/search",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/settings",
+      "url": "https://hj-my-planner.fly.dev/settings",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/todo-templates",
+      "url": "https://hj-my-planner.fly.dev/todo-templates",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/automations",
+      "url": "https://hj-my-planner.fly.dev/automations",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/categories",
+      "url": "https://hj-my-planner.fly.dev/categories",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/audit-log",
+      "url": "https://hj-my-planner.fly.dev/audit-log",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/plans",
+      "url": "https://hj-my-planner.fly.dev/plans",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    },
+    {
+      "planner": "My",
+      "route": "/files",
+      "url": "https://hj-my-planner.fly.dev/files",
+      "status": 200,
+      "console": [],
+      "errors": [
+        "tailwind is not defined"
+      ]
+    }
+  ]
+}

@@ -1,33 +1,33 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('events', '일정') %}
 <div class="work-card rounded-xl overflow-hidden">
-    <div class="section-header">
-        <h3>이번 주 일정</h3>
-        <a href="/calendar" class="widget-detail-m">더보기</a>
-    </div>
-    <div class="widget-detail-compact px-3 py-1.5">
-        {% if week_events %}
-        <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ week_events[0].title }}</p>
-        {% else %}
-        <p class="text-xs" style="color: var(--color-text-faint);">일정 없음</p>
-        {% endif %}
-    </div>
-    <div class="widget-detail-m divide-y" style="border-color: var(--color-border-subtle);">
-        {% for ev in week_events[:3] %}
-        <div class="widget-list-item px-3 py-1.5">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or 'var(--color-accent)' }}"></div>
-                <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ ev.title }}</p>
-            </div>
-            <p class="text-xs ml-4" style="margin-top: 1px; color: var(--color-text-faint);">{{ ev.start_time|format_datetime }}</p>
-        </div>
-        {% else %}
-        <div class="widget-empty">
-            <span class="widget-empty-icon">&#128197;</span>
-            <p class="widget-empty-text">이번 주 일정이 없습니다</p>
-            <a href="/calendar" class="widget-empty-action">바로가기</a>
-        </div>
-        {% endfor %}
-    </div>
+ <div class="section-header">
+ <h3>이번 주 일정</h3>
+ <a href="/calendar" class="widget-detail-m">더보기</a>
+ </div>
+ <div class="widget-detail-compact px-3 py-1.5">
+ {% if week_events %}
+ <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ week_events[0].title }}</p>
+ {% else %}
+ <p class="text-xs" style="color: var(--color-text-faint);">일정 없음</p>
+ {% endif %}
+ </div>
+ <div class="widget-detail-m divide-y" style="border-color: var(--color-border-subtle);">
+ {% for ev in week_events[:3] %}
+ <div class="widget-list-item px-3 py-1.5">
+ <div class="flex items-center gap-2">
+ <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or 'var(--color-accent)' }}"></div>
+ <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ ev.title }}</p>
+ </div>
+ <p class="text-xs ml-4" style="margin-top: 1px; color: var(--color-text-faint);">{{ ev.start_time|format_datetime }}</p>
+ </div>
+ {% else %}
+ <div class="widget-empty">
+ <span class="widget-empty-icon">&#128197;</span>
+ <p class="widget-empty-text">이번 주 일정이 없습니다</p>
+ <a href="/calendar" class="widget-empty-action">바로가기</a>
+ </div>
+ {% endfor %}
+ </div>
 </div>
 {% endcall %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 {% block title %}타임테이블 - My Planner{% endblock %}
 {% block page_title %}타임테이블{% endblock %}
 {% block page_subtitle %}{{ target_date }}{% endblock %}
@@ -6,427 +6,427 @@
 {% block content %}
 <!-- Date navigation -->
 <div class="flex items-center justify-center gap-3 mb-5">
-    <a href="/timetable?dt={{ prev_date }}" aria-label="이전 날" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-    </a>
-    <h3 class="text-lg font-extrabold min-w-[160px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">
-        {{ target_month }}월 {{ target_day }}일 ({{ target_weekday }})
-    </h3>
-    <a href="/timetable?dt={{ next_date }}" aria-label="다음 날" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-    </a>
-    {% if not is_today %}
-    <a href="/timetable" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
-        오늘
-    </a>
-    {% endif %}
+ <a href="/timetable?dt={{ prev_date }}" aria-label="이전 날" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+ </svg>
+ </a>
+ <h3 class="text-lg font-extrabold min-w-[160px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">
+ {{ target_month }}월 {{ target_day }}일 ({{ target_weekday }})
+ </h3>
+ <a href="/timetable?dt={{ next_date }}" aria-label="다음 날" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+ </svg>
+ </a>
+ {% if not is_today %}
+ <a href="/timetable" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
+ 오늘
+ </a>
+ {% endif %}
 </div>
 
 <!-- Day type tabs -->
 <div class="flex items-center gap-1 mb-4 overflow-x-auto pb-1 justify-center flex-wrap">
-    {% for dt_key in day_type_order %}
-    <a href="/timetable?day_type={{ dt_key }}{% if not is_today %}&dt={{ target_date }}{% endif %}"
-       class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap
-              {% if edit_day_type == dt_key %}ring-2{% endif %}"
-       style="{% if edit_day_type == dt_key %}background: var(--color-accent); color: #fff; ring-color: var(--color-accent);{% elif dt_key in existing_day_types %}background: var(--color-accent-soft); color: var(--color-accent);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">
-        {{ day_type_labels[dt_key] }}
-        {% if dt_key in existing_day_types and edit_day_type != dt_key %}
-        <span class="inline-block w-1.5 h-1.5 rounded-full ml-0.5" style="background: var(--color-accent);"></span>
-        {% endif %}
-    </a>
-    {% endfor %}
+ {% for dt_key in day_type_order %}
+ <a href="/timetable?day_type={{ dt_key }}{% if not is_today %}&dt={{ target_date }}{% endif %}"
+ class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap
+ {% if edit_day_type == dt_key %}ring-2{% endif %}"
+ style="{% if edit_day_type == dt_key %}background: var(--color-accent); color: #fff; ring-color: var(--color-accent);{% elif dt_key in existing_day_types %}background: var(--color-accent-soft); color: var(--color-accent);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">
+ {{ day_type_labels[dt_key] }}
+ {% if dt_key in existing_day_types and edit_day_type != dt_key %}
+ <span class="inline-block w-1.5 h-1.5 rounded-full ml-0.5" style="background: var(--color-accent);"></span>
+ {% endif %}
+ </a>
+ {% endfor %}
 </div>
 
 {% if not has_blocks %}
 <!-- Preset selection (shown when no blocks exist) -->
 <div class="work-card rounded-xl p-5 mb-5" id="presetPanel">
-    <div class="text-center mb-4">
-        <h3 class="text-base font-bold mb-1" style="color: var(--color-text);">시간표를 만들어 보세요</h3>
-        <p class="text-sm" style="color: var(--color-text-muted);">프리셋으로 빠르게 시작하거나, 직접 만들 수 있습니다</p>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {% for key, preset in presets.items() %}
-        <form action="/timetable/presets/apply" method="POST">
-            <input type="hidden" name="preset" value="{{ key }}">
-            <button type="submit" class="w-full p-4 rounded-xl text-left transition-all hover:scale-[1.02] hover:shadow-md"
-                    style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
-                <p class="text-sm font-bold mb-1" style="color: var(--color-text);">{{ preset.label }}</p>
-                <p class="text-xs" style="color: var(--color-text-muted);">
-                    {% if preset.blocks %}
-                    {{ preset.blocks|length }}개 시간 블록
-                    {% else %}
-                    빈 시간표 (직접 구성)
-                    {% endif %}
-                </p>
-            </button>
-        </form>
-        {% endfor %}
-    </div>
+ <div class="text-center mb-4">
+ <h3 class="text-base font-bold mb-1" style="color: var(--color-text);">시간표를 만들어 보세요</h3>
+ <p class="text-sm" style="color: var(--color-text-muted);">프리셋으로 빠르게 시작하거나, 직접 만들 수 있습니다</p>
+ </div>
+ <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+ {% for key, preset in presets.items() %}
+ <form action="/timetable/presets/apply" method="POST">
+ <input type="hidden" name="preset" value="{{ key }}">
+ <button type="submit" class="w-full p-4 rounded-xl text-left transition-all hover:scale-[1.02] hover:shadow-md"
+ style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <p class="text-sm font-bold mb-1" style="color: var(--color-text);">{{ preset.label }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">
+ {% if preset.blocks %}
+ {{ preset.blocks|length }}개 시간 블록
+ {% else %}
+ 빈 시간표 (직접 구성)
+ {% endif %}
+ </p>
+ </button>
+ </form>
+ {% endfor %}
+ </div>
 </div>
 {% endif %}
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-    <!-- Circular timetable -->
-    <div class="lg:col-span-2 flex justify-center">
-        <div class="w-full max-w-[420px]">
-            <svg id="timetableSvg" viewBox="0 0 400 400" class="w-full h-auto" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));" aria-label="원형 타임테이블" role="img">
-                <title>{{ target_month }}월 {{ target_day }}일 타임테이블</title>
-                <!-- Background circles -->
-                <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border, #e2e8f0);"/>
-                <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.4;"/>
-                <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.3;"/>
+ <!-- Circular timetable -->
+ <div class="lg:col-span-2 flex justify-center">
+ <div class="w-full max-w-[420px]">
+ <svg id="timetableSvg" viewBox="0 0 400 400" class="w-full h-auto" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));" aria-label="원형 타임테이블" role="img">
+ <title>{{ target_month }}월 {{ target_day }}일 타임테이블</title>
+ <!-- Background circles -->
+ <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border, #e2e8f0);"/>
+ <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.4;"/>
+ <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.3;"/>
 
-                <!-- Hour ticks and labels -->
-                {% for h in range(24) %}
-                {% set angle = (h / 24) * 360 - 90 %}
-                <line
-                    x1="{{ 200 + 175 * (angle | cos_deg) }}" y1="{{ 200 + 175 * (angle | sin_deg) }}"
-                    x2="{{ 200 + 185 * (angle | cos_deg) }}" y2="{{ 200 + 185 * (angle | sin_deg) }}"
-                    stroke-width="{% if h % 6 == 0 %}2{% else %}1{% endif %}"
-                    style="stroke: var(--color-text-faint, #94a3b8);"
-                />
-                <text
-                    x="{{ 200 + 194 * (angle | cos_deg) }}"
-                    y="{{ 200 + 194 * (angle | sin_deg) }}"
-                    text-anchor="middle" dominant-baseline="central"
-                    class="select-none"
-                    style="font-size: {% if h % 3 == 0 %}10{% else %}8{% endif %}px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint, #94a3b8);">
-                    {{ h }}
-                </text>
-                {% endfor %}
+ <!-- Hour ticks and labels -->
+ {% for h in range(24) %}
+ {% set angle = (h / 24) * 360 - 90 %}
+ <line
+ x1="{{ 200 + 175 * (angle | cos_deg) }}" y1="{{ 200 + 175 * (angle | sin_deg) }}"
+ x2="{{ 200 + 185 * (angle | cos_deg) }}" y2="{{ 200 + 185 * (angle | sin_deg) }}"
+ stroke-width="{% if h % 6 == 0 %}2{% else %}1{% endif %}"
+ style="stroke: var(--color-text-faint, #94a3b8);"
+ />
+ <text
+ x="{{ 200 + 194 * (angle | cos_deg) }}"
+ y="{{ 200 + 194 * (angle | sin_deg) }}"
+ text-anchor="middle" dominant-baseline="central"
+ class="select-none"
+ style="font-size: {% if h % 3 == 0 %}10{% else %}8{% endif %}px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint, #94a3b8);">
+ {{ h }}
+ </text>
+ {% endfor %}
 
-                <!-- OUTER TRACK: User-defined timetable blocks (r: 130~170) -->
-                {% for block in outer_blocks %}
-                {% set start_angle = (block.start_hour / 24) * 360 - 90 %}
-                {% set end_angle = (block.end_hour / 24) * 360 - 90 %}
-                {% set r_outer = 170 %}
-                {% set r_inner = 130 %}
-                {% set large_arc = 1 if (block.end_hour - block.start_hour) >= 12 else 0 %}
-                <path
-                    d="M {{ 200 + r_outer * (start_angle | cos_deg) }} {{ 200 + r_outer * (start_angle | sin_deg) }}
-                       A {{ r_outer }} {{ r_outer }} 0 {{ large_arc }} 1 {{ 200 + r_outer * (end_angle | cos_deg) }} {{ 200 + r_outer * (end_angle | sin_deg) }}
-                       L {{ 200 + r_inner * (end_angle | cos_deg) }} {{ 200 + r_inner * (end_angle | sin_deg) }}
-                       A {{ r_inner }} {{ r_inner }} 0 {{ large_arc }} 0 {{ 200 + r_inner * (start_angle | cos_deg) }} {{ 200 + r_inner * (start_angle | sin_deg) }}
-                       Z"
-                    fill="{{ block.color }}25"
-                    stroke="{{ block.color }}"
-                    stroke-width="1.5"
-                    class="timetable-arc cursor-pointer"
-                    data-id="{{ block.id }}"
-                    data-title="{{ block.title }}"
-                    data-type="user_block"
-                    data-start="{{ block.start_hour }}"
-                    data-end="{{ block.end_hour }}"
-                    data-color="{{ block.color }}"
-                    data-icon="{{ block.icon|default('', true)|e }}"
-                    data-raw-start="{{ block.raw_start }}"
-                    data-raw-end="{{ block.raw_end }}"
-                    onclick="clickUserBlock(this)"
-                    style="transition: opacity 0.15s;"
-                    onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'"
-                >
-                    <title>{{ block.title }} ({{ block.raw_start }}~{{ block.raw_end }})</title>
-                </path>
-                {% if (block.end_hour - block.start_hour) >= 1 %}
-                {% set mid_angle = ((block.start_hour + block.end_hour) / 2 / 24) * 360 - 90 %}
-                {% set label_r = 150 %}
-                <text
-                    x="{{ 200 + label_r * (mid_angle | cos_deg) }}"
-                    y="{{ 200 + label_r * (mid_angle | sin_deg) }}"
-                    text-anchor="middle" dominant-baseline="central"
-                    style="font-size: 9px; font-weight: 600; fill: {{ block.color }}; pointer-events: none;"
-                    class="select-none">
-                    {{ block.title[:6] }}{% if block.title|length > 6 %}..{% endif %}
-                </text>
-                {% endif %}
-                {% endfor %}
+ <!-- OUTER TRACK: User-defined timetable blocks (r: 130~170) -->
+ {% for block in outer_blocks %}
+ {% set start_angle = (block.start_hour / 24) * 360 - 90 %}
+ {% set end_angle = (block.end_hour / 24) * 360 - 90 %}
+ {% set r_outer = 170 %}
+ {% set r_inner = 130 %}
+ {% set large_arc = 1 if (block.end_hour - block.start_hour) >= 12 else 0 %}
+ <path
+ d="M {{ 200 + r_outer * (start_angle | cos_deg) }} {{ 200 + r_outer * (start_angle | sin_deg) }}
+ A {{ r_outer }} {{ r_outer }} 0 {{ large_arc }} 1 {{ 200 + r_outer * (end_angle | cos_deg) }} {{ 200 + r_outer * (end_angle | sin_deg) }}
+ L {{ 200 + r_inner * (end_angle | cos_deg) }} {{ 200 + r_inner * (end_angle | sin_deg) }}
+ A {{ r_inner }} {{ r_inner }} 0 {{ large_arc }} 0 {{ 200 + r_inner * (start_angle | cos_deg) }} {{ 200 + r_inner * (start_angle | sin_deg) }}
+ Z"
+ fill="{{ block.color }}25"
+ stroke="{{ block.color }}"
+ stroke-width="1.5"
+ class="timetable-arc cursor-pointer"
+ data-id="{{ block.id }}"
+ data-title="{{ block.title }}"
+ data-type="user_block"
+ data-start="{{ block.start_hour }}"
+ data-end="{{ block.end_hour }}"
+ data-color="{{ block.color }}"
+ data-icon="{{ block.icon|default('', true)|e }}"
+ data-raw-start="{{ block.raw_start }}"
+ data-raw-end="{{ block.raw_end }}"
+ onclick="clickUserBlock(this)"
+ style="transition: opacity 0.15s;"
+ onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'"
+ >
+ <title>{{ block.title }} ({{ block.raw_start }}~{{ block.raw_end }})</title>
+ </path>
+ {% if (block.end_hour - block.start_hour) >= 1 %}
+ {% set mid_angle = ((block.start_hour + block.end_hour) / 2 / 24) * 360 - 90 %}
+ {% set label_r = 150 %}
+ <text
+ x="{{ 200 + label_r * (mid_angle | cos_deg) }}"
+ y="{{ 200 + label_r * (mid_angle | sin_deg) }}"
+ text-anchor="middle" dominant-baseline="central"
+ style="font-size: 9px; font-weight: 600; fill: {{ block.color }}; pointer-events: none;"
+ class="select-none">
+ {{ block.title[:6] }}{% if block.title|length > 6 %}..{% endif %}
+ </text>
+ {% endif %}
+ {% endfor %}
 
-                <!-- INNER TRACK: Events/habits (r: 90~125) -->
-                {% for block in inner_blocks %}
-                {% set start_angle = (block.start_hour / 24) * 360 - 90 %}
-                {% set end_angle = (block.end_hour / 24) * 360 - 90 %}
-                {% set r_outer = 125 %}
-                {% set r_inner = 90 %}
-                {% set large_arc = 1 if (block.end_hour - block.start_hour) >= 12 else 0 %}
-                <path
-                    d="M {{ 200 + r_outer * (start_angle | cos_deg) }} {{ 200 + r_outer * (start_angle | sin_deg) }}
-                       A {{ r_outer }} {{ r_outer }} 0 {{ large_arc }} 1 {{ 200 + r_outer * (end_angle | cos_deg) }} {{ 200 + r_outer * (end_angle | sin_deg) }}
-                       L {{ 200 + r_inner * (end_angle | cos_deg) }} {{ 200 + r_inner * (end_angle | sin_deg) }}
-                       A {{ r_inner }} {{ r_inner }} 0 {{ large_arc }} 0 {{ 200 + r_inner * (start_angle | cos_deg) }} {{ 200 + r_inner * (start_angle | sin_deg) }}
-                       Z"
-                    fill="{{ block.color }}20"
-                    stroke="{{ block.color }}"
-                    stroke-width="1"
-                    class="timetable-arc cursor-pointer"
-                    data-title="{{ block.title }}"
-                    data-type="{{ block.type }}"
-                    data-start="{{ block.start_hour }}"
-                    data-end="{{ block.end_hour }}"
-                    data-color="{{ block.color }}"
-                    onclick="showBlockDetail(this)"
-                    style="transition: opacity 0.15s;"
-                    onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'"
-                >
-                    <title>{{ block.title }}</title>
-                </path>
-                {% if (block.end_hour - block.start_hour) >= 1.5 %}
-                {% set mid_angle = ((block.start_hour + block.end_hour) / 2 / 24) * 360 - 90 %}
-                {% set label_r = 107 %}
-                <text
-                    x="{{ 200 + label_r * (mid_angle | cos_deg) }}"
-                    y="{{ 200 + label_r * (mid_angle | sin_deg) }}"
-                    text-anchor="middle" dominant-baseline="central"
-                    style="font-size: 8px; font-weight: 500; fill: {{ block.color }}; pointer-events: none; opacity: 0.8;"
-                    class="select-none">
-                    {{ block.title[:5] }}{% if block.title|length > 5 %}..{% endif %}
-                </text>
-                {% endif %}
-                {% endfor %}
+ <!-- INNER TRACK: Events/habits (r: 90~125) -->
+ {% for block in inner_blocks %}
+ {% set start_angle = (block.start_hour / 24) * 360 - 90 %}
+ {% set end_angle = (block.end_hour / 24) * 360 - 90 %}
+ {% set r_outer = 125 %}
+ {% set r_inner = 90 %}
+ {% set large_arc = 1 if (block.end_hour - block.start_hour) >= 12 else 0 %}
+ <path
+ d="M {{ 200 + r_outer * (start_angle | cos_deg) }} {{ 200 + r_outer * (start_angle | sin_deg) }}
+ A {{ r_outer }} {{ r_outer }} 0 {{ large_arc }} 1 {{ 200 + r_outer * (end_angle | cos_deg) }} {{ 200 + r_outer * (end_angle | sin_deg) }}
+ L {{ 200 + r_inner * (end_angle | cos_deg) }} {{ 200 + r_inner * (end_angle | sin_deg) }}
+ A {{ r_inner }} {{ r_inner }} 0 {{ large_arc }} 0 {{ 200 + r_inner * (start_angle | cos_deg) }} {{ 200 + r_inner * (start_angle | sin_deg) }}
+ Z"
+ fill="{{ block.color }}20"
+ stroke="{{ block.color }}"
+ stroke-width="1"
+ class="timetable-arc cursor-pointer"
+ data-title="{{ block.title }}"
+ data-type="{{ block.type }}"
+ data-start="{{ block.start_hour }}"
+ data-end="{{ block.end_hour }}"
+ data-color="{{ block.color }}"
+ onclick="showBlockDetail(this)"
+ style="transition: opacity 0.15s;"
+ onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'"
+ >
+ <title>{{ block.title }}</title>
+ </path>
+ {% if (block.end_hour - block.start_hour) >= 1.5 %}
+ {% set mid_angle = ((block.start_hour + block.end_hour) / 2 / 24) * 360 - 90 %}
+ {% set label_r = 107 %}
+ <text
+ x="{{ 200 + label_r * (mid_angle | cos_deg) }}"
+ y="{{ 200 + label_r * (mid_angle | sin_deg) }}"
+ text-anchor="middle" dominant-baseline="central"
+ style="font-size: 8px; font-weight: 500; fill: {{ block.color }}; pointer-events: none; opacity: 0.8;"
+ class="select-none">
+ {{ block.title[:5] }}{% if block.title|length > 5 %}..{% endif %}
+ </text>
+ {% endif %}
+ {% endfor %}
 
-                <!-- Current time needle (only for today) -->
-                {% if is_today %}
-                <line id="timeNeedle"
-                    x1="200" y1="200"
-                    x2="200" y2="30"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    style="stroke: var(--color-accent, #d97706);"
-                    transform="rotate(0, 200, 200)"
-                />
-                <circle cx="200" cy="200" r="4" style="fill: var(--color-accent, #d97706);"/>
-                {% endif %}
+ <!-- Current time needle (only for today) -->
+ {% if is_today %}
+ <line id="timeNeedle"
+ x1="200" y1="200"
+ x2="200" y2="30"
+ stroke-width="2"
+ stroke-linecap="round"
+ style="stroke: var(--color-accent, #d97706);"
+ transform="rotate(0, 200, 200)"
+ />
+ <circle cx="200" cy="200" r="4" style="fill: var(--color-accent, #d97706);"/>
+ {% endif %}
 
-                <!-- Center text -->
-                <text x="200" y="192" text-anchor="middle" style="font-size: 15px; font-weight: 800; fill: var(--color-text, #1e293b);">
-                    {{ target_month }}/{{ target_day }}
-                </text>
-                <text x="200" y="210" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: var(--color-text-muted, #64748b);">
-                    {{ target_weekday }}요일
-                </text>
-            </svg>
-        </div>
-    </div>
+ <!-- Center text -->
+ <text x="200" y="192" text-anchor="middle" style="font-size: 15px; font-weight: 800; fill: var(--color-text, #1e293b);">
+ {{ target_month }}/{{ target_day }}
+ </text>
+ <text x="200" y="210" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: var(--color-text-muted, #64748b);">
+ {{ target_weekday }}요일
+ </text>
+ </svg>
+ </div>
+ </div>
 
-    <!-- Sidebar -->
-    <div class="space-y-4">
-        <!-- Block detail card (shown on click) -->
-        <div id="blockDetail" class="hidden work-card rounded-xl p-4">
-            <div class="flex items-center gap-2 mb-2">
-                <span id="detailDot" class="w-3 h-3 rounded-full"></span>
-                <span id="detailTitle" class="text-sm font-bold" style="color: var(--color-text);"></span>
-            </div>
-            <p id="detailTime" class="text-xs mb-1" style="color: var(--color-text-muted);"></p>
-            <p id="detailType" class="text-xs" style="color: var(--color-text-faint);"></p>
-        </div>
+ <!-- Sidebar -->
+ <div class="space-y-4">
+ <!-- Block detail card (shown on click) -->
+ <div id="blockDetail" class="hidden work-card rounded-xl p-4">
+ <div class="flex items-center gap-2 mb-2">
+ <span id="detailDot" class="w-3 h-3 rounded-full"></span>
+ <span id="detailTitle" class="text-sm font-bold" style="color: var(--color-text);"></span>
+ </div>
+ <p id="detailTime" class="text-xs mb-1" style="color: var(--color-text-muted);"></p>
+ <p id="detailType" class="text-xs" style="color: var(--color-text-faint);"></p>
+ </div>
 
-        <!-- User timetable blocks list -->
-        <div class="work-card rounded-xl overflow-hidden">
-            <div class="section-header">
-                <h3>
-                    <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/>
-                    </svg>
-                    시간표
-                    <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ user_blocks|length }}</span>
-                </h3>
-                {% if edit_day_type != 'today' %}
-                <button onclick="toggleAddForm()" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
-                        style="background: var(--color-accent-soft); color: var(--color-accent);"
-                        id="addBlockBtn">+ 추가</button>
-                {% endif %}
-            </div>
-            <div class="p-3">
-                <!-- Block list -->
-                <div id="blockList">
-                    {% if user_blocks %}
-                    <div class="space-y-1.5">
-                        {% for b in user_blocks %}
-                        <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg group"
-                             style="background: var(--color-border-subtle);"
-                             id="block-row-{{ b.id }}">
-                            <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ b.color }};"></div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate" style="color: var(--color-text);">
-                                    {% if b.icon %}{{ b.icon }} {% endif %}{{ b.title }}
-                                </p>
-                                <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
-                            </div>
-                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
-                                <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
-                                        class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="편집">
-                                    <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-                                    </svg>
-                                </button>
-                                <button hx-delete="/timetable/blocks/{{ b.id }}"
-                                        hx-target="#block-row-{{ b.id }}"
-                                        hx-swap="outerHTML"
-                                        class="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30" title="삭제">
-                                    <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-center text-sm py-3" style="color: var(--color-text-faint);">시간 블록이 없습니다</p>
-                    {% endif %}
-                </div>
+ <!-- User timetable blocks list -->
+ <div class="work-card rounded-xl overflow-hidden">
+ <div class="section-header">
+ <h3>
+ <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/>
+ </svg>
+ 시간표
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ user_blocks|length }}</span>
+ </h3>
+ {% if edit_day_type != 'today' %}
+ <button onclick="toggleAddForm()" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
+ style="background: var(--color-accent-soft); color: var(--color-accent);"
+ id="addBlockBtn">+ 추가</button>
+ {% endif %}
+ </div>
+ <div class="p-3">
+ <!-- Block list -->
+ <div id="blockList">
+ {% if user_blocks %}
+ <div class="space-y-1.5">
+ {% for b in user_blocks %}
+ <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg group"
+ style="background: var(--color-border-subtle);"
+ id="block-row-{{ b.id }}">
+ <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ b.color }};"></div>
+ <div class="flex-1 min-w-0">
+ <p class="text-sm font-medium truncate" style="color: var(--color-text);">
+ {% if b.icon %}{{ b.icon }} {% endif %}{{ b.title }}
+ </p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
+ </div>
+ <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
+ <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
+ class="p-1 rounded hover-surface" title="편집">
+ <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+ </svg>
+ </button>
+ <button hx-delete="/timetable/blocks/{{ b.id }}"
+ hx-target="#block-row-{{ b.id }}"
+ hx-swap="outerHTML"
+ class="p-1 rounded hover:bg-red-100" title="삭제">
+ <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+ </svg>
+ </button>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <p class="text-center text-sm py-3" style="color: var(--color-text-faint);">시간 블록이 없습니다</p>
+ {% endif %}
+ </div>
 
-                <!-- Add/Edit form (hidden by default) -->
-                <div id="blockForm" class="hidden mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
-                    <form id="blockFormEl" action="/timetable/blocks" method="POST">
-                        <input type="hidden" name="day_type" value="{{ edit_day_type }}">
-                        <input type="hidden" id="editBlockId" name="_block_id" value="">
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div>
-                                <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">시작</label>
-                                <input type="time" name="start_time" id="formStart" required
-                                       class="w-full px-2 py-1.5 text-sm rounded-lg"
-                                       style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
-                            </div>
-                            <div>
-                                <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">종료</label>
-                                <input type="time" name="end_time" id="formEnd" required
-                                       class="w-full px-2 py-1.5 text-sm rounded-lg"
-                                       style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">제목</label>
-                            <input type="text" name="title" id="formTitle" required maxlength="50" placeholder="공부, 운동, 휴식..."
-                                   class="w-full px-2 py-1.5 text-sm rounded-lg"
-                                   style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
-                        </div>
-                        <div class="mb-2">
-                            <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">색상</label>
-                            <div class="flex gap-1.5 flex-wrap" id="colorPicker">
-                                {% for c in color_presets %}
-                                <button type="button" onclick="selectColor('{{ c }}')"
-                                        class="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 color-btn"
-                                        style="background: {{ c }}; border-color: transparent;"
-                                        data-color="{{ c }}"></button>
-                                {% endfor %}
-                            </div>
-                            <input type="hidden" name="color" id="formColor" value="#6366f1">
-                        </div>
-                        <div class="mb-3">
-                            <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">아이콘</label>
-                            <div class="flex gap-1 flex-wrap" id="iconPicker">
-                                {% for ic in icon_presets %}
-                                <button type="button" onclick="selectIcon('{{ ic }}')"
-                                        class="w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all hover:scale-110 icon-btn"
-                                        style="background: var(--color-border-subtle); border: 1px solid transparent;"
-                                        data-icon="{{ ic }}">{{ ic if ic else '—' }}</button>
-                                {% endfor %}
-                            </div>
-                            <input type="hidden" name="icon" id="formIcon" value="">
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" id="formSubmitBtn"
-                                    class="flex-1 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors"
-                                    style="background: var(--color-accent);">추가</button>
-                            <button type="button" onclick="cancelForm()"
-                                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                                    style="background: var(--color-border-subtle); color: var(--color-text-muted);">취소</button>
-                        </div>
-                    </form>
-                </div>
+ <!-- Add/Edit form (hidden by default) -->
+ <div id="blockForm" class="hidden mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
+ <form id="blockFormEl" action="/timetable/blocks" method="POST">
+ <input type="hidden" name="day_type" value="{{ edit_day_type }}">
+ <input type="hidden" id="editBlockId" name="_block_id" value="">
+ <div class="grid grid-cols-2 gap-2 mb-2">
+ <div>
+ <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">시작</label>
+ <input type="time" name="start_time" id="formStart" required
+ class="w-full px-2 py-1.5 text-sm rounded-lg"
+ style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
+ </div>
+ <div>
+ <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">종료</label>
+ <input type="time" name="end_time" id="formEnd" required
+ class="w-full px-2 py-1.5 text-sm rounded-lg"
+ style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
+ </div>
+ </div>
+ <div class="mb-2">
+ <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">제목</label>
+ <input type="text" name="title" id="formTitle" required maxlength="50" placeholder="공부, 운동, 휴식..."
+ class="w-full px-2 py-1.5 text-sm rounded-lg"
+ style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
+ </div>
+ <div class="mb-2">
+ <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">색상</label>
+ <div class="flex gap-1.5 flex-wrap" id="colorPicker">
+ {% for c in color_presets %}
+ <button type="button" onclick="selectColor('{{ c }}')"
+ class="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 color-btn"
+ style="background: {{ c }}; border-color: transparent;"
+ data-color="{{ c }}"></button>
+ {% endfor %}
+ </div>
+ <input type="hidden" name="color" id="formColor" value="#6366f1">
+ </div>
+ <div class="mb-3">
+ <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">아이콘</label>
+ <div class="flex gap-1 flex-wrap" id="iconPicker">
+ {% for ic in icon_presets %}
+ <button type="button" onclick="selectIcon('{{ ic }}')"
+ class="w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all hover:scale-110 icon-btn"
+ style="background: var(--color-border-subtle); border: 1px solid transparent;"
+ data-icon="{{ ic }}">{{ ic if ic else '—' }}</button>
+ {% endfor %}
+ </div>
+ <input type="hidden" name="icon" id="formIcon" value="">
+ </div>
+ <div class="flex gap-2">
+ <button type="submit" id="formSubmitBtn"
+ class="flex-1 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors"
+ style="background: var(--color-accent);">추가</button>
+ <button type="button" onclick="cancelForm()"
+ class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+ style="background: var(--color-border-subtle); color: var(--color-text-muted);">취소</button>
+ </div>
+ </form>
+ </div>
 
-                <!-- Copy from default -->
-                {% if edit_day_type != 'default' and 'default' in existing_day_types %}
-                <div class="mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
-                    <form action="/timetable/templates/copy" method="POST" class="flex items-center gap-2">
-                        <input type="hidden" name="from_type" value="default">
-                        <input type="hidden" name="to_type" value="{{ edit_day_type }}">
-                        <button type="submit" class="w-full py-1.5 rounded-lg text-xs font-medium transition-colors"
-                                style="background: var(--color-border-subtle); color: var(--color-text-muted); border: 1px dashed var(--color-border);">
-                            기본 시간표에서 복사
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+ <!-- Copy from default -->
+ {% if edit_day_type != 'default' and 'default' in existing_day_types %}
+ <div class="mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
+ <form action="/timetable/templates/copy" method="POST" class="flex items-center gap-2">
+ <input type="hidden" name="from_type" value="default">
+ <input type="hidden" name="to_type" value="{{ edit_day_type }}">
+ <button type="submit" class="w-full py-1.5 rounded-lg text-xs font-medium transition-colors"
+ style="background: var(--color-border-subtle); color: var(--color-text-muted); border: 1px dashed var(--color-border);">
+ 기본 시간표에서 복사
+ </button>
+ </form>
+ </div>
+ {% endif %}
+ </div>
+ </div>
 
-        <!-- Today's schedule list -->
-        <div class="work-card rounded-xl overflow-hidden">
-            <div class="section-header">
-                <h3>
-                    <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    일정
-                    <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ schedule_list|length }}</span>
-                </h3>
-            </div>
-            <div class="p-3">
-                {% if schedule_list %}
-                <div class="space-y-2">
-                    {% for item in schedule_list %}
-                    <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">
-                        <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ item.color }};"></div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ item.title }}</p>
-                            <p class="text-xs" style="color: var(--color-text-muted);">{{ item.time_label }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-center text-sm py-4" style="color: var(--color-text-faint);">일정이 없습니다</p>
-                {% endif %}
-            </div>
-        </div>
+ <!-- Today's schedule list -->
+ <div class="work-card rounded-xl overflow-hidden">
+ <div class="section-header">
+ <h3>
+ <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ 일정
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ schedule_list|length }}</span>
+ </h3>
+ </div>
+ <div class="p-3">
+ {% if schedule_list %}
+ <div class="space-y-2">
+ {% for item in schedule_list %}
+ <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">
+ <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ item.color }};"></div>
+ <div class="flex-1 min-w-0">
+ <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ item.title }}</p>
+ <p class="text-xs" style="color: var(--color-text-muted);">{{ item.time_label }}</p>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <p class="text-center text-sm py-4" style="color: var(--color-text-faint);">일정이 없습니다</p>
+ {% endif %}
+ </div>
+ </div>
 
-        <!-- Today's todos -->
-        <div class="work-card rounded-xl overflow-hidden">
-            <div class="section-header">
-                <h3>
-                    <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    할일
-                    <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ todos|length }}</span>
-                </h3>
-            </div>
-            <div class="p-3">
-                {% if todos %}
-                <div class="space-y-2">
-                    {% for t in todos %}
-                    <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);">
-                        <form action="/todos/{{ t.id }}/toggle" method="POST" class="inline">
-                            <button type="submit" class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0
-                                {% if t.completed %}bg-amber-500 border-amber-500{% else %}border-slate-300 dark:border-slate-600{% endif %}">
-                                {% if t.completed %}<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
-                            </button>
-                        </form>
-                        <span class="text-sm truncate {% if t.completed %}line-through{% endif %}" style="color: var(--color-text);">{{ t.title }}</span>
-                        {% if t.category_color %}<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ t.category_color }}"></span>{% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-center text-sm py-4" style="color: var(--color-text-faint);">할일이 없습니다</p>
-                {% endif %}
-            </div>
-        </div>
+ <!-- Today's todos -->
+ <div class="work-card rounded-xl overflow-hidden">
+ <div class="section-header">
+ <h3>
+ <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ 할일
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ todos|length }}</span>
+ </h3>
+ </div>
+ <div class="p-3">
+ {% if todos %}
+ <div class="space-y-2">
+ {% for t in todos %}
+ <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);">
+ <form action="/todos/{{ t.id }}/toggle" method="POST" class="inline">
+ <button type="submit" class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0
+ {% if t.completed %}bg-amber-500 border-amber-500{% else %}{% endif %}">
+ {% if t.completed %}<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
+ </button>
+ </form>
+ <span class="text-sm truncate {% if t.completed %}line-through{% endif %}" style="color: var(--color-text);">{{ t.title }}</span>
+ {% if t.category_color %}<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ t.category_color }}"></span>{% endif %}
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <p class="text-center text-sm py-4" style="color: var(--color-text-faint);">할일이 없습니다</p>
+ {% endif %}
+ </div>
+ </div>
 
-        <!-- Free time slots -->
-        <div class="work-card rounded-xl overflow-hidden">
-            <div class="section-header">
-                <h3>
-                    <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-success, #10b981);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    여유 시간
-                </h3>
-            </div>
-            <div class="p-3" id="freeTimeSlots">
-                <p class="text-center text-sm py-2" style="color: var(--color-text-faint);">계산 중...</p>
-            </div>
-        </div>
-    </div>
+ <!-- Free time slots -->
+ <div class="work-card rounded-xl overflow-hidden">
+ <div class="section-header">
+ <h3>
+ <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-success, #10b981);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ 여유 시간
+ </h3>
+ </div>
+ <div class="p-3" id="freeTimeSlots">
+ <p class="text-center text-sm py-2" style="color: var(--color-text-faint);">계산 중...</p>
+ </div>
+ </div>
+ </div>
 </div>
 {% endblock %}
 
@@ -437,11 +437,11 @@ var PI = Math.PI;
 // Current time needle update
 {% if is_today %}
 function updateNeedle() {
-    var now = new Date();
-    var h = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-    var angle = (h / 24) * 360;
-    var needle = document.getElementById('timeNeedle');
-    if (needle) needle.setAttribute('transform', 'rotate(' + angle + ', 200, 200)');
+ var now = new Date();
+ var h = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+ var angle = (h / 24) * 360;
+ var needle = document.getElementById('timeNeedle');
+ if (needle) needle.setAttribute('transform', 'rotate(' + angle + ', 200, 200)');
 }
 updateNeedle();
 setInterval(updateNeedle, 60000);
@@ -449,202 +449,202 @@ setInterval(updateNeedle, 60000);
 
 // Block detail display (for inner track - events/habits)
 function showBlockDetail(el) {
-    var detail = document.getElementById('blockDetail');
-    var title = el.getAttribute('data-title');
-    var type = el.getAttribute('data-type');
-    var startH = parseFloat(el.getAttribute('data-start'));
-    var endH = parseFloat(el.getAttribute('data-end'));
-    var color = el.getAttribute('data-color');
+ var detail = document.getElementById('blockDetail');
+ var title = el.getAttribute('data-title');
+ var type = el.getAttribute('data-type');
+ var startH = parseFloat(el.getAttribute('data-start'));
+ var endH = parseFloat(el.getAttribute('data-end'));
+ var color = el.getAttribute('data-color');
 
-    document.getElementById('detailDot').style.background = color;
-    document.getElementById('detailTitle').textContent = title;
+ document.getElementById('detailDot').style.background = color;
+ document.getElementById('detailTitle').textContent = title;
 
-    var sh = Math.floor(startH);
-    var sm = Math.round((startH - sh) * 60);
-    var eh = Math.floor(endH);
-    var em = Math.round((endH - eh) * 60);
-    var dur = endH - startH;
-    document.getElementById('detailTime').textContent =
-        String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' ~ ' +
-        String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') +
-        ' (' + (dur >= 1 ? Math.floor(dur) + '시간' : '') + (Math.round((dur % 1)*60) > 0 ? ' ' + Math.round((dur % 1)*60) + '분' : '') + ')';
+ var sh = Math.floor(startH);
+ var sm = Math.round((startH - sh) * 60);
+ var eh = Math.floor(endH);
+ var em = Math.round((endH - eh) * 60);
+ var dur = endH - startH;
+ document.getElementById('detailTime').textContent =
+ String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' ~ ' +
+ String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') +
+ ' (' + (dur >= 1 ? Math.floor(dur) + '시간' : '') + (Math.round((dur % 1)*60) > 0 ? ' ' + Math.round((dur % 1)*60) + '분' : '') + ')';
 
-    var typeLabel = {'event':'일정','habit':'습관','user_block':'시간표'}[type] || type;
-    document.getElementById('detailType').textContent = typeLabel;
-    detail.classList.remove('hidden');
+ var typeLabel = {'event':'일정','habit':'습관','user_block':'시간표'}[type] || type;
+ document.getElementById('detailType').textContent = typeLabel;
+ detail.classList.remove('hidden');
 }
 
 // Click user block -> open edit form
 function clickUserBlock(el) {
-    showBlockDetail(el);
-    var id = el.getAttribute('data-id');
-    var rawStart = el.getAttribute('data-raw-start');
-    var rawEnd = el.getAttribute('data-raw-end');
-    var title = el.getAttribute('data-title');
-    var color = el.getAttribute('data-color');
-    var icon = el.getAttribute('data-icon') || '';
-    editBlock(parseInt(id), rawStart, rawEnd, title, color, icon);
+ showBlockDetail(el);
+ var id = el.getAttribute('data-id');
+ var rawStart = el.getAttribute('data-raw-start');
+ var rawEnd = el.getAttribute('data-raw-end');
+ var title = el.getAttribute('data-title');
+ var color = el.getAttribute('data-color');
+ var icon = el.getAttribute('data-icon') || '';
+ editBlock(parseInt(id), rawStart, rawEnd, title, color, icon);
 }
 
 // Add/Edit form logic
 var isEditing = false;
 
 function toggleAddForm() {
-    var form = document.getElementById('blockForm');
-    if (!form.classList.contains('hidden') && !isEditing) {
-        form.classList.add('hidden');
-        return;
-    }
-    isEditing = false;
-    resetForm();
-    document.getElementById('formSubmitBtn').textContent = '추가';
-    document.getElementById('blockFormEl').action = '/timetable/blocks';
-    // Remove method override if exists
-    var methodInput = document.getElementById('blockFormEl').querySelector('input[name="_method"]');
-    if (methodInput) methodInput.remove();
-    form.classList.remove('hidden');
+ var form = document.getElementById('blockForm');
+ if (!form.classList.contains('hidden') && !isEditing) {
+ form.classList.add('hidden');
+ return;
+ }
+ isEditing = false;
+ resetForm();
+ document.getElementById('formSubmitBtn').textContent = '추가';
+ document.getElementById('blockFormEl').action = '/timetable/blocks';
+ // Remove method override if exists
+ var methodInput = document.getElementById('blockFormEl').querySelector('input[name="_method"]');
+ if (methodInput) methodInput.remove();
+ form.classList.remove('hidden');
 }
 
 function editBlock(id, startTime, endTime, title, color, icon) {
-    isEditing = true;
-    var form = document.getElementById('blockForm');
-    form.classList.remove('hidden');
-    document.getElementById('formStart').value = startTime;
-    document.getElementById('formEnd').value = endTime;
-    document.getElementById('formTitle').value = title;
-    selectColor(color);
-    selectIcon(icon || '');
-    document.getElementById('editBlockId').value = id;
-    document.getElementById('formSubmitBtn').textContent = '수정';
+ isEditing = true;
+ var form = document.getElementById('blockForm');
+ form.classList.remove('hidden');
+ document.getElementById('formStart').value = startTime;
+ document.getElementById('formEnd').value = endTime;
+ document.getElementById('formTitle').value = title;
+ selectColor(color);
+ selectIcon(icon || '');
+ document.getElementById('editBlockId').value = id;
+ document.getElementById('formSubmitBtn').textContent = '수정';
 
-    // Change form to PUT
-    var formEl = document.getElementById('blockFormEl');
-    formEl.action = '/timetable/blocks/' + id;
-    // Add method override for PUT
-    var existing = formEl.querySelector('input[name="_method"]');
-    if (!existing) {
-        var mi = document.createElement('input');
-        mi.type = 'hidden';
-        mi.name = '_method';
-        mi.value = 'PUT';
-        formEl.appendChild(mi);
-    }
-    // Use hx-put attribute
-    formEl.setAttribute('hx-put', '/timetable/blocks/' + id);
-    formEl.removeAttribute('action');
-    formEl.removeAttribute('method');
+ // Change form to PUT
+ var formEl = document.getElementById('blockFormEl');
+ formEl.action = '/timetable/blocks/' + id;
+ // Add method override for PUT
+ var existing = formEl.querySelector('input[name="_method"]');
+ if (!existing) {
+ var mi = document.createElement('input');
+ mi.type = 'hidden';
+ mi.name = '_method';
+ mi.value = 'PUT';
+ formEl.appendChild(mi);
+ }
+ // Use hx-put attribute
+ formEl.setAttribute('hx-put', '/timetable/blocks/' + id);
+ formEl.removeAttribute('action');
+ formEl.removeAttribute('method');
 
-    // Scroll form into view
-    form.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+ // Scroll form into view
+ form.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
 function cancelForm() {
-    var form = document.getElementById('blockForm');
-    form.classList.add('hidden');
-    resetForm();
-    isEditing = false;
-    // Restore form to POST mode
-    var formEl = document.getElementById('blockFormEl');
-    formEl.action = '/timetable/blocks';
-    formEl.method = 'POST';
-    formEl.removeAttribute('hx-put');
-    var mi = formEl.querySelector('input[name="_method"]');
-    if (mi) mi.remove();
+ var form = document.getElementById('blockForm');
+ form.classList.add('hidden');
+ resetForm();
+ isEditing = false;
+ // Restore form to POST mode
+ var formEl = document.getElementById('blockFormEl');
+ formEl.action = '/timetable/blocks';
+ formEl.method = 'POST';
+ formEl.removeAttribute('hx-put');
+ var mi = formEl.querySelector('input[name="_method"]');
+ if (mi) mi.remove();
 }
 
 function resetForm() {
-    document.getElementById('formStart').value = '';
-    document.getElementById('formEnd').value = '';
-    document.getElementById('formTitle').value = '';
-    selectColor('#6366f1');
-    selectIcon('');
-    document.getElementById('editBlockId').value = '';
+ document.getElementById('formStart').value = '';
+ document.getElementById('formEnd').value = '';
+ document.getElementById('formTitle').value = '';
+ selectColor('#6366f1');
+ selectIcon('');
+ document.getElementById('editBlockId').value = '';
 }
 
 function selectColor(c) {
-    document.getElementById('formColor').value = c;
-    document.querySelectorAll('.color-btn').forEach(function(btn) {
-        btn.style.borderColor = btn.getAttribute('data-color') === c ? 'var(--color-text)' : 'transparent';
-        btn.style.transform = btn.getAttribute('data-color') === c ? 'scale(1.2)' : '';
-    });
+ document.getElementById('formColor').value = c;
+ document.querySelectorAll('.color-btn').forEach(function(btn) {
+ btn.style.borderColor = btn.getAttribute('data-color') === c ? 'var(--color-text)' : 'transparent';
+ btn.style.transform = btn.getAttribute('data-color') === c ? 'scale(1.2)' : '';
+ });
 }
 
 function selectIcon(ic) {
-    document.getElementById('formIcon').value = ic;
-    document.querySelectorAll('.icon-btn').forEach(function(btn) {
-        var match = btn.getAttribute('data-icon') === ic;
-        btn.style.borderColor = match ? 'var(--color-accent)' : 'transparent';
-        btn.style.background = match ? 'var(--color-accent-soft)' : 'var(--color-border-subtle)';
-    });
+ document.getElementById('formIcon').value = ic;
+ document.querySelectorAll('.icon-btn').forEach(function(btn) {
+ var match = btn.getAttribute('data-icon') === ic;
+ btn.style.borderColor = match ? 'var(--color-accent)' : 'transparent';
+ btn.style.background = match ? 'var(--color-accent-soft)' : 'var(--color-border-subtle)';
+ });
 }
 
 // Form submission handler for edit mode (hx-put)
 document.getElementById('blockFormEl').addEventListener('submit', function(e) {
-    if (isEditing) {
-        e.preventDefault();
-        var formEl = this;
-        var url = formEl.getAttribute('hx-put');
-        if (!url) return;
-        var formData = new FormData(formEl);
-        fetch(url, {method: 'PUT', body: formData})
-            .then(function(r) {
-                if (r.ok) window.location.reload();
-            });
-    }
+ if (isEditing) {
+ e.preventDefault();
+ var formEl = this;
+ var url = formEl.getAttribute('hx-put');
+ if (!url) return;
+ var formData = new FormData(formEl);
+ fetch(url, {method: 'PUT', body: formData})
+ .then(function(r) {
+ if (r.ok) window.location.reload();
+ });
+ }
 });
 
 // Free time calculation
 (function() {
-    var blocks = {{ time_blocks | tojson }};
-    var occupied = [];
-    blocks.forEach(function(b) {
-        occupied.push([b.start_hour, b.end_hour]);
-    });
-    occupied.sort(function(a,b){ return a[0]-b[0]; });
-    var merged = [];
-    occupied.forEach(function(seg) {
-        if (merged.length && seg[0] <= merged[merged.length-1][1]) {
-            merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], seg[1]);
-        } else {
-            merged.push([seg[0], seg[1]]);
-        }
-    });
-    var freeSlots = [];
-    var cursor = 6;
-    merged.forEach(function(seg) {
-        if (seg[0] > cursor) {
-            var gap = seg[0] - cursor;
-            if (gap >= 0.5) freeSlots.push([cursor, seg[0], gap]);
-        }
-        cursor = Math.max(cursor, seg[1]);
-    });
-    if (cursor < 23) {
-        freeSlots.push([cursor, 23, 23 - cursor]);
-    }
+ var blocks = {{ time_blocks | tojson }};
+ var occupied = [];
+ blocks.forEach(function(b) {
+ occupied.push([b.start_hour, b.end_hour]);
+ });
+ occupied.sort(function(a,b){ return a[0]-b[0]; });
+ var merged = [];
+ occupied.forEach(function(seg) {
+ if (merged.length && seg[0] <= merged[merged.length-1][1]) {
+ merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], seg[1]);
+ } else {
+ merged.push([seg[0], seg[1]]);
+ }
+ });
+ var freeSlots = [];
+ var cursor = 6;
+ merged.forEach(function(seg) {
+ if (seg[0] > cursor) {
+ var gap = seg[0] - cursor;
+ if (gap >= 0.5) freeSlots.push([cursor, seg[0], gap]);
+ }
+ cursor = Math.max(cursor, seg[1]);
+ });
+ if (cursor < 23) {
+ freeSlots.push([cursor, 23, 23 - cursor]);
+ }
 
-    var container = document.getElementById('freeTimeSlots');
-    if (freeSlots.length === 0) {
-        container.innerHTML = '<p class="text-center text-sm py-2" style="color: var(--color-text-faint);">빈 시간이 없습니다</p>';
-    } else {
-        var html = '<div class="space-y-1.5">';
-        freeSlots.forEach(function(s) {
-            var sh = Math.floor(s[0]);
-            var sm = Math.round((s[0]-sh)*60);
-            var eh = Math.floor(s[1]);
-            var em = Math.round((s[1]-eh)*60);
-            var dur = s[2];
-            var durLabel = dur >= 1 ? Math.floor(dur) + '시간' : '';
-            if (Math.round((dur%1)*60) > 0) durLabel += (durLabel ? ' ' : '') + Math.round((dur%1)*60) + '분';
-            html += '<div class="flex items-center justify-between py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">';
-            html += '<span class="text-xs font-medium" style="color: var(--color-text-muted);">' +
-                String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' ~ ' +
-                String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') + '</span>';
-            html += '<span class="text-xs font-semibold" style="color: var(--color-success, #10b981);">' + durLabel + ' 여유</span>';
-            html += '</div>';
-        });
-        html += '</div>';
-        container.innerHTML = html;
-    }
+ var container = document.getElementById('freeTimeSlots');
+ if (freeSlots.length === 0) {
+ container.innerHTML = '<p class="text-center text-sm py-2" style="color: var(--color-text-faint);">빈 시간이 없습니다</p>';
+ } else {
+ var html = '<div class="space-y-1.5">';
+ freeSlots.forEach(function(s) {
+ var sh = Math.floor(s[0]);
+ var sm = Math.round((s[0]-sh)*60);
+ var eh = Math.floor(s[1]);
+ var em = Math.round((s[1]-eh)*60);
+ var dur = s[2];
+ var durLabel = dur >= 1 ? Math.floor(dur) + '시간' : '';
+ if (Math.round((dur%1)*60) > 0) durLabel += (durLabel ? ' ' : '') + Math.round((dur%1)*60) + '분';
+ html += '<div class="flex items-center justify-between py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">';
+ html += '<span class="text-xs font-medium" style="color: var(--color-text-muted);">' +
+ String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' ~ ' +
+ String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') + '</span>';
+ html += '<span class="text-xs font-semibold" style="color: var(--color-success, #10b981);">' + durLabel + ' 여유</span>';
+ html += '</div>';
+ });
+ html += '</div>';
+ container.innerHTML = html;
+ }
 })();
 </script>
 {% endblock %}

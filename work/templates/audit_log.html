@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends"base.html" %}
 
 {% block title %}감사 로그 - Work Planner{% endblock %}
 {% block page_title %}감사 로그{% endblock %}
@@ -6,113 +6,117 @@
 
 {% block content %}
 <details class="mb-4 group">
-    <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
-        사용법
-    </summary>
-    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">활동 기록</b> — 생성, 수정, 삭제 등 모든 활동이 시간순으로 기록됩니다</p>
-        <p><b class="text-slate-700 dark:text-slate-300">필터</b> — 활동 유형이나 날짜로 필터링하여 필요한 기록을 찾을 수 있습니다</p>
-    </div>
+ <summary class="inline-flex items-center gap-1.5 text-xs hover:text-amber-500 cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+ 사용법
+ </summary>
+ <div class="mt-2 p-3 border rounded-xl text-xs leading-relaxed space-y-1" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft); color: var(--color-text-muted);">
+ <p><b>활동 기록</b> — 생성, 수정, 삭제 등 모든 활동이 시간순으로 기록됩니다</p>
+ <p><b>필터</b> — 활동 유형이나 날짜로 필터링하여 필요한 기록을 찾을 수 있습니다</p>
+ </div>
 </details>
 <div class="space-y-6">
-    <!-- Filter bar -->
-    <div class="work-card rounded-2xl p-4">
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="text-sm font-medium text-slate-500 dark:text-slate-400 mr-1">필터:</span>
-            <a href="/audit-log"
-               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if not entity_type %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
-                전체
-            </a>
-            <a href="/audit-log?entity_type=todo"
-               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'todo' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
-                할일
-            </a>
-            <a href="/audit-log?entity_type=event"
-               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'event' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
-                일정
-            </a>
-            <a href="/audit-log?entity_type=memo"
-               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type == 'memo' %}bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600{% endif %}">
-                메모
-            </a>
-        </div>
-    </div>
+ <!-- Filter bar -->
+ <div class="work-card rounded-2xl p-4">
+ <div class="flex flex-wrap items-center gap-2">
+ <span class="text-sm font-medium mr-1">필터:</span>
+ <a href="/audit-log"
+ class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type %}hover-surface{% endif %}"
+ style="{% if not entity_type %}background: var(--color-accent-soft); color: var(--color-accent-text);{% endif %}">
+ 전체
+ </a>
+ <a href="/audit-log?entity_type=todo"
+ class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type != 'todo' %}hover-surface{% endif %}"
+ style="{% if entity_type == 'todo' %}background: var(--color-accent-soft); color: var(--color-accent-text);{% endif %}">
+ 할일
+ </a>
+ <a href="/audit-log?entity_type=event"
+ class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type != 'event' %}hover-surface{% endif %}"
+ style="{% if entity_type == 'event' %}background: var(--color-accent-soft); color: var(--color-accent-text);{% endif %}">
+ 일정
+ </a>
+ <a href="/audit-log?entity_type=memo"
+ class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors {% if entity_type != 'memo' %}hover-surface{% endif %}"
+ style="{% if entity_type == 'memo' %}background: var(--color-accent-soft); color: var(--color-accent-text);{% endif %}">
+ 메모
+ </a>
+ </div>
+ </div>
 
-    <!-- Log list -->
-    <div class="space-y-2" id="log-list">
-        {% if logs %}
-        {% for log in logs %}
-        <div class="work-card rounded-xl p-4 fade-in">
-            <div class="flex items-start gap-3">
-                <!-- Action badge -->
-                <div class="flex-shrink-0 mt-0.5">
-                    {% set action_styles = {
-                        'create': ('bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', '생성'),
-                        'update': ('bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', '수정'),
-                        'complete': ('bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', '완료'),
-                        'uncomplete': ('bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', '미완료'),
-                        'delete': ('bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', '삭제'),
-                        'move': ('bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', '이동'),
-                        'reorder': ('bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400', '정렬'),
-                        'toggle': ('bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', '전환'),
-                        'import': ('bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400', '가져오기'),
-                        'restore': ('bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', '복원'),
-                    } %}
-                    {% set style_pair = action_styles.get(log.action, ('bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300', log.action)) %}
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold {{ style_pair[0] }}">{{ style_pair[1] }}</span>
-                </div>
+ <!-- Log list -->
+ <div class="space-y-2" id="log-list">
+ {% if logs %}
+ {% for log in logs %}
+ <div class="work-card rounded-xl p-4 fade-in">
+ <div class="flex items-start gap-3">
+ <!-- Action badge -->
+ <div class="flex-shrink-0 mt-0.5">
+ {% set action_styles = {
+'create': ('background: var(--color-success-soft); color: var(--color-success);','생성'),
+'update': ('background: var(--color-info-soft); color: var(--color-info);','수정'),
+'complete': ('background: var(--color-success-soft); color: var(--color-success);','완료'),
+'uncomplete': ('background: var(--color-accent-soft); color: var(--color-accent);','미완료'),
+'delete': ('background: var(--color-danger-soft); color: var(--color-danger);','삭제'),
+'move': ('background: var(--color-info-soft); color: var(--color-info);','이동'),
+'reorder': ('background: var(--color-info-soft); color: var(--color-info);','정렬'),
+'toggle': ('background: var(--color-info-soft); color: var(--color-info);','전환'),
+'import': ('background: var(--color-success-soft); color: var(--color-success);','가져오기'),
+'restore': ('background: var(--color-warning-soft); color: var(--color-warning);','복원'),
+ } %}
+ {% set style_pair = action_styles.get(log.action, ('', log.action)) %}
+ <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold" style="{{ style_pair[0] }}">{{ style_pair[1] }}</span>
+ </div>
 
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <!-- Entity type badge -->
-                        {% if log.entity_type == 'todo' %}
-                        <span class="text-xs font-medium text-amber-600 dark:text-amber-400">할일 #{{ log.entity_id }}</span>
-                        {% elif log.entity_type == 'event' %}
-                        <span class="text-xs font-medium text-purple-600 dark:text-purple-400">일정 #{{ log.entity_id }}</span>
-                        {% elif log.entity_type == 'memo' %}
-                        <span class="text-xs font-medium text-teal-600 dark:text-teal-400">메모 #{{ log.entity_id }}</span>
-                        {% else %}
-                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ log.entity_type }} #{{ log.entity_id }}</span>
-                        {% endif %}
+ <div class="flex-1 min-w-0">
+ <div class="flex items-center gap-2 flex-wrap">
+ <!-- Entity type badge -->
+ {% if log.entity_type == 'todo' %}
+ <span class="text-xs font-medium" style="color: var(--color-accent);">할일 #{{ log.entity_id }}</span>
+ {% elif log.entity_type == 'event' %}
+ <span class="text-xs font-medium" style="color: var(--color-info);">일정 #{{ log.entity_id }}</span>
+ {% elif log.entity_type == 'memo' %}
+ <span class="text-xs font-medium" style="color: var(--color-success);">메모 #{{ log.entity_id }}</span>
+ {% else %}
+ <span class="text-xs font-medium" style="color: var(--color-text-muted);">{{ log.entity_type }} #{{ log.entity_id }}</span>
+ {% endif %}
 
-                        <!-- Title from changes -->
-                        {% if log.changes.get('title') is mapping %}
-                        <span class="text-sm text-slate-700 dark:text-slate-200 truncate">{{ log.changes.title.new }}</span>
-                        {% elif log.changes.get('title') is string %}
-                        <span class="text-sm text-slate-700 dark:text-slate-200 truncate">{{ log.changes.title }}</span>
-                        {% endif %}
-                    </div>
+ <!-- Title from changes -->
+ {% if log.changes.get('title') is mapping %}
+ <span class="text-sm truncate">{{ log.changes.title.new }}</span>
+ {% elif log.changes.get('title') is string %}
+ <span class="text-sm truncate">{{ log.changes.title }}</span>
+ {% endif %}
+ </div>
 
-                    <!-- Changes detail -->
-                    {% if log.changes and log.action == 'update' %}
-                    <div class="mt-2 space-y-1">
-                        {% for field, val in log.changes.items() %}
-                        {% if val is mapping and val.get('old') is defined %}
-                        <div class="text-xs text-slate-500 dark:text-slate-400">
-                            <span class="font-medium">{{ field }}:</span>
-                            <span class="line-through text-red-400">{{ val.old or '(empty)' }}</span>
-                            <span class="mx-1">-></span>
-                            <span class="text-green-600 dark:text-green-400">{{ val.new or '(empty)' }}</span>
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
+ <!-- Changes detail -->
+ {% if log.changes and log.action == 'update' %}
+ <div class="mt-2 space-y-1">
+ {% for field, val in log.changes.items() %}
+ {% if val is mapping and val.get('old') is defined %}
+ <div class="text-xs" style="color: var(--color-text-muted);">
+ <span class="font-medium">{{ field }}:</span>
+ <span class="line-through text-red-400">{{ val.old or '(empty)' }}</span>
+ <span class="mx-1">-></span>
+ <span class="">{{ val.new or'(empty)' }}</span>
+ </div>
+ {% endif %}
+ {% endfor %}
+ </div>
+ {% endif %}
+ </div>
 
-                <!-- Timestamp -->
-                <div class="flex-shrink-0 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">
-                    {{ log.created_at[5:16] if log.created_at else '' }}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div class="work-card rounded-xl p-8 text-center">
-            <p class="text-slate-400 dark:text-slate-500 text-sm">아직 기록된 변경 이력이 없습니다.</p>
-        </div>
-        {% endif %}
-    </div>
+ <!-- Timestamp -->
+ <div class="flex-shrink-0 text-xs whitespace-nowrap" style="color: var(--color-text-muted);">
+ {{ log.created_at[5:16] if log.created_at else '' }}
+ </div>
+ </div>
+ </div>
+ {% endfor %}
+ {% else %}
+ <div class="work-card rounded-xl p-8 text-center">
+ <p class="text-sm">아직 기록된 변경 이력이 없습니다.</p>
+ </div>
+ {% endif %}
+ </div>
 </div>
 {% endblock %}

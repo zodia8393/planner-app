@@ -1,143 +1,143 @@
 <div id="editEventModal" class="fixed inset-0 z-50">
-    <div class="modal-backdrop absolute inset-0" onclick="document.getElementById('editEventContainer').innerHTML=''"></div>
-    <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 relative">
-            <button onclick="document.getElementById('editEventContainer').innerHTML=''" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">일정 편집</h3>
-            <form hx-put="/events/{{ event.id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
-                <input type="text" name="title" value="{{ event.title }}" required
-                       class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">시작</label>
-                        <input type="datetime-local" name="start_time" value="{{ event.start_time }}"
-                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">종료</label>
-                        <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}"
-                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">색상</label>
-                        <input type="color" name="color" value="{{ event.color or '#d97706' }}"
-                               class="w-full h-10 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">카테고리</label>
-                        <select name="category_id" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                            <option value="">없음</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.id }}" {% if cat.id == event.category_id %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <textarea name="memo" placeholder="메모" rows="2"
-                          class="w-full px-4 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">{{ event.memo or '' }}</textarea>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">반복</label>
-                        <select name="recurrence"
-                                class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                            <option value="">없음</option>
-                            <option value="daily" {% if event.recurrence == 'daily' %}selected{% endif %}>매일</option>
-                            <option value="weekdays" {% if event.recurrence == 'weekdays' %}selected{% endif %}>주중 매일</option>
-                            <option value="weekly" {% if event.recurrence == 'weekly' %}selected{% endif %}>매주</option>
-                            <option value="monthly" {% if event.recurrence == 'monthly' %}selected{% endif %}>매월</option>
-                            <option value="yearly" {% if event.recurrence == 'yearly' %}selected{% endif %}>매년</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-500 mb-1 block">반복 종료</label>
-                        <input type="date" name="recurrence_end" value="{{ event.recurrence_end or '' }}"
-                               class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-                    </div>
-                </div>
-                <!-- Reminder offsets -->
-                <div>
-                    <label class="text-xs text-slate-500 mb-1 block">알림</label>
-                    <input type="hidden" name="reminder_offsets" id="eventReminderOffsets_{{ event.id }}" value="{{ event.reminder_offsets or '' }}">
-                    <div class="flex flex-wrap gap-1 mb-1.5" id="eventOffsetChips_{{ event.id }}"></div>
-                    <div class="flex gap-1.5">
-                        <select id="eventOffsetSel_{{ event.id }}" class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-lg">
-                            <option value='{"value":0,"unit":"minute"}'>정시</option>
-                            <option value='{"value":5,"unit":"minute"}'>5분 전</option>
-                            <option value='{"value":10,"unit":"minute"}'>10분 전</option>
-                            <option value='{"value":15,"unit":"minute"}'>15분 전</option>
-                            <option value='{"value":30,"unit":"minute"}'>30분 전</option>
-                            <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
-                            <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
-                            <option value='{"value":1,"unit":"day"}'>1일 전</option>
-                        </select>
-                        <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
-                    </div>
-                    <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
-                        <input type="checkbox" id="eventUseDefault_{{ event.id }}" onchange="toggleEventDefault({{ event.id }})"
-                               {% if not event.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded text-amber-600">
-                        <span class="text-xs text-slate-500">기본값 사용</span>
-                    </label>
-                </div>
-                <script>
-                (function(){
-                    var eid = {{ event.id }};
-                    var labels = {'0_minute':'정시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','1_day':'1일 전','2_day':'2일 전','1_week':'1주 전'};
-                    var input = document.getElementById('eventReminderOffsets_'+eid);
-                    var offsets = [];
-                    try { offsets = JSON.parse(input.value || '[]'); } catch(e) { offsets = []; }
-                    if (!Array.isArray(offsets)) offsets = [];
+ <div class="modal-backdrop absolute inset-0" onclick="document.getElementById('editEventContainer').innerHTML=''"></div>
+ <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
+ <div class="rounded-2xl shadow-2xl p-6 border relative" style="background: var(--color-surface);">
+ <button onclick="document.getElementById('editEventContainer').innerHTML=''" class="absolute top-4 right-4 hover-text">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ <h3 class="font-bold text-lg mb-4" style="color: var(--color-text);">일정 편집</h3>
+ <form hx-put="/events/{{ event.id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
+ <input type="text" name="title" value="{{ event.title }}" required
+ class="w-full px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ <div class="grid grid-cols-2 gap-2">
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시작</label>
+ <input type="datetime-local" name="start_time" value="{{ event.start_time }}"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ </div>
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">종료</label>
+ <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ </div>
+ </div>
+ <div class="grid grid-cols-2 gap-2">
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">색상</label>
+ <input type="color" name="color" value="{{ event.color or '#d97706' }}"
+ class="w-full h-10 rounded-lg border cursor-pointer">
+ </div>
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">카테고리</label>
+ <select name="category_id" class="w-full px-3 py-2 text-sm border rounded-lg">
+ <option value="">없음</option>
+ {% for cat in categories %}
+ <option value="{{ cat.id }}" {% if cat.id == event.category_id %}selected{% endif %}>{{ cat.name }}</option>
+ {% endfor %}
+ </select>
+ </div>
+ </div>
+ <textarea name="memo" placeholder="메모" rows="2"
+ class="w-full px-4 py-2 text-sm border rounded-lg">{{ event.memo or '' }}</textarea>
+ <div class="grid grid-cols-2 gap-2">
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복</label>
+ <select name="recurrence"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ <option value="">없음</option>
+ <option value="daily" {% if event.recurrence == 'daily' %}selected{% endif %}>매일</option>
+ <option value="weekdays" {% if event.recurrence == 'weekdays' %}selected{% endif %}>주중 매일</option>
+ <option value="weekly" {% if event.recurrence == 'weekly' %}selected{% endif %}>매주</option>
+ <option value="monthly" {% if event.recurrence == 'monthly' %}selected{% endif %}>매월</option>
+ <option value="yearly" {% if event.recurrence == 'yearly' %}selected{% endif %}>매년</option>
+ </select>
+ </div>
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복 종료</label>
+ <input type="date" name="recurrence_end" value="{{ event.recurrence_end or '' }}"
+ class="w-full px-3 py-2 text-sm border rounded-lg">
+ </div>
+ </div>
+ <!-- Reminder offsets -->
+ <div>
+ <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">알림</label>
+ <input type="hidden" name="reminder_offsets" id="eventReminderOffsets_{{ event.id }}" value="{{ event.reminder_offsets or '' }}">
+ <div class="flex flex-wrap gap-1 mb-1.5" id="eventOffsetChips_{{ event.id }}"></div>
+ <div class="flex gap-1.5">
+ <select id="eventOffsetSel_{{ event.id }}" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <option value='{"value":0,"unit":"minute"}'>정시</option>
+ <option value='{"value":5,"unit":"minute"}'>5분 전</option>
+ <option value='{"value":10,"unit":"minute"}'>10분 전</option>
+ <option value='{"value":15,"unit":"minute"}'>15분 전</option>
+ <option value='{"value":30,"unit":"minute"}'>30분 전</option>
+ <option value='{"value":1,"unit":"hour"}'>1시간 전</option>
+ <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
+ <option value='{"value":1,"unit":"day"}'>1일 전</option>
+ </select>
+ <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700">+</button>
+ </div>
+ <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
+ <input type="checkbox" id="eventUseDefault_{{ event.id }}" onchange="toggleEventDefault({{ event.id }})"
+ {% if not event.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded text-amber-600">
+ <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
+ </label>
+ </div>
+ <script>
+ (function(){
+ var eid = {{ event.id }};
+ var labels = {'0_minute':'정시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','1_day':'1일 전','2_day':'2일 전','1_week':'1주 전'};
+ var input = document.getElementById('eventReminderOffsets_'+eid);
+ var offsets = [];
+ try { offsets = JSON.parse(input.value || '[]'); } catch(e) { offsets = []; }
+ if (!Array.isArray(offsets)) offsets = [];
 
-                    function render() {
-                        var c = document.getElementById('eventOffsetChips_'+eid);
-                        c.innerHTML = '';
-                        offsets.forEach(function(o, i) {
-                            var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
-                            c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
-                        });
-                        input.value = offsets.length ? JSON.stringify(offsets) : '';
-                    }
-                    window['_evOff'+eid] = offsets;
-                    window.addEventOffset = function(id) {
-                        var sel = document.getElementById('eventOffsetSel_'+id);
-                        var o = JSON.parse(sel.value);
-                        var arr = window['_evOff'+id];
-                        if (arr.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
-                        arr.push(o);
-                        offsets = arr;
-                        document.getElementById('eventUseDefault_'+id).checked = false;
-                        render();
-                    };
-                    window.removeEventOffset = function(id, idx) {
-                        window['_evOff'+id].splice(idx, 1);
-                        offsets = window['_evOff'+id];
-                        render();
-                    };
-                    window.toggleEventDefault = function(id) {
-                        if (document.getElementById('eventUseDefault_'+id).checked) {
-                            window['_evOff'+id] = [];
-                            offsets = [];
-                            render();
-                        }
-                    };
-                    render();
-                })();
-                </script>
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
-                        저장
-                    </button>
-                    <button type="button" onclick="if(confirm('삭제할까요?'))fetch('/events/{{ event.id }}',{method:'DELETE'}).finally(function(){location.reload()})"
-                            class="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm">
-                        삭제
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+ function render() {
+ var c = document.getElementById('eventOffsetChips_'+eid);
+ c.innerHTML = '';
+ offsets.forEach(function(o, i) {
+ var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="text-amber-500 hover:text-red-500">&times;</button></span>';
+ });
+ input.value = offsets.length ? JSON.stringify(offsets) : '';
+ }
+ window['_evOff'+eid] = offsets;
+ window.addEventOffset = function(id) {
+ var sel = document.getElementById('eventOffsetSel_'+id);
+ var o = JSON.parse(sel.value);
+ var arr = window['_evOff'+id];
+ if (arr.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
+ arr.push(o);
+ offsets = arr;
+ document.getElementById('eventUseDefault_'+id).checked = false;
+ render();
+ };
+ window.removeEventOffset = function(id, idx) {
+ window['_evOff'+id].splice(idx, 1);
+ offsets = window['_evOff'+id];
+ render();
+ };
+ window.toggleEventDefault = function(id) {
+ if (document.getElementById('eventUseDefault_'+id).checked) {
+ window['_evOff'+id] = [];
+ offsets = [];
+ render();
+ }
+ };
+ render();
+ })();
+ </script>
+ <div class="flex gap-2">
+ <button type="submit" class="flex-1 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
+ 저장
+ </button>
+ <button type="button" onclick="if(confirm('삭제할까요?'))fetch('/events/{{ event.id }}',{method:'DELETE'}).finally(function(){location.reload()})"
+ class="px-4 py-2.5 font-medium rounded-lg hover:bg-red-100 transition-colors text-sm" style="background: var(--color-danger-soft); color: var(--color-danger);">
+ 삭제
+ </button>
+ </div>
+ </form>
+ </div>
+ </div>
 </div>

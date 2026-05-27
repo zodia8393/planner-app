@@ -1,145 +1,145 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('plan-view', '플랜 뷰') %}
 <div class="widget-detail-compact">
-    <div class="work-card rounded-xl p-3">
-        {% if total_count == 0 %}
-        <span class="text-xs" style="color: var(--color-text-faint);">항목 없음</span>
-        {% else %}
-        <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-medium" style="color: var(--color-text-faint);">진행률</span>
-            <span class="text-xs font-bold" style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</span>
-        </div>
-        <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border);">
-            <div class="h-full rounded-full" style="background: var(--color-accent); width: {{ ((done_count / total_count) * 100)|round|int }}%;"></div>
-        </div>
-        {% endif %}
-    </div>
+ <div class="work-card rounded-xl p-3">
+ {% if total_count == 0 %}
+ <span class="text-xs" style="color: var(--color-text-faint);">항목 없음</span>
+ {% else %}
+ <div class="flex items-center justify-between mb-1">
+ <span class="text-xs font-medium" style="color: var(--color-text-faint);">진행률</span>
+ <span class="text-xs font-bold" style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</span>
+ </div>
+ <div class="h-2 rounded-full overflow-hidden" style="background: var(--color-border);">
+ <div class="h-full rounded-full" style="background: var(--color-accent); width: {{ ((done_count / total_count) * 100)|round|int }}%;"></div>
+ </div>
+ {% endif %}
+ </div>
 </div>
 <div class="widget-detail-m">
-    <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-        <a href="/?plan_view=week&plan_offset=0"
-           class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'week' %}shadow-sm{% endif %}"
-           style="{% if plan_view == 'week' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
-            주간
-        </a>
-        <a href="/?plan_view=month&plan_offset=0"
-           class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'month' %}shadow-sm{% endif %}"
-           style="{% if plan_view == 'month' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
-            월간
-        </a>
-        <div class="flex items-center gap-1 ml-auto">
-            <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
-               class="p-1.5 rounded-lg transition-colors" style="color: var(--color-text-muted);">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
-            </a>
-            <span class="text-sm font-bold px-2 whitespace-nowrap" style="color: var(--color-text);">{{ nav_label }}</span>
-            <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
-               class="p-1.5 rounded-lg transition-colors" style="color: var(--color-text-muted);">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-            </a>
-            {% if plan_offset != 0 %}
-            <a href="/?plan_view={{ plan_view }}&plan_offset=0"
-               class="ml-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors"
-               style="background: var(--color-accent-soft); color: var(--color-accent);">
-                {{ reset_label }}
-            </a>
-            {% endif %}
-        </div>
-        <div class="flex items-center gap-1.5 text-xs" style="color: var(--color-text-muted);">
-            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-border-subtle);">전체 <b style="color: var(--color-text);">{{ total_count }}</b></span>
-            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-success-soft);">완료 <b style="color: var(--color-success);">{{ done_count }}</b></span>
-            {% if total_count > 0 %}
-            <span class="px-2 py-0.5 rounded-md" style="background: var(--color-accent-soft);"><b style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
-            {% endif %}
-        </div>
-    </div>
+ <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+ <a href="/?plan_view=week&plan_offset=0"
+ class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'week' %}shadow-sm{% endif %}"
+ style="{% if plan_view == 'week' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
+ 주간
+ </a>
+ <a href="/?plan_view=month&plan_offset=0"
+ class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'month' %}shadow-sm{% endif %}"
+ style="{% if plan_view == 'month' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
+ 월간
+ </a>
+ <div class="flex items-center gap-1 ml-auto">
+ <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
+ class="p-1.5 rounded-lg transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--color-text);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+ </a>
+ <span class="text-sm font-bold px-2 whitespace-nowrap" style="color: var(--color-text);">{{ nav_label }}</span>
+ <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
+ class="p-1.5 rounded-lg transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--color-text);">
+ <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+ </a>
+ {% if plan_offset != 0 %}
+ <a href="/?plan_view={{ plan_view }}&plan_offset=0"
+ class="ml-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors"
+ style="background: var(--color-accent-soft); color: var(--color-accent);">
+ {{ reset_label }}
+ </a>
+ {% endif %}
+ </div>
+ <div class="flex items-center gap-1.5 text-xs" style="color: var(--color-text-muted);">
+ <span class="px-2 py-0.5 rounded-md" style="background: var(--color-border-subtle);">전체 <b style="color: var(--color-text);">{{ total_count }}</b></span>
+ <span class="px-2 py-0.5 rounded-md" style="background: var(--color-success-soft);">완료 <b style="color: var(--color-success);">{{ done_count }}</b></span>
+ {% if total_count > 0 %}
+ <span class="px-2 py-0.5 rounded-md" style="background: var(--color-accent-soft);"><b style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
+ {% endif %}
+ </div>
+ </div>
 
-    {% if plan_view == 'week' %}
-    <div class="plan-week-grid grid grid-cols-1 lg:grid-cols-7 gap-2">
-        {% for day in week_days %}
-        <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900{% endif %}"
-             style="animation-delay: {{ loop.index0 * 40 }}ms">
-            <div class="px-3 py-2 flex items-center justify-between"
-                 style="border-bottom: 1px solid var(--color-border-subtle); {% if day.is_today %}background: var(--color-accent-soft);{% elif day.is_weekend %}background: var(--color-border-subtle);{% endif %}">
-                <div class="flex items-center gap-2">
-                    {% if day.is_today %}
-                    <span class="w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center" style="background: var(--color-accent); color: white;">{{ day.date.day }}</span>
-                    {% else %}
-                    <span class="text-sm font-bold" style="color: {% if day.is_weekend %}var(--color-danger){% else %}var(--color-text){% endif %};">{{ day.date.day }}</span>
-                    {% endif %}
-                    <span class="text-xs font-medium" style="color: {% if day.is_today %}var(--color-accent){% elif day.is_weekend %}var(--color-danger){% else %}var(--color-text-muted){% endif %};">{{ day.short_label }}</span>
-                </div>
-                {% if day.todos|length > 0 %}
-                <span class="text-xs font-medium px-1.5 py-0.5 rounded-md" style="background: var(--color-border-subtle); color: var(--color-text-muted);">
-                    {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
-                </span>
-                {% endif %}
-            </div>
-            <div class="{% if day.todos %}p-1.5 space-y-0.5{% else %}p-0.5{% endif %}">
-                {% for todo in day.todos %}
-                <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg transition-colors" style="{% if not todo.completed %}cursor: pointer;{% endif %}">
-                    <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors"
-                            style="{% if todo.completed %}background: var(--color-accent); border-color: var(--color-accent);{% else %}border-color: var(--color-border);{% endif %}"
-                            data-completed="{{ 'true' if todo.completed else 'false' }}">
-                        {% if todo.completed %}
-                        <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        {% endif %}
-                    </button>
-                    <div class="flex-1 min-w-0">
-                        <span class="text-xs {% if todo.completed %}line-through{% endif %} truncate block" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text){% endif %};">{{ todo.title }}</span>
-                        {% if todo.category_name %}
-                        <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-                {% else %}
-                {# empty day: no placeholder, just header is enough #}
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="work-card rounded-xl overflow-hidden">
-        <div class="grid grid-cols-7 text-center text-xs font-semibold" style="color: var(--color-text-muted); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);">
-            {% for wn in weekday_names %}
-            <div class="py-2" style="{% if loop.index == 7 %}color: var(--color-danger);{% elif loop.index == 6 %}color: var(--color-info);{% endif %}">{{ wn }}</div>
-            {% endfor %}
-        </div>
-        <div class="grid grid-cols-7">
-            {% for week in cal_weeks %}
-            {% for cell_date in week %}
-            {% if cell_date %}
-            {% set ds = cell_date.isoformat() %}
-            {% set cell_todos = todos_by_date.get(ds, []) %}
-            {% set is_today = cell_date == today %}
-            {% set weekday = cell_date.weekday() %}
-            <div class="p-1.5 min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); {% if is_today %}background: var(--color-accent-soft);{% endif %}">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs lg:text-sm font-medium {% if is_today %}w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center{% endif %}"
-                          style="{% if is_today %}background: var(--color-accent); color: white;{% elif weekday == 6 %}color: var(--color-danger);{% elif weekday == 5 %}color: var(--color-info);{% else %}color: var(--color-text-muted);{% endif %}">{{ cell_date.day }}</span>
-                    {% if cell_todos|length > 0 %}
-                    <span class="text-[11px] font-medium px-1 py-0.5 rounded"
-                          style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>
-                    {% endif %}
-                </div>
-                {% for todo in cell_todos[:3] %}
-                <div class="flex items-center gap-1 mb-0.5">
-                    <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
-                    <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through{% endif %}" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text-muted){% endif %};">{{ todo.title }}</span>
-                </div>
-                {% endfor %}
-                {% if cell_todos|length > 3 %}
-                <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 3 }}개</span>
-                {% endif %}
-            </div>
-            {% else %}
-            <div class="min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);"></div>
-            {% endif %}
-            {% endfor %}
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+ {% if plan_view == 'week' %}
+ <div class="plan-week-grid grid grid-cols-1 lg:grid-cols-7 gap-2">
+ {% for day in week_days %}
+ <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2{% endif %}"
+ style="animation-delay: {{ loop.index0 * 40 }}ms">
+ <div class="px-3 py-2 flex items-center justify-between"
+ style="border-bottom: 1px solid var(--color-border-subtle); {% if day.is_today %}background: var(--color-accent-soft);{% elif day.is_weekend %}background: var(--color-border-subtle);{% endif %}">
+ <div class="flex items-center gap-2">
+ {% if day.is_today %}
+ <span class="w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center" style="background: var(--color-accent); color: white;">{{ day.date.day }}</span>
+ {% else %}
+ <span class="text-sm font-bold" style="color: {% if day.is_weekend %}var(--color-danger){% else %}var(--color-text){% endif %};">{{ day.date.day }}</span>
+ {% endif %}
+ <span class="text-xs font-medium" style="color: {% if day.is_today %}var(--color-accent){% elif day.is_weekend %}var(--color-danger){% else %}var(--color-text-muted){% endif %};">{{ day.short_label }}</span>
+ </div>
+ {% if day.todos|length > 0 %}
+ <span class="text-xs font-medium px-1.5 py-0.5 rounded-md" style="background: var(--color-border-subtle); color: var(--color-text-muted);">
+ {{ day.todos|selectattr('completed')|list|length }}/{{ day.todos|length }}
+ </span>
+ {% endif %}
+ </div>
+ <div class="{% if day.todos %}p-1.5 space-y-0.5{% else %}p-0.5{% endif %}">
+ {% for todo in day.todos %}
+ <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg transition-colors" style="{% if not todo.completed %}cursor: pointer;{% endif %}">
+ <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors"
+ style="{% if todo.completed %}background: var(--color-accent); border-color: var(--color-accent);{% else %}border-color: var(--color-border);{% endif %}"
+ data-completed="{{ 'true' if todo.completed else 'false' }}">
+ {% if todo.completed %}
+ <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+ {% endif %}
+ </button>
+ <div class="flex-1 min-w-0">
+ <span class="text-xs {% if todo.completed %}line-through{% endif %} truncate block" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text){% endif %};">{{ todo.title }}</span>
+ {% if todo.category_name %}
+ <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
+ {% endif %}
+ </div>
+ </div>
+ {% else %}
+ {# empty day: no placeholder, just header is enough #}
+ {% endfor %}
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <div class="work-card rounded-xl overflow-hidden">
+ <div class="grid grid-cols-7 text-center text-xs font-semibold" style="color: var(--color-text-muted); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);">
+ {% for wn in weekday_names %}
+ <div class="py-2" style="{% if loop.index == 7 %}color: var(--color-danger);{% elif loop.index == 6 %}color: var(--color-info);{% endif %}">{{ wn }}</div>
+ {% endfor %}
+ </div>
+ <div class="grid grid-cols-7">
+ {% for week in cal_weeks %}
+ {% for cell_date in week %}
+ {% if cell_date %}
+ {% set ds = cell_date.isoformat() %}
+ {% set cell_todos = todos_by_date.get(ds, []) %}
+ {% set is_today = cell_date == today %}
+ {% set weekday = cell_date.weekday() %}
+ <div class="p-1.5 min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); {% if is_today %}background: var(--color-accent-soft);{% endif %}">
+ <div class="flex items-center justify-between mb-1">
+ <span class="text-xs lg:text-sm font-medium {% if is_today %}w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center{% endif %}"
+ style="{% if is_today %}background: var(--color-accent); color: white;{% elif weekday == 6 %}color: var(--color-danger);{% elif weekday == 5 %}color: var(--color-info);{% else %}color: var(--color-text-muted);{% endif %}">{{ cell_date.day }}</span>
+ {% if cell_todos|length > 0 %}
+ <span class="text-[11px] font-medium px-1 py-0.5 rounded"
+ style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>
+ {% endif %}
+ </div>
+ {% for todo in cell_todos[:3] %}
+ <div class="flex items-center gap-1 mb-0.5">
+ <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
+ <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through{% endif %}" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text-muted){% endif %};">{{ todo.title }}</span>
+ </div>
+ {% endfor %}
+ {% if cell_todos|length > 3 %}
+ <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 3 }}개</span>
+ {% endif %}
+ </div>
+ {% else %}
+ <div class="min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);"></div>
+ {% endif %}
+ {% endfor %}
+ {% endfor %}
+ </div>
+ </div>
+ {% endif %}
 </div>
 {% endcall %}

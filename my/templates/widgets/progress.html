@@ -1,40 +1,40 @@
-{% from "widgets/_widget_wrapper.html" import widget %}
+{% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('progress', '진행률') %}
 <div class="work-card rounded-xl overflow-hidden">
-    <div class="section-header">
-        <h3>프로젝트 진행률</h3>
-    </div>
-    <div class="widget-detail-compact p-2 text-center">
-        {% if project_progress %}
-        {% set first = project_progress[0] %}
-        {% set rate = (first.done / first.total * 100)|int if first.total > 0 else 0 %}
-        <span class="text-lg font-bold" style="color: var(--color-accent);">{{ rate }}%</span>
-        {% else %}
-        <span class="text-xs" style="color: var(--color-text-faint);">-</span>
-        {% endif %}
-    </div>
-    <div class="widget-detail-m px-3 py-1 space-y-1.5">
-        {% for proj in project_progress[:3] %}
-        {% set rate = (proj.done / proj.total * 100)|int if proj.total > 0 else 0 %}
-        <div>
-            <div class="flex items-center justify-between mb-1">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ proj.color }}"></span>
-                    <span class="text-sm font-medium" style="color: var(--color-text);">{{ proj.name }}</span>
-                </div>
-                <span class="text-xs" style="color: var(--color-text-faint);">{{ proj.done }}/{{ proj.total }}</span>
-            </div>
-            <div class="h-1.5 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
-                <div class="h-full rounded-full progress-bar" style="width:{{ rate }}%; background:{{ proj.color }}"></div>
-            </div>
-        </div>
-        {% else %}
-        <div class="widget-empty">
-            <span class="widget-empty-icon">&#128200;</span>
-            <p class="widget-empty-text">카테고리별 진행률이 표시됩니다</p>
-            <a href="/categories" class="widget-empty-action">바로가기</a>
-        </div>
-        {% endfor %}
-    </div>
+ <div class="section-header">
+ <h3>프로젝트 진행률</h3>
+ </div>
+ <div class="widget-detail-compact p-2 text-center">
+ {% if project_progress %}
+ {% set first = project_progress[0] %}
+ {% set rate = (first.done / first.total * 100)|int if first.total > 0 else 0 %}
+ <span class="text-lg font-bold" style="color: var(--color-accent);">{{ rate }}%</span>
+ {% else %}
+ <span class="text-xs" style="color: var(--color-text-faint);">-</span>
+ {% endif %}
+ </div>
+ <div class="widget-detail-m px-3 py-1 space-y-1.5">
+ {% for proj in project_progress[:3] %}
+ {% set rate = (proj.done / proj.total * 100)|int if proj.total > 0 else 0 %}
+ <div>
+ <div class="flex items-center justify-between mb-1">
+ <div class="flex items-center gap-2">
+ <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ proj.color }}"></span>
+ <span class="text-sm font-medium" style="color: var(--color-text);">{{ proj.name }}</span>
+ </div>
+ <span class="text-xs" style="color: var(--color-text-faint);">{{ proj.done }}/{{ proj.total }}</span>
+ </div>
+ <div class="h-1.5 rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+ <div class="h-full rounded-full progress-bar" style="width:{{ rate }}%; background:{{ proj.color }}"></div>
+ </div>
+ </div>
+ {% else %}
+ <div class="widget-empty">
+ <span class="widget-empty-icon">&#128200;</span>
+ <p class="widget-empty-text">카테고리별 진행률이 표시됩니다</p>
+ <a href="/categories" class="widget-empty-action">바로가기</a>
+ </div>
+ {% endfor %}
+ </div>
 </div>
 {% endcall %}
