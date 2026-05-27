@@ -1,55 +1,62 @@
 /* ============================================================
-   dashboard-grid.css — Dashboard Grid + Widget Styles
+   dashboard-grid.css — Pure CSS Responsive Dashboard Grid
+   No JS layout engine. All widgets always visible.
    ============================================================ */
 
-/* ── Grid Tokens ── */
-:root {
-    --dash-cols-pc: 12;
-    --dash-cols-tablet: 3;
-    --dash-cols-mobile: 2;
-    --dash-cols-landscape: 3;
-    --dash-row-pc: 64px;
-    --dash-row-tablet: 56px;
-    --dash-row-mobile: 48px;
-    --dash-row-landscape: 40px;
-    --dash-gap-pc: 8px;
-    --dash-gap-mobile: 6px;
-    --dash-z-header: 2;
-    --dash-z-handle: 5;
-    --dash-z-preview: 50;
-    --dash-z-drag: 100;
-}
-
-/* ── Dashboard Grid Container ── */
+/* ── Grid Container ── */
 #dashboardGrid {
     display: grid;
-    grid-template-columns: repeat(var(--dash-cols-pc), 1fr);
-    grid-auto-rows: var(--dash-row-pc);
-    gap: var(--dash-gap-pc);
+    grid-template-columns: repeat(12, 1fr);
+    gap: 10px;
     position: relative;
 }
 
-/* ── Responsive Breakpoints ── */
-@media (max-width: 1023px) {
-    #dashboardGrid {
-        grid-template-columns: repeat(var(--dash-cols-mobile), 1fr);
-        grid-auto-rows: var(--dash-row-mobile);
-        gap: var(--dash-gap-mobile);
-    }
-}
+/* ── Widget Ordering & Spanning (PC: >=1024px) ── */
+.dashboard-widget[data-widget="widget-row"]   { grid-column: span 12; order: 1; }
+.dashboard-widget[data-widget="quick-add"]    { grid-column: span 12; order: 2; }
+.dashboard-widget[data-widget="plan-view"]    { grid-column: span 12; order: 3; }
+.dashboard-widget[data-widget="stat-cards"]   { grid-column: span 6;  order: 4; }
+.dashboard-widget[data-widget="progress"]     { grid-column: span 6;  order: 5; }
+.dashboard-widget[data-widget="worklogs"]     { grid-column: span 6;  order: 6; }
+.dashboard-widget[data-widget="events"]       { grid-column: span 6;  order: 7; }
+.dashboard-widget[data-widget="notices"]      { grid-column: span 6;  order: 8; }
+.dashboard-widget[data-widget="timetable"]    { grid-column: span 6;  order: 9; }
+.dashboard-widget[data-widget="time-budgets"] { grid-column: span 6;  order: 10; }
+
+/* ── Tablet (768-1023px) — 2 columns ── */
 @media (min-width: 768px) and (max-width: 1023px) {
     #dashboardGrid {
-        grid-template-columns: repeat(var(--dash-cols-tablet), 1fr);
-        grid-auto-rows: var(--dash-row-tablet);
-        gap: var(--dash-gap-pc);
-    }
-}
-@media (max-width: 1023px) and (orientation: landscape) {
-    #dashboardGrid {
-        grid-template-columns: repeat(var(--dash-cols-landscape), 1fr);
-        grid-auto-rows: var(--dash-row-landscape);
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
+    .dashboard-widget[data-widget="widget-row"]   { grid-column: span 2; order: 1; }
+    .dashboard-widget[data-widget="quick-add"]    { grid-column: span 2; order: 2; }
+    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 2; order: 3; }
+    .dashboard-widget[data-widget="stat-cards"]   { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="notices"]      { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 9; }
+    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 10; }
+}
+
+/* ── Mobile (<768px) — 1 column, stacked ── */
+@media (max-width: 767px) {
+    #dashboardGrid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    .dashboard-widget[data-widget="widget-row"]   { grid-column: span 1; order: 1; }
+    .dashboard-widget[data-widget="quick-add"]    { grid-column: span 1; order: 2; }
+    .dashboard-widget[data-widget="stat-cards"]   { grid-column: span 1; order: 3; }
+    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="notices"]      { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 9; }
+    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 10; }
 }
 
 /* ── Custom Background: Glass Panel ── */
@@ -58,7 +65,7 @@ body.has-custom-bg #dashboardGrid {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: var(--radius-xl, 1rem);
-    padding: var(--dash-gap-pc);
+    padding: 10px;
     margin: -4px;
 }
 html.dark body.has-custom-bg #dashboardGrid {
@@ -88,12 +95,8 @@ html.dark .dashboard-widget {
 }
 
 .dashboard-widget .widget-body {
-    height: 100%;
-    overflow: hidden;
     font-size: 0.8125rem;
     line-height: 1.4;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
 }
 .dashboard-widget .widget-body > .work-card {
     border: none;
@@ -113,11 +116,9 @@ html.dark .dashboard-widget {
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.125rem;
 }
-/* Compact view padding reduction */
 .dashboard-widget .widget-detail-compact {
     padding: 0.25rem 0.5rem;
 }
-/* Remove double padding: section-header + list area */
 .dashboard-widget .section-header + .widget-detail-m,
 .dashboard-widget .section-header + .widget-detail-compact {
     padding-top: 0;
@@ -125,12 +126,20 @@ html.dark .dashboard-widget {
 .dashboard-widget .section-header + .divide-y > :first-child {
     padding-top: 0.25rem;
 }
-/* Tighter list items */
 .dashboard-widget .widget-list-item {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
-/* Widget-row: shrink inner cards for h:2 fit */
+
+/* ── Visual Hierarchy ── */
+/* widget-row: hero card */
+.dashboard-widget[data-widget="widget-row"] {
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+}
+html.dark .dashboard-widget[data-widget="widget-row"] {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.15);
+}
 .dashboard-widget[data-widget="widget-row"] .widget-body > .grid {
     height: 100%;
 }
@@ -163,7 +172,45 @@ html.dark .dashboard-widget {
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
 }
-/* Stat-cards: shrink for h:2 fit */
+/* Overdue alert: red left accent */
+.dashboard-widget[data-widget="widget-row"] .overdue-alert {
+    border-left: 3px solid var(--color-danger, #ef4444);
+}
+
+/* quick-add: tool-like, minimal */
+.dashboard-widget[data-widget="quick-add"] {
+    border: 1px dashed var(--color-border);
+    box-shadow: none;
+    background: var(--color-border-subtle, rgba(0,0,0,0.02));
+}
+html.dark .dashboard-widget[data-widget="quick-add"] {
+    background: rgba(255,255,255,0.02);
+}
+.dashboard-widget[data-widget="quick-add"]:hover {
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border-style: solid;
+}
+.dashboard-widget[data-widget="quick-add"] .work-card {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.dashboard-widget[data-widget="quick-add"] form {
+    width: 100%;
+    padding: 0.25rem 0.625rem;
+}
+.dashboard-widget[data-widget="quick-add"] input {
+    padding: 0.375rem 0.5rem;
+}
+.dashboard-widget[data-widget="quick-add"] button[type="submit"] {
+    padding: 0.375rem 0.75rem;
+}
+
+/* stat-cards: slightly elevated */
+.dashboard-widget[data-widget="stat-cards"] {
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
 .dashboard-widget[data-widget="stat-cards"] .widget-detail-m {
     height: 100%;
 }
@@ -188,28 +235,17 @@ html.dark .dashboard-widget {
 .dashboard-widget[data-widget="stat-cards"] .mt-1\.5 {
     margin-top: 0.125rem;
 }
-/* Quick-add: fit in h:1 (64px widget, 62px body) */
-.dashboard-widget[data-widget="quick-add"] .work-card {
-    padding: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-.dashboard-widget[data-widget="quick-add"] form {
-    width: 100%;
-    padding: 0.25rem 0.625rem;
-}
-.dashboard-widget[data-widget="quick-add"] input {
-    padding: 0.375rem 0.5rem;
-}
-.dashboard-widget[data-widget="quick-add"] button[type="submit"] {
-    padding: 0.375rem 0.75rem;
-}
-/* Plan-view: remove min-height that forces overflow */
+
+/* Plan-view: remove min-height, add max-height with scroll */
 .dashboard-widget[data-widget="plan-view"] [class*="min-h-"] {
     min-height: 0 !important;
 }
-/* Timetable: constrain content height to widget */
+.dashboard-widget[data-widget="plan-view"] .widget-body {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Timetable: constrain SVG and content */
 .dashboard-widget[data-widget="timetable"] .widget-body > .work-card {
     height: 100%;
     display: flex;
@@ -229,41 +265,7 @@ html.dark .dashboard-widget {
     flex-shrink: 0;
 }
 
-/* ── Visual Hierarchy ── */
-/* widget-row: hero card — strongest presence */
-.dashboard-widget[data-widget="widget-row"] {
-    border-color: transparent;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
-}
-html.dark .dashboard-widget[data-widget="widget-row"] {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.15);
-}
-/* quick-add: tool-like, minimal */
-.dashboard-widget[data-widget="quick-add"] {
-    border: 1px dashed var(--color-border);
-    box-shadow: none;
-    background: var(--color-border-subtle, rgba(0,0,0,0.02));
-}
-html.dark .dashboard-widget[data-widget="quick-add"] {
-    background: rgba(255,255,255,0.02);
-}
-.dashboard-widget[data-widget="quick-add"]:hover {
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border-style: solid;
-}
-/* Overdue alert: red left accent */
-.dashboard-widget[data-widget="widget-row"] .overdue-alert {
-    border-left: 3px solid var(--color-danger, #ef4444);
-}
-/* stat-cards: slightly elevated */
-.dashboard-widget[data-widget="stat-cards"] {
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-}
-
-/* ── Edit mode: allow scroll with thin scrollbar ── */
-body.dash-edit-mode .dashboard-widget .widget-body {
-    overflow: auto;
-}
+/* ── Scrollbar (thin, unobtrusive) ── */
 .dashboard-widget .widget-body::-webkit-scrollbar {
     width: 3px;
 }
@@ -273,131 +275,6 @@ body.dash-edit-mode .dashboard-widget .widget-body {
 .dashboard-widget .widget-body::-webkit-scrollbar-thumb {
     background: var(--color-border);
     border-radius: 3px;
-}
-
-/* ── Widget Header (drag handle) ── */
-.widget-header {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.25rem 0.5rem;
-    cursor: grab;
-    user-select: none;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-text-faint);
-    background: var(--color-border-subtle);
-    border-bottom: 1px dashed var(--color-border);
-    position: relative;
-    z-index: var(--dash-z-header);
-}
-.widget-header:active { cursor: grabbing; }
-
-.widget-title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* ── Remove Button ── */
-.widget-remove-btn {
-    display: none;
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    color: var(--color-text-faint);
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: background 0.15s, color 0.15s;
-    line-height: 1;
-    flex-shrink: 0;
-}
-.widget-remove-btn:hover {
-    background: var(--color-danger-soft);
-    color: var(--color-danger);
-}
-@media (max-width: 1023px) {
-    .widget-remove-btn { width: 44px; height: 44px; font-size: 22px; }
-}
-
-/* ── Resize Handle ── */
-.widget-resize-handle {
-    display: none;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    cursor: nwse-resize;
-    z-index: var(--dash-z-handle);
-    background: linear-gradient(135deg, transparent 50%, var(--color-border) 50%);
-    border-radius: 0 0 var(--radius-lg) 0;
-    opacity: 0.5;
-    transition: opacity 0.15s;
-}
-.widget-resize-handle:hover { opacity: 1; }
-
-/* ── Size Presets (mobile only) ── */
-.widget-size-presets {
-    display: none;
-    gap: 4px;
-    padding: 4px 8px;
-    background: var(--color-border-subtle);
-}
-.widget-size-presets button {
-    flex: 1;
-    padding: 6px 4px;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    background: var(--color-surface);
-    color: var(--color-text-faint);
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s;
-    min-height: 32px;
-}
-.widget-size-presets button.active {
-    background: var(--color-accent);
-    color: var(--color-text-inverse, #fff);
-    border-color: var(--color-accent);
-}
-.widget-size-presets button:hover {
-    border-color: var(--color-accent);
-}
-
-/* ── Edit Mode ── */
-body.dash-edit-mode .dashboard-widget {
-    border: 2px dashed var(--color-border);
-    transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
-}
-body.dash-edit-mode .widget-header {
-    display: flex;
-}
-body.dash-edit-mode .widget-remove-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-@media (min-width: 1024px) {
-    body.dash-edit-mode .widget-resize-handle { display: block; }
-}
-@media (max-width: 1023px) {
-    body.dash-edit-mode .widget-size-presets { display: flex; }
-    body.dash-edit-mode .widget-resize-handle { display: none; }
-}
-
-/* ── Banner Responsive ── */
-@media (max-width: 1023px) {
-    .edit-banner-pc { display: none; }
-    .edit-banner-mobile { display: inline; }
-}
-@media (min-width: 1024px) {
-    .edit-banner-pc { display: inline; }
-    .edit-banner-mobile { display: none; }
 }
 
 /* ── Content Adaptation (Container Queries) ── */
@@ -413,78 +290,6 @@ body.dash-edit-mode .widget-remove-btn {
     .widget-detail-l { display: block; }
 }
 
-/* Height-based adaptation via row classes */
-.dashboard-widget.widget-rows-1 .widget-body { overflow: hidden; }
-.dashboard-widget.widget-rows-1 .widget-detail-compact { display: block; }
-.dashboard-widget.widget-rows-1 .widget-detail-m { display: none; }
-.dashboard-widget.widget-rows-1 .widget-detail-l { display: none; }
-
-/* ── Height-based list item limits ── */
-.dashboard-widget.widget-rows-2 .widget-list-item:nth-child(n+3) {
-    display: none;
-}
-.dashboard-widget.widget-rows-1 .widget-list-item:nth-child(n+2) {
-    display: none;
-}
-/* Rows-2 widget body: flex column to fill height without overflow */
-.dashboard-widget.widget-rows-2 .widget-body > .work-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-.dashboard-widget.widget-rows-2 .widget-body > .work-card > .widget-detail-m,
-.dashboard-widget.widget-rows-2 .widget-body > .work-card > .divide-y {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-/* Rows-1 empty state: minimal */
-.dashboard-widget.widget-rows-1 .widget-empty {
-    padding: 0.25rem;
-}
-.dashboard-widget.widget-rows-1 .widget-empty-icon {
-    display: none;
-}
-.dashboard-widget.widget-rows-1 .widget-empty-action {
-    display: none;
-}
-
-/* ── Drag visual states ── */
-.dashboard-widget.dragging {
-    opacity: 0.6;
-    z-index: var(--dash-z-drag);
-    box-shadow: var(--shadow-xl);
-    transform: scale(1.02);
-}
-.dashboard-widget.drag-over {
-    box-shadow: 0 0 0 2px var(--color-accent);
-}
-.dashboard-widget.lifting {
-    transform: scale(1.03);
-    box-shadow: var(--shadow-xl);
-    z-index: var(--dash-z-drag);
-    opacity: 0.9;
-}
-
-/* ── Grid preview placeholder ── */
-.grid-preview {
-    background: var(--color-accent-soft);
-    border: 2px dashed var(--color-accent);
-    border-radius: var(--radius-lg);
-    opacity: 0.5;
-    pointer-events: none;
-    z-index: var(--dash-z-preview);
-    transition: all 0.1s;
-}
-
-/* ── Fade out animation for removed widgets ── */
-.dashboard-widget.removing {
-    animation: widgetFadeOut 0.2s ease-out forwards;
-}
-@keyframes widgetFadeOut {
-    to { opacity: 0; transform: scale(0.95); }
-}
-
 /* ── Plan-view week grid ── */
 @media (min-width: 1024px) {
     .plan-week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -492,7 +297,6 @@ body.dash-edit-mode .widget-remove-btn {
 @media (max-width: 1023px) {
     .plan-week-grid { grid-template-columns: 1fr; }
 }
-/* Plan-view: tighter day cards */
 .dashboard-widget[data-widget="plan-view"] .plan-week-grid .work-card {
     min-height: 0;
 }
@@ -526,7 +330,6 @@ body.dash-edit-mode .widget-remove-btn {
     justify-content: center;
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    height: 100%;
     min-height: 0;
 }
 .widget-empty-icon {
@@ -560,15 +363,6 @@ body.dash-edit-mode .widget-remove-btn {
     opacity: 1;
 }
 
-/* ── Bottom sheet animation ── */
-#widgetBottomSheet > div:last-child {
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-}
-#widgetBottomSheet.active > div:last-child {
-    transform: translateY(0);
-}
-
 /* ── Loading Skeleton ── */
 .widget-skeleton {
     padding: 1rem;
@@ -589,7 +383,6 @@ body.dash-edit-mode .widget-remove-btn {
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ── Interaction Feedback ── */
-/* Clickable elements: subtle lift on hover */
 .dashboard-widget a:not(.widget-empty-action),
 .dashboard-widget .card-hover {
     transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background 0.2s;
@@ -600,11 +393,9 @@ body.dash-edit-mode .widget-remove-btn {
 .dashboard-widget .card-hover:active {
     transform: translateY(0);
 }
-/* stat-cards hover effect */
 .dashboard-widget[data-widget="stat-cards"] .work-card:hover {
     background: var(--color-border-subtle, rgba(0,0,0,0.02));
 }
-/* plan-view inactive button more visible */
 .dashboard-widget[data-widget="plan-view"] .btn-sm {
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }

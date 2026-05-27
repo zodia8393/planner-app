@@ -1,17 +1,7 @@
-{% macro widget(id, title, sizes=['C','H','FM','T']) %}
+{% macro widget(id, title) %}
 <div class="dashboard-widget" data-widget="{{ id }}">
-    <div class="widget-header">
-        <span class="widget-title">{{ title }}</span>
-        <button class="widget-remove-btn" data-action="remove" data-widget="{{ id }}" title="위젯 제거">&times;</button>
-    </div>
-    <div class="widget-size-presets">
-        {% for size in sizes %}
-        <button data-action="resize" data-widget="{{ id }}" data-size="{{ size }}">{{ size }}</button>
-        {% endfor %}
-    </div>
     <div class="widget-body">
         {{ caller() }}
     </div>
-    <div class="widget-resize-handle"></div>
 </div>
 {% endmacro %}
