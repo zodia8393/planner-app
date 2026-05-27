@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ tpl.name }} - JM Planner{% endblock %}
+{% block title %}{{ tpl.name }} - Work Planner{% endblock %}
 {% block page_title %}{{ tpl.name }}{% endblock %}
 {% block page_subtitle %}{{ period_label if frequency is defined and frequency != 'daily' else current_date }} ({{ entries|length }}건){% endblock %}
 
