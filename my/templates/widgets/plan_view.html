@@ -74,7 +74,7 @@
                 </span>
                 {% endif %}
             </div>
-            <div class="p-1.5 space-y-0.5">
+            <div class="{% if day.todos %}p-1.5 space-y-0.5{% else %}p-0.5{% endif %}">
                 {% for todo in day.todos %}
                 <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                     <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
@@ -92,9 +92,7 @@
                     </div>
                 </div>
                 {% else %}
-                <div class="flex items-center justify-center py-1">
-                    <span class="text-xs text-slate-300 dark:text-slate-600">-</span>
-                </div>
+                {# empty day: no placeholder, just header is enough #}
                 {% endfor %}
             </div>
         </div>

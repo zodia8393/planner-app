@@ -58,7 +58,7 @@
     </div>
 
     {# Overdue + upcoming mini card #}
-    <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover widget-detail-m">
+    <div data-widget="overdue-upcoming" class="work-card rounded-xl p-4 card-hover widget-detail-m {% if stats.overdue > 0 %}overdue-alert{% endif %}">
         <div class="flex items-center justify-between mb-3">
             <span class="stat-label">지연 업무</span>
             <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.overdue > 0 %}var(--color-danger-soft){% else %}var(--color-success-soft){% endif %};">
@@ -87,7 +87,7 @@
             </div>
         </div>
         <div class="flex gap-2 mb-3">
-            <button data-action="focus-start" data-minutes="25" class="btn-sm flex-1 font-semibold rounded-lg transition-all hover:opacity-80" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="25분 집중">25분</button>
+            <button data-action="focus-start" data-minutes="25" class="btn-sm flex-1 font-semibold rounded-lg transition-all hover:opacity-90" style="background: var(--gradient-accent, var(--color-accent)); color: white;" aria-label="25분 집중 (추천)">25분</button>
             <button data-action="focus-start" data-minutes="45" class="btn-sm flex-1 font-semibold rounded-lg transition-all hover:opacity-80" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="45분 집중">45분</button>
             <button data-action="focus-start" data-minutes="60" class="btn-sm flex-1 font-semibold rounded-lg transition-all hover:opacity-80" style="background: var(--color-accent-soft); color: var(--color-accent-text);" aria-label="60분 집중">60분</button>
         </div>
