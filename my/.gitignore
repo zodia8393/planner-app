@@ -6,3 +6,4 @@ data/*.db-shm
 data/shared/
 data/worklog_images/
 *.db
+screenshots/
