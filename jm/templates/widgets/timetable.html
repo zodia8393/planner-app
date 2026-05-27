@@ -48,23 +48,23 @@
                 </svg>
                 </a>
             </div>
-            <div class="flex-1 min-w-0 space-y-2">
+            <div class="flex-1 min-w-0 space-y-1.5">
                 {% if tt_current %}
-                <div class="p-2.5 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
-                    <p class="text-xs font-semibold mb-0.5" style="color: {{ tt_current.color }};">지금</p>
-                    <p class="text-sm font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
+                <div class="p-2 rounded-lg" style="background: {{ tt_current.color }}10; border: 1px solid {{ tt_current.color }}30;">
+                    <p class="text-xs font-semibold" style="color: {{ tt_current.color }};">지금</p>
+                    <p class="text-xs font-bold truncate" style="color: var(--color-text);">{{ tt_current.title }}</p>
                     <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_current.start_time }} ~ {{ tt_current.end_time }}</p>
                 </div>
                 {% else %}
-                <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
-                    <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">지금</p>
-                    <p class="text-sm" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
+                <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
+                    <p class="text-xs font-semibold" style="color: var(--color-text-muted);">지금</p>
+                    <p class="text-xs" style="color: var(--color-text-faint);">진행 중인 블록 없음</p>
                 </div>
                 {% endif %}
                 {% if tt_next %}
-                <div class="p-2.5 rounded-lg" style="background: var(--color-border-subtle);">
-                    <p class="text-xs font-semibold mb-0.5" style="color: var(--color-text-muted);">다음</p>
-                    <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
+                <div class="p-2 rounded-lg" style="background: var(--color-border-subtle);">
+                    <p class="text-xs font-semibold" style="color: var(--color-text-muted);">다음</p>
+                    <p class="text-xs font-medium truncate" style="color: var(--color-text);">{{ tt_next.title }}</p>
                     <p class="text-xs" style="color: var(--color-text-muted);">{{ tt_next.start_time }} ~ {{ tt_next.end_time }}</p>
                 </div>
                 {% endif %}

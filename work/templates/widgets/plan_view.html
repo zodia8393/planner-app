@@ -16,7 +16,7 @@
     </div>
 </div>
 <div class="widget-detail-m">
-    <div class="flex flex-wrap items-center gap-2 mb-2">
+    <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
         <a href="/?plan_view=week&plan_offset=0"
            class="btn-sm rounded-lg font-semibold transition-colors
                   {% if plan_view == 'week' %}bg-amber-600 text-white shadow-sm{% else %}bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700{% endif %}">
@@ -74,7 +74,7 @@
                 </span>
                 {% endif %}
             </div>
-            <div class="p-2 space-y-1 min-h-[50px] lg:min-h-[80px]">
+            <div class="p-1.5 space-y-0.5">
                 {% for todo in day.todos %}
                 <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                     <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors
@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 {% else %}
-                <div class="flex items-center justify-center h-full min-h-[40px]">
+                <div class="flex items-center justify-center py-1">
                     <span class="text-xs text-slate-300 dark:text-slate-600">-</span>
                 </div>
                 {% endfor %}
@@ -115,7 +115,7 @@
             {% set cell_todos = todos_by_date.get(ds, []) %}
             {% set is_today = cell_date == today %}
             {% set weekday = cell_date.weekday() %}
-            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-[60px] lg:min-h-[80px]
+            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 p-1.5 min-h-0
                         {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}">
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-xs lg:text-sm font-medium
@@ -140,7 +140,7 @@
                 {% endif %}
             </div>
             {% else %}
-            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20 min-h-[60px] lg:min-h-[80px]"></div>
+            <div class="border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20 min-h-0"></div>
             {% endif %}
             {% endfor %}
             {% endfor %}
