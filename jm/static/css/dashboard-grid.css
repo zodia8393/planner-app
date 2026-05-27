@@ -224,8 +224,8 @@ html.dark .dashboard-widget {
     height: 100%;
 }
 .dashboard-widget[data-widget="timetable"] .widget-detail-m svg {
-    width: 80px !important;
-    height: 80px !important;
+    width: 120px !important;
+    height: 120px !important;
     flex-shrink: 0;
 }
 

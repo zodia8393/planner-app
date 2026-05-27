@@ -11,7 +11,7 @@ var DashGrid = (function() {
     var ROW_H = { pc: 64, tablet: 56, mobile: 48, landscape: 40 };
     var BREAKPOINT = 1024;
     var TABLET_BP = 768;
-    var LAYOUT_VERSION = 7;
+    var LAYOUT_VERSION = 8;
     var LONG_PRESS_MS = 300;
     var JITTER_PX = 12;
     var SAVE_DEBOUNCE_MS = 200;
@@ -44,11 +44,11 @@ var DashGrid = (function() {
             'quick-add':    {col:1,  row:3,  w:12, h:1, visible:true},
             'plan-view':    {col:1,  row:4,  w:12, h:3, visible:true},
             'stat-cards':   {col:1,  row:7,  w:6,  h:2, visible:true},
-            'timetable':    {col:7,  row:7,  w:6,  h:2, visible:true},
+            'progress':     {col:7,  row:7,  w:6,  h:2, visible:true},
             'worklogs':     {col:1,  row:9,  w:6,  h:2, visible:true},
-            'progress':     {col:7,  row:9,  w:6,  h:2, visible:true},
+            'events':       {col:7,  row:9,  w:6,  h:2, visible:true},
             'notices':      {col:1,  row:11, w:6,  h:2, visible:true},
-            'events':       {col:7,  row:11, w:6,  h:2, visible:true},
+            'timetable':    {col:7,  row:11, w:6,  h:3, visible:true},
             'time-budgets': {col:1,  row:13, w:6,  h:2, visible:false}
         },
         mobile: {
@@ -228,15 +228,20 @@ var DashGrid = (function() {
         var layout = loadLayout();
         var widgets = getWidgets();
 
-        // Mark widgets missing from DOM as invisible, then compact to fill gaps
+        // Mark widgets missing from DOM as invisible
         var domNames = new Set();
         widgets.forEach(function(el) { domNames.add(el.dataset.widget); });
+        var hasMissing = false;
         for (var k in layout) {
             if (layout[k] && layout[k].visible && !domNames.has(k)) {
                 layout[k].visible = false;
+                hasMissing = true;
             }
         }
-        compactLayout(layout);
+        if (hasMissing) {
+            compactLayout(layout);
+            saveLayoutImmediate(layout);
+        }
 
         widgets.forEach(function(el) {
             var name = el.dataset.widget;
