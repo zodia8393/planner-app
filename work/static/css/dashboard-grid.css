@@ -92,9 +92,65 @@ html.dark .dashboard-widget {
 .dashboard-widget .work-card {
     padding: 0.5rem 0.75rem;
 }
+.dashboard-widget .work-card[class*="p-4"],
+.dashboard-widget .work-card[class*="p-3"] {
+    padding: 0.5rem 0.75rem;
+}
 .dashboard-widget .section-header {
     padding: 0.375rem 0.75rem;
     margin-bottom: 0.125rem;
+}
+/* Compact view padding reduction */
+.dashboard-widget .widget-detail-compact {
+    padding: 0.25rem 0.5rem;
+}
+/* Widget-row: shrink inner cards for h:2 fit */
+.dashboard-widget[data-widget="widget-row"] .work-card {
+    padding: 0.375rem 0.625rem;
+}
+.dashboard-widget[data-widget="widget-row"] .mb-3 {
+    margin-bottom: 0.375rem;
+}
+.dashboard-widget[data-widget="widget-row"] .text-2xl {
+    font-size: 1.25rem;
+}
+.dashboard-widget[data-widget="widget-row"] [style*="width: 3rem"] {
+    width: 2rem !important;
+    height: 2rem !important;
+}
+.dashboard-widget[data-widget="widget-row"] .text-xl {
+    font-size: 1rem;
+}
+/* Stat-cards: shrink for h:2 fit */
+.dashboard-widget[data-widget="stat-cards"] .work-card {
+    padding: 0.5rem 0.625rem;
+}
+.dashboard-widget[data-widget="stat-cards"] .mb-3 {
+    margin-bottom: 0.25rem;
+}
+/* Plan-view: remove min-height that forces overflow */
+.dashboard-widget[data-widget="plan-view"] [class*="min-h-"] {
+    min-height: 0 !important;
+}
+/* Timetable: constrain content height to widget */
+.dashboard-widget[data-widget="timetable"] .widget-body > .work-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-widget[data-widget="timetable"] .widget-detail-m {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.dashboard-widget[data-widget="timetable"] .widget-detail-m .flex {
+    height: 100%;
+}
+.dashboard-widget[data-widget="timetable"] .widget-detail-m svg {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
 }
 
 /* ── Edit mode: allow scroll with thin scrollbar ── */
@@ -261,6 +317,28 @@ body.dash-edit-mode .widget-remove-btn {
     display: none;
 }
 .dashboard-widget.widget-rows-1 .widget-list-item:nth-child(n+2) {
+    display: none;
+}
+/* Rows-2 widget body: flex column to fill height without overflow */
+.dashboard-widget.widget-rows-2 .widget-body > .work-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-widget.widget-rows-2 .widget-body > .work-card > .widget-detail-m,
+.dashboard-widget.widget-rows-2 .widget-body > .work-card > .divide-y {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+/* Rows-1 empty state: minimal */
+.dashboard-widget.widget-rows-1 .widget-empty {
+    padding: 0.25rem;
+}
+.dashboard-widget.widget-rows-1 .widget-empty-icon {
+    display: none;
+}
+.dashboard-widget.widget-rows-1 .widget-empty-action {
     display: none;
 }
 
