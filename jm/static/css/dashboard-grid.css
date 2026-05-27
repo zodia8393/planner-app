@@ -211,12 +211,6 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
 .dashboard-widget[data-widget="stat-cards"] {
     box-shadow: 0 1px 6px rgba(0,0,0,0.06);
 }
-.dashboard-widget[data-widget="stat-cards"] .widget-detail-m {
-    height: 100%;
-}
-.dashboard-widget[data-widget="stat-cards"] .widget-detail-m > .grid {
-    height: 100%;
-}
 .dashboard-widget[data-widget="stat-cards"] .work-card {
     padding: 0.75rem 1rem;
     overflow: hidden;
@@ -257,15 +251,15 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
     display: flex;
     flex-direction: column;
 }
-.dashboard-widget[data-widget="timetable"] .widget-detail-m {
+.dashboard-widget[data-widget="timetable"] div.widget-detail-m {
     flex: 1;
     min-height: 0;
     overflow: hidden;
 }
-.dashboard-widget[data-widget="timetable"] .widget-detail-m .flex {
+.dashboard-widget[data-widget="timetable"] div.widget-detail-m .flex {
     height: 100%;
 }
-.dashboard-widget[data-widget="timetable"] .widget-detail-m svg {
+.dashboard-widget[data-widget="timetable"] div.widget-detail-m svg {
     width: 120px !important;
     height: 120px !important;
     flex-shrink: 0;
