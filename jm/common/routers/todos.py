@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
 from common.nlp_date import extract_date_from_text
 from common.recurrence import next_occurrence, build_rrule, parse_rrule, rrule_to_korean
-from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str
+from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str, safe_int
 from common.filters import parse_tags
 
 router = APIRouter()
@@ -15,10 +15,11 @@ router = APIRouter()
 
 @router.get("/todos", response_class=HTMLResponse)
 async def todos_page(request: Request, filter: str = "all",
-                     category_id: int = None, assignee: str = None,
+                     category_id: str = None, assignee: str = None,
                      energy: int = None, tag: str = None):
     S = request.app.state
     pid = S.get_profile_id(request)
+    cat_id_int = safe_int(category_id)
     with S.get_db() as conn:
         today_str = date.today().isoformat()
         where = "1=1"
@@ -35,9 +36,9 @@ async def todos_page(request: Request, filter: str = "all",
         where += " AND t.profile_id = ?"
         params.append(pid)
 
-        if category_id:
+        if cat_id_int:
             where += " AND t.category_id = ?"
-            params.append(category_id)
+            params.append(cat_id_int)
 
         if assignee:
             where += " AND t.assignee = ?"
@@ -79,7 +80,7 @@ async def todos_page(request: Request, filter: str = "all",
         "todo_count": sum(len(v) for v in grouped.values()),
         "categories": [dict(c) for c in categories],
         "current_filter": filter,
-        "current_category_id": category_id,
+        "current_category_id": cat_id_int,
         "current_assignee": assignee,
         "current_energy": energy,
         "current_tag": tag,
@@ -238,7 +239,7 @@ async def create_todo(request: Request,
             repeat_type = "none"
 
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
 
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
@@ -382,7 +383,7 @@ async def update_todo(request: Request, todo_id: int,
             repeat_type = "none"
 
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
 
     with S.get_db() as conn:
         old = conn.execute("SELECT title, description, due_date, priority FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
@@ -429,7 +430,9 @@ async def reorder_todos(request: Request):
     order = body.get("order", [])
     with S.get_db() as conn:
         for idx, tid in enumerate(order):
-            conn.execute("UPDATE todos SET sort_order=? WHERE id=? AND profile_id=?", (idx, int(tid), pid))
+            int_tid = safe_int(tid)
+            if int_tid is not None:
+                conn.execute("UPDATE todos SET sort_order=? WHERE id=? AND profile_id=?", (idx, int_tid, pid))
     return JSONResponse({"ok": True})
 
 

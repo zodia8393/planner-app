@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from common.holidays import get_holidays_for_month, get_holidays_for_year
 from common.recurrence import expand_recurring_events
-from common.utils import clamp_text, fix_mojibake, validate_date_str, validate_datetime_str
+from common.utils import clamp_text, fix_mojibake, validate_date_str, validate_datetime_str, safe_int
 
 router = APIRouter()
 
@@ -220,7 +220,7 @@ async def create_event(request: Request,
     end_time = validate_datetime_str(end_time)
     if start_time and end_time and end_time < start_time:
         start_time, end_time = end_time, start_time
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     recurrence_end = validate_date_str(recurrence_end) or ""
 
     # Parse reminder_offsets (JSON string or empty for global default)
@@ -283,7 +283,7 @@ async def update_event(request: Request, event_id: int,
     memo = clamp_text(fix_mojibake(memo), 2000)
     start_time = validate_datetime_str(start_time) or datetime.now().strftime("%Y-%m-%dT%H:%M")
     end_time = validate_datetime_str(end_time)
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     recurrence_end = validate_date_str(recurrence_end) or ""
 
     r_offsets = reminder_offsets.strip() if reminder_offsets else None

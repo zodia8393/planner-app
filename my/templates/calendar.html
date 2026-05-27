@@ -1,9 +1,19 @@
 {% extends "base.html" %}
-{% block title %}캘린더 - My Planner{% endblock %}
+{% block title %}캘린더 - JM Planner{% endblock %}
 {% block page_title %}캘린더{% endblock %}
 {% block page_subtitle %}{% if cal_view == 'year' %}{{ year }}년{% else %}{{ year }}년 {{ month }}월{% endif %}{% endblock %}
 
 {% block content %}
+<style>
+.cal-cell-active { cursor: pointer; position: relative; }
+.cal-cell-active:hover::after {
+    content: '+ 추가';
+    position: absolute; bottom: 4px; right: 6px;
+    font-size: 10px; font-weight: 600;
+    color: var(--color-accent); opacity: 0.6;
+    pointer-events: none;
+}
+</style>
 <details class="mb-4 group">
     <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
@@ -37,35 +47,35 @@
 </div>
 
 <!-- Navigation -->
-<div class="flex items-center justify-center gap-4 mb-4">
+<div class="flex items-center justify-center gap-3 mb-4">
     {% if cal_view == 'year' %}
-    <a href="/calendar?year={{ year - 1 }}&view=year" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
-    <h3 class="text-lg font-bold text-slate-800 dark:text-white min-w-[120px] text-center">{{ year }}년</h3>
-    <a href="/calendar?year={{ year + 1 }}&view=year" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년</h3>
+    <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
-    <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+    <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
         올해
     </a>
     {% else %}
-    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
-    <h3 class="text-lg font-bold text-slate-800 dark:text-white min-w-[120px] text-center">{{ year }}년 {{ month }}월</h3>
-    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-        <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년 {{ month }}월</h3>
+    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
-    <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors">
+    <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
         오늘
     </a>
     {% endif %}
@@ -126,7 +136,8 @@
 {% elif cal_view == 'week' %}
 <!-- ====== WEEK VIEW ====== -->
 <div class="space-y-0 work-card rounded-xl overflow-hidden mb-6">
-    {% for wd in week_days %}
+    {% set reordered_week = [week_days[6]] + week_days[:6] %}
+    {% for wd in reordered_week %}
     {% set day_events = wd.events %}
     {% set day_todos = wd.todos %}
     <div class="border-b border-slate-100 dark:border-slate-700/50 p-3 {% if wd.is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
@@ -134,10 +145,10 @@
         <div class="flex items-center gap-3 mb-2">
             <div class="flex items-center gap-2 min-w-[80px]">
                 <span class="text-sm font-bold
-                    {% if wd.is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center{% elif wd.date.weekday() == 6 %}text-red-400
+                    {% if wd.is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center
+                    {% elif wd.date.weekday() == 6 %}text-red-400
                     {% elif wd.date.weekday() == 5 %}text-blue-400
-                    {% else %}text-slate-700 dark:text-slate-200{% endif %}"
-                    {% if wd.is_today %}style="width: clamp(1.5rem, 1.25rem + 1vw, 1.75rem); height: clamp(1.5rem, 1.25rem + 1vw, 1.75rem);"{% endif %}>{{ wd.date.day }}</span>
+                    {% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ wd.date.day }}</span>
                 <span class="text-xs font-medium {% if wd.is_today %}text-amber-600{% else %}text-slate-500{% endif %}">{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
             </div>
             <div class="flex-1 flex flex-wrap gap-2">
@@ -174,15 +185,17 @@
 
 {% else %}
 <!-- ====== MONTH VIEW ====== -->
+<!-- Calendar grid -->
 <div class="work-card rounded-xl overflow-hidden mb-6">
-    <div class="grid grid-cols-7 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-        {% for day_name in ['월', '화', '수', '목', '금', '토', '일'] %}
-        <div class="py-2.5 {% if loop.index == 7 %}text-red-400{% elif loop.index == 6 %}text-blue-400{% endif %}">{{ day_name }}</div>
+    <div class="grid grid-cols-7 text-center text-[11px] font-bold uppercase tracking-wider border-b" style="border-color: var(--color-border); background: var(--color-bg);">
+        {% for day_name in ['일', '월', '화', '수', '목', '금', '토'] %}
+        <div class="py-3 {% if loop.index == 1 %}text-red-400{% elif loop.index == 7 %}text-blue-400{% else %}{% endif %}" style="{% if loop.index != 1 and loop.index != 7 %}color: var(--color-text-faint);{% endif %}">{{ day_name }}</div>
         {% endfor %}
     </div>
     <div class="grid grid-cols-7">
-        <!-- Empty cells before month starts -->
-        {% for _ in range(start_weekday) %}
+        <!-- Empty cells before month starts (Sunday=0 start) -->
+        {% set sun_start = (start_weekday + 1) % 7 %}
+        {% for _ in range(sun_start) %}
         <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30"></div>
         {% endfor %}
 
@@ -191,17 +204,15 @@
         {% set day_events = events_by_date.get(day_str, []) %}
         {% set day_todos = todos_by_date.get(day_str, []) %}
         {% set is_today = day_str == today_str %}
-        {% set weekday = (start_weekday + day - 1) % 7 %}
+        {% set weekday = (sun_start + day - 1) % 7 %}
         {% set total_items = day_events|length + day_todos|length %}
         {% set holiday_name = holidays_by_date.get(day_str) %}
-        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
+        <div class="cal-cell cal-cell-active border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
              onclick="openEventModal('{{ day_str }}')">
             <div class="flex items-center justify-between mb-1">
-                <span class="text-xs lg:text-sm font-medium
-                    {% if is_today %}bg-amber-600 text-white rounded-full flex items-center justify-center{% elif holiday_name or weekday == 6 %}text-red-400
-                    {% elif weekday == 5 %}text-blue-400
-                    {% else %}text-slate-600 dark:text-slate-300{% endif %}"
-                    {% if is_today %}style="width: clamp(1.5rem, 1.25rem + 1vw, 1.75rem); height: clamp(1.5rem, 1.25rem + 1vw, 1.75rem);"{% endif %}>{{ day }}</span>
+                <span class="text-xs lg:text-sm font-semibold
+                    {% if is_today %}text-white rounded-full flex items-center justify-center{% elif holiday_name or weekday == 0 %}text-red-400{% elif weekday == 6 %}text-blue-400{% else %}{% endif %}"
+                    style="{% if is_today %}background: var(--gradient-accent); width: 1.625rem; height: 1.625rem; box-shadow: var(--shadow-btn-accent); font-size: 0.75rem;{% elif not holiday_name and weekday != 0 and weekday != 6 %}color: var(--color-text);{% endif %}">{{ day }}</span>
             </div>
             {% if holiday_name %}
             <div class="text-[11px] text-red-400 truncate px-0.5 mb-0.5">{{ holiday_name }}</div>
@@ -243,7 +254,7 @@
         {% endfor %}
 
         <!-- Fill remaining cells -->
-        {% set remaining = (7 - (start_weekday + days_in_month) % 7) % 7 %}
+        {% set remaining = (7 - (sun_start + days_in_month) % 7) % 7 %}
         {% for _ in range(remaining) %}
         <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30"></div>
         {% endfor %}
@@ -255,15 +266,17 @@
 <div id="eventModal" class="fixed inset-0 z-50 hidden">
     <div class="modal-backdrop absolute inset-0" onclick="closeEventModal()"></div>
     <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-700 relative">
-            <button onclick="closeEventModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <div class="rounded-2xl p-6 relative" style="background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-xl);">
+            <button onclick="closeEventModal()" class="absolute top-4 right-4 p-1.5 rounded-lg transition-colors" style="color: var(--color-text-faint);"
+                    onmouseenter="this.style.background='var(--color-border-subtle)'" onmouseleave="this.style.background=''">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">일정 추가</h3>
+            <h3 class="font-extrabold text-lg mb-4" style="color: var(--color-text); letter-spacing: -0.02em;">일정 추가</h3>
             <form action="/events" method="POST" class="space-y-3" id="eventForm">
-                <input type="text" name="title" placeholder="일정 제목" required
+                <label for="event-title" class="sr-only">일정 제목</label>
+                <input type="text" name="title" id="event-title" placeholder="일정 제목" required
                        class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -334,7 +347,11 @@
                         <span class="text-xs text-slate-500">기본값 사용</span>
                     </label>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="also_todo" value="1" class="w-4 h-4 rounded text-amber-600">
+                    <span class="text-xs text-slate-600 dark:text-slate-300">할일에도 추가</span>
+                </label>
+                <button type="submit" class="btn-accent w-full py-2.5 rounded-xl text-sm">
                     저장
                 </button>
             </form>

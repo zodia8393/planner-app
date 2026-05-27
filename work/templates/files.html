@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}공유폴더 - Work Planner{% endblock %}
+{% block title %}공유폴더 - JM Planner{% endblock %}
 {% block page_title %}공유폴더{% endblock %}
 {% block page_subtitle %}팀 공유 파일{% endblock %}
 
@@ -13,10 +13,8 @@
         <p><b class="text-slate-700 dark:text-slate-300">업로드</b> — "파일 업로드" 버튼 또는 드래그 앤 드롭으로 파일 업로드</p>
         <p><b class="text-slate-700 dark:text-slate-300">미리보기</b> — 이미지, PDF, 텍스트 파일 클릭 시 미리보기 지원</p>
         <p><b class="text-slate-700 dark:text-slate-300">폴더 관리</b> — 폴더 생성으로 파일을 체계적으로 정리</p>
-        <p><b class="text-slate-700 dark:text-slate-300">다운로드</b> — 다운로드 아이콘 클릭으로 파일 저장</p>
     </div>
 </details>
-
 <div hx-boost="false">
 <!-- Breadcrumb -->
 <div class="flex items-center gap-1.5 mb-4 overflow-x-auto text-sm">
@@ -87,7 +85,7 @@
         <div class="group grid grid-cols-12 gap-2 items-center px-5 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors fade-in">
             <div class="col-span-12 sm:col-span-5">
                 {% if item.previewable %}
-                <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
+                <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
                     <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
                     <span class="text-sm text-slate-700 dark:text-slate-200 truncate hover:text-amber-500 transition-colors">{{ item.name }}</span>
                 </button>
@@ -109,7 +107,7 @@
             </div>
             <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
                 {% if item.previewable %}
-                <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="미리보기">
+                <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 text-slate-400 hover:text-amber-500 transition-colors" title="미리보기">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -136,7 +134,7 @@
                 <span class="text-xs text-slate-400">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
                 <div class="flex items-center gap-1">
                     {% if item.previewable %}
-                    <button onclick="openPreview('/files/{{ item.path }}?preview=1', {{ item.name|tojson }}, '{{ item.preview_type }}')" class="p-1.5 text-slate-400 hover:text-amber-500">
+                    <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 text-slate-400 hover:text-amber-500">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -161,12 +159,10 @@
             </div>
         </div>
         {% else %}
-        <div class="py-16 text-center">
-            <div class="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span class="text-2xl">📂</span>
-            </div>
-            <p class="text-sm text-slate-400">폴더가 비어있습니다</p>
-            <p class="text-xs text-slate-400 mt-1">파일을 업로드하거나 새 폴더를 만드세요</p>
+        <div class="empty-state">
+            <div class="empty-state-icon"><span>📂</span></div>
+            <p class="empty-state-title">폴더가 비어있습니다</p>
+            <p class="empty-state-desc">파일을 업로드하거나 새 폴더를 만드세요</p>
         </div>
         {% endfor %}
     </div>

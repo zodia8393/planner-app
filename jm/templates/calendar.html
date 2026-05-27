@@ -4,6 +4,16 @@
 {% block page_subtitle %}{% if cal_view == 'year' %}{{ year }}년{% else %}{{ year }}년 {{ month }}월{% endif %}{% endblock %}
 
 {% block content %}
+<style>
+.cal-cell-active { cursor: pointer; position: relative; }
+.cal-cell-active:hover::after {
+    content: '+ 추가';
+    position: absolute; bottom: 4px; right: 6px;
+    font-size: 10px; font-weight: 600;
+    color: var(--color-accent); opacity: 0.6;
+    pointer-events: none;
+}
+</style>
 <details class="mb-4 group">
     <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
@@ -39,13 +49,13 @@
 <!-- Navigation -->
 <div class="flex items-center justify-center gap-3 mb-4">
     {% if cal_view == 'year' %}
-    <a href="/calendar?year={{ year - 1 }}&view=year" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
     <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년</h3>
-    <a href="/calendar?year={{ year + 1 }}&view=year" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
@@ -54,13 +64,13 @@
         올해
     </a>
     {% else %}
-    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
     <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년 {{ month }}월</h3>
-    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
@@ -197,7 +207,7 @@
         {% set weekday = (sun_start + day - 1) % 7 %}
         {% set total_items = day_events|length + day_todos|length %}
         {% set holiday_name = holidays_by_date.get(day_str) %}
-        <div class="cal-cell border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
+        <div class="cal-cell cal-cell-active border-b border-r border-slate-100 dark:border-slate-700/50 p-1 lg:p-2 relative {% if is_today %}bg-amber-50/50 dark:bg-amber-900/10{% endif %}"
              onclick="openEventModal('{{ day_str }}')">
             <div class="flex items-center justify-between mb-1">
                 <span class="text-xs lg:text-sm font-semibold
@@ -265,7 +275,8 @@
             </button>
             <h3 class="font-extrabold text-lg mb-4" style="color: var(--color-text); letter-spacing: -0.02em;">일정 추가</h3>
             <form action="/events" method="POST" class="space-y-3" id="eventForm">
-                <input type="text" name="title" placeholder="일정 제목" required
+                <label for="event-title" class="sr-only">일정 제목</label>
+                <input type="text" name="title" id="event-title" placeholder="일정 제목" required
                        class="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div>

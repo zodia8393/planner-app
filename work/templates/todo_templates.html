@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}할일 템플릿 - Work Planner{% endblock %}
+{% block title %}할일 템플릿 - JM Planner{% endblock %}
 {% block page_title %}할일 템플릿{% endblock %}
 {% block page_subtitle %}{{ templates|length }}개{% endblock %}
 
@@ -10,8 +10,8 @@
         사용법
     </summary>
     <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">템플릿 저장</b> — 자주 만드는 업무를 템플릿으로 저장해두면 빠르게 재사용 가능</p>
-        <p><b class="text-slate-700 dark:text-slate-300">적용하기</b> — 템플릿을 선택하면 설정된 제목·카테고리·우선순위로 업무가 자동 생성</p>
+        <p><b class="text-slate-700 dark:text-slate-300">템플릿 저장</b> — 자주 만드는 할일을 템플릿으로 저장해두면 빠르게 재사용 가능</p>
+        <p><b class="text-slate-700 dark:text-slate-300">적용하기</b> — 템플릿을 선택하면 설정된 제목·카테고리·우선순위로 할일 자동 생성</p>
     </div>
 </details>
 <div class="work-card rounded-xl p-4 mb-4">
@@ -53,14 +53,14 @@
     <div class="text-xs text-slate-400 mt-2">{{ tpl.tpl_items|length }}개 항목</div>
 </div>
 {% else %}
-<div class="py-16 text-center">
-    <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/>
         </svg>
     </div>
-    <p class="text-slate-400 dark:text-slate-500 font-medium">저장된 템플릿이 없습니다</p>
-    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">자주 사용하는 할일을 템플릿으로 저장해보세요</p>
+    <p class="empty-state-title">저장된 템플릿이 없습니다</p>
+    <p class="empty-state-desc">자주 사용하는 할일을 템플릿으로 저장해보세요</p>
     <button type="button" onclick="document.querySelector('#newTplForm input[name=name]').focus()"
             class="mt-4 px-4 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
         첫 템플릿 만들기

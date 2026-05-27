@@ -1,4 +1,4 @@
-<div class="work-card rounded-xl fade-in group touch-item swipe-item" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
+<div class="work-card rounded-xl fade-in group touch-item swipe-item {% if todo.completed %}opacity-50{% endif %}" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
     <div class="swipe-bg swipe-bg-left">완료</div>
     <div class="swipe-bg swipe-bg-right">삭제</div>
     <div class="swipe-content p-4">
@@ -26,7 +26,11 @@
         <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
                 <p class="text-sm font-medium {% if todo.completed %}line-through text-slate-400{% else %}text-slate-700 dark:text-slate-200{% endif %}">{{ todo.title }}</p>
-                <span class="text-xs px-2 py-0.5 rounded-full {{ priority_map[todo.priority].bg }} {{ priority_map[todo.priority].text }}">{{ priority_map[todo.priority].label }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                    {% if todo.priority == 0 %}bg-red-500 text-white
+                    {% elif todo.priority == 1 %}bg-orange-500 text-white
+                    {% elif todo.priority == 3 %}bg-slate-500 text-white
+                    {% else %}{{ priority_map[todo.priority].bg }} {{ priority_map[todo.priority].text }}{% endif %}">{{ priority_map[todo.priority].label }}</span>
                 {% if todo.energy_level == 3 %}<span class="text-xs text-red-500" title="고에너지">🔥</span>{% elif todo.energy_level == 1 %}<span class="text-xs text-green-500" title="저에너지">🟢</span>{% endif %}
                 {% if todo.category_name %}
                 <span class="inline-flex items-center gap-1 text-xs text-slate-400">

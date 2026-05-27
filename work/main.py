@@ -41,7 +41,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 import uvicorn
 
-from common.utils import fix_mojibake, clamp_priority, validate_date_str, validate_datetime_str, clamp_text
+from common.utils import fix_mojibake, clamp_priority, validate_date_str, validate_datetime_str, clamp_text, safe_int
 from common.middleware import EventBus, CSRFMiddleware, SyncBroadcastMiddleware
 from common.filters import register_filters, render_error_page
 from common.db import get_db as _get_db_common
@@ -2260,7 +2260,9 @@ async def create_habit(request: Request):
     color = form.get("color", "#6366f1")
     # New time-based fields
     tracking_type = form.get("tracking_type", "daily")
-    target_count = int(form.get("target_count", "1") or "1")
+    if tracking_type not in ("daily", "counter", "interval", "specific", "weekly"):
+        tracking_type = "daily"
+    target_count = safe_int(form.get("target_count", "1"), 1)
     reminder_enabled = form.get("reminder_enabled", "")
 
     frequency_detail = None
@@ -2269,7 +2271,7 @@ async def create_habit(request: Request):
     if tracking_type == "counter":
         frequency_detail = json.dumps({"type": "times_per_day", "count": target_count})
     elif tracking_type == "interval":
-        interval_hours = int(form.get("interval_hours", "2") or "2")
+        interval_hours = safe_int(form.get("interval_hours", "2"), 2)
         start_time = form.get("interval_start", "08:00") or "08:00"
         end_time = form.get("interval_end", "22:00") or "22:00"
         frequency_detail = json.dumps({"type": "every_n_hours", "interval": interval_hours, "start": start_time, "end": end_time})
@@ -2291,7 +2293,7 @@ async def create_habit(request: Request):
             if reminder_enabled:
                 reminder_times = json.dumps(times)
     elif tracking_type == "weekly":
-        weekly_count = int(form.get("weekly_count", "3") or "3")
+        weekly_count = safe_int(form.get("weekly_count", "3"), 3)
         frequency_detail = json.dumps({"type": "times_per_week", "count": weekly_count})
         target_count = weekly_count
     else:
@@ -2788,10 +2790,25 @@ async def today_view(request: Request):
         """, (pid, today_str)).fetchall()
         habits = conn.execute("SELECT * FROM habits WHERE profile_id=? AND archived=0 ORDER BY sort_order", (pid,)).fetchall()
         habit_logs_today = conn.execute(
-            "SELECT habit_id FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today_str)
+            "SELECT habit_id, count FROM habit_logs WHERE profile_id=? AND log_date=?", (pid, today_str)
         ).fetchall()
     done_habits = {r["habit_id"] for r in habit_logs_today}
-    habits_data = [dict(h) | {"today_done": h["id"] in done_habits} for h in habits]
+    # Build per-habit count for counter/time habits
+    today_habit_counts: dict = {}
+    for r in habit_logs_today:
+        hid = r["habit_id"]
+        today_habit_counts[hid] = today_habit_counts.get(hid, 0) + (r["count"] or 1)
+    habits_data = []
+    for h in habits:
+        hd = dict(h)
+        fd = json.loads(hd["frequency_detail"]) if hd.get("frequency_detail") else None
+        tracking_type = fd.get("type", "daily") if fd else "daily"
+        if tracking_type in ("times_per_day", "every_n_hours"):
+            target = hd.get("target_count") or 1
+            hd["today_done"] = today_habit_counts.get(hd["id"], 0) >= target
+        else:
+            hd["today_done"] = hd["id"] in done_habits
+        habits_data.append(hd)
     return render(request, "today.html", {
         "page": "today", "today_str": today_str,
         "todos": [dict(r) for r in todos],

@@ -7,7 +7,7 @@
     </script>
     <style>html.dark{background:#1c1917;color-scheme:dark}html:not(.dark){background:#faf9f7;color-scheme:light}</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{% block title %}Work Planner{% endblock %}</title>
+    <title>{% block title %}JM Planner{% endblock %}</title>
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#d97706">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -63,7 +63,7 @@
             --radius-xl: 20px;
             --radius-full: 9999px;
 
-            /* Shadow (warm-tinted) */
+            /* Shadow (warm-tinted, layered for depth) */
             --shadow-sm: 0 1px 2px rgba(28,25,23,0.05);
             --shadow-md: 0 2px 8px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.04);
             --shadow-lg: 0 8px 24px rgba(28,25,23,0.08), 0 2px 8px rgba(28,25,23,0.04);
@@ -464,7 +464,7 @@
         .dark .cal-cell:hover { background: var(--color-border); }
 
         /* ── Progress bar ── */
-        .progress-bar { transition: width 0.8s var(--ease-out); }
+        .progress-bar { transition: width 0.8s var(--ease-out); border-radius: 9999px; }
 
         /* ── Sortable ── */
         .sortable-ghost { opacity: 0.4; background: var(--color-accent-soft) !important; }
@@ -503,12 +503,12 @@
             max-width: 320px;
             will-change: transform, opacity;
         }
-        .toast.toast-success { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; }
-        .toast.toast-error { background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca; }
-        .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid rgba(217,119,6,0.25); }
-        .dark .toast.toast-success { background: #052e16; color: #bbf7d0; border-color: #166534; }
-        .dark .toast.toast-error { background: #450a0a; color: #fecaca; border-color: #7f1d1d; }
-        .dark .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border-color: rgba(245,158,11,0.3); }
+        .toast.toast-success { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; box-shadow: 0 4px 16px rgba(22,163,74,0.12); }
+        .toast.toast-error { background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca; box-shadow: 0 4px 16px rgba(220,38,38,0.12); }
+        .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid rgba(217,119,6,0.25); box-shadow: 0 4px 16px rgba(217,119,6,0.12); }
+        .dark .toast.toast-success { background: #052e16; color: #bbf7d0; border-color: #166534; box-shadow: 0 4px 16px rgba(22,163,74,0.2); }
+        .dark .toast.toast-error { background: #450a0a; color: #fecaca; border-color: #7f1d1d; box-shadow: 0 4px 16px rgba(220,38,38,0.2); }
+        .dark .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border-color: rgba(245,158,11,0.3); box-shadow: 0 4px 16px rgba(245,158,11,0.2); }
         .toast.toast-hide { animation: toastSlideOut var(--duration-normal) var(--ease-in-out) forwards; }
         @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
         @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
@@ -1614,7 +1614,7 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-base font-bold leading-tight" style="color: var(--color-text);">Work Planner</h1>
+                <h1 class="text-base font-bold leading-tight" style="color: var(--color-text);">JM Planner</h1>
                 <p class="text-xs font-medium" style="color: var(--color-text-faint);">
                     {% if active_profile %}{{ active_profile.name }}{% else %}Plan your day{% endif %}
                 </p>
@@ -1699,13 +1699,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
                 </svg>
                 공지사항
-            </a>
-            <a href="/files" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'files' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
-                <!-- folder-open -->
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
-                </svg>
-                공유폴더
             </a>
 
             <!-- 도구 section -->
@@ -1798,7 +1791,7 @@
                 </svg>
                 <span id="themeLabel">시스템 설정</span>
             </button>
-            <div class="mt-2 px-3 text-xs font-medium" style="color: var(--color-text-faint);">Work Planner v1.0</div>
+            <div class="mt-2 px-3 text-xs font-medium" style="color: var(--color-text-faint);">JM Planner v1.0</div>
         </div>
     </aside>
 
@@ -1897,7 +1890,7 @@
             </span>
             <span>업무일지</span>
         </a>
-        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','forms','notices','files','search','settings','ddays','links','stats','review','today','habits','timetable'] %}active{% endif %}">
+        <button onclick="toggleMoreMenu()" class="mobile-tab-item {% if page in ['memos','forms','notices','search','settings','ddays','links','stats','review','today','habits','timetable'] %}active{% endif %}">
             <span class="tab-icon">
                 <!-- ellipsis-horizontal (18x18) -->
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -1936,13 +1929,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
                 </svg>
                 <span class="text-xs font-medium">공지사항</span>
-            </a>
-            <a href="/files" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
-               onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
-                </svg>
-                <span class="text-xs font-medium">공유폴더</span>
             </a>
             <a href="/ddays" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
                onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
@@ -1988,7 +1974,7 @@
                 <span class="text-xs font-medium">설정</span>
             </a>
         </div>
-        <!-- Added: Today + Timetable + Habits in more menu -->
+        <!-- Added: Today + Habits + Timetable in more menu -->
         <div class="grid grid-cols-4 gap-1 mb-2">
             <a href="/today" class="flex flex-col items-center gap-2 p-3 rounded-xl transition-colors" style="color: var(--color-text-muted);"
                onmouseover="this.style.background='var(--color-border-subtle)'" onmouseout="this.style.background=''">
@@ -2783,12 +2769,13 @@ document.addEventListener('htmx:afterRequest',function(e){
         <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
         <div class="text-center mb-4">
             <span class="text-4xl">&#11088;</span>
-            <h3 class="text-lg font-bold mt-2" style="color: var(--color-text);">Work Planner가 마음에 드시나요?</h3>
-            <p class="text-sm mt-1" style="color: var(--color-text-muted);">7일 연속 사용해주셨어요!</p>
+            <h3 class="text-lg font-bold mt-2" style="color: var(--color-text);">JM Planner가 마음에 드시나요?</h3>
+            <p class="text-sm mt-1" style="color: var(--color-text-muted);">7일 연속 사용해주셨어요! 별점을 남겨주시면 큰 힘이 됩니다.</p>
         </div>
         <div class="flex gap-2">
             <button onclick="dismissReview('snooze')" class="flex-1 py-3 rounded-xl text-sm font-medium" style="border: 1px solid var(--color-border); color: var(--color-text-muted);">나중에</button>
-            <button onclick="dismissReview('done')" class="flex-1 py-3 rounded-xl text-sm font-medium text-white text-center" style="background: var(--color-accent);">확인</button>
+            <a href="https://play.google.com/store/apps/details?id=com.myplanner.app" target="_blank" onclick="dismissReview('done')"
+               class="flex-1 py-3 rounded-xl text-sm font-medium text-white text-center" style="background: var(--color-accent);">평점 남기기</a>
         </div>
     </div>
 </div>

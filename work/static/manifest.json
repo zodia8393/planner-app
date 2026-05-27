@@ -1,7 +1,7 @@
 {
-  "name": "Work Planner",
-  "short_name": "Work",
-  "description": "프로필 기반 팀 업무 관리, PIN 보안, 공유폴더를 지원하는 사내 플래너",
+  "name": "JM Planner",
+  "short_name": "JM Plan",
+  "description": "팀 업무 관리, 일정, 공지, 양식을 위한 사내 플래너",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -27,7 +27,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Work Planner"
+      "label": "JM Planner"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}업무 양식 - Work Planner{% endblock %}
+{% block title %}업무 양식 - JM Planner{% endblock %}
 {% block page_title %}업무 양식{% endblock %}
 {% block page_subtitle %}{{ templates|length }}개 양식{% endblock %}
 
@@ -48,16 +48,16 @@
         </svg>
         JSON 가져오기
     </button>
-    <span id="uploadSpinner" class="hidden items-center gap-2 px-4 py-2.5 text-sm text-slate-500">
-        <svg class="w-4 h-4 loading-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-        업로드 중...
-    </span>
     <form id="uploadForm" action="/forms/upload" method="POST" enctype="multipart/form-data" class="hidden">
         <input type="file" id="fileUpload" name="file" accept=".xlsx,.xls,.csv"
                onchange="if(this.files.length){document.getElementById('uploadSpinner').classList.remove('hidden');document.getElementById('uploadSpinner').classList.add('inline-flex');this.form.submit()}">
     </form>
     <input type="file" id="jsonImport" accept=".json" class="hidden"
            onchange="if(this.files.length){const f=this.files[0];const fd=new FormData();fd.append('file',f);fetch('/forms/import-json',{method:'POST',body:fd}).then(r=>{if(r.ok)location.reload();else r.text().then(t=>alert('가져오기 실패: '+t))}).catch(function(){alert('가져오기 실패')});this.value=''}">
+    <span id="uploadSpinner" class="hidden items-center gap-2 px-4 py-2.5 text-sm text-slate-500">
+        <svg class="w-4 h-4 loading-spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+        업로드 중...
+    </span>
 </div>
 
 <!-- Template list -->
@@ -129,12 +129,10 @@
         </a>
     </div>
     {% else %}
-    <div class="py-16 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">📝</span>
-        </div>
-        <p class="text-slate-400 font-medium">등록된 양식이 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">새 양식을 만들어 업무일지를 체계적으로 작성해보세요</p>
+    <div class="empty-state">
+        <div class="empty-state-icon"><span>📝</span></div>
+        <p class="empty-state-title">등록된 양식이 없습니다</p>
+        <p class="empty-state-desc">새 양식을 만들어 업무일지를 체계적으로 작성해보세요</p>
     </div>
     {% endfor %}
 </div>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'work-planner-v5';
+const CACHE_NAME = 'jm-planner-v5';
 const OFFLINE_URL = '/static/offline.html';
 const STATIC_ASSETS = [
     '/static/offline.html',

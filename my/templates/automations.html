@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}자동화 - My Planner{% endblock %}
+{% block title %}자동화 - JM Planner{% endblock %}
 {% block page_title %}자동화 규칙{% endblock %}
 {% block page_subtitle %}{{ rules|length }}개{% endblock %}
 
@@ -15,7 +15,6 @@
         <p><b class="text-slate-700 dark:text-slate-300">실행 주기</b> — 규칙은 매일 자동으로 실행됩니다</p>
     </div>
 </details>
-
 <!-- Item 13: Starter Automation Suggestions -->
 {% if rules|length == 0 %}
 <div class="work-card rounded-xl p-4 mb-4">
@@ -138,7 +137,7 @@
         <input type="hidden" name="trigger_config" id="hiddenTriggerConfig" value='{"weekday":0}'>
         <input type="hidden" name="action_config" id="hiddenActionConfig" value="{}">
 
-        <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">저장</button>
+        <button type="submit" class="px-4 py-2 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700">저장</button>
     </form>
 </div>
 
@@ -180,14 +179,14 @@
     </div>
 </div>
 {% else %}
-<div class="py-16 text-center">
-    <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
         </svg>
     </div>
-    <p class="text-slate-400 dark:text-slate-500 font-medium">등록된 자동화 규칙이 없습니다</p>
-    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">위의 추천 자동화를 사용하거나 직접 규칙을 만들어보세요</p>
+    <p class="empty-state-title">등록된 자동화 규칙이 없습니다</p>
+    <p class="empty-state-desc">위의 추천 자동화를 사용하거나 직접 규칙을 만들어보세요</p>
 </div>
 {% endfor %}
 {% endblock %}

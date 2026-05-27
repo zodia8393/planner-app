@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}링크 - My Planner{% endblock %}
+{% block title %}링크 - JM Planner{% endblock %}
 {% block page_title %}링크{% endblock %}
 {% block page_subtitle %}자주 쓰는 링크 관리{% endblock %}
 
@@ -50,9 +50,9 @@
 <!-- Category filter tabs -->
 {% if link_categories %}
 <div class="flex flex-wrap gap-1.5 mb-4" id="linkFilter">
-    <button onclick="filterLinks('')" class="link-filter-btn active px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 transition-colors">전체</button>
+    <button data-filter="" class="link-filter-btn active px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 transition-colors">전체</button>
     {% for cat in link_categories %}
-    <button onclick="filterLinks('{{ cat }}')" class="link-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">{{ cat }}</button>
+    <button data-filter="{{ cat }}" class="link-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">{{ cat }}</button>
     {% endfor %}
 </div>
 {% endif %}
@@ -89,33 +89,63 @@
         </a>
     </div>
     {% else %}
-    <div class="col-span-full py-16 text-center" id="emptyLinks">
-        <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">🔗</span>
-        </div>
-        <p class="text-slate-400 font-medium">저장된 링크가 없습니다</p>
-        <p class="text-xs text-slate-400 mt-1">위에서 자주 쓰는 링크를 추가해보세요</p>
+    <div class="col-span-full empty-state" id="emptyLinks">
+        <div class="empty-state-icon"><span>🔗</span></div>
+        <p class="empty-state-title">저장된 링크가 없습니다</p>
+        <p class="empty-state-desc">위에서 자주 쓰는 링크를 추가해보세요</p>
     </div>
     {% endfor %}
 </div>
+
+<!-- Cross-planner links -->
+{% if tunnel_data %}
+<div class="mt-8">
+    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">플래너 바로가기</h3>
+    <div class="grid gap-3 sm:grid-cols-3">
+        {% set apps = [("work", "업무 플래너", "bg-amber-600"), ("jm", "JM 플래너", "bg-emerald-600"), ("couple", "커플 플래너", "bg-pink-600")] %}
+        {% for key, label, color in apps %}
+        {% set info = tunnel_data.get(key, {}) %}
+        {% set url = info.get('url', '') if info is mapping else (info if info is string else '') %}
+        {% if url %}
+        <a href="{{ url }}" target="_blank" rel="noopener"
+           class="work-card rounded-xl p-4 flex items-center gap-3 transition-all hover:scale-[1.02] hover:shadow-lg block
+                  {% if key == current_app %}ring-2 ring-amber-400{% endif %}">
+            <div class="w-10 h-10 {{ color }} rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                {{ key[:2]|upper }}
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="font-bold text-sm text-slate-800 dark:text-white">{{ label }}
+                    {% if key == current_app %}<span class="text-xs font-normal text-amber-500 ml-1">(현재)</span>{% endif %}
+                </p>
+                <p class="text-xs text-slate-400 truncate">{{ url }}</p>
+            </div>
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-function filterLinks(cat) {
-    document.querySelectorAll('.link-card').forEach(function(card) {
-        if (!cat || card.dataset.category === cat) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
+(function() {
+    var filterWrap = document.getElementById('linkFilter');
+    if (!filterWrap) return;
+    filterWrap.addEventListener('click', function(e) {
+        var btn = e.target.closest('.link-filter-btn');
+        if (!btn) return;
+        var cat = btn.dataset.filter || '';
+        document.querySelectorAll('.link-card').forEach(function(card) {
+            card.style.display = (!cat || card.dataset.category === cat) ? '' : 'none';
+        });
+        filterWrap.querySelectorAll('.link-filter-btn').forEach(function(b) {
+            b.classList.remove('active', 'bg-amber-100', 'text-amber-700', 'dark:bg-amber-900/30', 'dark:text-amber-400');
+            b.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+        });
+        btn.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+        btn.classList.add('active', 'bg-amber-100', 'text-amber-700', 'dark:bg-amber-900/30', 'dark:text-amber-400');
     });
-    document.querySelectorAll('.link-filter-btn').forEach(function(btn) {
-        btn.classList.remove('active', 'bg-amber-100', 'text-amber-700', 'dark:bg-amber-900/30', 'dark:text-amber-400');
-        btn.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
-    });
-    event.target.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
-    event.target.classList.add('active', 'bg-amber-100', 'text-amber-700', 'dark:bg-amber-900/30', 'dark:text-amber-400');
-}
+})();
 </script>
 {% endblock %}

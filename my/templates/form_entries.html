@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ tpl.name }} - My Planner{% endblock %}
+{% block title %}{{ tpl.name }} - JM Planner{% endblock %}
 {% block page_title %}{{ tpl.name }}{% endblock %}
 {% block page_subtitle %}{{ period_label if frequency is defined and frequency != 'daily' else current_date }} ({{ entries|length }}건){% endblock %}
 
@@ -29,29 +29,19 @@
 .card-field-input:focus { background: rgba(99,102,241,0.06); box-shadow: inset 0 0 0 2px #d97706; }
 .view-toggle-btn { transition: all 0.15s; }
 .view-toggle-btn.active { background: rgba(99,102,241,0.15); color: #d97706; }
-
-/* Column resize */
 .col-resize-handle {
     position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
     cursor: col-resize; z-index: 10; user-select: none;
 }
-.col-resize-handle:hover, .col-resize-handle.active {
-    background: rgba(99,102,241,0.4);
-}
-/* Row resize */
+.col-resize-handle:hover, .col-resize-handle.active { background: rgba(99,102,241,0.4); }
 .row-resize-handle {
     position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
     cursor: row-resize; z-index: 10; user-select: none;
 }
-.row-resize-handle:hover, .row-resize-handle.active {
-    background: rgba(99,102,241,0.4);
-}
+.row-resize-handle:hover, .row-resize-handle.active { background: rgba(99,102,241,0.4); }
 #sheet th { position: relative; overflow: visible; }
 #sheet tr { position: relative; }
 #sheet td:first-child { position: relative; }
-.resize-guide { position: fixed; z-index: 9999; pointer-events: none; }
-.resize-guide-col { width: 1px; background: #d97706; top: 0; bottom: 0; }
-.resize-guide-row { height: 1px; background: #d97706; left: 0; right: 0; }
 table#sheet { table-layout: fixed; }
 </style>
 
@@ -466,7 +456,6 @@ function updateSums() {
             if (el) sums[i] += parseFloat(el.value) || 0;
         });
     });
-    // Update tfoot cells
     Object.keys(sums).forEach(i => {
         const cell = document.querySelector(`#sheetFoot [data-sum-fi="${i}"]`);
         if (cell) {
@@ -474,7 +463,6 @@ function updateSums() {
             cell.textContent = v % 1 === 0 ? v.toLocaleString() : v.toLocaleString(undefined, {maximumFractionDigits: 2});
         }
     });
-    // Update card sum footer
     const cardSumBody = document.getElementById('cardSumBody');
     if (cardSumBody) {
         let html = '';
@@ -566,7 +554,6 @@ function renderCards() {
         });
         html += `</div></div>`;
     });
-    // Add new card button
     html += `<div class="flex justify-center"><button onclick="addRow(); if(currentView==='card') setTimeout(renderCards, 100);"
         class="px-4 py-2 text-sm font-medium text-amber-500 hover:text-amber-700 bg-amber-50 dark:bg-amber-900/20 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">+ 행 추가</button></div>`;
     cardView.innerHTML = html;
@@ -575,7 +562,6 @@ function renderCards() {
 function saveCardField(el) {
     const eid = el.dataset.cardEid;
     const fi = el.dataset.cardFi;
-    // Sync value back to the table row
     const tr = document.querySelector(`tr[data-eid="${eid}"]`);
     if (!tr) return;
     const tableEl = tr.querySelector(`[data-fi="${fi}"]`);
@@ -583,12 +569,10 @@ function saveCardField(el) {
     const f = FIELDS[parseInt(fi)];
     if (f.type === 'checkbox') tableEl.checked = el.checked;
     else tableEl.value = el.value;
-    // Trigger save via existing mechanism
     saveRow(tableEl);
     updateSums();
 }
 
-// Patch existing functions to call updateSums
 const _origSaveRow = saveRow;
 saveRow = function(el) {
     _origSaveRow(el);
@@ -613,7 +597,6 @@ addRow = function() {
     }, 300);
 };
 
-// Init view on load
 function initView() {
     const saved = localStorage.getItem(VIEW_STORAGE_KEY);
     const isMobile = window.innerWidth < 768;
@@ -633,140 +616,60 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 {% endif %}
 
-// Column & Row resize
 (function() {
     const table = document.getElementById('sheet');
     if (!table) return;
     const STORAGE_KEY = `form_resize_${TPL_ID}`;
-
-    function loadSizes() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-    }
-    function saveSizes(sizes) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sizes));
-    }
+    function loadSizes() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+    function saveSizes(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
 
     function initResize() {
         const sizes = loadSizes();
         const ths = table.querySelectorAll('thead th');
-
-        // Apply saved column widths
+        ths.forEach((th, i) => { if (sizes[`col_${i}`]) th.style.width = sizes[`col_${i}`] + 'px'; });
+        table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => { if (sizes[`row_${i}`]) tr.style.height = sizes[`row_${i}`] + 'px'; });
         ths.forEach((th, i) => {
-            if (sizes[`col_${i}`]) th.style.width = sizes[`col_${i}`] + 'px';
+            if (i === ths.length - 1) return;
+            const h = document.createElement('div'); h.className = 'col-resize-handle';
+            h.addEventListener('mousedown', (e) => startColResize(e, th, i));
+            h.addEventListener('touchstart', (e) => startColResize(e.touches[0], th, i), {passive:false});
+            th.appendChild(h);
         });
-
-        // Apply saved row heights
-        table.querySelectorAll('tbody tr').forEach((tr, i) => {
-            if (sizes[`row_${i}`]) tr.style.height = sizes[`row_${i}`] + 'px';
-        });
-
-        // Add column resize handles to headers
-        ths.forEach((th, i) => {
-            if (i === ths.length - 1) return; // skip last (delete) column
-            const handle = document.createElement('div');
-            handle.className = 'col-resize-handle';
-            handle.addEventListener('mousedown', (e) => startColResize(e, th, i));
-            handle.addEventListener('touchstart', (e) => startColResize(e.touches[0], th, i), {passive: false});
-            th.appendChild(handle);
-        });
-
-        // Add row resize handles to first cell of each data row
         addRowHandles();
     }
-
     function addRowHandles() {
         table.querySelectorAll('tbody tr[data-eid]').forEach((tr, i) => {
-            const td = tr.children[0];
-            if (!td || td.querySelector('.row-resize-handle')) return;
+            const td = tr.children[0]; if (!td || td.querySelector('.row-resize-handle')) return;
             td.style.position = 'relative';
-            const handle = document.createElement('div');
-            handle.className = 'row-resize-handle';
-            handle.addEventListener('mousedown', (e) => startRowResize(e, tr, i));
-            handle.addEventListener('touchstart', (e) => startRowResize(e.touches[0], tr, i), {passive: false});
-            td.appendChild(handle);
+            const h = document.createElement('div'); h.className = 'row-resize-handle';
+            h.addEventListener('mousedown', (e) => startRowResize(e, tr, i));
+            h.addEventListener('touchstart', (e) => startRowResize(e.touches[0], tr, i), {passive:false});
+            td.appendChild(h);
         });
     }
-
-    let resizing = false;
-
     function startColResize(e, th, colIdx) {
-        e.preventDefault();
-        e.stopPropagation();
-        resizing = true;
-        const startX = e.clientX || e.pageX;
-        const startW = th.offsetWidth;
+        e.preventDefault(); e.stopPropagation();
+        const startX = e.clientX, startW = th.offsetWidth;
         th.querySelector('.col-resize-handle').classList.add('active');
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-
-        function onMove(ev) {
-            const x = (ev.touches ? ev.touches[0].clientX : ev.clientX);
-            const newW = Math.max(40, startW + (x - startX));
-            th.style.width = newW + 'px';
-        }
-        function onUp() {
-            resizing = false;
-            document.removeEventListener('mousemove', onMove);
-            document.removeEventListener('mouseup', onUp);
-            document.removeEventListener('touchmove', onMove);
-            document.removeEventListener('touchend', onUp);
-            th.querySelector('.col-resize-handle').classList.remove('active');
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-            const sizes = loadSizes();
-            sizes[`col_${colIdx}`] = th.offsetWidth;
-            saveSizes(sizes);
-        }
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-        document.addEventListener('touchmove', onMove, {passive: false});
-        document.addEventListener('touchend', onUp);
+        document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+        function onMove(ev) { const x = ev.touches ? ev.touches[0].clientX : ev.clientX; th.style.width = Math.max(40, startW + x - startX) + 'px'; }
+        function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); th.querySelector('.col-resize-handle').classList.remove('active'); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`col_${colIdx}`]=th.offsetWidth; saveSizes(s); }
+        document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
     }
-
     function startRowResize(e, tr, rowIdx) {
-        e.preventDefault();
-        e.stopPropagation();
-        resizing = true;
-        const startY = e.clientY || e.pageY;
-        const startH = tr.offsetHeight;
-        document.body.style.cursor = 'row-resize';
-        document.body.style.userSelect = 'none';
-
-        function onMove(ev) {
-            const y = (ev.touches ? ev.touches[0].clientY : ev.clientY);
-            const newH = Math.max(28, startH + (y - startY));
-            tr.style.height = newH + 'px';
-        }
-        function onUp() {
-            resizing = false;
-            document.removeEventListener('mousemove', onMove);
-            document.removeEventListener('mouseup', onUp);
-            document.removeEventListener('touchmove', onMove);
-            document.removeEventListener('touchend', onUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-            const sizes = loadSizes();
-            sizes[`row_${rowIdx}`] = tr.offsetHeight;
-            saveSizes(sizes);
-        }
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-        document.addEventListener('touchmove', onMove, {passive: false});
-        document.addEventListener('touchend', onUp);
+        e.preventDefault(); e.stopPropagation();
+        const startY = e.clientY, startH = tr.offsetHeight;
+        document.body.style.cursor = 'row-resize'; document.body.style.userSelect = 'none';
+        function onMove(ev) { const y = ev.touches ? ev.touches[0].clientY : ev.clientY; tr.style.height = Math.max(28, startH + y - startY) + 'px'; }
+        function onUp() { document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); document.body.style.cursor=''; document.body.style.userSelect=''; const s=loadSizes(); s[`row_${rowIdx}`]=tr.offsetHeight; saveSizes(s); }
+        document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp);
     }
-
-    // Re-attach row handles after new row added
     const origAddRow = window.addRow;
-    window.addRow = function() {
-        origAddRow();
-        setTimeout(addRowHandles, 50);
-    };
-
+    window.addRow = function() { origAddRow(); setTimeout(addRowHandles, 50); };
     document.addEventListener('DOMContentLoaded', initResize);
     if (document.readyState !== 'loading') initResize();
 })();
 
-// Initialize view mode
 document.addEventListener('DOMContentLoaded', initView);
 if (document.readyState !== 'loading') initView();
 </script>

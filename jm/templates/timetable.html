@@ -6,7 +6,7 @@
 {% block content %}
 <!-- Date navigation -->
 <div class="flex items-center justify-center gap-3 mb-5">
-    <a href="/timetable?dt={{ prev_date }}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/timetable?dt={{ prev_date }}" aria-label="이전 날" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
@@ -14,7 +14,7 @@
     <h3 class="text-lg font-extrabold min-w-[160px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">
         {{ target_month }}월 {{ target_day }}일 ({{ target_weekday }})
     </h3>
-    <a href="/timetable?dt={{ next_date }}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
+    <a href="/timetable?dt={{ next_date }}" aria-label="다음 날" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
         <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
@@ -73,7 +73,8 @@
     <!-- Circular timetable -->
     <div class="lg:col-span-2 flex justify-center">
         <div class="w-full max-w-[420px]">
-            <svg id="timetableSvg" viewBox="0 0 400 400" class="w-full h-auto" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));">
+            <svg id="timetableSvg" viewBox="0 0 400 400" class="w-full h-auto" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));" aria-label="원형 타임테이블" role="img">
+                <title>{{ target_month }}월 {{ target_day }}일 타임테이블</title>
                 <!-- Background circles -->
                 <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border, #e2e8f0);"/>
                 <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.4;"/>
@@ -247,7 +248,7 @@
                         <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg group"
                              style="background: var(--color-border-subtle);"
                              id="block-row-{{ b.id }}">
-                            <div class="w-1.5 h-8 rounded-full flex-shrink-0" style="background: {{ b.color }};"></div>
+                            <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ b.color }};"></div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium truncate" style="color: var(--color-text);">
                                     {% if b.icon %}{{ b.icon }} {% endif %}{{ b.title }}
@@ -368,7 +369,7 @@
                 <div class="space-y-2">
                     {% for item in schedule_list %}
                     <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg" style="background: var(--color-border-subtle);">
-                        <div class="w-1.5 h-8 rounded-full flex-shrink-0" style="background: {{ item.color }};"></div>
+                        <div class="w-2 h-8 rounded-full flex-shrink-0" style="background: {{ item.color }};"></div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium truncate" style="color: var(--color-text);">{{ item.title }}</p>
                             <p class="text-xs" style="color: var(--color-text-muted);">{{ item.time_label }}</p>

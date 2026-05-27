@@ -1,15 +1,15 @@
 {
-  "name": "My Planner",
-  "short_name": "My Plan",
-  "description": "할일, 일정, 메모, 업무일지를 한곳에서 관리하는 개인 플래너",
+  "name": "JM Planner",
+  "short_name": "JM Plan",
+  "description": "팀 업무 관리, 일정, 공지, 양식을 위한 사내 플래너",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
-  "theme_color": "#d97706",
+  "theme_color": "#4f46e5",
   "orientation": "any",
   "lang": "ko",
-  "categories": ["productivity", "utilities"],
+  "categories": ["productivity", "business"],
   "icons": [
     { "src": "/static/icon-48.png",   "sizes": "48x48",     "type": "image/png", "purpose": "any" },
     { "src": "/static/icon-72.png",   "sizes": "72x72",     "type": "image/png", "purpose": "any" },
@@ -27,7 +27,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "My Planner"
+      "label": "JM Planner"
     }
   ]
 }

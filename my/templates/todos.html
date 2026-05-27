@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block head_extra %}<script src="/static/sortable.min.js"></script>{% endblock %}
-{% block title %}업무 - My Planner{% endblock %}
-{% block page_title %}할 일 관리{% endblock %}
+{% block title %}업무 - JM Planner{% endblock %}
+{% block page_title %}업무 관리{% endblock %}
 {% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
 
 {% block content %}
@@ -33,7 +33,7 @@
     </a>
 </div>
 
-<!-- Primary filters (status) -->
+<!-- Filters -->
 <div class="flex flex-wrap items-center gap-2 mb-3 overflow-x-auto pb-1">
     {% set filters = [("all", "전체"), ("active", "미완료"), ("completed", "완료")] %}
     {% for fk, fl in filters %}
@@ -105,48 +105,48 @@
 </details>
 
 <!-- Add form -->
-<div class="work-card rounded-xl p-4 mb-3" id="addForm">
+<div class="work-card rounded-xl p-4 mb-4" id="addForm">
     <form action="/todos" method="POST">
-        <div class="flex gap-2 mb-2">
+        <div class="flex gap-2">
             <input type="text" name="title" placeholder="새 업무 추가..." required
-                   class="flex-1 px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            <button type="submit" class="btn-primary bg-amber-600 text-white hover:bg-amber-700 transition-colors">
+                   class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
+            <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
                 추가
             </button>
         </div>
         <!-- Collapsible options -->
         <details id="addFormOptions">
-            <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none mb-2">
+            <summary class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-500 cursor-pointer transition-colors select-none mt-2 mb-1">
                 <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 옵션 더보기
             </summary>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
             <input type="date" name="due_date" value="{{ today.isoformat() }}"
-                   class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-            <select name="priority" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                   class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="priority" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 {% for pk, pv in priority_map.items() %}
                 <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
                 {% endfor %}
             </select>
-            <select name="category_id" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="category_id" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <option value="">카테고리</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
             </select>
             <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
-                    class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+                    class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 {% for rk, rv in repeat_map.items() %}
                 <option value="{{ rk }}">{{ rv }}</option>
                 {% endfor %}
             </select>
-            <select name="energy_level" class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
+            <select name="energy_level" class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
                 <option value="1">🟢 저에너지</option>
                 <option value="2" selected>🔵 보통에너지</option>
                 <option value="3">🔥 고에너지</option>
             </select>
             <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
-                   class="px-2.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
+                   class="px-2 py-1.5 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 flex-1 min-w-24">
             <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
         </div>
         <!-- Reminder offsets for new todo -->
@@ -228,21 +228,19 @@
     <span class="text-amber-700 dark:text-amber-300 font-medium"><span id="bulkCount">0</span>개 선택</span>
     <button onclick="bulkSelectAll()" class="btn-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50">전체 선택</button>
     <div class="flex-1"></div>
-    <button onclick="bulkAction('complete')" class="btn-secondary bg-green-600 text-white hover:bg-green-700">완료 처리</button>
-    <button onclick="bulkAction('delete')" class="btn-secondary bg-red-600 text-white hover:bg-red-700">삭제</button>
-    <button onclick="bulkModeOff()" class="btn-secondary" style="color: var(--color-text-muted);">취소</button>
+    <button onclick="bulkAction('complete')" class="btn-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
+    <button onclick="bulkAction('delete')" class="btn-sm bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
+    <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->
 <div id="todoList" class="space-y-4">
     {% for date_key, todos in todo_groups.items() %}
     <div>
-        <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold
-                {% if date_key == today.isoformat() %}bg-amber-600 text-white
-                {% elif date_key and date_key < today.isoformat() %}bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400
-                {% elif date_key %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300
-                {% else %}bg-slate-50 dark:bg-slate-800/50 text-slate-400{% endif %}">
+        <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1.5">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm
+                {% if date_key == today.isoformat() %}text-white{% elif date_key and date_key < today.isoformat() %}text-red-600 dark:text-red-400{% elif date_key %}text-slate-600 dark:text-slate-300{% else %}text-slate-400{% endif %}"
+                style="{% if date_key == today.isoformat() %}background: var(--gradient-accent); box-shadow: var(--shadow-btn-accent);{% elif date_key and date_key < today.isoformat() %}background: var(--color-danger-soft);{% elif date_key %}background: var(--color-surface); border: 1px solid var(--color-border);{% else %}background: var(--color-bg); border: 1px solid var(--color-border-subtle);{% endif %}">
                 {% if date_key == today.isoformat() %}
                     오늘 <span class="font-normal ml-1 opacity-80">{{ date_key|format_date }}</span>
                 {% elif date_key %}
@@ -251,8 +249,8 @@
                     날짜 없음
                 {% endif %}
             </div>
-            <span class="text-[11px] text-slate-400">{{ todos|length }}건</span>
-            <div class="flex-1 border-t border-slate-200 dark:border-slate-700/50"></div>
+            <span class="text-[11px] font-medium" style="color: var(--color-text-faint);">{{ todos|length }}건</span>
+            <div class="flex-1 border-t" style="border-color: var(--color-border-subtle);"></div>
         </div>
         <div class="space-y-2">
             {% for todo in todos %}
@@ -261,14 +259,14 @@
         </div>
     </div>
     {% else %}
-    <div class="py-10 text-center">
-        <svg class="w-20 h-20 mx-auto mb-3 text-slate-200 dark:text-slate-700" fill="none" viewBox="0 0 96 96" stroke="currentColor" stroke-width="1.5">
-            <rect x="20" y="16" width="56" height="68" rx="6" stroke-dasharray="4 3"/>
-            <path d="M34 36h28M34 48h20M34 60h24" stroke-linecap="round"/>
-            <circle cx="27" cy="36" r="2.5"/><circle cx="27" cy="48" r="2.5"/><circle cx="27" cy="60" r="2.5"/>
-        </svg>
-        <p class="text-base text-slate-600 dark:text-slate-300 font-medium">업무가 없습니다</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">위에서 새 업무를 추가해보세요</p>
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <p class="empty-state-title">업무가 없습니다</p>
+        <p class="empty-state-desc">위에서 새 업무를 추가해보세요</p>
     </div>
     {% endfor %}
 </div>
@@ -287,12 +285,27 @@ function toggleAddRruleExtra() {
     var freq = document.getElementById('addRruleFreq').value;
     document.getElementById('addBydayRow').classList.toggle('hidden', freq !== 'WEEKLY');
     document.getElementById('addBymonthdayRow').classList.toggle('hidden', freq !== 'MONTHLY');
+    updateAddRrulePreview();
 }
 function toggleAddEndFields() {
     var et = document.getElementById('addRruleEndType').value;
     document.getElementById('addRruleCount').classList.toggle('hidden', et !== 'count');
     document.getElementById('addRruleUntil').classList.toggle('hidden', et !== 'until');
+    updateAddRrulePreview();
 }
+function updateAddRrulePreview() {
+    var freq = document.getElementById('addRruleFreq').value;
+    var interval = document.querySelector('[name="rrule_interval"]');
+    var iv = interval ? parseInt(interval.value) || 1 : 1;
+    var freqKr = {DAILY: '일', WEEKLY: '주', MONTHLY: '개월', YEARLY: '년'};
+    var txt = '매 ' + (iv > 1 ? iv : '') + (freqKr[freq] || freq);
+    if (freq === 'WEEKLY') {
+        var days = Array.from(document.querySelectorAll('.rrule-byday-add:checked')).map(function(c) { return c.parentElement.textContent.trim(); });
+        if (days.length) txt += ' ' + days.join(',');
+    }
+    document.getElementById('addRrulePreview').textContent = txt;
+}
+/* Collect byday before form submit */
 document.addEventListener('submit', function(e) {
     if (e.target.closest('#addForm')) {
         var checks = document.querySelectorAll('.rrule-byday-add:checked');

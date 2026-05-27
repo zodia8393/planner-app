@@ -109,8 +109,6 @@
         </div>
         <input type="text" name="tags" value="{{ (todo.tags|parse_tags)|join(', ') }}" placeholder="태그 (쉼표 구분)"
                class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
-        <input type="text" name="assignee" value="{{ todo.assignee or '' }}" placeholder="담당자"
-               class="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
         <div class="flex justify-end gap-2">
             <a href="/todos" hx-boost="false" class="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">취소</a>
             <button type="submit" onclick="collectEditByday({{ todo.id }})" class="px-5 py-2 bg-amber-600 text-white font-medium text-sm rounded-lg hover:bg-amber-700 transition-colors">저장</button>

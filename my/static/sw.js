@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-planner-v5';
+const CACHE_NAME = 'jm-planner-v5';
 const OFFLINE_URL = '/static/offline.html';
 const STATIC_ASSETS = [
     '/static/offline.html',
@@ -191,7 +191,7 @@ function scheduleNotification(item) {
     const fireDelay = Math.max(0, delay);
     scheduledTimers[key] = setTimeout(() => {
         delete scheduledTimers[key];
-        self.registration.showNotification(item.title || 'My Planner', {
+        self.registration.showNotification(item.title || 'Planner', {
             body: item.body || '',
             icon: '/static/icon-192.png',
             tag: key,

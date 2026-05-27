@@ -16,10 +16,14 @@
         <p><b class="text-slate-700 dark:text-slate-300">백업/복원</b> — 전체 데이터를 ZIP으로 백업하거나 이전 백업에서 복원합니다</p>
     </div>
 </details>
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-2xl mx-auto space-y-4">
     <!-- Category management -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리 관리</h4>
+    <details class="work-card rounded-xl" open>
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리 관리</h4>
+        </summary>
+        <div class="px-5 pb-5">
 
         <form action="/settings/categories" method="POST" class="flex gap-2 items-end mb-4">
             <div class="flex-1">
@@ -54,14 +58,16 @@
             <p class="text-sm text-slate-400 text-center py-4">카테고리가 없습니다</p>
             {% endfor %}
         </div>
-    </div>
+        </div>
+    </details>
 
     <!-- Time Budget Settings -->
-    <div class="work-card rounded-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h4 class="font-extrabold" style="color: var(--color-text); letter-spacing: -0.01em;">주간 시간 예산</h4>
-            <a href="/settings/time-budgets" class="text-xs font-medium" style="color: var(--color-accent);">설정</a>
-        </div>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">주간 시간 예산</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">카테고리별 주간 시간 한도를 설정합니다.</p>
         <form action="/settings/time-budgets" method="POST">
             <div class="space-y-2">
@@ -82,11 +88,16 @@
             <button type="submit" class="btn-accent mt-3 w-full py-2.5 rounded-xl text-sm">저장</button>
             {% endif %}
         </form>
-    </div>
+        </div>
+    </details>
 
     <!-- Notification Settings -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">알림 설정</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">알림 설정</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">브라우저 알림으로 마감 할일과 예정 일정을 받아보세요.</p>
 
         <div class="space-y-4">
@@ -241,22 +252,32 @@
             }).catch(function(){});
         })();
         </script>
-    </div>
+        </div>
+    </details>
 
     <!-- Theme toggle -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">테마</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">테마</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
         <button onclick="toggleDarkMode()"
                 class="w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm">
             <span class="dark:hidden">🌙 다크 모드로 전환</span>
             <span class="hidden dark:inline">☀️ 라이트 모드로 전환</span>
         </button>
-    </div>
+        </div>
+    </details>
 
     <!-- Accent Color Picker -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">액센트 색상</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">액센트 색상</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
         <div class="flex gap-3" id="accentPicker">
             <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상" title="인디고"></button>
@@ -265,11 +286,16 @@
             <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="앰버 색상" title="앰버"></button>
             <button onclick="setAccentColor('sky')" data-color="sky" class="rounded-xl bg-sky-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="스카이 색상" title="스카이"></button>
         </div>
-    </div>
+        </div>
+    </details>
 
     <!-- Font Size Toggle -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">글꼴 크기</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">글꼴 크기</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
         <div class="flex gap-2" id="fontSizePicker">
             <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400">
@@ -326,10 +352,16 @@
     updateAccentUI();
     updateFontSizeUI();
     </script>
+        </div>
+    </details>
 
     <!-- Background Settings -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-extrabold mb-2" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M2.25 18.75h19.5a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H2.25a.75.75 0 00-.75.75v12c0 .414.336.75.75.75z"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
+        </summary>
+        <div class="px-5 pb-5">
         <p class="text-xs mb-4" style="color: var(--color-text-faint);">배경 이미지 또는 그라데이션을 설정합니다.</p>
 
         <form action="/settings/background" method="POST" enctype="multipart/form-data" id="bgForm">
@@ -431,10 +463,17 @@
         document.getElementById('opacitySection').classList.toggle('hidden', type === 'none');
     }
     </script>
+        </div>
+    </details>
 
     <!-- Google Account Login -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">Google 계정</h4>
+    <details class="work-card rounded-xl">
+        <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+            <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+            <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">연동 설정</h4>
+        </summary>
+        <div class="px-5 pb-5 space-y-5">
+        <h5 class="font-bold text-slate-800 dark:text-white">Google 계정</h5>
         <p class="text-xs text-slate-400 mb-4">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
         {% if profile and profile.google_email %}
         <div class="p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/30 rounded-lg mb-3">
@@ -456,11 +495,10 @@
             <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Google 계정 연결</span>
         </a>
         {% endif %}
-    </div>
 
-    <!-- Google Calendar Integration -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">Google 캘린더 연동</h4>
+
+        <hr class="my-4 border-slate-100 dark:border-slate-700">
+        <h5 class="font-bold text-slate-800 dark:text-white mb-2">Google 캘린더 연동</h5>
         <p class="text-xs text-slate-400 mb-4">Google 계정의 캘린더 일정을 플래너에 가져와 함께 표시합니다.</p>
         {% if not gcal_configured %}
         <p class="text-xs text-slate-400">현재 사용할 수 없습니다.</p>
@@ -505,11 +543,9 @@
             <span class="text-sm font-medium text-slate-700">Google 계정 연결</span>
         </a>
         {% endif %}
-    </div>
 
-    <!-- Item 10: Morning Brief Settings -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-4">🌅 모닝 브리핑</h4>
+        <hr class="my-4 border-slate-100 dark:border-slate-700">
+        <h5 class="font-bold text-slate-800 dark:text-white mb-4">모닝 브리핑</h5>
         <p class="text-xs text-slate-400 mb-3">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림으로 받으세요.</p>
         <div id="morningBriefForm" class="flex flex-wrap items-end gap-3">
             <div>
@@ -541,11 +577,9 @@
             }).then(function(){showToast('모닝 브리핑 설정 저장됨','success')}).catch(function(){showToast('저장 실패','error')});
         }
         </script>
-    </div>
 
-    <!-- Calendar Subscription (outgoing iCal) -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-2">캘린더 내보내기</h4>
+        <hr class="my-4 border-slate-100 dark:border-slate-700">
+        <h5 class="font-bold text-slate-800 dark:text-white mb-2">캘린더 내보내기</h5>
         <p class="text-xs text-slate-400 mb-4">아래 URL을 외부 캘린더에 등록하면 플래너 일정이 자동 동기화됩니다.</p>
         <div class="flex gap-2 items-center">
             <input type="text" id="icalUrl" readonly
@@ -567,11 +601,9 @@
                 Apple Calendar에 추가
             </a>
         </div>
-    </div>
 
-    <!-- QR Code Mobile Access -->
-    <div class="work-card rounded-xl p-6">
-        <h4 class="font-bold text-slate-800 dark:text-white mb-4">📱 모바일 접속</h4>
+        <hr class="my-4 border-slate-100 dark:border-slate-700">
+        <h5 class="font-bold text-slate-800 dark:text-white mb-4">모바일 접속</h5>
         <p class="text-xs text-slate-400 mb-4">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
         <div id="qrSection" class="flex flex-col items-center gap-3">
             <div id="qrLoading" class="text-xs text-slate-400">QR 코드 생성 중...</div>
@@ -589,6 +621,7 @@
             u.classList.remove('hidden');
         }).catch(function(){ document.getElementById('qrLoading').textContent='QR 생성 실패'; });
         </script>
-    </div>
+        </div>
+    </details>
 </div>
 {% endblock %}

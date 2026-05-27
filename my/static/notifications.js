@@ -143,7 +143,7 @@
     function fireNotification(item, key) {
         if (wasNotified(key)) return;
         try {
-            var n = new Notification(item.title || 'My Planner', {
+            var n = new Notification(item.title || 'Planner', {
                 body: item.body || '',
                 icon: '/static/icon-192.png',
                 tag: key,
@@ -159,7 +159,7 @@
             // Fallback: use SW showNotification
             if (navigator.serviceWorker && navigator.serviceWorker.ready) {
                 navigator.serviceWorker.ready.then(function(reg) {
-                    reg.showNotification(item.title || 'My Planner', {
+                    reg.showNotification(item.title || 'Planner', {
                         body: item.body || '',
                         icon: '/static/icon-192.png',
                         tag: key,

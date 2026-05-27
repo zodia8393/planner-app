@@ -21,7 +21,7 @@
 {% if week_mode %}
 <div class="flex items-center justify-center gap-3 mb-4">
     <a href="/worklogs?start={{ prev_week_start }}&end={{ prev_week_end }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="이전 주">
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="이전 주" aria-label="이전 주">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
@@ -30,7 +30,7 @@
         {{ start_date[5:] }} ~ {{ end_date[5:] }}
     </span>
     <a href="/worklogs?start={{ next_week_start }}&end={{ next_week_end }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="다음 주">
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="다음 주" aria-label="다음 주">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
@@ -43,7 +43,7 @@
 {% else %}
 <div class="flex items-center justify-center gap-3 mb-4">
     <a href="/worklogs?date={{ prev_date }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="이전 날">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
@@ -53,7 +53,7 @@
            class="text-lg font-bold text-slate-800 dark:text-white bg-transparent border-none cursor-pointer text-center px-1"
            style="color-scheme: light dark">
     <a href="/worklogs?date={{ next_date }}"
-       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+       class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="다음 날">
         <svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>

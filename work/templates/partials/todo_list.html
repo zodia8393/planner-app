@@ -1,0 +1,9 @@
+<div id="todoList" class="space-y-2">
+    {% for todo in todos %}
+    {% include "partials/todo_item.html" %}
+    {% else %}
+    <div class="py-16 text-center">
+        <p class="text-slate-400">업무가 없습니다</p>
+    </div>
+    {% endfor %}
+</div>

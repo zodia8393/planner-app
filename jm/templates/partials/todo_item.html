@@ -1,4 +1,4 @@
-<div class="work-card rounded-xl fade-in group touch-item swipe-item" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
+<div class="work-card rounded-xl fade-in group touch-item swipe-item {% if todo.completed %}opacity-50{% endif %}" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
     <div class="swipe-bg swipe-bg-left">완료</div>
     <div class="swipe-bg swipe-bg-right">삭제</div>
     <div class="swipe-content p-4">

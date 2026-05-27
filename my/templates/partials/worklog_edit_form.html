@@ -6,7 +6,7 @@
         </div>
         <input type="text" name="title" value="{{ log.title }}" placeholder="업무 제목" required
                class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400">
-        <textarea name="content" rows="3" placeholder="업무 내용"
+        <textarea name="content" rows="3" placeholder="업무 내용 (이미지 붙여넣기 가능)"
                   class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none">{{ log.content or '' }}</textarea>
         <div class="flex gap-2 items-center">
             <input type="number" name="hours" value="{{ log.hours }}" min="0" max="24" step="0.5"

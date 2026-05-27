@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block head_extra %}<script src="/static/chart.umd.min.js"></script>{% endblock %}
-{% block title %}통계 - My Planner{% endblock %}
+{% block head_extra %}<script src="/static/chart.umd.min.js" defer></script>{% endblock %}
+{% block title %}통계 - JM Planner{% endblock %}
 {% block page_title %}통계{% endblock %}
 {% block page_subtitle %}업무 성과 분석{% endblock %}
 
@@ -11,41 +11,61 @@
         사용법
     </summary>
     <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">요약 카드</b> — 전체/완료/완료율/주간 완료율을 한눈에 확인</p>
-        <p><b class="text-slate-700 dark:text-slate-300">차트</b> — 주간 완료 추이, 카테고리별 분포, 월간 추이를 그래프로 표시</p>
+        <p><b class="text-slate-700 dark:text-slate-300">요약 카드</b> — 전체/완료/미완료/지연 할일 수를 한눈에 확인</p>
+        <p><b class="text-slate-700 dark:text-slate-300">차트</b> — 주간 완료 추이, 카테고리별 분포, 우선순위별 비율을 그래프로 표시</p>
         <p><b class="text-slate-700 dark:text-slate-300">업무시간 분석</b> — 카테고리별 투자 시간과 시간 예산 대비 현황 확인</p>
     </div>
 </details>
 <!-- Summary cards -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">전체 업무</p>
-        <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ total_all }}</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-info-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-info);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">전체 업무</p>
+        <p class="stat-number">{{ total_all }}</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">완료</p>
-        <p class="text-2xl font-bold text-emerald-600">{{ total_completed }}</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-success-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-success);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">완료</p>
+        <p class="stat-number" style="color: var(--color-success);">{{ total_completed }}</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">완료율</p>
-        <p class="text-2xl font-bold text-amber-600">{{ total_rate }}%</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-warning-soft);">
+                <svg class="w-4 h-4" style="color: var(--color-warning);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">완료율</p>
+        <p class="stat-number" style="color: var(--color-accent);">{{ total_rate }}%</p>
     </div>
-    <div class="work-card rounded-xl p-4">
-        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">주간 완료율</p>
-        <p class="text-2xl font-bold {% if stats.week_rate >= 80 %}text-emerald-600{% elif stats.week_rate >= 50 %}text-amber-600{% else %}text-slate-600{% endif %}">{{ stats.week_rate }}%</p>
+    <div class="work-card rounded-xl p-4 card-hover">
+        <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {% if stats.week_rate >= 80 %}var(--color-success-soft){% elif stats.week_rate >= 50 %}var(--color-warning-soft){% else %}var(--color-danger-soft){% endif %};">
+                <svg class="w-4 h-4" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% elif stats.week_rate >= 50 %}var(--color-warning){% else %}var(--color-danger){% endif %};" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
+            </div>
+        </div>
+        <p class="stat-label">주간 완료율</p>
+        <p class="stat-number" style="color: {% if stats.week_rate >= 80 %}var(--color-success){% elif stats.week_rate >= 50 %}var(--color-accent){% else %}var(--color-text-muted){% endif %};">{{ stats.week_rate }}%</p>
     </div>
 </div>
 
 <div class="work-card rounded-xl p-4 mb-6">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">연간 완료 히트맵</h3>
+    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">연간 완료 히트맵</h3>
     <div class="overflow-x-auto">
         <div id="heatmap" style="display:flex; gap:3px; min-width:720px"></div>
     </div>
     <div class="flex items-center justify-end gap-1.5 mt-2 text-xs text-slate-400" style="font-size:11px">
         <span>적음</span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#f1f5f9" class="dark:hidden inline-block"></span><span style="width:12px;height:12px;border-radius:2px;background:#334155" class="hidden dark:inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#bbf7d0" class="inline-block"></span>
-        <span style="width:12px;height:12px;border-radius:2px;background:#4ade80" class="inline-block"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#ddd9d6" class="dark:hidden inline-block"></span><span style="width:12px;height:12px;border-radius:2px;background:#3c3835" class="hidden dark:inline-block"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#fde68a" class="inline-block"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#f59e0b" class="inline-block"></span>
         <span style="width:12px;height:12px;border-radius:2px;background:#16a34a" class="inline-block"></span>
         <span style="width:12px;height:12px;border-radius:2px;background:#166534" class="inline-block"></span>
         <span>많음</span>
@@ -55,26 +75,29 @@
 <div class="grid lg:grid-cols-2 gap-4 lg:gap-6">
     <!-- Weekly chart -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">주간 업무 현황</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">주간 업무 현황</h3>
         <div class="h-64">
-            <canvas id="weeklyChart"></canvas>
+            <canvas id="weeklyChart" aria-label="주간 업무 현황 차트"></canvas>
+            <div class="sr-only">주간 완료/전체 업무 수를 막대그래프로 표시합니다.</div>
         </div>
     </div>
 
     <!-- Monthly trend -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">월간 추이</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">월간 추이</h3>
         <div class="h-64">
-            <canvas id="monthlyChart"></canvas>
+            <canvas id="monthlyChart" aria-label="월간 추이 차트"></canvas>
+            <div class="sr-only">월별 등록/완료 추이를 꺾은선 그래프로 표시합니다.</div>
         </div>
     </div>
 
     <!-- Category distribution -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">카테고리별 분포</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 분포</h3>
         {% if cat_stats %}
         <div class="h-64">
-            <canvas id="catChart"></canvas>
+            <canvas id="catChart" aria-label="카테고리별 분포 차트"></canvas>
+            <div class="sr-only">카테고리별 업무 비율을 도넛 차트로 표시합니다.</div>
         </div>
         {% else %}
         <div class="h-64 flex items-center justify-center">
@@ -85,7 +108,7 @@
 
     <!-- Category breakdown table -->
     <div class="work-card rounded-xl p-5">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">카테고리별 상세</h3>
+        <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 상세</h3>
         <div class="space-y-3">
             {% for cat in cat_stats %}
             {% if cat.total > 0 %}
@@ -97,7 +120,7 @@
                     </div>
                     <span class="text-xs text-slate-400">{{ cat.done }}/{{ cat.total }}</span>
                 </div>
-                <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div class="progress-premium">
                     <div class="h-full rounded-full progress-bar" style="width: {{ (cat.done / cat.total * 100)|int if cat.total > 0 else 0 }}%; background: {{ cat.color }}"></div>
                 </div>
             </div>
@@ -106,20 +129,6 @@
             <p class="text-sm text-slate-400 text-center py-8">데이터 없음</p>
             {% endfor %}
         </div>
-    </div>
-
-    <!-- Monthly events -->
-    <div class="work-card rounded-xl p-5 lg:col-span-2">
-        <h3 class="font-bold text-sm text-slate-700 dark:text-slate-200 mb-4">월별 이벤트 수</h3>
-        {% if monthly_events %}
-        <div class="h-48">
-            <canvas id="eventsChart"></canvas>
-        </div>
-        {% else %}
-        <div class="h-48 flex items-center justify-center">
-            <p class="text-sm text-slate-400">데이터 없음</p>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -139,12 +148,23 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: {{ chart_data.labels | tojson }},
                 datasets: [
-                    { label: '완료', data: {{ chart_data.completed | tojson }}, backgroundColor: '#d97706', borderRadius: 4 },
-                    { label: '전체', data: {{ chart_data.total | tojson }}, backgroundColor: '#e2e8f0', borderRadius: 4 }
+                    {
+                        label: '완료',
+                        data: {{ chart_data.completed | tojson }},
+                        backgroundColor: '#d97706',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: '전체',
+                        data: {{ chart_data.total | tojson }},
+                        backgroundColor: '#e2e8f0',
+                        borderRadius: 4,
+                    }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { labels: { color: textColor } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor } },
@@ -163,12 +183,29 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: monthlyData.map(d => d.label),
                 datasets: [
-                    { label: '전체', data: monthlyData.map(d => d.total), borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.1)', fill: true, tension: 0.3 },
-                    { label: '완료', data: monthlyData.map(d => d.done), borderColor: '#d97706', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3 }
+                    {
+                        label: '등록',
+                        data: monthlyData.map(d => d.total),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59,130,246,0.08)',
+                        borderWidth: 1,
+                        fill: true,
+                        tension: 0.3,
+                    },
+                    {
+                        label: '완료',
+                        data: monthlyData.map(d => d.done),
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22,163,74,0.08)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.3,
+                    }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { labels: { color: textColor } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: textColor } },
@@ -196,30 +233,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: textColor, padding: 16 } } }
-                }
-            });
-        }
-    }
-
-    // Events chart
-    const eventsCtx = document.getElementById('eventsChart');
-    if (eventsCtx) {
-        const evData = {{ monthly_events | tojson }};
-        if (evData.length > 0) {
-            new Chart(eventsCtx, {
-                type: 'bar',
-                data: {
-                    labels: evData.map(d => d.m),
-                    datasets: [{ label: '이벤트', data: evData.map(d => d.c), backgroundColor: '#8b5cf6', borderRadius: 4 }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: textColor } } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: textColor } },
-                        y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, padding: 16 } }
                     }
                 }
             });
@@ -237,8 +254,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var dayOfWeek = start.getDay();
     var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     start.setDate(start.getDate() + mondayOffset);
-    var emptyColor = isDark ? '#334155' : '#f1f5f9';
-    var colors = [emptyColor, '#bbf7d0', '#4ade80', '#16a34a', '#166534'];
+    var emptyColor = isDark ? '#3c3835' : '#ddd9d6';
+    var colors = [emptyColor, '#fde68a', '#f59e0b', '#16a34a', '#166534'];
     var current = new Date(start);
     while (current <= today) {
         var col = document.createElement('div');

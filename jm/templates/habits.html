@@ -17,6 +17,8 @@
     border-radius: 2px;
     flex-shrink: 0;
 }
+.habit-heatmap-empty { background: #ddd9d6; }
+.dark .habit-heatmap-empty { background: #3c3835; }
 .habit-progress-ring {
     transform: rotate(-90deg);
     transform-origin: center;
@@ -242,7 +244,7 @@ function renderSpecificTimes() {
 </div>
 {% else %}
 <!-- Habit list -->
-<div class="space-y-3 mb-6">
+<div class="grid gap-3 lg:grid-cols-2 mb-6">
     {% for h in habits %}
     {% set pct = ((h.today_count / h.target_count * 100)|int) if (h.tracking_type in ('times_per_day','every_n_hours') and h.target_count > 0) else 0 %}
     <div class="habit-card work-card group" style="border-left-color: {{ h.color }};">
@@ -383,8 +385,8 @@ function renderSpecificTimes() {
         <!-- 30-day heatmap -->
         <div class="flex gap-[3px] mt-3 pt-3 overflow-x-auto" style="border-top: 1px solid var(--color-border-subtle);">
             {% for d in dates %}
-            <div class="habit-heatmap-dot"
-                 style="background: {% if (h.id, d) in logs_set %}{{ h.color }}{% else %}var(--color-border-subtle){% endif %}; {% if (h.id, d) in logs_set %}box-shadow: 0 0 0 1px {{ h.color }}40;{% endif %}"
+            <div class="habit-heatmap-dot {% if not (h.id, d) in logs_set %}habit-heatmap-empty{% endif %}"
+                 {% if (h.id, d) in logs_set %}style="background: {{ h.color }}; box-shadow: 0 0 0 1px {{ h.color }}40;"{% endif %}
                  title="{{ d }}{% if (h.id, d) in logs_set %} ✓{% endif %}"></div>
             {% endfor %}
         </div>

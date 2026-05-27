@@ -9,7 +9,18 @@ __all__ = [
     "validate_date_str",
     "validate_datetime_str",
     "clamp_text",
+    "safe_int",
 ]
+
+
+def safe_int(val, default=None):
+    """Safely convert a value to int, returning default on failure."""
+    if val is None:
+        return default
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return default
 
 
 def fix_mojibake(s: str) -> str:

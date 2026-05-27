@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ tpl.name }} - Work Planner{% endblock %}
+{% block title %}{{ tpl.name }} - JM Planner{% endblock %}
 {% block page_title %}{{ tpl.name }}{% endblock %}
 {% block page_subtitle %}{{ period_label if frequency is defined and frequency != 'daily' else current_date }} ({{ entries|length }}건){% endblock %}
 
@@ -79,9 +79,9 @@ table#sheet { table-layout: fixed; }
     <a href="/forms" class="text-xs text-slate-400 hover:text-amber-500 transition-colors">&larr; 양식 목록</a>
     <div class="flex items-center gap-2">
         <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}"
-           class="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors font-medium" title="Excel 다운로드">Excel</a>
+           class="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors font-medium">Excel</a>
         <a href="/forms/{{ tpl.id }}/entries/export?date={{ current_date }}&fmt=csv"
-           class="text-xs text-slate-400 hover:text-amber-500 transition-colors" title="CSV 내보내기">CSV</a>
+           class="text-xs text-slate-400 hover:text-amber-500 transition-colors">CSV</a>
         <span class="w-px h-4 bg-slate-200 dark:bg-slate-600"></span>
         <button id="btnTableView" onclick="setView('table')" class="view-toggle-btn p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" title="테이블 보기">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 0v1.5c0 .621-.504 1.125-1.125 1.125"/></svg>

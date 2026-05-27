@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block head_extra %}<script src="/static/chart.umd.min.js"></script>{% endblock %}
+{% block head_extra %}<script src="/static/chart.umd.min.js" defer></script>{% endblock %}
 {% block title %}리뷰{% endblock %}
 {% block page_title %}{{ label }} 리뷰{% endblock %}
 
@@ -10,7 +10,7 @@
         사용법
     </summary>
     <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-        <p><b class="text-slate-700 dark:text-slate-300">주간 리뷰</b> — 이번 주 완료 업무, 미완료 업무, 업무일지를 한눈에 확인</p>
+        <p><b class="text-slate-700 dark:text-slate-300">주간 리뷰</b> — 이번 주 완료·미완료 할일, 업무일지를 한눈에 확인</p>
         <p><b class="text-slate-700 dark:text-slate-300">시간 분석</b> — 카테고리별 투자 시간과 생산성을 분석합니다</p>
     </div>
 </details>
@@ -29,27 +29,27 @@
 </div>
 
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-    <div class="work-card rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-amber-600">{{ completion_rate }}%</div>
-        <div class="text-xs text-slate-400 mt-1">완료율</div>
+    <div class="work-card rounded-xl p-4 text-center card-hover">
+        <p class="stat-number" style="color: var(--color-accent);">{{ completion_rate }}%</p>
+        <p class="stat-label mt-1">완료율</p>
     </div>
-    <div class="work-card rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-slate-700 dark:text-slate-200">{{ completed_todos }}/{{ total_todos }}</div>
-        <div class="text-xs text-slate-400 mt-1">할일 완료</div>
+    <div class="work-card rounded-xl p-4 text-center card-hover">
+        <p class="stat-number">{{ completed_todos }}/{{ total_todos }}</p>
+        <p class="stat-label mt-1">할일 완료</p>
     </div>
-    <div class="work-card rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-green-600">{{ total_hours }}h</div>
-        <div class="text-xs text-slate-400 mt-1">총 투자 시간</div>
+    <div class="work-card rounded-xl p-4 text-center card-hover">
+        <p class="stat-number" style="color: var(--color-success);">{{ total_hours }}h</p>
+        <p class="stat-label mt-1">총 투자 시간</p>
     </div>
-    <div class="work-card rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-slate-700 dark:text-slate-200">{{ log_count }}</div>
-        <div class="text-xs text-slate-400 mt-1">업무일지</div>
+    <div class="work-card rounded-xl p-4 text-center card-hover">
+        <p class="stat-number">{{ log_count }}</p>
+        <p class="stat-label mt-1">업무일지</p>
     </div>
 </div>
 
 {% if cat_stats %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">카테고리별 완료 현황</h3>
+    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 완료 현황</h3>
     <div class="space-y-2">
         {% for cat in cat_stats %}
         <div>
@@ -60,7 +60,7 @@
                 </span>
                 <span class="text-slate-400">{{ cat.done }}/{{ cat.total }}</span>
             </div>
-            <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div class="progress-premium">
                 <div class="h-full bg-amber-500 rounded-full" style="width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
             </div>
         </div>
@@ -71,7 +71,7 @@
 
 {% if hours_by_cat %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">카테고리별 시간 투자</h3>
+    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리별 시간 투자</h3>
     <div class="space-y-2">
         {% for h in hours_by_cat %}
         <div class="flex justify-between items-center text-sm">
@@ -88,7 +88,7 @@
 
 {% if daily_completed %}
 <div class="work-card rounded-xl p-4 mb-4">
-    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">일별 완료 추이</h3>
+    <h3 class="text-sm font-extrabold mb-3" style="color: var(--color-text); letter-spacing: -0.01em;">일별 완료 추이</h3>
     <canvas id="dailyChart" height="120"></canvas>
 </div>
 {% endif %}
