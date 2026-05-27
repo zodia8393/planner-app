@@ -105,28 +105,79 @@ html.dark .dashboard-widget {
     padding: 0.25rem 0.5rem;
 }
 /* Widget-row: shrink inner cards for h:2 fit */
+.dashboard-widget[data-widget="widget-row"] .widget-body > .grid {
+    height: 100%;
+}
 .dashboard-widget[data-widget="widget-row"] .work-card {
-    padding: 0.375rem 0.625rem;
+    padding: 0.25rem 0.5rem;
+    overflow: hidden;
 }
 .dashboard-widget[data-widget="widget-row"] .mb-3 {
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.25rem;
 }
 .dashboard-widget[data-widget="widget-row"] .text-2xl {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.3;
 }
 .dashboard-widget[data-widget="widget-row"] [style*="width: 3rem"] {
-    width: 2rem !important;
-    height: 2rem !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
 }
 .dashboard-widget[data-widget="widget-row"] .text-xl {
-    font-size: 1rem;
+    font-size: 0.875rem;
+}
+.dashboard-widget[data-widget="widget-row"] .w-8 {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.dashboard-widget[data-widget="widget-row"] .stat-number {
+    font-size: 1.125rem;
+}
+.dashboard-widget[data-widget="widget-row"] .progress-premium {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 /* Stat-cards: shrink for h:2 fit */
+.dashboard-widget[data-widget="stat-cards"] .widget-detail-m {
+    height: 100%;
+}
+.dashboard-widget[data-widget="stat-cards"] .widget-detail-m > .grid {
+    height: 100%;
+}
 .dashboard-widget[data-widget="stat-cards"] .work-card {
-    padding: 0.5rem 0.625rem;
+    padding: 0.375rem 0.5rem;
+    overflow: hidden;
 }
 .dashboard-widget[data-widget="stat-cards"] .mb-3 {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem;
+}
+.dashboard-widget[data-widget="stat-cards"] .w-8 {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.dashboard-widget[data-widget="stat-cards"] .stat-number {
+    font-size: 1.125rem;
+}
+.dashboard-widget[data-widget="stat-cards"] .mt-2\.5,
+.dashboard-widget[data-widget="stat-cards"] .mt-1\.5 {
+    margin-top: 0.125rem;
+}
+/* Quick-add: fit in h:1 (64px widget, 62px body) */
+.dashboard-widget[data-widget="quick-add"] .work-card {
+    padding: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.dashboard-widget[data-widget="quick-add"] form {
+    width: 100%;
+    padding: 0.25rem 0.625rem;
+}
+.dashboard-widget[data-widget="quick-add"] input {
+    padding: 0.375rem 0.5rem;
+}
+.dashboard-widget[data-widget="quick-add"] button[type="submit"] {
+    padding: 0.375rem 0.75rem;
 }
 /* Plan-view: remove min-height that forces overflow */
 .dashboard-widget[data-widget="plan-view"] [class*="min-h-"] {

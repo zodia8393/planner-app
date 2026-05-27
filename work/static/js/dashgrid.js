@@ -11,7 +11,7 @@ var DashGrid = (function() {
     var ROW_H = { pc: 64, tablet: 56, mobile: 48, landscape: 40 };
     var BREAKPOINT = 1024;
     var TABLET_BP = 768;
-    var LAYOUT_VERSION = 4;
+    var LAYOUT_VERSION = 5;
     var LONG_PRESS_MS = 300;
     var JITTER_PX = 12;
     var SAVE_DEBOUNCE_MS = 200;
@@ -64,16 +64,16 @@ var DashGrid = (function() {
             'progress':     {col:1, row:24, w:2, h:2, visible:false}
         },
         tablet: {
-            'widget-row':   {col:1, row:1,  w:3, h:2, visible:true},
-            'quick-add':    {col:1, row:3,  w:3, h:1, visible:true},
-            'stat-cards':   {col:1, row:4,  w:2, h:2, visible:true},
-            'timetable':    {col:3, row:4,  w:1, h:2, visible:true},
-            'plan-view':    {col:1, row:6,  w:3, h:4, visible:true},
-            'events':       {col:1, row:10, w:2, h:2, visible:true},
-            'time-budgets': {col:3, row:10, w:1, h:2, visible:true},
-            'notices':      {col:1, row:12, w:2, h:2, visible:true},
-            'worklogs':     {col:3, row:12, w:1, h:2, visible:true},
-            'progress':     {col:1, row:14, w:3, h:2, visible:true}
+            'widget-row':   {col:1, row:1,  w:3, h:3, visible:true},
+            'quick-add':    {col:1, row:4,  w:3, h:1, visible:true},
+            'stat-cards':   {col:1, row:5,  w:2, h:2, visible:true},
+            'timetable':    {col:3, row:5,  w:1, h:2, visible:true},
+            'plan-view':    {col:1, row:7,  w:3, h:5, visible:true},
+            'events':       {col:1, row:12, w:2, h:2, visible:true},
+            'time-budgets': {col:3, row:12, w:1, h:2, visible:true},
+            'notices':      {col:1, row:14, w:2, h:2, visible:true},
+            'worklogs':     {col:3, row:14, w:1, h:2, visible:true},
+            'progress':     {col:1, row:16, w:3, h:2, visible:true}
         }
     };
 
