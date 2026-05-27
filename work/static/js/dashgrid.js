@@ -11,7 +11,7 @@ var DashGrid = (function() {
     var ROW_H = { pc: 64, tablet: 56, mobile: 48, landscape: 40 };
     var BREAKPOINT = 1024;
     var TABLET_BP = 768;
-    var LAYOUT_VERSION = 3;
+    var LAYOUT_VERSION = 4;
     var LONG_PRESS_MS = 300;
     var JITTER_PX = 12;
     var SAVE_DEBOUNCE_MS = 200;
@@ -43,25 +43,25 @@ var DashGrid = (function() {
             'widget-row':   {col:1,  row:1,  w:12, h:2, visible:true},
             'stat-cards':   {col:1,  row:3,  w:6,  h:2, visible:true},
             'quick-add':    {col:7,  row:3,  w:6,  h:1, visible:true},
-            'plan-view':    {col:1,  row:5,  w:12, h:4, visible:true},
-            'timetable':    {col:1,  row:9,  w:6,  h:3, visible:true},
-            'time-budgets': {col:7,  row:9,  w:6,  h:3, visible:true},
-            'notices':      {col:1,  row:12, w:6,  h:2, visible:true},
-            'worklogs':     {col:7,  row:12, w:6,  h:2, visible:true},
-            'events':       {col:1,  row:14, w:6,  h:2, visible:true},
-            'progress':     {col:7,  row:14, w:6,  h:2, visible:true}
+            'plan-view':    {col:1,  row:5,  w:12, h:5, visible:true},
+            'timetable':    {col:1,  row:10, w:6,  h:4, visible:true},
+            'time-budgets': {col:7,  row:10, w:6,  h:2, visible:true},
+            'notices':      {col:1,  row:14, w:6,  h:2, visible:true},
+            'worklogs':     {col:7,  row:14, w:6,  h:2, visible:true},
+            'events':       {col:1,  row:16, w:6,  h:2, visible:true},
+            'progress':     {col:7,  row:16, w:6,  h:2, visible:true}
         },
         mobile: {
             'widget-row':   {col:1, row:1,  w:2, h:3, visible:true},
             'quick-add':    {col:1, row:4,  w:2, h:1, visible:true},
-            'timetable':    {col:1, row:5,  w:2, h:4, visible:true},
-            'stat-cards':   {col:1, row:9,  w:2, h:2, visible:true},
-            'events':       {col:1, row:11, w:2, h:2, visible:true},
-            'plan-view':    {col:1, row:13, w:2, h:4, visible:false},
-            'time-budgets': {col:1, row:17, w:2, h:2, visible:false},
-            'notices':      {col:1, row:19, w:2, h:2, visible:false},
-            'worklogs':     {col:1, row:21, w:2, h:2, visible:false},
-            'progress':     {col:1, row:23, w:2, h:2, visible:false}
+            'timetable':    {col:1, row:5,  w:2, h:5, visible:true},
+            'stat-cards':   {col:1, row:10, w:2, h:2, visible:true},
+            'events':       {col:1, row:12, w:2, h:2, visible:true},
+            'plan-view':    {col:1, row:14, w:2, h:4, visible:false},
+            'time-budgets': {col:1, row:18, w:2, h:2, visible:false},
+            'notices':      {col:1, row:20, w:2, h:2, visible:false},
+            'worklogs':     {col:1, row:22, w:2, h:2, visible:false},
+            'progress':     {col:1, row:24, w:2, h:2, visible:false}
         },
         tablet: {
             'widget-row':   {col:1, row:1,  w:3, h:2, visible:true},
@@ -227,6 +227,16 @@ var DashGrid = (function() {
         state.viewport = detectViewport();
         var layout = loadLayout();
         var widgets = getWidgets();
+
+        // Mark widgets missing from DOM as invisible, then compact to fill gaps
+        var domNames = new Set();
+        widgets.forEach(function(el) { domNames.add(el.dataset.widget); });
+        for (var k in layout) {
+            if (layout[k] && layout[k].visible && !domNames.has(k)) {
+                layout[k].visible = false;
+            }
+        }
+        compactLayout(layout);
 
         widgets.forEach(function(el) {
             var name = el.dataset.widget;

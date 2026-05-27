@@ -1,7 +1,7 @@
 {% from "widgets/_widget_wrapper.html" import widget %}
 {% call widget('quick-add', '빠른 추가', ['H','FM','T']) %}
 <div class="work-card rounded-xl overflow-hidden">
-    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-5 py-3.5">
+    <form id="quickAddForm" action="/quick-todo" method="POST" class="px-3 py-2">
         <div class="flex gap-2">
             <input type="hidden" name="due_date" id="quickDueDate" value="{{ today.isoformat() }}">
             <input type="text" name="title" id="quickTitle" placeholder="빠른 업무 추가... (예: 내일까지 보고서 작성)" required autocomplete="off"

@@ -13,8 +13,8 @@
         {% endif %}
     </div>
     <div class="widget-detail-m divide-y divide-slate-100 dark:divide-slate-700">
-        {% for ev in week_events %}
-        <div class="px-5 py-2.5">
+        {% for ev in week_events[:3] %}
+        <div class="widget-list-item px-4 py-2">
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:{{ ev.color or 'var(--color-accent)' }}"></div>
                 <p class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{{ ev.title }}</p>

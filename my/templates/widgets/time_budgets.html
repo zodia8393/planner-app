@@ -1,8 +1,8 @@
 {% from "widgets/_widget_wrapper.html" import widget %}
 {% if time_budgets|default([])|selectattr('budget', 'gt', 0)|list|length > 0 %}
 {% call widget('time-budgets', '시간 예산') %}
-<div class="work-card rounded-xl p-4">
-    <div class="flex items-center justify-between mb-3">
+<div class="work-card rounded-xl">
+    <div class="flex items-center justify-between mb-2 px-3 pt-2">
         <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">이번 주 시간 예산</h3>
         <a href="/settings/time-budgets" class="text-xs text-amber-500 hover:underline widget-detail-m">설정</a>
     </div>

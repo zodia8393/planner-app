@@ -61,25 +61,55 @@
     min-height: 0;
     min-width: 0;
     background: var(--color-surface, #ffffff);
-    border: 1px solid var(--color-border-subtle, #f1f5f9);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    border: 1px solid var(--color-border, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     transition: box-shadow 0.2s ease-out;
 }
 .dashboard-widget:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 html.dark .dashboard-widget {
     background: var(--color-surface, #1c1917);
+    border-color: var(--color-border, #374151);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .dashboard-widget .widget-body {
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
 }
 .dashboard-widget .widget-body > .work-card {
     border: none;
     box-shadow: none;
     background: transparent;
+}
+
+/* ── Widget Padding Slimming (dashboard context) ── */
+.dashboard-widget .work-card {
+    padding: 0.5rem 0.75rem;
+}
+.dashboard-widget .section-header {
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0.125rem;
+}
+
+/* ── Edit mode: allow scroll with thin scrollbar ── */
+body.dash-edit-mode .dashboard-widget .widget-body {
+    overflow: auto;
+}
+.dashboard-widget .widget-body::-webkit-scrollbar {
+    width: 3px;
+}
+.dashboard-widget .widget-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dashboard-widget .widget-body::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
 }
 
 /* ── Widget Header (drag handle) ── */
@@ -226,6 +256,14 @@ body.dash-edit-mode .widget-remove-btn {
 .dashboard-widget.widget-rows-1 .widget-detail-m { display: none; }
 .dashboard-widget.widget-rows-1 .widget-detail-l { display: none; }
 
+/* ── Height-based list item limits ── */
+.dashboard-widget.widget-rows-2 .widget-list-item:nth-child(n+3) {
+    display: none;
+}
+.dashboard-widget.widget-rows-1 .widget-list-item:nth-child(n+2) {
+    display: none;
+}
+
 /* ── Drag visual states ── */
 .dashboard-widget.dragging {
     opacity: 0.6;
@@ -293,11 +331,12 @@ body.dash-edit-mode .widget-remove-btn {
 
 /* ── Empty state ── */
 .dashboard-widget .widget-empty {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem 0.75rem;
+    padding: 0.75rem;
     min-height: 0;
     text-align: center;
 }
