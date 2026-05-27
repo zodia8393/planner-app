@@ -49,14 +49,14 @@
 <!-- Navigation -->
 <div class="flex items-center justify-center gap-3 mb-4">
     {% if cal_view == 'year' %}
-    <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+    <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
     <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년</h3>
-    <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+    <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
@@ -64,14 +64,14 @@
         올해
     </a>
     {% else %}
-    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+    <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
     </a>
     <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년 {{ month }}월</h3>
-    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-105" style="border: 1px solid var(--color-border);">
-        <svg class="w-4.5 h-4.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+    <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
         </svg>
     </a>
