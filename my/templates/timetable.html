@@ -302,7 +302,7 @@
  <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">제목</label>
  <input type="text" name="title" id="formTitle" required maxlength="50" placeholder="공부, 운동, 휴식..."
  class="w-full px-2 py-1.5 text-sm rounded-lg"
- style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border); color-scheme: light dark;">
+ style="background: var(--color-border-subtle); color: var(--color-text); border: 1px solid var(--color-border);">
  </div>
  <div class="mb-2">
  <label class="text-xs font-medium mb-0.5 block" style="color: var(--color-text-muted);">색상</label>
@@ -396,13 +396,13 @@
  {% if todos %}
  <div class="space-y-2">
  {% for t in todos %}
- <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);">
- <form action="/todos/{{ t.id }}/toggle" method="POST" class="inline">
- <button type="submit" class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0
+ <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);" data-todo-id="{{ t.id }}">
+ <button hx-post="/todos/{{ t.id }}/toggle" hx-swap="none"
+ hx-on::after-request="toggleTimetableTodo(this)"
+ class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0
  {% if t.completed %}bg-amber-500 border-amber-500{% else %}{% endif %}">
  {% if t.completed %}<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
  </button>
- </form>
  <span class="text-sm truncate {% if t.completed %}line-through{% endif %}" style="color: var(--color-text);">{{ t.title }}</span>
  {% if t.category_color %}<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ t.category_color }}"></span>{% endif %}
  </div>
@@ -432,6 +432,22 @@
 
 {% block scripts %}
 <script>
+function toggleTimetableTodo(btn) {
+ var item = btn.closest('[data-todo-id]');
+ if (!item) return;
+ var wasDone = item.classList.contains('opacity-50');
+ item.classList.toggle('opacity-50');
+ var title = item.querySelector('span.text-sm');
+ if (title) title.classList.toggle('line-through');
+ if (wasDone) {
+  btn.classList.remove('bg-amber-500', 'border-amber-500');
+  btn.innerHTML = '';
+ } else {
+  btn.classList.add('bg-amber-500', 'border-amber-500');
+  btn.innerHTML = '<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+ }
+}
+
 var PI = Math.PI;
 
 // Current time needle update

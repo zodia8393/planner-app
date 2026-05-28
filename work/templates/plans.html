@@ -98,9 +98,10 @@
  <!-- Day todos -->
  <div class="p-2 space-y-1.5 min-h-[60px] lg:min-h-[100px]">
  {% for todo in day.todos %}
- <div class="flex items-start gap-2 px-2 py-1.5 rounded-lg group hover-surface transition-colors">
- <form action="/todos/{{ todo.id }}/toggle" method="POST" class="flex-shrink-0 mt-0.5">
- <button type="submit" class="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
+ <div class="flex items-start gap-2 px-2 py-1.5 rounded-lg group hover-surface transition-colors" data-todo-id="{{ todo.id }}">
+ <button hx-post="/todos/{{ todo.id }}/toggle" hx-swap="none"
+ hx-on::after-request="togglePlanTodo(this)"
+ class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
  {% if todo.completed %}bg-amber-500 border-amber-500{% else %} hover:border-amber-400{% endif %}">
  {% if todo.completed %}
  <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -108,7 +109,6 @@
  </svg>
  {% endif %}
  </button>
- </form>
  <div class="flex-1 min-w-0">
  <div class="flex items-center gap-1.5">
  <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
@@ -190,4 +190,21 @@
 </div>
 
 {% endif %}
+
+<script>
+function togglePlanTodo(btn) {
+ var item = btn.closest('[data-todo-id]');
+ if (!item) return;
+ var wasDone = btn.classList.contains('bg-amber-500');
+ var title = item.querySelector('span.text-xs, span.truncate');
+ if (title) title.classList.toggle('line-through');
+ if (wasDone) {
+  btn.classList.remove('bg-amber-500', 'border-amber-500');
+  btn.innerHTML = '';
+ } else {
+  btn.classList.add('bg-amber-500', 'border-amber-500');
+  btn.innerHTML = '<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+ }
+}
+</script>
 {% endblock %}
