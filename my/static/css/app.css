@@ -1,5 +1,6 @@
  /* ── Design Tokens ── */
  :root {
+ color-scheme: light;
  /* Color */
  --color-bg: #faf9f7;
  --color-surface: #ffffff;
@@ -61,6 +62,7 @@
  }
 
  .dark {
+ color-scheme: dark;
  --color-bg: #1c1917;
  --color-surface: #292524;
  --color-surface-elevated: #44403c;
@@ -1124,12 +1126,21 @@
  input[type="text"], input[type="number"], input[type="date"],
  input[type="datetime-local"], input[type="email"], input[type="password"],
  input[type="search"], input[type="tel"], input[type="url"],
+ input[type="time"], input[type="month"],
  select, textarea {
  border-radius: var(--m-radius-input) !important;
  border: 1.5px solid var(--color-border) !important;
  padding: 0.75rem 1rem !important;
  transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out) !important;
  background: var(--color-surface) !important;
+ color: var(--color-text) !important;
+ }
+ .dark input[type="date"],
+ .dark input[type="datetime-local"],
+ .dark input[type="time"],
+ .dark input[type="month"],
+ .dark select {
+ color-scheme: dark !important;
  }
  input:focus, select:focus, textarea:focus {
  border-color: var(--color-accent) !important;

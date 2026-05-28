@@ -51,7 +51,7 @@
  <input type="date" value="{{ current_date }}"
  onchange="if(this.value) location.href='/worklogs?date='+this.value"
  class="text-lg font-bold bg-transparent border-none cursor-pointer text-center px-1"
- style="color: var(--color-text); color-scheme: light dark">
+ style="color: var(--color-text)">
  <a href="/worklogs?date={{ next_date }}"
  class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);" aria-label="다음 날">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -78,13 +78,13 @@
  <label class="text-xs block mb-1" style="color: var(--color-text-muted);">기간</label>
  <input type="date" name="start" value="{{ start_date }}"
  class="px-2 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400"
- style="color-scheme: light dark">
+>
  </div>
  <span class="text-xs pb-2.5" style="color: var(--color-text-muted);">~</span>
  <div>
  <input type="date" name="end" value="{{ end_date }}"
  class="px-2 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400"
- style="color-scheme: light dark">
+>
  </div>
  </div>
  <div>
