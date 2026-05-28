@@ -50,9 +50,8 @@
  </div>
 
  <!-- Drop Zone -->
- <div class="kanban-drop-zone flex-1 rounded-xl border-2 border-dashed border-transparent p-2 space-y-2 transition-colors min-h-[120px]
- /50"
- data-column="{{ col_key }}"
+ <div class="kanban-drop-zone flex-1 rounded-xl border-2 border-dashed border-transparent p-2 space-y-2 transition-colors min-h-[120px]"
+ data-column="{{ col_key }}">
 
  {% if swimlanes and swimlanes[col_key] is defined %}
  {# Grouped by category #}
