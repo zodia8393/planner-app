@@ -722,11 +722,14 @@ def _build_ical_feed(conn, pid: int, app_name: str = "Planner") -> str:
         "SELECT * FROM todos WHERE profile_id=? AND due_date IS NOT NULL AND due_date != ''",
         (pid,),
     ).fetchall()
-    form_entries = conn.execute(
-        "SELECT fe.id, fe.entry_date, fe.values_json, ft.name as tpl_name "
-        "FROM form_entries fe JOIN form_templates ft ON fe.template_id=ft.id "
-        "WHERE fe.profile_id=? AND fe.entry_date IS NOT NULL", (pid,)
-    ).fetchall()
+    try:
+        form_entries = conn.execute(
+            "SELECT fe.id, fe.entry_date, fe.values_json, ft.name as tpl_name "
+            "FROM form_entries fe JOIN form_templates ft ON fe.template_id=ft.id "
+            "WHERE fe.profile_id=? AND fe.entry_date IS NOT NULL", (pid,)
+        ).fetchall()
+    except Exception:
+        form_entries = []
 
     now_stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     esc = _ical_escape

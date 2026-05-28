@@ -31,7 +31,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, Request, Form, Query, HTTPException, Response, UploadFile, File
+from fastapi import FastAPI, Request, Form, Query, HTTPException, Response, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -191,6 +191,30 @@ async def sse_stream(request: Request):
 
     return StreamingResponse(generate(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+# ── WebSocket endpoint ──
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    sid, queue = event_bus.subscribe()
+    try:
+        while True:
+            try:
+                msg = await asyncio.wait_for(queue.get(), timeout=30)
+                if isinstance(msg, dict):
+                    await websocket.send_json(msg)
+                else:
+                    await websocket.send_json({"event": "sync", "data": msg})
+            except asyncio.TimeoutError:
+                await websocket.send_json({"type": "ping"})
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        event_bus.unsubscribe(sid)
 
 
 # ── Jinja2 filters (from common.filters) ──
@@ -1042,7 +1066,7 @@ def _run_automation_rules(conn, pid, today_str):
 # ── Include common routers ──
 from common.routers import memos as _r_memos, notices as _r_notices
 from common.routers import worklogs as _r_worklogs, events as _r_events
-from common.routers import todos as _r_todos, forms as _r_forms
+from common.routers import todos as _r_todos
 from common.routers import settings as _r_settings, misc as _r_misc
 from common.routers import sse as _r_sse
 from common.routers import auth as _r_auth
@@ -1076,7 +1100,6 @@ app.include_router(_r_notices.router)
 app.include_router(_r_worklogs.router)
 app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
-app.include_router(_r_forms.router)
 app.include_router(_r_settings.router)
 
 

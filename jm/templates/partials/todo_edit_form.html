@@ -10,7 +10,8 @@
  class="w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">{{ todo.description }}</textarea>
  <div class="flex flex-wrap gap-2">
  <input type="date" name="due_date" value="{{ todo.due_date or '' }}"
- class="px-3 py-1.5 text-sm border rounded-lg">
+ class="px-3 py-1.5 text-sm border rounded-lg"
+ style="color-scheme: light dark">
  <select name="priority" class="px-3 py-1.5 text-sm border rounded-lg">
  {% for pk, pv in priority_map.items() %}
  <option value="{{ pk }}" {% if pk == todo.priority %}selected{% endif %}>{{ pv.label }}</option>
@@ -72,7 +73,7 @@
  <input type="number" name="rrule_count" id="editRruleCount_{{ todo.id }}" min="1" max="999" value="{{ todo._rrule_count or 10 }}" placeholder="횟수"
  class="{% if not (is_custom_rrule and todo._rrule_count) %}hidden{% endif %} w-20 px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface);">
  <input type="date" name="rrule_until" id="editRruleUntil_{{ todo.id }}" value="{{ todo._rrule_until or '' }}"
- class="{% if not (is_custom_rrule and todo._rrule_until) %}hidden{% endif %} px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="{% if not (is_custom_rrule and todo._rrule_until) %}hidden{% endif %} px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  </div>
  {% if is_custom_rrule %}
  <div class="text-[11px] text-amber-500">{{ rrule_to_korean(todo.repeat_type) }}</div>

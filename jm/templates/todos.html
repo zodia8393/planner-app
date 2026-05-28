@@ -121,7 +121,8 @@
  </summary>
  <div class="flex flex-wrap items-center gap-1.5">
  <input type="date" name="due_date" value="{{ today.isoformat() }}"
- class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400"
+ style="color-scheme: light dark">
  <select name="priority" class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
  {% for pk, pv in priority_map.items() %}
  <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
@@ -211,7 +212,7 @@
  <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
  class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <input type="date" name="rrule_until" id="addRruleUntil"
- class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  </div>
  <div id="addRrulePreview" class="text-[11px] text-amber-500"></div>
  </div>

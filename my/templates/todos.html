@@ -58,7 +58,7 @@
  </a>
  {% endfor %}
  <span class="text-xs" style="color: var(--color-text-faint);">|</span>
- <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
+ <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface); color-scheme: light dark;">
  일괄
  </button>
 </div>
@@ -121,7 +121,8 @@
  </summary>
  <div class="flex flex-wrap items-center gap-1.5">
  <input type="date" name="due_date" value="{{ today.isoformat() }}"
- class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
+ class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400"
+ style="color-scheme: light dark">
  <select name="priority" class="px-2 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-400">
  {% for pk, pv in priority_map.items() %}
  <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
@@ -154,7 +155,7 @@
  <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="">
  <div class="flex flex-wrap gap-1 mb-1.5" id="newTodoOffsetChips"></div>
  <div class="flex gap-1.5">
- <select id="newTodoOffsetSel" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="newTodoOffsetSel" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -180,9 +181,9 @@
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
  <input type="number" name="rrule_interval" value="1" min="1" max="99"
- class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  <select name="rrule_freq" id="addRruleFreq" onchange="toggleAddRruleExtra()"
- class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  <option value="DAILY">일</option>
  <option value="WEEKLY" selected>주</option>
  <option value="MONTHLY">개월</option>
@@ -191,27 +192,27 @@
  </div>
  <div id="addBydayRow" class="flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
- <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
+ <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface); color-scheme: light dark;">
  <input type="checkbox" class="rrule-byday-add" value="{{ code }}"> {{ label }}
  </label>
  {% endfor %}
  </div>
  <div id="addBymonthdayRow" class="hidden">
  <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
- class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  </div>
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
  <select name="rrule_end_type" id="addRruleEndType" onchange="toggleAddEndFields()"
- class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  <option value="never">무제한</option>
  <option value="count">횟수</option>
  <option value="until">날짜</option>
  </select>
  <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
- class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  <input type="date" name="rrule_until" id="addRruleUntil"
- class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface); color-scheme: light dark;">
  </div>
  <div id="addRrulePreview" class="text-[11px] text-amber-500"></div>
  </div>
@@ -225,7 +226,7 @@
 <!-- Bulk action bar -->
 <div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex items-center gap-3 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
  <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
- <button onclick="bulkSelectAll()" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
+ <button onclick="bulkSelectAll()" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface); color-scheme: light dark;">전체 선택</button>
  <div class="flex-1"></div>
  <button onclick="bulkAction('complete')" class="btn-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
  <button onclick="bulkAction('delete')" class="btn-sm bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>

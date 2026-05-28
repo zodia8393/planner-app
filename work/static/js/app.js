@@ -129,31 +129,67 @@
  }, 5000);
  }
 
- // SSE with exponential backoff reconnection
- var sseRetries = 0;
- function connectSSE() {
- var evtSource = new EventSource('/sse');
- evtSource.onopen = function() { sseRetries = 0; };
- evtSource.onerror = function() {
- evtSource.close();
- var delay = Math.min(1000 * Math.pow(2, sseRetries), 30000);
- sseRetries++;
- setTimeout(connectSSE, delay);
+ // WebSocket with exponential backoff reconnection
+ var _wsReconnectDelay = 1000;
+ var _wsPingInterval = null;
+ var _ws = null;
+ function connectWS() {
+ var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+ _ws = new WebSocket(proto + '//' + location.host + '/ws');
+
+ _ws.onopen = function() {
+ _wsReconnectDelay = 1000;
+ // Client-side ping every 25s to keep NAT/proxy alive
+ clearInterval(_wsPingInterval);
+ _wsPingInterval = setInterval(function() {
+ if (_ws && _ws.readyState === WebSocket.OPEN) {
+ _ws.send(JSON.stringify({type: 'ping'}));
+ }
+ }, 25000);
  };
- evtSource.addEventListener('sync', function(e) {
+
+ _ws.onmessage = function(e) {
+ var data;
+ try { data = JSON.parse(e.data); } catch(ex) { return; }
+ if (data.type === 'ping' || data.type === 'pong') return;
+
  var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
  if (cnt > 0) { sessionStorage.setItem('_sseSkip', String(cnt - 1)); return; }
+
+ // Handle both old broadcast format and new emit format
+ var page = data.data || data.event || '';
+ if (typeof page === 'object') page = page.type || '';
  var currentPage = window.location.pathname.split('/')[1] || 'dashboard';
- if (e.data === currentPage || e.data === 'dashboard') {
+ if (page === currentPage || page === 'dashboard') {
  if (document.querySelector('[hx-get]')) {
  htmx.trigger(document.body, 'sse-refresh');
  } else {
  window.location.reload();
  }
  }
- });
+ };
+
+ _ws.onclose = function() {
+ clearInterval(_wsPingInterval);
+ setTimeout(function() {
+ _wsReconnectDelay = Math.min(_wsReconnectDelay * 2, 30000);
+ connectWS();
+ }, _wsReconnectDelay);
+ };
+
+ _ws.onerror = function() {
+ if (_ws) _ws.close();
+ };
  }
- connectSSE();
+ connectWS();
+
+ // Reconnect on tab visibility change
+ document.addEventListener('visibilitychange', function() {
+ if (!document.hidden && (!_ws || _ws.readyState !== WebSocket.OPEN)) {
+ _wsReconnectDelay = 1000;
+ connectWS();
+ }
+ });
 
  // Command Palette
  var _cmdDebounce = null;

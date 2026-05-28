@@ -240,9 +240,12 @@ async def delete_worklog(request: Request, log_id: int):
         row = conn.execute("SELECT content FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid)).fetchone()
         if row and row["content"]:
             for img_path in _re.findall(r'!\[[^\]]*\]\((/worklog-images/([^)]+))\)', row["content"]):
-                img_file = S.worklog_img_dir / img_path[1]
-                if img_file.is_file():
-                    img_file.unlink()
+                try:
+                    img_file = S.worklog_img_dir / img_path[1]
+                    if img_file.is_file():
+                        img_file.unlink()
+                except OSError:
+                    pass
         conn.execute("DELETE FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid))
     if request.headers.get("HX-Request"):
         return HTMLResponse("")

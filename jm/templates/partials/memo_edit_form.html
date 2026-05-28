@@ -16,7 +16,7 @@
  </select>
  <input type="date" name="created_at" value="{{ memo.created_at[:10] if memo.created_at else '' }}"
  class="px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400"
- title="메모 날짜">
+ style="color-scheme: light dark" title="메모 날짜">
  <button type="button" hx-get="/memos/{{ memo.id }}/view" hx-target="closest [data-memo-id]" hx-swap="outerHTML"
  class="px-3 py-1.5 text-sm hover-text rounded-lg hover-surface">취소</button>
  <button type="submit" class="px-4 py-1.5 btn-primary font-medium text-sm rounded-lg transition-colors">저장</button>

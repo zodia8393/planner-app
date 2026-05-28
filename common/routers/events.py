@@ -209,7 +209,9 @@ async def create_event(request: Request,
                        recurrence: str = Form(""),
                        recurrence_end: str = Form(""),
                        also_todo: str = Form(""),
-                       reminder_offsets: str = Form("")):
+                       reminder_offsets: str = Form(""),
+                       return_year: str = Form(""),
+                       return_month: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
@@ -248,7 +250,10 @@ async def create_event(request: Request,
             """, (title, due, cat_id, max_order + 1, pid))
 
     S.event_bus.emit("event", {"action": "created", "title": title})
-    return S.redirect(request, "/calendar")
+    redirect_url = "/calendar"
+    if return_year and return_month:
+        redirect_url = f"/calendar?year={return_year}&month={return_month}"
+    return S.redirect(request, redirect_url)
 
 
 @router.get("/events/{event_id}/edit", response_class=HTMLResponse)
@@ -260,9 +265,19 @@ async def edit_event_form(request: Request, event_id: int):
         if not event:
             return HTMLResponse("")
         categories = S.get_categories(conn, pid)
+    ev_dict = dict(event)
+    # Extract year/month from event start_time for return redirect
+    try:
+        ev_year = int(ev_dict["start_time"][:4])
+        ev_month = int(ev_dict["start_time"][5:7])
+    except (TypeError, ValueError, IndexError):
+        ev_year = date.today().year
+        ev_month = date.today().month
     return S.render(request, "partials/event_edit_form.html", {
-        "event": dict(event),
+        "event": ev_dict,
         "categories": [dict(c) for c in categories],
+        "return_year": ev_year,
+        "return_month": ev_month,
     })
 
 
@@ -276,7 +291,9 @@ async def update_event(request: Request, event_id: int,
                        memo: str = Form(""),
                        recurrence: str = Form(""),
                        recurrence_end: str = Form(""),
-                       reminder_offsets: str = Form("")):
+                       reminder_offsets: str = Form(""),
+                       return_year: str = Form(""),
+                       return_month: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
@@ -304,7 +321,10 @@ async def update_event(request: Request, event_id: int,
         await gcal_update(pid, gcal_id, title, start_time, end_time or "")
 
     S.event_bus.emit("event", {"action": "updated", "id": event_id, "title": title})
-    return S.redirect(request, "/calendar")
+    redirect_url = "/calendar"
+    if return_year and return_month:
+        redirect_url = f"/calendar?year={return_year}&month={return_month}"
+    return S.redirect(request, redirect_url)
 
 
 @router.delete("/events/{event_id}", response_class=HTMLResponse)

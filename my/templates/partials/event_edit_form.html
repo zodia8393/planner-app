@@ -9,18 +9,22 @@
  </button>
  <h3 class="font-bold text-lg mb-4" style="color: var(--color-text);">일정 편집</h3>
  <form hx-put="/events/{{ event.id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
+ <input type="hidden" name="return_year" value="{{ return_year }}">
+ <input type="hidden" name="return_month" value="{{ return_month }}">
  <input type="text" name="title" value="{{ event.title }}" required
  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
  <div class="grid grid-cols-2 gap-2">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시작</label>
  <input type="datetime-local" name="start_time" value="{{ event.start_time }}"
- class="w-full px-3 py-2 text-sm border rounded-lg">
+ class="w-full px-3 py-2 text-sm border rounded-lg"
+ style="color-scheme: light dark">
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">종료</label>
  <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}"
- class="w-full px-3 py-2 text-sm border rounded-lg">
+ class="w-full px-3 py-2 text-sm border rounded-lg"
+ style="color-scheme: light dark">
  </div>
  </div>
  <div class="grid grid-cols-2 gap-2">
@@ -57,7 +61,8 @@
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복 종료</label>
  <input type="date" name="recurrence_end" value="{{ event.recurrence_end or '' }}"
- class="w-full px-3 py-2 text-sm border rounded-lg">
+ class="w-full px-3 py-2 text-sm border rounded-lg"
+ style="color-scheme: light dark">
  </div>
  </div>
  <!-- Reminder offsets -->
