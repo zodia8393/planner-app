@@ -1,3 +1,8 @@
+ /* ── View Transitions: smooth crossfade between pages ── */
+ @view-transition { navigation: auto; }
+ ::view-transition-old(root) { animation-duration: 120ms; }
+ ::view-transition-new(root) { animation-duration: 120ms; }
+
  /* ── Design Tokens ── */
  :root {
  color-scheme: light;

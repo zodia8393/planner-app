@@ -790,3 +790,17 @@ document.addEventListener('htmx:afterSettle', function(e) {
  target.querySelectorAll('.htmx-skeleton').forEach(function(s) { s.remove(); });
  }
 });
+
+/* ── Prefetch: load page on link hover ── */
+(function() {
+ var _prefetched = {};
+ document.addEventListener('pointerenter', function(e) {
+  var link = e.target.closest('a[href^="/"]');
+  if (!link || _prefetched[link.href]) return;
+  _prefetched[link.href] = true;
+  var l = document.createElement('link');
+  l.rel = 'prefetch';
+  l.href = link.href;
+  document.head.appendChild(l);
+ }, true);
+})();
