@@ -149,16 +149,15 @@ def render(request: Request, name: str, context: dict = None):
             else:
                 ctx["active_profile"] = {"id": 1, "name": "정미", "emoji": "💼", "role": ""}
                 ctx["active_profile_id"] = 1
-            # Inject background setting
-            bg_type = get_user_setting(conn, 1, "bg_type", "none")
-            bg_preset = get_user_setting(conn, 1, "bg_preset", "")
-            bg_image = get_user_setting(conn, 1, "bg_image", "")
-            bg_opacity = get_user_setting(conn, 1, "bg_opacity", "0.7")
+            bg_rows = conn.execute(
+                "SELECT key, value FROM user_settings WHERE profile_id='1' AND key IN ('bg_type','bg_preset','bg_image','bg_opacity')"
+            ).fetchall()
+            bg = {r["key"]: r["value"] for r in bg_rows}
             ctx["bg_setting"] = {
-                "type": bg_type,
-                "preset": bg_preset,
-                "image": bg_image,
-                "opacity": float(bg_opacity),
+                "type": bg.get("bg_type", "none"),
+                "preset": bg.get("bg_preset", ""),
+                "image": bg.get("bg_image", ""),
+                "opacity": float(bg.get("bg_opacity", "0.7")),
             }
     except Exception:
         ctx["active_profile"] = {"id": 1, "name": "정미", "emoji": "💼", "role": ""}
@@ -1994,46 +1993,51 @@ async def stats_page(request: Request):
         chart_data = get_weekly_chart_data(conn, pid)
 
         # Total counts
-        total_all = conn.execute("SELECT COUNT(*) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
-        total_completed = conn.execute("SELECT COUNT(*) FROM todos WHERE profile_id=? AND completed=1", (pid,)).fetchone()[0]
+        totals = conn.execute(
+            "SELECT COUNT(*), SUM(CASE WHEN completed=1 THEN 1 ELSE 0 END) FROM todos WHERE profile_id=?",
+            (pid,),
+        ).fetchone()
+        total_all = totals[0] or 0
+        total_completed = totals[1] or 0
         total_rate = round(total_completed / total_all * 100) if total_all > 0 else 0
 
-        # Category stats
-        cat_stats = []
-        cats = conn.execute("SELECT * FROM categories ORDER BY sort_order").fetchall()
-        for c in cats:
-            total = conn.execute(
-                "SELECT COUNT(*) FROM todos WHERE category_id=? AND profile_id=?", (c["id"], pid)
-            ).fetchone()[0]
-            done = conn.execute(
-                "SELECT COUNT(*) FROM todos WHERE category_id=? AND profile_id=? AND completed=1", (c["id"], pid)
-            ).fetchone()[0]
-            cat_stats.append({"name": c["name"], "color": c["color"], "total": total, "done": done})
+        # Category stats — single GROUP BY instead of N+1 queries
+        cat_stats = conn.execute("""
+            SELECT c.name, c.color,
+                   COUNT(t.id) as total,
+                   SUM(CASE WHEN t.completed = 1 THEN 1 ELSE 0 END) as done
+            FROM categories c
+            LEFT JOIN todos t ON t.category_id = c.id AND t.profile_id = ?
+            GROUP BY c.id, c.name, c.color
+            ORDER BY c.sort_order
+        """, (pid,)).fetchall()
+        cat_stats = [{"name": r["name"], "color": r["color"], "total": r["total"], "done": r["done"] or 0} for r in cat_stats]
 
-        # Monthly trend
-        monthly_data = []
+        # Monthly trend — 2 GROUP BY queries instead of 12 individual queries
         today = date.today()
+        month_labels = []
         for i in range(5, -1, -1):
             m = today.month - i
             y = today.year
             while m < 1:
                 m += 12
                 y -= 1
-            label = f"{y}-{m:02d}"
-            month_start = f"{y}-{m:02d}-01"
-            if m == 12:
-                month_end = f"{y + 1}-01-01"
-            else:
-                month_end = f"{y}-{m + 1:02d}-01"
-            total = conn.execute(
-                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND created_at>=? AND created_at<?",
-                (pid, month_start, month_end),
-            ).fetchone()[0]
-            done = conn.execute(
-                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND completed=1 AND completed_at>=? AND completed_at<?",
-                (pid, month_start, month_end),
-            ).fetchone()[0]
-            monthly_data.append({"label": label, "total": total, "done": done})
+            month_labels.append(f"{y}-{m:02d}")
+        first_month = month_labels[0] + "-01"
+
+        created_rows = conn.execute(
+            "SELECT strftime('%Y-%m', created_at) as m, COUNT(*) as c FROM todos WHERE profile_id=? AND created_at>=? GROUP BY m",
+            (pid, first_month),
+        ).fetchall()
+        created_map = {r["m"]: r["c"] for r in created_rows}
+
+        done_rows = conn.execute(
+            "SELECT strftime('%Y-%m', completed_at) as m, COUNT(*) as c FROM todos WHERE profile_id=? AND completed=1 AND completed_at>=? GROUP BY m",
+            (pid, first_month),
+        ).fetchall()
+        done_map = {r["m"]: r["c"] for r in done_rows}
+
+        monthly_data = [{"label": lbl, "total": created_map.get(lbl, 0), "done": done_map.get(lbl, 0)} for lbl in month_labels]
 
         # Monthly events
         monthly_events = conn.execute("""
