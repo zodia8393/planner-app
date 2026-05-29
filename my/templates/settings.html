@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}설정 - My Planner{% endblock %}
+{% block title %}설정 - JM Planner{% endblock %}
 {% block page_title %}설정{% endblock %}
 {% block page_subtitle %}카테고리, 테마 관리{% endblock %}
 
@@ -16,14 +16,14 @@
  <p><b>백업/복원</b> — 전체 데이터를 ZIP으로 백업하거나 이전 백업에서 복원합니다</p>
  </div>
 </details>
-<div class="max-w-2xl mx-auto space-y-4">
+<div class="max-w-4xl mx-auto space-y-3">
  <!-- Category management -->
  <details class="work-card rounded-xl" open>
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">카테고리 관리</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
 
  <form action="/settings/categories" method="POST" class="flex gap-2 items-end mb-4">
  <div class="flex-1">
@@ -63,11 +63,11 @@
 
  <!-- Time Budget Settings -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">주간 시간 예산</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">카테고리별 주간 시간 한도를 설정합니다.</p>
  <form action="/settings/time-budgets" method="POST">
  <div class="space-y-2">
@@ -93,11 +93,11 @@
 
  <!-- Notification Settings -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">알림 설정</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">브라우저 알림으로 마감 할일과 예정 일정을 받아보세요.</p>
 
  <div class="space-y-4">
@@ -206,8 +206,9 @@
  container.innerHTML = '';
  offsets.forEach(function(off, idx) {
  var chip = document.createElement('span');
- chip.className = 'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full';
- chip.innerHTML = getLabel(off) + ' <button onclick="removeOffset(\'' + type + '\',' + idx + ')" class="ml-0.5 text-amber-500 hover-danger">&times;</button>';
+ chip.className = 'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full';
+ chip.style.cssText = 'background: var(--color-accent-soft); color: var(--color-accent-text);';
+ chip.innerHTML = getLabel(off) + ' <button onclick="removeOffset(\'' + type + '\',' + idx + ')" class="ml-0.5 hover-danger" style="color: var(--color-accent);">&times;</button>';
  container.appendChild(chip);
  });
  }
@@ -257,11 +258,11 @@
 
  <!-- Theme toggle -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">테마</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
  <button onclick="toggleDarkMode()"
  class="w-full py-2.5 font-medium rounded-lg hover-surface transition-colors text-sm">
@@ -273,14 +274,14 @@
 
  <!-- Accent Color Picker -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">액센트 색상</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
  <div class="flex gap-3" id="accentPicker">
- <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상" title="인디고"></button>
+ <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-indigo-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상" title="인디고"></button>
  <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="에메랄드 색상" title="에메랄드"></button>
  <button onclick="setAccentColor('rose')" data-color="rose" class="rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="로즈 색상" title="로즈"></button>
  <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="앰버 색상" title="앰버"></button>
@@ -291,20 +292,20 @@
 
  <!-- Font Size Toggle -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">글꼴 크기</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
  <div class="flex gap-2" id="fontSizePicker">
- <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:border-amber-400" style="background: var(--color-surface);">
+ <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-xs" style="color: var(--color-text-muted);">가</span> 작게
  </button>
- <button onclick="setFontSize('medium')" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:border-amber-400" style="background: var(--color-surface);">
+ <button onclick="setFontSize('medium')" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-sm">가</span> 보통
  </button>
- <button onclick="setFontSize('large')" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:border-amber-400" style="background: var(--color-surface);">
+ <button onclick="setFontSize('large')" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-base">가</span> 크게
  </button>
  </div>
@@ -326,13 +327,15 @@
  if (typeof showToast === 'function') showToast('글꼴 크기가 변경되었습니다', 'success');
  }
  function updateAccentUI() {
- var current = localStorage.getItem('accent_color') || 'indigo';
+ var current = localStorage.getItem('accent_color') || 'amber';
  document.querySelectorAll('#accentPicker button').forEach(function(btn) {
  if (btn.dataset.color === current) {
- btn.classList.add('ring-2', 'ring-offset-2', 'ring-slate-400');
+ btn.style.outline = '2px solid var(--color-text-muted)';
+ btn.style.outlineOffset = '2px';
  btn.classList.remove('border-transparent');
  } else {
- btn.classList.remove('ring-2', 'ring-offset-2', 'ring-slate-400');
+ btn.style.outline = 'none';
+ btn.style.outlineOffset = '';
  btn.classList.add('border-transparent');
  }
  });
@@ -341,11 +344,13 @@
  var current = localStorage.getItem('font_size') || 'medium';
  document.querySelectorAll('#fontSizePicker button').forEach(function(btn) {
  if (btn.dataset.size === current) {
- btn.classList.add('bg-amber-600', 'text-white', 'border-amber-600');
- btn.classList.remove('bg-white', '', '', '', '', '');
+ btn.style.background = 'var(--color-accent)';
+ btn.style.color = '#fff';
+ btn.style.borderColor = 'var(--color-accent)';
  } else {
- btn.classList.remove('bg-amber-600', 'text-white', 'border-amber-600');
- btn.classList.add('bg-white', '', '', '', '', '');
+ btn.style.background = 'var(--color-surface)';
+ btn.style.color = '';
+ btn.style.borderColor = '';
  }
  });
  }
@@ -357,11 +362,11 @@
 
  <!-- Background Settings -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M2.25 18.75h19.5a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H2.25a.75.75 0 00-.75.75v12c0 .414.336.75.75.75z"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
  </summary>
- <div class="px-5 pb-5">
+ <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">배경 이미지 또는 그라데이션을 설정합니다.</p>
 
  <form action="/settings/background" method="POST" enctype="multipart/form-data" id="bgForm">
@@ -369,17 +374,17 @@
  <div class="space-y-3 mb-5">
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="none" {% if current_bg_type == 'none' %}checked{% endif %}
- class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">기본 (배경 없음)</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="preset" {% if current_bg_type == 'preset' %}checked{% endif %}
- class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">프리셋 그라데이션</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="upload" {% if current_bg_type == 'upload' %}checked{% endif %}
- class="w-4 h-4 text-amber-600" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">사진 업로드</span>
  </label>
  </div>
@@ -390,37 +395,37 @@
  <div class="grid grid-cols-3 gap-2">
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-1" class="sr-only peer" {% if current_bg_preset == 'gradient-1' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)"></div>
  <p class="text-[11px] text-center mt-1">Sunset</p>
  </label>
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-2" class="sr-only peer" {% if current_bg_preset == 'gradient-2' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)"></div>
  <p class="text-[11px] text-center mt-1">Ocean</p>
  </label>
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-3" class="sr-only peer" {% if current_bg_preset == 'gradient-3' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"></div>
  <p class="text-[11px] text-center mt-1">Forest</p>
  </label>
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-4" class="sr-only peer" {% if current_bg_preset == 'gradient-4' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%)"></div>
  <p class="text-[11px] text-center mt-1">Warm</p>
  </label>
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-5" class="sr-only peer" {% if current_bg_preset == 'gradient-5' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #0c0d2e 0%, #1a1b4b 50%, #3b1d6e 100%)"></div>
  <p class="text-[11px] text-center mt-1">Night Sky</p>
  </label>
  <label class="cursor-pointer">
  <input type="radio" name="preset" value="gradient-6" class="sr-only peer" {% if current_bg_preset == 'gradient-6' %}checked{% endif %}>
- <div class="h-16 rounded-lg border-2 border-transparent peer-checked:border-amber-500 peer-checked:ring-2 peer-checked:ring-amber-200 transition-all"
+ <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ee9ca7 100%)"></div>
  <p class="text-[11px] text-center mt-1">Rose Gold</p>
  </label>
@@ -431,7 +436,7 @@
  <div id="uploadSection" class="mb-5 {% if current_bg_type != 'upload' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">이미지 업로드 (최대 5MB, jpg/png/webp)</label>
  <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp"
- class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+ class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
  {% if bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
  <p class="mt-2 text-xs" style="color: var(--color-success);">현재 업로드된 이미지: {{ bg_setting.image }}</p>
  {% endif %}
@@ -441,7 +446,7 @@
  <div id="opacitySection" class="mb-5 {% if current_bg_type == 'none' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">오버레이 투명도: <span id="opacityValue">{{ current_bg_opacity }}</span></label>
  <input type="range" name="opacity" min="0.3" max="0.95" step="0.05" value="{{ current_bg_opacity }}"
- class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+ class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="accent-color: var(--color-accent);"
  oninput="document.getElementById('opacityValue').textContent=this.value">
  <div class="flex justify-between text-[11px] mt-1">
  <span>투명 (0.3)</span>
@@ -468,11 +473,11 @@
 
  <!-- Google Account Login -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-5 cursor-pointer select-none">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">연동 설정</h4>
  </summary>
- <div class="px-5 pb-5 space-y-5">
+ <div class="px-4 pb-4 space-y-5">
  <h5 class="font-bold" style="color: var(--color-text);">Google 계정</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
  {% if profile and profile.google_email %}
@@ -552,7 +557,7 @@
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">활성화</label>
  <label class="relative inline-flex items-center cursor-pointer">
  <input type="checkbox" id="mbEnabled" class="sr-only peer">
- <div class="w-11 h-6 rounded-full peer peer-checked:bg-amber-500 transition-colors"></div>
+ <div class="w-11 h-6 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
  <div class="absolute left-1 top-1 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background: var(--color-surface);"></div>
  </label>
  </div>

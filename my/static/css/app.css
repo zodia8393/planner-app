@@ -99,7 +99,41 @@
  --shadow-btn-accent-hover: 0 4px 20px rgba(245,158,11,0.4), 0 2px 8px rgba(0,0,0,0.25);
  }
 
- /* ── Base ── */
+ /* ── Accent Color Overrides ── */
+body[data-accent="indigo"] {
+ --color-accent: #6366f1; --color-accent-hover: #4f46e5; --color-accent-soft: #eef2ff; --color-accent-text: #3730a3;
+ --gradient-accent: linear-gradient(135deg, #818cf8, #6366f1); --shadow-btn-accent: 0 2px 8px rgba(99,102,241,0.25);
+}
+html.dark body[data-accent="indigo"] {
+ --color-accent: #818cf8; --color-accent-hover: #a5b4fc; --color-accent-soft: rgba(129,140,248,0.15); --color-accent-text: #c7d2fe;
+ --gradient-accent: linear-gradient(135deg, #a5b4fc, #818cf8); --shadow-btn-accent: 0 2px 8px rgba(129,140,248,0.3);
+}
+body[data-accent="emerald"] {
+ --color-accent: #10b981; --color-accent-hover: #059669; --color-accent-soft: #d1fae5; --color-accent-text: #065f46;
+ --gradient-accent: linear-gradient(135deg, #34d399, #10b981); --shadow-btn-accent: 0 2px 8px rgba(16,185,129,0.25);
+}
+html.dark body[data-accent="emerald"] {
+ --color-accent: #34d399; --color-accent-hover: #6ee7b7; --color-accent-soft: rgba(52,211,153,0.15); --color-accent-text: #a7f3d0;
+ --gradient-accent: linear-gradient(135deg, #6ee7b7, #34d399); --shadow-btn-accent: 0 2px 8px rgba(52,211,153,0.3);
+}
+body[data-accent="rose"] {
+ --color-accent: #f43f5e; --color-accent-hover: #e11d48; --color-accent-soft: #ffe4e6; --color-accent-text: #9f1239;
+ --gradient-accent: linear-gradient(135deg, #fb7185, #f43f5e); --shadow-btn-accent: 0 2px 8px rgba(244,63,94,0.25);
+}
+html.dark body[data-accent="rose"] {
+ --color-accent: #fb7185; --color-accent-hover: #fda4af; --color-accent-soft: rgba(251,113,133,0.15); --color-accent-text: #fecdd3;
+ --gradient-accent: linear-gradient(135deg, #fda4af, #fb7185); --shadow-btn-accent: 0 2px 8px rgba(251,113,133,0.3);
+}
+body[data-accent="sky"] {
+ --color-accent: #0ea5e9; --color-accent-hover: #0284c7; --color-accent-soft: #e0f2fe; --color-accent-text: #075985;
+ --gradient-accent: linear-gradient(135deg, #38bdf8, #0ea5e9); --shadow-btn-accent: 0 2px 8px rgba(14,165,233,0.25);
+}
+html.dark body[data-accent="sky"] {
+ --color-accent: #38bdf8; --color-accent-hover: #7dd3fc; --color-accent-soft: rgba(56,189,248,0.15); --color-accent-text: #bae6fd;
+ --gradient-accent: linear-gradient(135deg, #7dd3fc, #38bdf8); --shadow-btn-accent: 0 2px 8px rgba(56,189,248,0.3);
+}
+
+/* ── Base ── */
  *, *::before, *::after { box-sizing: border-box; }
  html, body { overflow-x: hidden; }
 
