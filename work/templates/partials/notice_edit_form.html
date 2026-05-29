@@ -5,9 +5,9 @@
  <a href="/notices" hx-boost="false" class="text-xs hover-text">취소</a>
  </div>
  <input type="text" name="title" value="{{ notice.title }}" placeholder="공지 제목" required
- class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ class="w-full px-3 py-2 text-sm border rounded-lg focus-accent">
  <textarea name="content" rows="3" placeholder="공지 내용"
- class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400 resize-none">{{ notice.content or '' }}</textarea>
+ class="w-full px-3 py-2 text-sm border rounded-lg focus-accent resize-none">{{ notice.content or '' }}</textarea>
  <div class="flex gap-2 items-center">
  <label class="flex items-center gap-2 text-sm cursor-pointer">
  <input type="checkbox" name="priority" value="1" {% if notice.priority == 1 %}checked{% endif %}

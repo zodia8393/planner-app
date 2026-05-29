@@ -5,9 +5,9 @@
  <a href="/todos" hx-boost="false" class="text-xs hover-text">취소</a>
  </div>
  <input type="text" name="title" value="{{ todo.title }}" required
- class="w-full px-4 py-2.5 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">
+ class="w-full px-4 py-2.5 text-sm border rounded-lg focus-accent">
  <textarea name="description" rows="2" placeholder="설명"
- class="w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-amber-400">{{ todo.description }}</textarea>
+ class="w-full px-4 py-2 text-sm border rounded-lg focus-accent">{{ todo.description }}</textarea>
  <div class="flex flex-wrap gap-2">
  <input type="date" name="due_date" value="{{ todo.due_date or '' }}"
  class="px-3 py-1.5 text-sm border rounded-lg"

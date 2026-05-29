@@ -230,6 +230,17 @@
  .nav-active svg {
  color: var(--color-accent) !important;
  }
+
+ /* Sidebar "more" collapsible */
+ .sidebar-more summary { list-style: none; }
+ .sidebar-more summary::-webkit-details-marker { display: none; }
+ .sidebar-more .sidebar-chevron {
+ transition: transform var(--duration-fast) var(--ease-out);
+ }
+ .sidebar-more[open] .sidebar-chevron {
+ transform: rotate(180deg);
+ }
+
  .dark .nav-active {
  background: var(--color-accent-soft) !important;
  color: var(--color-accent-text) !important;
@@ -339,6 +350,38 @@
  }
  .dark .input-premium:focus {
  box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+ }
+
+ /* ── Focus ring (replaces Tailwind focus:ring-amber-400) ── */
+ .focus-accent:focus {
+ outline: none;
+ border-color: var(--color-accent);
+ box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+ }
+ .dark .focus-accent:focus {
+ box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+ }
+
+ /* ── Usage Hint (unified tip block) ── */
+ .usage-hint summary {
+ color: var(--color-text-faint);
+ font-size: 0.75rem;
+ font-weight: 500;
+ }
+ .usage-hint summary:hover {
+ color: var(--color-accent);
+ }
+ .usage-hint > div {
+ background: var(--color-accent-soft);
+ border: 1px solid transparent;
+ border-radius: var(--radius-lg);
+ padding: 0.75rem;
+ font-size: 0.75rem;
+ line-height: 1.6;
+ color: var(--color-text-muted);
+ }
+ .dark .usage-hint > div {
+ background: var(--color-accent-soft);
  }
 
  /* ── Premium Badge ── */
@@ -637,18 +680,13 @@
  min-height: clamp(2.75rem, 2rem + 3vw, 3rem);
  display: inline-flex; align-items: center; gap: 0.5rem;
  }
- /* C13: Muted text visibility boost — dark mode WCAG AA (4.5:1+) */
- . { color: #94a3b8 !important; }
- .dark . { color: #cbd5e1 !important; }
  /* C14: Empty state message visibility */
- .py-16.text-center p.,
- .py-6.text-center p.text-xs. {
+ .empty-state-desc {
  font-size: 0.875rem !important;
- color: #64748b !important;
+ color: var(--color-text-muted) !important;
  }
- .dark .py-16.text-center p.,
- .dark .py-6.text-center p.text-xs. {
- color: #94a3b8 !important;
+ .dark .empty-state-desc {
+ color: var(--color-text-faint) !important;
  }
  /* C15: Input placeholder contrast */
  ::placeholder { color: #78716c !important; }
