@@ -15,13 +15,11 @@
 .dashboard-widget[data-widget="widget-row"]   { grid-column: span 12; order: 1; }
 .dashboard-widget[data-widget="quick-add"]    { grid-column: span 12; order: 2; }
 .dashboard-widget[data-widget="plan-view"]    { grid-column: span 12; order: 3; }
-.dashboard-widget[data-widget="stat-cards"]   { grid-column: span 6;  order: 4; }
-.dashboard-widget[data-widget="progress"]     { grid-column: span 6;  order: 5; }
-.dashboard-widget[data-widget="worklogs"]     { grid-column: span 6;  order: 6; }
-.dashboard-widget[data-widget="events"]       { grid-column: span 6;  order: 7; }
-.dashboard-widget[data-widget="notices"]      { grid-column: span 6;  order: 8; }
-.dashboard-widget[data-widget="timetable"]    { grid-column: span 6;  order: 9; }
-.dashboard-widget[data-widget="time-budgets"] { grid-column: span 6;  order: 10; }
+.dashboard-widget[data-widget="progress"]     { grid-column: span 6;  order: 4; }
+.dashboard-widget[data-widget="events"]       { grid-column: span 6;  order: 5; }
+.dashboard-widget[data-widget="timetable"]    { grid-column: span 6;  order: 6; }
+.dashboard-widget[data-widget="worklogs"]     { grid-column: span 6;  order: 7; }
+.dashboard-widget[data-widget="time-budgets"] { grid-column: span 6;  order: 8; }
 
 /* ── Tablet (768-1023px) — 2 columns ── */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -32,13 +30,11 @@
     .dashboard-widget[data-widget="widget-row"]   { grid-column: span 2; order: 1; }
     .dashboard-widget[data-widget="quick-add"]    { grid-column: span 2; order: 2; }
     .dashboard-widget[data-widget="plan-view"]    { grid-column: span 2; order: 3; }
-    .dashboard-widget[data-widget="stat-cards"]   { grid-column: span 1; order: 4; }
-    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 5; }
-    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 6; }
-    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 7; }
-    .dashboard-widget[data-widget="notices"]      { grid-column: span 1; order: 8; }
-    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 9; }
-    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 10; }
+    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 8; }
 }
 
 /* ── Mobile (<768px) — 1 column, stacked ── */
@@ -49,14 +45,12 @@
     }
     .dashboard-widget[data-widget="widget-row"]   { grid-column: span 1; order: 1; }
     .dashboard-widget[data-widget="quick-add"]    { grid-column: span 1; order: 2; }
-    .dashboard-widget[data-widget="stat-cards"]   { grid-column: span 1; order: 3; }
-    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 1; order: 4; }
-    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 5; }
-    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 6; }
-    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 7; }
-    .dashboard-widget[data-widget="notices"]      { grid-column: span 1; order: 8; }
-    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 9; }
-    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 10; }
+    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 1; order: 3; }
+    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 8; }
 }
 
 /* ── Custom Background: Glass Panel ── */
@@ -293,6 +287,7 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
 /* ── Plan-view week grid ── */
 @media (min-width: 1024px) {
     .plan-week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .plan-week-grid.lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 1023px) {
     .plan-week-grid { grid-template-columns: 1fr; }

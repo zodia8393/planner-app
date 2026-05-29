@@ -4,7 +4,7 @@
 {% block page_subtitle %}오늘의 업무 현황{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="/static/css/dashboard-grid.css?v=3">
+<link rel="stylesheet" href="/static/css/dashboard-grid.css?v=4">
 {% endblock %}
 
 {% block content %}
@@ -31,11 +31,11 @@
  {% include"widgets/widget_row.html" %}
  {% include"widgets/quick_add.html" %}
  {% include"widgets/plan_view.html" %}
- {% include"widgets/stat_cards.html" %}
+ {# stat-cards: widget-row와 정보 중복(할일수·일정수) → 제거 #}
  {% include"widgets/progress.html" %}
  {% include"widgets/worklogs.html" %}
  {% include"widgets/events.html" %}
- {% include"widgets/notices.html" %}
+ {# notices: 개인 플래너에서 공지사항 미사용 → 제거 #}
  {% include"widgets/timetable.html" %}
  {% include"widgets/time_budgets.html" %}
 </div>

@@ -4,7 +4,7 @@
 {% block page_subtitle %}오늘의 업무 현황{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="/static/css/dashboard-grid.css?v=3">
+<link rel="stylesheet" href="/static/css/dashboard-grid.css?v=4">
 {% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
 
 {# ── Usage Tip ── #}
 <div class="mb-4">
- <details class="group">
+ <details class="group usage-hint">
  <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
  사용법
@@ -31,11 +31,11 @@
  {% include"widgets/widget_row.html" %}
  {% include"widgets/quick_add.html" %}
  {% include"widgets/plan_view.html" %}
- {% include"widgets/stat_cards.html" %}
+ {# stat-cards: widget-row와 정보 중복(할일수·일정수) → 제거 #}
  {% include"widgets/progress.html" %}
  {% include"widgets/worklogs.html" %}
  {% include"widgets/events.html" %}
- {% include"widgets/notices.html" %}
+ {# notices: 개인 플래너에서 공지사항 미사용 → 제거 #}
  {% include"widgets/timetable.html" %}
  {% include"widgets/time_budgets.html" %}
 </div>

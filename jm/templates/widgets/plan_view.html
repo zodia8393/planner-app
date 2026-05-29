@@ -45,18 +45,15 @@
  </a>
  {% endif %}
  </div>
- <div class="flex items-center gap-1.5 text-xs" style="color: var(--color-text-muted);">
- <span class="px-2 py-0.5 rounded-md" style="background: var(--color-border-subtle);">전체 <b style="color: var(--color-text);">{{ total_count }}</b></span>
- <span class="px-2 py-0.5 rounded-md" style="background: var(--color-success-soft);">완료 <b style="color: var(--color-success);">{{ done_count }}</b></span>
- {% if total_count > 0 %}
- <span class="px-2 py-0.5 rounded-md" style="background: var(--color-accent-soft);"><b style="color: var(--color-accent);">{{ ((done_count / total_count) * 100)|round|int }}%</b></span>
- {% endif %}
- </div>
+ <span class="text-xs font-medium" style="color: var(--color-text-faint);">{{ done_count }}/{{ total_count }}</span>
  </div>
 
  {% if plan_view == 'week' %}
- <div class="plan-week-grid grid grid-cols-1 lg:grid-cols-7 gap-2">
+ {% set ns = namespace(today_idx=3) %}
+ {% for day in week_days %}{% if day.is_today %}{% set ns.today_idx = loop.index0 %}{% endif %}{% endfor %}
+ <div class="plan-week-grid grid grid-cols-1 {% if plan_offset == 0 %}lg:grid-cols-3{% else %}lg:grid-cols-7{% endif %} gap-2">
  {% for day in week_days %}
+ {% if plan_offset != 0 or (loop.index0 >= ns.today_idx - 1 and loop.index0 <= ns.today_idx + 1) %}
  <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2{% endif %}"
  style="animation-delay: {{ loop.index0 * 40 }}ms">
  <div class="px-3 py-2 flex items-center justify-between"
@@ -97,8 +94,16 @@
  {% endfor %}
  </div>
  </div>
+ {% endif %}
  {% endfor %}
  </div>
+ {% if plan_offset == 0 %}
+ <div class="text-center mt-2">
+ <a href="/todos" class="inline-flex items-center gap-1 text-xs font-semibold transition-colors" style="color: var(--color-accent);">
+ 전체 보기 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+ </a>
+ </div>
+ {% endif %}
  {% else %}
  <div class="work-card rounded-xl overflow-hidden">
  <div class="grid grid-cols-7 text-center text-xs font-semibold" style="color: var(--color-text-muted); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-border-subtle);">
@@ -123,14 +128,12 @@
  style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>
  {% endif %}
  </div>
- {% for todo in cell_todos[:2] %}
- <div class="flex items-center gap-1 mb-0.5">
- <span class="w-1 h-1 rounded-full flex-shrink-0 {{ priority_map[todo.priority].dot }}"></span>
- <span class="text-[11px] lg:text-xs truncate {% if todo.completed %}line-through{% endif %}" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text-muted){% endif %};">{{ todo.title }}</span>
- </div>
+ {% if cell_todos|length > 0 %}
+ <div class="flex justify-center gap-0.5 mt-0.5">
+ {% for _ in range([cell_todos|length, 4]|min) %}
+ <span class="w-1.5 h-1.5 rounded-full" style="background: var(--color-accent); opacity: 0.6;"></span>
  {% endfor %}
- {% if cell_todos|length > 2 %}
- <span class="text-[11px] pl-2" style="color: var(--color-text-faint);">+{{ cell_todos|length - 2 }}개</span>
+ </div>
  {% endif %}
  </div>
  {% else %}
