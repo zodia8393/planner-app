@@ -309,8 +309,6 @@
  <span class="text-base">가</span> 크게
  </button>
  </div>
- </div>
-
  <script>
  function setAccentColor(color) {
  localStorage.setItem('accent_color', color);
@@ -359,7 +357,7 @@
  </details>
 
  <!-- Background Settings -->
- <details class="work-card rounded-xl">
+ <details class="work-card rounded-xl" style="margin-top: 1.25rem;">
  <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M2.25 18.75h19.5a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H2.25a.75.75 0 00-.75.75v12c0 .414.336.75.75.75z"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
@@ -475,7 +473,7 @@
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">연동 설정</h4>
  </summary>
- <div class="px-4 pb-4 space-y-5">
+ <div class="px-4 pb-4 space-y-5 max-w-lg">
  <h5 class="font-bold" style="color: var(--color-text);">Google 계정</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
  {% if profile and profile.google_email %}
