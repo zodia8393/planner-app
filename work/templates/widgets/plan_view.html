@@ -16,7 +16,7 @@
  </div>
 </div>
 <div class="widget-detail-m">
- <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+ <div class="flex flex-wrap items-center justify-center gap-1.5 mb-1.5">
  <a href="/?plan_view=week&plan_offset=0"
  class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'week' %}shadow-sm{% endif %}"
  style="{% if plan_view == 'week' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
@@ -27,7 +27,7 @@
  style="{% if plan_view == 'month' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
  월간
  </a>
- <div class="flex items-center gap-1 ml-auto">
+ <div class="flex items-center gap-1">
  <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
  class="p-1.5 rounded-lg transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--color-text);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
