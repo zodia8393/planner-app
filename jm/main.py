@@ -1164,7 +1164,14 @@ async def plans_page(request: Request, view: str = "week", offset: int = 0):
             week_days = []
             for i in range(7):
                 d = plan_monday + timedelta(days=i)
-                day_todos = [dict(t) for t in plan_todos if t["due_date"] == d.isoformat()]
+                day_todos = []
+                for t in plan_todos:
+                    if t["due_date"] == d.isoformat():
+                        td = dict(t)
+                        td["subtask_count"] = conn.execute(
+                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
+                        ).fetchone()[0]
+                        day_todos.append(td)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),
                     "label": f"{WEEKDAY_NAMES[i]} {d.strftime('%m/%d')}",
@@ -1325,7 +1332,14 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             week_days = []
             for i in range(7):
                 d = plan_monday + timedelta(days=i)
-                day_todos = [dict(t) for t in plan_todos if t["due_date"] == d.isoformat()]
+                day_todos = []
+                for t in plan_todos:
+                    if t["due_date"] == d.isoformat():
+                        td = dict(t)
+                        td["subtask_count"] = conn.execute(
+                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
+                        ).fetchone()[0]
+                        day_todos.append(td)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),
                     "label": f"{WEEKDAY_NAMES[i]} {d.strftime('%m/%d')}",

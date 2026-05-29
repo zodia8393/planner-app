@@ -122,6 +122,10 @@ async def kanban_page(request: Request, group_by: str = ""):
         ])
         for t in todos:
             td = dict(t)
+            subs = conn.execute(
+                "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (td["id"],)
+            ).fetchall()
+            td["subtasks"] = [dict(s) for s in subs]
             col = _classify_kanban_column(td)
             columns[col]["todos"].append(td)
 
@@ -327,7 +331,11 @@ async def edit_todo_form(request: Request, todo_id: int):
         if not todo:
             return HTMLResponse("")
         categories = S.get_categories(conn, pid)
+        subtasks = [dict(s) for s in conn.execute(
+            "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)
+        ).fetchall()]
     td = _enrich_todo_rrule(dict(todo))
+    td["subtasks"] = subtasks
     return S.render(request, "partials/todo_edit_form.html", {
         "todo": td,
         "categories": [dict(c) for c in categories],
@@ -457,17 +465,45 @@ async def bulk_todo_action(request: Request):
 
 # ── Subtasks ──
 
+def _render_todo_item(S, request, conn, todo_id: int, pid: int):
+    """Helper: fetch a single todo with subtasks and render todo_item partial."""
+    updated = conn.execute(
+        "SELECT t.*, c.name as category_name, c.color as category_color "
+        "FROM todos t LEFT JOIN categories c ON t.category_id=c.id "
+        "WHERE t.id=? AND t.profile_id=?",
+        (todo_id, pid),
+    ).fetchone()
+    if not updated:
+        return HTMLResponse("")
+    td = dict(updated)
+    td["subtasks"] = [dict(s) for s in conn.execute(
+        "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)
+    ).fetchall()]
+    return S.render(request, "partials/todo_item.html", {
+        "todo": td, "priority_map": PRIORITY_MAP,
+        "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean,
+        "today": date.today(),
+    })
+
+
 @router.post("/todos/{todo_id}/subtasks", response_class=HTMLResponse)
 async def add_subtask(request: Request, todo_id: int, title: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
-    title = clamp_text(fix_mojibake(title), 200)
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    if not title:
+        if request.headers.get("HX-Request"):
+            with S.get_db() as conn:
+                return _render_todo_item(S, request, conn, todo_id, pid)
+        return S.redirect(request, "/todos")
     with S.get_db() as conn:
         parent = conn.execute("SELECT id FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not parent:
             return S.redirect(request, "/todos")
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM subtasks WHERE todo_id=?", (todo_id,)).fetchone()[0]
         conn.execute("INSERT INTO subtasks (todo_id, title, sort_order) VALUES (?,?,?)", (todo_id, title, max_order + 1))
+        if request.headers.get("HX-Request"):
+            return _render_todo_item(S, request, conn, todo_id, pid)
     return S.redirect(request, "/todos")
 
 
@@ -483,15 +519,26 @@ async def toggle_subtask(request: Request, sub_id: int):
         if sub:
             conn.execute("UPDATE subtasks SET completed=? WHERE id=?", (0 if sub["completed"] else 1, sub_id))
             if request.headers.get("HX-Request"):
-                todo_id = sub["todo_id"]
-                updated = conn.execute(
-                    "SELECT t.*, c.name as category_name, c.color as category_color FROM todos t LEFT JOIN categories c ON t.category_id=c.id WHERE t.id=? AND t.profile_id=?",
-                    (todo_id, pid),
-                ).fetchone()
-                if updated:
-                    td = dict(updated)
-                    td["subtasks"] = [dict(s) for s in conn.execute("SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)).fetchall()]
-                    return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean, "today": date.today()})
+                return _render_todo_item(S, request, conn, sub["todo_id"], pid)
+    return S.redirect(request, "/todos")
+
+
+@router.put("/subtasks/{sub_id}", response_class=HTMLResponse)
+async def update_subtask(request: Request, sub_id: int, title: str = Form("")):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    with S.get_db() as conn:
+        sub = conn.execute(
+            "SELECT s.* FROM subtasks s JOIN todos t ON s.todo_id=t.id WHERE s.id=? AND t.profile_id=?",
+            (sub_id, pid),
+        ).fetchone()
+        if not sub:
+            return HTMLResponse("")
+        if title:
+            conn.execute("UPDATE subtasks SET title=? WHERE id=?", (title, sub_id))
+        if request.headers.get("HX-Request"):
+            return _render_todo_item(S, request, conn, sub["todo_id"], pid)
     return S.redirect(request, "/todos")
 
 
@@ -501,9 +548,12 @@ async def delete_subtask(request: Request, sub_id: int):
     pid = S.get_profile_id(request)
     with S.get_db() as conn:
         sub = conn.execute(
-            "SELECT s.id FROM subtasks s JOIN todos t ON s.todo_id=t.id WHERE s.id=? AND t.profile_id=?",
+            "SELECT s.todo_id FROM subtasks s JOIN todos t ON s.todo_id=t.id WHERE s.id=? AND t.profile_id=?",
             (sub_id, pid),
         ).fetchone()
         if sub:
+            todo_id = sub["todo_id"]
             conn.execute("DELETE FROM subtasks WHERE id=?", (sub_id,))
+            if request.headers.get("HX-Request"):
+                return _render_todo_item(S, request, conn, todo_id, pid)
     return HTMLResponse("")

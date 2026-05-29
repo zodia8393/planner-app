@@ -1388,9 +1388,20 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             no_due_todos = [dict(t) for t in plan_todos if not t["due_date"]] if _include_no_due else []
             for i in range(7):
                 d = monday + timedelta(days=i)
-                day_todos = [dict(t) for t in plan_todos if t["due_date"] == d.isoformat()]
+                day_todos = []
+                for t in plan_todos:
+                    if t["due_date"] == d.isoformat():
+                        td = dict(t)
+                        td["subtask_count"] = conn.execute(
+                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
+                        ).fetchone()[0]
+                        day_todos.append(td)
                 # Attach no-due-date todos to today's column
                 if _include_no_due and d == today:
+                    for t in no_due_todos:
+                        t["subtask_count"] = conn.execute(
+                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (t["id"],)
+                        ).fetchone()[0]
                     day_todos.extend(no_due_todos)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),

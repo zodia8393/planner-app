@@ -80,7 +80,7 @@
  {% endif %}
  </button>
  <div class="flex-1 min-w-0">
- <span class="text-xs {% if todo.completed %}line-through{% endif %} truncate block" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text){% endif %};">{{ todo.title }}</span>
+ <span class="text-xs {% if todo.completed %}line-through{% endif %} truncate block" style="color: {% if todo.completed %}var(--color-text-faint){% else %}var(--color-text){% endif %};">{{ todo.title }}{% if todo.subtask_count %} <span class="inline-block w-1.5 h-1.5 rounded-full align-middle" style="background: var(--color-accent); opacity: 0.7;" title="하위 작업 {{ todo.subtask_count }}개"></span>{% endif %}</span>
  {% if todo.category_name %}
  <span class="text-[11px] px-1 py-0.5 rounded" style="background:{{ todo.category_color }}15; color:{{ todo.category_color }}">{{ todo.category_name }}</span>
  {% endif %}

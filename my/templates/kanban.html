@@ -82,6 +82,9 @@
  {% if todo.due_date %}
  <span class="text-[11px]">{{ todo.due_date|relative_date }}</span>
  {% endif %}
+ {% if todo.subtasks %}
+ <span class="text-[11px] px-1.5 py-0.5 rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ todo.subtasks|selectattr('completed')|list|length }}/{{ todo.subtasks|length }}</span>
+ {% endif %}
  </div>
  {% set tags = todo.tags|parse_tags %}
  {% if tags %}
@@ -123,6 +126,9 @@
  {% endif %}
  {% if todo.due_date %}
  <span class="text-[11px]">{{ todo.due_date|relative_date }}</span>
+ {% endif %}
+ {% if todo.subtasks %}
+ <span class="text-[11px] px-1.5 py-0.5 rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ todo.subtasks|selectattr('completed')|list|length }}/{{ todo.subtasks|length }}</span>
  {% endif %}
  </div>
  {% set tags = todo.tags|parse_tags %}
