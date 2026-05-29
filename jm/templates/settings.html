@@ -281,11 +281,11 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
  <div class="flex gap-3" id="accentPicker">
- <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl bg-indigo-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="인디고 색상" title="인디고"></button>
- <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl bg-emerald-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="에메랄드 색상" title="에메랄드"></button>
- <button onclick="setAccentColor('rose')" data-color="rose" class="rounded-xl bg-rose-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="로즈 색상" title="로즈"></button>
- <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl bg-amber-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="앰버 색상" title="앰버"></button>
- <button onclick="setAccentColor('sky')" data-color="sky" class="rounded-xl bg-sky-500 border-2 border-transparent hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem);" aria-label="스카이 색상" title="스카이"></button>
+ <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #6366f1; border: 2px solid rgba(255,255,255,0.15);" aria-label="인디고 색상" title="인디고"></button>
+ <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #10b981; border: 2px solid rgba(255,255,255,0.15);" aria-label="에메랄드 색상" title="에메랄드"></button>
+ <button onclick="setAccentColor('rose')" data-color="rose" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #f43f5e; border: 2px solid rgba(255,255,255,0.15);" aria-label="로즈 색상" title="로즈"></button>
+ <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #d97706; border: 2px solid rgba(255,255,255,0.15);" aria-label="앰버 색상" title="앰버"></button>
+ <button onclick="setAccentColor('sky')" data-color="sky" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #0ea5e9; border: 2px solid rgba(255,255,255,0.15);" aria-label="스카이 색상" title="스카이"></button>
  </div>
  </div>
  </details>
@@ -330,13 +330,11 @@
  var current = localStorage.getItem('accent_color') || 'amber';
  document.querySelectorAll('#accentPicker button').forEach(function(btn) {
  if (btn.dataset.color === current) {
- btn.style.outline = '2px solid var(--color-text-muted)';
- btn.style.outlineOffset = '2px';
- btn.classList.remove('border-transparent');
+ btn.style.outline = '3px solid var(--color-text)';
+ btn.style.outlineOffset = '3px';
  } else {
  btn.style.outline = 'none';
  btn.style.outlineOffset = '';
- btn.classList.add('border-transparent');
  }
  });
  }
@@ -481,12 +479,10 @@
  <h5 class="font-bold" style="color: var(--color-text);">Google 계정</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
  {% if profile and profile.google_email %}
- <div class="p-3 rounded-lg mb-3" style="background: var(--color-success-soft); border: 1px solid var(--color-success-soft);">
- <div class="flex items-center gap-2">
- <div class="w-2 h-2 rounded-full bg-green-500"></div>
+ <div class="flex items-center gap-2 px-3 py-2 rounded-lg mb-3" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-subtle);">
+ <div class="w-2 h-2 rounded-full" style="background: var(--color-success);"></div>
  <span class="text-xs font-medium" style="color: var(--color-success);">연결됨</span>
  <span class="text-xs ml-auto" style="color: var(--color-text-muted);">{{ profile.google_email }}</span>
- </div>
  </div>
  {% else %}
  <a href="/auth/google/link" hx-boost="false"
@@ -502,17 +498,15 @@
  {% endif %}
 
 
- <hr class="my-4">
+ <hr class="my-4" style="border-color: var(--color-border-subtle);">
  <h5 class="font-bold mb-2" style="color: var(--color-text);">Google 캘린더 연동</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정의 캘린더 일정을 플래너에 가져와 함께 표시합니다.</p>
  {% if not gcal_configured %}
  <p class="text-xs" style="color: var(--color-text-muted);">현재 사용할 수 없습니다.</p>
  {% elif gcal_connected %}
- <div class="p-3 rounded-lg mb-3" style="background: var(--color-success-soft); border: 1px solid var(--color-success-soft);">
- <div class="flex items-center gap-2">
- <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+ <div class="flex items-center gap-2 px-3 py-2 rounded-lg mb-3" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-subtle);">
+ <div class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-success);"></div>
  <span class="text-xs font-medium" style="color: var(--color-success);">연동됨</span>
- </div>
  </div>
  <div class="space-y-3">
  <div>
@@ -549,7 +543,7 @@
  </a>
  {% endif %}
 
- <hr class="my-4">
+ <hr class="my-4" style="border-color: var(--color-border-subtle);">
  <h5 class="font-bold mb-4" style="color: var(--color-text);">모닝 브리핑</h5>
  <p class="text-xs mb-3" style="color: var(--color-text-muted);">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림으로 받으세요.</p>
  <div id="morningBriefForm" class="flex flex-wrap items-end gap-3">
@@ -583,7 +577,7 @@
  }
  </script>
 
- <hr class="my-4">
+ <hr class="my-4" style="border-color: var(--color-border-subtle);">
  <h5 class="font-bold mb-2" style="color: var(--color-text);">캘린더 내보내기</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">아래 URL을 외부 캘린더에 등록하면 플래너 일정이 자동 동기화됩니다.</p>
  <div class="flex gap-2 items-center">
@@ -607,7 +601,7 @@
  </a>
  </div>
 
- <hr class="my-4">
+ <hr class="my-4" style="border-color: var(--color-border-subtle);">
  <h5 class="font-bold mb-4" style="color: var(--color-text);">모바일 접속</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
  <div id="qrSection" class="flex flex-col items-center gap-3">
