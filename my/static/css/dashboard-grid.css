@@ -287,7 +287,6 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
 /* ── Plan-view week grid ── */
 @media (min-width: 1024px) {
     .plan-week-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-    .plan-week-grid.lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 1023px) {
     .plan-week-grid { grid-template-columns: 1fr; }
