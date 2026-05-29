@@ -349,8 +349,8 @@
  btn.style.borderColor = 'var(--color-accent)';
  } else {
  btn.style.background = 'var(--color-surface)';
- btn.style.color = '';
- btn.style.borderColor = '';
+ btn.style.color = 'var(--color-text-muted)';
+ btn.style.borderColor = 'var(--color-border)';
  }
  });
  }
@@ -436,7 +436,7 @@
  <div id="uploadSection" class="mb-5 {% if current_bg_type != 'upload' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">이미지 업로드 (최대 5MB, jpg/png/webp)</label>
  <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp"
- class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+ class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium" style="--file-bg: var(--color-surface-elevated); --file-color: var(--color-text-muted);">
  {% if bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
  <p class="mt-2 text-xs" style="color: var(--color-success);">현재 업로드된 이미지: {{ bg_setting.image }}</p>
  {% endif %}
@@ -557,7 +557,7 @@
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">활성화</label>
  <label class="relative inline-flex items-center cursor-pointer">
  <input type="checkbox" id="mbEnabled" class="sr-only peer">
- <div class="w-11 h-6 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+ <div class="toggle-track w-11 h-6 rounded-full transition-colors" style="background: var(--color-border);"></div>
  <div class="absolute left-1 top-1 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background: var(--color-surface);"></div>
  </label>
  </div>
@@ -598,7 +598,7 @@
  <div class="mt-3 flex flex-wrap gap-2">
  <a href="https://calendar.google.com/calendar/r?cid=webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
  target="_blank"
- class="inline-flex items-center gap-1.5 btn-sm font-medium rounded-lg hover:bg-blue-100 transition-colors" style="background: var(--color-info-soft); color: var(--color-info);">
+ class="inline-flex items-center gap-1.5 btn-sm font-medium rounded-lg transition-colors hover:opacity-80" style="background: var(--color-info-soft); color: var(--color-info);">
  Google Calendar에 추가
  </a>
  <a href="webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"

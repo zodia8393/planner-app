@@ -51,6 +51,7 @@
  --shadow-card: 0 1px 3px rgba(28,25,23,0.04), 0 4px 12px rgba(28,25,23,0.03);
  --shadow-card-hover: 0 4px 16px rgba(28,25,23,0.08), 0 2px 6px rgba(28,25,23,0.04);
  --shadow-glow: 0 0 20px rgba(217,119,6,0.15);
+ --shadow-focus-accent: 0 0 0 3px rgba(217,119,6,0.12);
  --shadow-btn-accent: 0 2px 8px rgba(217,119,6,0.25), 0 1px 3px rgba(217,119,6,0.15);
  --shadow-btn-accent-hover: 0 4px 16px rgba(217,119,6,0.35), 0 2px 6px rgba(217,119,6,0.2);
 
@@ -95,6 +96,7 @@
  --shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
  --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.2);
  --shadow-glow: 0 0 24px rgba(245,158,11,0.2);
+ --shadow-focus-accent: 0 0 0 3px rgba(245,158,11,0.15);
  --shadow-btn-accent: 0 2px 10px rgba(245,158,11,0.3), 0 1px 4px rgba(0,0,0,0.2);
  --shadow-btn-accent-hover: 0 4px 20px rgba(245,158,11,0.4), 0 2px 8px rgba(0,0,0,0.25);
  }
@@ -102,35 +104,51 @@
  /* ── Accent Color Overrides ── */
 body[data-accent="indigo"] {
  --color-accent: #6366f1; --color-accent-hover: #4f46e5; --color-accent-soft: #eef2ff; --color-accent-text: #3730a3;
- --gradient-accent: linear-gradient(135deg, #818cf8, #6366f1); --shadow-btn-accent: 0 2px 8px rgba(99,102,241,0.25);
+ --gradient-accent: linear-gradient(135deg, #818cf8, #6366f1);
+ --shadow-btn-accent: 0 2px 8px rgba(99,102,241,0.25); --shadow-focus-accent: 0 0 0 3px rgba(99,102,241,0.12);
+ --shadow-glow: 0 0 20px rgba(99,102,241,0.15);
 }
 html.dark body[data-accent="indigo"] {
  --color-accent: #818cf8; --color-accent-hover: #a5b4fc; --color-accent-soft: rgba(129,140,248,0.15); --color-accent-text: #c7d2fe;
- --gradient-accent: linear-gradient(135deg, #a5b4fc, #818cf8); --shadow-btn-accent: 0 2px 8px rgba(129,140,248,0.3);
+ --gradient-accent: linear-gradient(135deg, #a5b4fc, #818cf8);
+ --shadow-btn-accent: 0 2px 8px rgba(129,140,248,0.3); --shadow-focus-accent: 0 0 0 3px rgba(129,140,248,0.15);
+ --shadow-glow: 0 0 24px rgba(129,140,248,0.2);
 }
 body[data-accent="emerald"] {
  --color-accent: #10b981; --color-accent-hover: #059669; --color-accent-soft: #d1fae5; --color-accent-text: #065f46;
- --gradient-accent: linear-gradient(135deg, #34d399, #10b981); --shadow-btn-accent: 0 2px 8px rgba(16,185,129,0.25);
+ --gradient-accent: linear-gradient(135deg, #34d399, #10b981);
+ --shadow-btn-accent: 0 2px 8px rgba(16,185,129,0.25); --shadow-focus-accent: 0 0 0 3px rgba(16,185,129,0.12);
+ --shadow-glow: 0 0 20px rgba(16,185,129,0.15);
 }
 html.dark body[data-accent="emerald"] {
  --color-accent: #34d399; --color-accent-hover: #6ee7b7; --color-accent-soft: rgba(52,211,153,0.15); --color-accent-text: #a7f3d0;
- --gradient-accent: linear-gradient(135deg, #6ee7b7, #34d399); --shadow-btn-accent: 0 2px 8px rgba(52,211,153,0.3);
+ --gradient-accent: linear-gradient(135deg, #6ee7b7, #34d399);
+ --shadow-btn-accent: 0 2px 8px rgba(52,211,153,0.3); --shadow-focus-accent: 0 0 0 3px rgba(52,211,153,0.15);
+ --shadow-glow: 0 0 24px rgba(52,211,153,0.2);
 }
 body[data-accent="rose"] {
  --color-accent: #f43f5e; --color-accent-hover: #e11d48; --color-accent-soft: #ffe4e6; --color-accent-text: #9f1239;
- --gradient-accent: linear-gradient(135deg, #fb7185, #f43f5e); --shadow-btn-accent: 0 2px 8px rgba(244,63,94,0.25);
+ --gradient-accent: linear-gradient(135deg, #fb7185, #f43f5e);
+ --shadow-btn-accent: 0 2px 8px rgba(244,63,94,0.25); --shadow-focus-accent: 0 0 0 3px rgba(244,63,94,0.12);
+ --shadow-glow: 0 0 20px rgba(244,63,94,0.15);
 }
 html.dark body[data-accent="rose"] {
  --color-accent: #fb7185; --color-accent-hover: #fda4af; --color-accent-soft: rgba(251,113,133,0.15); --color-accent-text: #fecdd3;
- --gradient-accent: linear-gradient(135deg, #fda4af, #fb7185); --shadow-btn-accent: 0 2px 8px rgba(251,113,133,0.3);
+ --gradient-accent: linear-gradient(135deg, #fda4af, #fb7185);
+ --shadow-btn-accent: 0 2px 8px rgba(251,113,133,0.3); --shadow-focus-accent: 0 0 0 3px rgba(251,113,133,0.15);
+ --shadow-glow: 0 0 24px rgba(251,113,133,0.2);
 }
 body[data-accent="sky"] {
  --color-accent: #0ea5e9; --color-accent-hover: #0284c7; --color-accent-soft: #e0f2fe; --color-accent-text: #075985;
- --gradient-accent: linear-gradient(135deg, #38bdf8, #0ea5e9); --shadow-btn-accent: 0 2px 8px rgba(14,165,233,0.25);
+ --gradient-accent: linear-gradient(135deg, #38bdf8, #0ea5e9);
+ --shadow-btn-accent: 0 2px 8px rgba(14,165,233,0.25); --shadow-focus-accent: 0 0 0 3px rgba(14,165,233,0.12);
+ --shadow-glow: 0 0 20px rgba(14,165,233,0.15);
 }
 html.dark body[data-accent="sky"] {
  --color-accent: #38bdf8; --color-accent-hover: #7dd3fc; --color-accent-soft: rgba(56,189,248,0.15); --color-accent-text: #bae6fd;
- --gradient-accent: linear-gradient(135deg, #7dd3fc, #38bdf8); --shadow-btn-accent: 0 2px 8px rgba(56,189,248,0.3);
+ --gradient-accent: linear-gradient(135deg, #7dd3fc, #38bdf8);
+ --shadow-btn-accent: 0 2px 8px rgba(56,189,248,0.3); --shadow-focus-accent: 0 0 0 3px rgba(56,189,248,0.15);
+ --shadow-glow: 0 0 24px rgba(56,189,248,0.2);
 }
 
 /* ── Base ── */
@@ -303,12 +321,12 @@ html.dark body[data-accent="sky"] {
  color: var(--color-accent-text);
  font-weight: 600;
  border-radius: var(--radius-full);
- border: 1px solid rgba(217,119,6,0.15);
+ border: 1px solid var(--color-accent-soft);
  }
  .dark .date-badge {
  background: var(--color-accent-soft);
  color: var(--color-accent-text);
- border-color: rgba(245,158,11,0.2);
+ border-color: var(--color-accent-soft);
  }
 
  /* ── Checkbox / Todo ── */
@@ -377,23 +395,32 @@ html.dark body[data-accent="sky"] {
  border-radius: var(--radius-md);
  transition: all var(--duration-fast) var(--ease-out);
  }
+ /* ── Toggle switch: checked state uses accent color ── */
+ .peer:checked ~ .toggle-track { background: var(--color-accent) !important; }
+
+ /* ── Background preset ring: accent color when checked ── */
+ .peer:checked ~ .peer-checked\:ring-2 { --tw-ring-color: var(--color-accent); }
+
+ /* ── File input button: theme-aware ── */
+ input[type="file"]::file-selector-button {
+ background: var(--color-surface-elevated);
+ color: var(--color-text-muted);
+ }
+ input[type="file"]::file-selector-button:hover {
+ background: var(--color-border);
+ }
+
  .input-premium:focus {
  border-color: var(--color-accent);
- box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+ box-shadow: var(--shadow-focus-accent);
  outline: none;
- }
- .dark .input-premium:focus {
- box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
  }
 
  /* ── Focus ring (replaces Tailwind focus:ring-amber-400) ── */
  .focus-accent:focus {
  outline: none;
  border-color: var(--color-accent);
- box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
- }
- .dark .focus-accent:focus {
- box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+ box-shadow: var(--shadow-focus-accent);
  }
 
  /* ── Usage Hint (unified tip block) ── */
@@ -574,10 +601,10 @@ html.dark body[data-accent="sky"] {
  }
  .toast.toast-success { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; box-shadow: 0 4px 16px rgba(22,163,74,0.12); }
  .toast.toast-error { background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca; box-shadow: 0 4px 16px rgba(220,38,38,0.12); }
- .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid rgba(217,119,6,0.25); box-shadow: 0 4px 16px rgba(217,119,6,0.12); }
+ .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid var(--color-accent-text); box-shadow: var(--shadow-focus-accent); }
  .dark .toast.toast-success { background: #052e16; color: #bbf7d0; border-color: #166534; box-shadow: 0 4px 16px rgba(22,163,74,0.2); }
  .dark .toast.toast-error { background: #450a0a; color: #fecaca; border-color: #7f1d1d; box-shadow: 0 4px 16px rgba(220,38,38,0.2); }
- .dark .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border-color: rgba(245,158,11,0.3); box-shadow: 0 4px 16px rgba(245,158,11,0.2); }
+ .dark .toast.toast-info { background: var(--color-accent-soft); color: var(--color-accent-text); border-color: var(--color-accent-text); box-shadow: var(--shadow-focus-accent); }
  .toast.toast-hide { animation: toastSlideOut var(--duration-normal) var(--ease-in-out) forwards; }
  @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
  @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
@@ -1061,7 +1088,7 @@ html.dark body[data-accent="sky"] {
  --m-shadow-card-active: 0 1px 2px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.08);
  --m-shadow-elevated: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.1);
  --m-shadow-bottom-sheet: 0 -4px 32px rgba(0,0,0,0.12);
- --m-shadow-fab: 0 4px 14px rgba(217,119,6,0.3), 0 2px 6px rgba(0,0,0,0.08);
+ --m-shadow-fab: 0 4px 14px var(--color-accent, rgba(217,119,6,0.3)), 0 2px 6px rgba(0,0,0,0.08);
  --m-radius-card: 1.25rem;
  --m-radius-input: 0.875rem;
  --m-radius-button: 0.875rem;
@@ -1221,11 +1248,8 @@ html.dark body[data-accent="sky"] {
  }
  input:focus, select:focus, textarea:focus {
  border-color: var(--color-accent) !important;
- box-shadow: 0 0 0 3px rgba(217,119,6,0.12) !important;
+ box-shadow: var(--shadow-focus-accent) !important;
  outline: none !important;
- }
- .dark input:focus, .dark select:focus, .dark textarea:focus {
- box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
  }
 
  /* ── M-06: Buttons — native tactile ── */
@@ -1277,7 +1301,7 @@ html.dark body[data-accent="sky"] {
  }
  .fab:active {
  transform: scale(0.88) !important;
- box-shadow: 0 2px 8px rgba(217,119,6,0.2), 0 1px 3px rgba(0,0,0,0.06) !important;
+ box-shadow: var(--shadow-btn-accent) !important;
  }
 
  /* ── M-10: More Menu — native bottom sheet ── */
