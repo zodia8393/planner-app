@@ -82,22 +82,26 @@
  <span class="text-xs" style="color: var(--color-text-muted);">에너지:</span>
  <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"
  class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
- {% if not current_energy %} text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ {% if not current_energy %}btn-primary shadow-sm{% else %}border{% endif %}"
+ style="{% if current_energy %}background: var(--color-surface);{% endif %}">
  전체
  </a>
  <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=1"
- class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
- {% if current_energy == 1 %}bg-green-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap energy-btn
+ {% if current_energy == 1 %}energy-active shadow-sm{% else %}border{% endif %}"
+ style="{% if current_energy == 1 %}background: var(--color-success); color: #fff;{% else %}background: var(--color-surface);{% endif %}">
  🟢 저
  </a>
  <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=2"
- class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
- {% if current_energy == 2 %}bg-blue-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap energy-btn
+ {% if current_energy == 2 %}energy-active shadow-sm{% else %}border{% endif %}"
+ style="{% if current_energy == 2 %}background: var(--color-info); color: #fff;{% else %}background: var(--color-surface);{% endif %}">
  🔵 중
  </a>
  <a href="/todos?filter={{ current_filter }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}&energy=3"
- class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap
- {% if current_energy == 3 %}bg-red-600 text-white shadow-sm{% else %}border" style="background: var(--color-surface);{% endif %}">
+ class="btn-sm rounded-lg font-medium transition-colors whitespace-nowrap energy-btn
+ {% if current_energy == 3 %}energy-active shadow-sm{% else %}border{% endif %}"
+ style="{% if current_energy == 3 %}background: var(--color-danger); color: #fff;{% else %}background: var(--color-surface);{% endif %}">
  🔥 고
  </a>
  </div>
@@ -147,7 +151,7 @@
  </select>
  <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent flex-1 min-w-24">
- <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm text-amber-500 hover:underline whitespace-nowrap">+ 설명</button>
+ <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm hover:underline whitespace-nowrap" style="color: var(--color-accent);">+ 설명</button>
  </div>
  <!-- Reminder offsets for new todo -->
  <div class="mt-2">
@@ -172,7 +176,7 @@
  <button type="button" onclick="addNewTodoOffset()" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded text-amber-600">
+ <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
@@ -214,7 +218,7 @@
  <input type="date" name="rrule_until" id="addRruleUntil"
  class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
- <div id="addRrulePreview" class="text-[11px] text-amber-500"></div>
+ <div id="addRrulePreview" class="text-[11px]" style="color: var(--color-accent);"></div>
  </div>
  <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
  <textarea name="description" placeholder="설명 (선택)" rows="2"
@@ -228,8 +232,8 @@
  <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
  <button onclick="bulkSelectAll()" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
  <div class="flex-1"></div>
- <button onclick="bulkAction('complete')" class="btn-sm bg-green-600 text-white rounded-lg hover:bg-green-700">완료 처리</button>
- <button onclick="bulkAction('delete')" class="btn-sm bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
+ <button onclick="bulkAction('complete')" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
+ <button onclick="bulkAction('delete')" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
  <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs hover-text">취소</button>
 </div>
 
@@ -355,7 +359,7 @@ function bulkModeOff() {
  document.getElementById('bulkToggle').classList.remove('hidden');
  document.querySelectorAll('[data-todo-id]').forEach(function(el) {
  el.style.cursor = '';
- el.classList.remove('ring-2', 'ring-amber-400');
+ el.classList.remove('ring-2'); el.style.removeProperty('--tw-ring-color');
  el.removeEventListener('click', _bulkToggleItem);
  });
 }
@@ -364,17 +368,17 @@ function _bulkToggleItem(e) {
  var id = this.dataset.todoId;
  if (_bulkSelected.has(id)) {
  _bulkSelected.delete(id);
- this.classList.remove('ring-2', 'ring-amber-400');
+ this.classList.remove('ring-2'); this.style.removeProperty('--tw-ring-color');
  } else {
  _bulkSelected.add(id);
- this.classList.add('ring-2', 'ring-amber-400');
+ this.classList.add('ring-2'); this.style.setProperty('--tw-ring-color', 'var(--color-accent)');
  }
  _updateBulkUI();
 }
 function bulkSelectAll() {
  document.querySelectorAll('[data-todo-id]').forEach(function(el) {
  _bulkSelected.add(el.dataset.todoId);
- el.classList.add('ring-2', 'ring-amber-400');
+ el.classList.add('ring-2'); el.style.setProperty('--tw-ring-color', 'var(--color-accent)');
  });
  _updateBulkUI();
 }
@@ -401,7 +405,7 @@ if (location.hash === '#new') { var ti = document.querySelector('input[name="tit
  c.innerHTML = '';
  offsets.forEach(function(o, i) {
  var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':o.unit==='day'?'일':'주')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewTodoOffset('+i+')" class="text-amber-500 hover-danger">&times;</button></span>';
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">'+lbl+' <button type="button" onclick="removeNewTodoOffset('+i+')" class="hover-danger" style="color: var(--color-accent);">&times;</button></span>';
  });
  input.value = offsets.length ? JSON.stringify(offsets) : '';
  }

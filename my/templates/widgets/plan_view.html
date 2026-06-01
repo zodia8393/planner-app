@@ -51,7 +51,8 @@
  {% if plan_view == 'week' %}
  <div class="plan-week-grid grid grid-cols-1 lg:grid-cols-7 gap-2">
  {% for day in week_days %}
- <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-amber-400 ring-offset-2{% endif %}"
+ <div class="work-card rounded-xl overflow-hidden fade-in {% if day.is_today %}ring-2 ring-offset-2{% endif %}"
+ {% if day.is_today %}style="--tw-ring-color: var(--color-accent);"{% endif %}
  style="animation-delay: {{ loop.index0 * 40 }}ms">
  <div class="px-3 py-2 flex items-center justify-between"
  style="border-bottom: 1px solid var(--color-border-subtle); {% if day.is_today %}background: var(--color-accent-soft);{% elif day.is_weekend %}background: var(--color-border-subtle);{% endif %}">

@@ -149,7 +149,7 @@
  {% elif wd.date.weekday() == 6 %}text-red-400
  {% elif wd.date.weekday() == 5 %}text-blue-400
  {% else %}{% endif %}">{{ wd.date.day }}</span>
- <span class="text-xs font-medium {% if wd.is_today %}text-amber-600{% else %}{% endif %}">{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
+ <span class="text-xs font-medium" {% if wd.is_today %}style="color: var(--color-accent);"{% endif %}>{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
  </div>
  <div class="flex-1 flex flex-wrap gap-2">
  {% for ev in day_events %}
@@ -163,7 +163,7 @@
  {% endfor %}
  {% for todo in day_todos %}
  <div class="flex items-center gap-1 px-2 py-1 rounded">
- <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).finally(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
+ <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){b.classList.toggle('bg-emerald-500');b.classList.toggle('border-emerald-500');var s=p.querySelector('span');if(s)s.classList.toggle('line-through');if(b.innerHTML.trim())b.innerHTML='';else b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
  {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -235,7 +235,7 @@
  {% for todo in day_todos %}
  {% if ns.shown < 4 %}
  <div class="flex items-center gap-1 px-1 mb-0.5">
- <button onclick="event.stopPropagation();fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).finally(function(){location.reload()})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
+ <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){b.classList.toggle('bg-emerald-500');b.classList.toggle('border-emerald-500');var s=p.querySelector('span');if(s)s.classList.toggle('line-through');if(b.innerHTML.trim())b.innerHTML='';else b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
  {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -349,12 +349,12 @@
  <button type="button" onclick="addNewEventOffset()" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newEventUseDefault" checked onchange="toggleNewEventDefault()" class="w-3.5 h-3.5 rounded text-amber-600">
+ <input type="checkbox" id="newEventUseDefault" checked onchange="toggleNewEventDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
  <label class="flex items-center gap-2 cursor-pointer">
- <input type="checkbox" name="also_todo" value="1" class="w-4 h-4 rounded text-amber-600">
+ <input type="checkbox" name="also_todo" value="1" class="w-4 h-4 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">할일에도 추가</span>
  </label>
  <button type="submit" class="btn-accent w-full py-2.5 rounded-xl text-sm">
@@ -415,7 +415,7 @@ if (location.hash === '#new') { var ti = document.querySelector('input[name="tit
  c.innerHTML = '';
  offsets.forEach(function(o, i) {
  var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeNewEventOffset('+i+')" class="text-amber-500 hover-danger">&times;</button></span>';
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">'+lbl+' <button type="button" onclick="removeNewEventOffset('+i+')" class="hover-danger" style="color: var(--color-accent);">&times;</button></span>';
  });
  input.value = offsets.length ? JSON.stringify(offsets) : '';
  }

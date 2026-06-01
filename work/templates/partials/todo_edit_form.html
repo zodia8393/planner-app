@@ -104,7 +104,7 @@
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="todoUseDefault_{{ todo.id }}" onchange="toggleEditTodoDefault({{ todo.id }})"
- {% if not todo.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded text-amber-600">
+ {% if not todo.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
@@ -170,7 +170,7 @@
  c.innerHTML = '';
  offsets.forEach(function(o, i) {
  var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':o.unit==='day'?'일':'주')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">'+lbl+' <button type="button" onclick="removeEditTodoOffset('+tid+','+i+')" class="text-amber-500 hover-danger">&times;</button></span>';
+ c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">'+lbl+' <button type="button" onclick="removeEditTodoOffset('+tid+','+i+')" class="hover-danger" style="color: var(--color-accent);">&times;</button></span>';
  });
  input.value = offsets.length ? JSON.stringify(offsets) : '';
  }

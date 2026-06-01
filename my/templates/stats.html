@@ -63,11 +63,11 @@
  </div>
  <div class="flex items-center justify-end gap-1.5 mt-2 text-xs" style="font-size:11px">
  <span>적음</span>
- <span style="width:12px;height:12px;border-radius:2px;background:#ddd9d6" class="dark:hidden inline-block"></span><span style="width:12px;height:12px;border-radius:2px;background:#3c3835" class="hidden dark:inline-block"></span>
- <span style="width:12px;height:12px;border-radius:2px;background:#fde68a" class="inline-block"></span>
- <span style="width:12px;height:12px;border-radius:2px;background:#f59e0b" class="inline-block"></span>
- <span style="width:12px;height:12px;border-radius:2px;background:#16a34a" class="inline-block"></span>
- <span style="width:12px;height:12px;border-radius:2px;background:#166534" class="inline-block"></span>
+ <span style="width:12px;height:12px;border-radius:2px;background:var(--color-border)" class="inline-block"></span>
+ <span style="width:12px;height:12px;border-radius:2px;background:var(--color-accent);opacity:0.25" class="inline-block"></span>
+ <span style="width:12px;height:12px;border-radius:2px;background:var(--color-accent);opacity:0.5" class="inline-block"></span>
+ <span style="width:12px;height:12px;border-radius:2px;background:var(--color-accent);opacity:0.75" class="inline-block"></span>
+ <span style="width:12px;height:12px;border-radius:2px;background:var(--color-accent)" class="inline-block"></span>
  <span>많음</span>
  </div>
 </div>
@@ -254,8 +254,10 @@ document.addEventListener('DOMContentLoaded', function() {
  var dayOfWeek = start.getDay();
  var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
  start.setDate(start.getDate() + mondayOffset);
- var emptyColor = isDark ? '#3c3835' : '#ddd9d6';
- var colors = [emptyColor, '#fde68a', '#f59e0b', '#16a34a', '#166534'];
+ var cs = getComputedStyle(document.documentElement);
+ var emptyColor = cs.getPropertyValue('--color-border').trim() || (isDark ? '#3c3835' : '#ddd9d6');
+ var accentColor = cs.getPropertyValue('--color-accent').trim() || '#d97706';
+ var colors = [emptyColor, accentColor+'40', accentColor+'80', accentColor+'BF', accentColor];
  var current = new Date(start);
  while (current <= today) {
  var col = document.createElement('div');

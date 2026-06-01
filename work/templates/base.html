@@ -24,10 +24,10 @@
  {% block head_extra %}{% endblock %}
  <script src="/static/notifications.js" defer></script>
  <script src="/static/shortcuts.js" defer></script>
- <link rel="stylesheet" href="/static/css/app.css?v=3">
+ <link rel="stylesheet" href="/static/css/app.css?v=4">
 </head>
 <body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
-<script>(function(){var a=localStorage.getItem('accent_color');if(a)document.body.dataset.accent=a;var f=localStorage.getItem('font_size');if(f){document.body.dataset.fontsize=f;var m={small:'13px',medium:'14px',large:'16px'};document.documentElement.style.fontSize=m[f]||'14px'}})()</script>
+<script>(function(){var a=localStorage.getItem('accent_color');if(a)document.body.dataset.accent=a;var f=localStorage.getItem('font_size');if(f){document.body.dataset.fontsize=f;var m={small:'13px',medium:'14px',large:'16px'};document.documentElement.style.fontSize=m[f]||'14px'}var colorMap={amber:'#d97706',indigo:'#6366f1',emerald:'#10b981',rose:'#f43f5e',sky:'#0ea5e9'};var meta=document.querySelector('meta[name="theme-color"]');if(meta&&a)meta.content=colorMap[a]||'#d97706';})()</script>
 
 <!-- Background Layer -->
 <div id="bgLayer">
@@ -107,95 +107,93 @@
  </svg>
  오늘
  </a>
- <a href="/timetable" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if page == 'timetable' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
- </svg>
- 타임테이블
- </a>
- <a href="/habits" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium {% if page == 'habits' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
- <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
- </svg>
- 습관
- </a>
+ <!-- Favorites section (dynamically populated by JS) -->
+ <div id="sidebarFavorites" class="sidebar-favorites hidden">
+  <div class="text-xs font-medium px-3 py-1.5" style="color: var(--color-text-faint);">즐겨찾기</div>
+ </div>
 
  <!-- Divider -->
  <div class="my-2 mx-2" style="border-top: 1px solid var(--color-border);"></div>
 
  <!-- More pages (collapsible) -->
- <details class="sidebar-more" {% if page in ['worklogs','memos','notices','todo-templates','automations','ddays','links','stats','review','search'] %}open{% endif %}>
+ <details class="sidebar-more" id="sidebarMore" {% if page in ['timetable','habits','worklogs','memos','notices','todo-templates','automations','ddays','links','stats','review','search'] %}open{% endif %}>
  <summary class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer select-none" style="color: var(--color-text-faint); list-style: none;">
- <svg class="w-5 h-5 flex-shrink-0 sidebar-more-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
- </svg>
- 더보기
- <svg class="w-3.5 h-3.5 ml-auto sidebar-chevron" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
- </svg>
+  <svg class="w-5 h-5 flex-shrink-0 sidebar-more-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+  </svg>
+  더보기
+  <svg class="w-3.5 h-3.5 ml-auto sidebar-chevron" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
  </summary>
- <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 2px;">
- <a href="/worklogs" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'worklogs' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
- </svg>
- 업무일지
+ <div id="sidebarMoreContent" style="display: flex; flex-direction: column; gap: 2px; margin-top: 2px;">
+ <a href="/timetable" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'timetable' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/timetable">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/timetable')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  타임테이블
  </a>
- <a href="/memos" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'memos' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
- </svg>
- 메모
+ <a href="/habits" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'habits' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/habits">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/habits')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /></svg>
+  습관
  </a>
- <a href="/notices" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'notices' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
- </svg>
- 공지사항
+ <a href="/worklogs" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'worklogs' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/worklogs">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/worklogs')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
+  업무일지
  </a>
- <a href="/todo-templates" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'todo-templates' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
- </svg>
- 할일 템플릿
+ <a href="/memos" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'memos' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/memos">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/memos')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+  메모
  </a>
- <a href="/automations" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'automations' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
- </svg>
- 자동화
+ <a href="/notices" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'notices' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/notices">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/notices')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" /></svg>
+  공지사항
  </a>
- <a href="/ddays" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'ddays' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
- </svg>
- D-day
+ <a href="/todo-templates" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'todo-templates' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/todo-templates">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/todo-templates')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>
+  할일 템플릿
  </a>
- <a href="/links" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'links' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
- </svg>
- 링크
+ <a href="/automations" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'automations' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/automations">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/automations')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+  자동화
  </a>
- <a href="/stats" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'stats' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
- </svg>
- 통계
+ <a href="/ddays" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'ddays' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/ddays">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/ddays')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+  D-day
  </a>
- <a href="/review" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'review' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
- </svg>
- 리뷰
+ <a href="/links" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'links' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/links">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/links')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+  링크
  </a>
- <a href="/search" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'search' %}nav-active{% endif %}" style="color: var(--color-text-muted);">
- <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
- </svg>
- 검색
+ <a href="/stats" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'stats' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/stats">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/stats')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+  통계
  </a>
+ <a href="/review" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'review' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/review">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/review')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" /></svg>
+  리뷰
+ </a>
+ <a href="/search" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'search' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/search">
+  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/search')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" /></svg>
+  검색
+ </a>
+ <!-- Hide button (visible when details is open) -->
+ <button id="sidebarHideBtn" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium w-full text-left" style="color: var(--color-text-faint);" onclick="closeSidebarMore()">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+  </svg>
+  숨기기
+ </button>
  </div>
  </details>
 
@@ -258,7 +256,7 @@
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
  </svg>
- <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none">0</span>
+ <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none" style="background: var(--color-danger);">0</span>
  </button>
  <!-- Notification dropdown -->
  <div id="notifPanel" class="hidden absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl z-50"
@@ -588,6 +586,137 @@
  </div>
  </div>
 </div>
+
+<!-- ══ Sidebar Favorites JS ══ -->
+<script>
+(function(){
+ var STORAGE_KEY = 'sidebar_favorites';
+
+ function getFavorites(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
+ }
+ function saveFavorites(favs){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
+ }
+
+ // Current page path
+ var currentPath = window.location.pathname;
+
+ // Toggle favorite
+ window.toggleFavorite = function(href){
+  var favs = getFavorites();
+  var idx = favs.indexOf(href);
+  if(idx > -1){ favs.splice(idx, 1); } else { favs.push(href); }
+  saveFavorites(favs);
+  renderFavorites();
+  updateStarStates();
+ };
+
+ // Close sidebar more (details)
+ window.closeSidebarMore = function(){
+  var details = document.getElementById('sidebarMore');
+  if(details) details.removeAttribute('open');
+ };
+
+ // Update star states in the more section
+ function updateStarStates(){
+  var favs = getFavorites();
+  var stars = document.querySelectorAll('#sidebarMoreContent .fav-star');
+  stars.forEach(function(btn){
+   var link = btn.closest('a[data-sidebar-href]');
+   if(!link) return;
+   var href = link.getAttribute('data-sidebar-href');
+   var svg = btn.querySelector('svg');
+   if(favs.indexOf(href) > -1){
+    btn.classList.add('active');
+    if(svg) svg.setAttribute('fill', 'currentColor');
+   } else {
+    btn.classList.remove('active');
+    if(svg) svg.setAttribute('fill', 'none');
+   }
+  });
+ }
+
+ // Render favorites section
+ function renderFavorites(){
+  var container = document.getElementById('sidebarFavorites');
+  if(!container) return;
+  var favs = getFavorites();
+
+  // Remove old fav items (keep the label div)
+  var oldItems = container.querySelectorAll('.fav-item');
+  oldItems.forEach(function(el){ el.remove(); });
+
+  if(favs.length === 0){
+   container.classList.add('hidden');
+   return;
+  }
+
+  container.classList.remove('hidden');
+
+  // For each favorite, clone the link from the more section
+  favs.forEach(function(href){
+   var original = document.querySelector('#sidebarMoreContent a[data-sidebar-href="'+href+'"]');
+   if(!original) return;
+
+   var clone = original.cloneNode(true);
+   clone.classList.add('fav-item');
+   clone.removeAttribute('data-sidebar-href');
+
+   // Update the star button in the clone to be filled and to remove on click
+   var starBtn = clone.querySelector('.fav-star');
+   if(starBtn){
+    starBtn.classList.add('active');
+    var svg = starBtn.querySelector('svg');
+    if(svg) svg.setAttribute('fill', 'currentColor');
+    starBtn.setAttribute('onclick', "event.preventDefault();event.stopPropagation();toggleFavorite('"+href+"')");
+   }
+
+   // Ensure nav-active is correct
+   if(currentPath === href){
+    clone.classList.add('nav-active');
+   } else {
+    clone.classList.remove('nav-active');
+   }
+
+   container.appendChild(clone);
+  });
+ }
+
+ // Handle details open/close for summary visibility
+ var details = document.getElementById('sidebarMore');
+ if(details){
+  // Use MutationObserver to detect open/close
+  var observer = new MutationObserver(function(){
+   var summary = details.querySelector('summary');
+   var hideBtn = document.getElementById('sidebarHideBtn');
+   if(details.open){
+    if(summary) summary.style.display = 'none';
+    if(hideBtn) hideBtn.style.display = '';
+   } else {
+    if(summary) summary.style.display = '';
+    if(hideBtn) hideBtn.style.display = 'none';
+   }
+  });
+  observer.observe(details, { attributes: true, attributeFilter: ['open'] });
+
+  // Initial state
+  var summary = details.querySelector('summary');
+  var hideBtn = document.getElementById('sidebarHideBtn');
+  if(details.open){
+   if(summary) summary.style.display = 'none';
+   if(hideBtn) hideBtn.style.display = '';
+  } else {
+   if(hideBtn) hideBtn.style.display = 'none';
+  }
+ }
+
+ // Init on DOM ready
+ renderFavorites();
+ updateStarStates();
+})();
+</script>
 
 <!-- ══ Part 2: Mobile UX JS (I: Bottom Sheet, K: Swipe, Q: Long-press) ══ -->
 

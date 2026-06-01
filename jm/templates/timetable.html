@@ -76,9 +76,9 @@
  <svg id="timetableSvg" viewBox="0 0 400 400" class="w-full h-auto" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));" aria-label="원형 타임테이블" role="img">
  <title>{{ target_month }}월 {{ target_day }}일 타임테이블</title>
  <!-- Background circles -->
- <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border, #e2e8f0);"/>
- <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.4;"/>
- <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border, #e2e8f0); opacity: 0.3;"/>
+ <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border);"/>
+ <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.4;"/>
+ <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.3;"/>
 
  <!-- Hour ticks and labels -->
  {% for h in range(24) %}
@@ -87,14 +87,14 @@
  x1="{{ 200 + 175 * (angle | cos_deg) }}" y1="{{ 200 + 175 * (angle | sin_deg) }}"
  x2="{{ 200 + 185 * (angle | cos_deg) }}" y2="{{ 200 + 185 * (angle | sin_deg) }}"
  stroke-width="{% if h % 6 == 0 %}2{% else %}1{% endif %}"
- style="stroke: var(--color-text-faint, #94a3b8);"
+ style="stroke: var(--color-text-faint);"
  />
  <text
  x="{{ 200 + 194 * (angle | cos_deg) }}"
  y="{{ 200 + 194 * (angle | sin_deg) }}"
  text-anchor="middle" dominant-baseline="central"
  class="select-none"
- style="font-size: {% if h % 3 == 0 %}10{% else %}8{% endif %}px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint, #94a3b8);">
+ style="font-size: {% if h % 3 == 0 %}10{% else %}8{% endif %}px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint);">
  {{ h }}
  </text>
  {% endfor %}
@@ -194,17 +194,17 @@
  x2="200" y2="30"
  stroke-width="2"
  stroke-linecap="round"
- style="stroke: var(--color-accent, #d97706);"
+ style="stroke: var(--color-accent);"
  transform="rotate(0, 200, 200)"
  />
- <circle cx="200" cy="200" r="4" style="fill: var(--color-accent, #d97706);"/>
+ <circle cx="200" cy="200" r="4" style="fill: var(--color-accent);"/>
  {% endif %}
 
  <!-- Center text -->
- <text x="200" y="192" text-anchor="middle" style="font-size: 15px; font-weight: 800; fill: var(--color-text, #1e293b);">
+ <text x="200" y="192" text-anchor="middle" style="font-size: 15px; font-weight: 800; fill: var(--color-text);">
  {{ target_month }}/{{ target_day }}
  </text>
- <text x="200" y="210" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: var(--color-text-muted, #64748b);">
+ <text x="200" y="210" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: var(--color-text-muted);">
  {{ target_weekday }}요일
  </text>
  </svg>
@@ -266,7 +266,7 @@
  hx-target="#block-row-{{ b.id }}"
  hx-swap="outerHTML"
  class="p-1 rounded hover-danger-bg" title="삭제" aria-label="삭제">
- <svg class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <svg class="w-3.5 h-3.5" style="color: var(--color-danger);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
  </svg>
  </button>
@@ -399,8 +399,8 @@
  <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);" data-todo-id="{{ t.id }}">
  <button hx-post="/todos/{{ t.id }}/toggle" hx-swap="none"
  hx-on::after-request="toggleTimetableTodo(this)"
- class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0
- {% if t.completed %}bg-amber-500 border-amber-500{% else %}{% endif %}">
+ class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0"
+ {% if t.completed %}style="background: var(--color-accent); border-color: var(--color-accent);"{% endif %}>
  {% if t.completed %}<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
  </button>
  <span class="text-sm truncate {% if t.completed %}line-through{% endif %}" style="color: var(--color-text);">{{ t.title }}</span>
@@ -418,7 +418,7 @@
  <div class="work-card rounded-xl overflow-hidden">
  <div class="section-header">
  <h3>
- <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-success, #10b981);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-success);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  여유 시간
  </h3>
  </div>
@@ -440,10 +440,12 @@ function toggleTimetableTodo(btn) {
  var title = item.querySelector('span.text-sm');
  if (title) title.classList.toggle('line-through');
  if (wasDone) {
-  btn.classList.remove('bg-amber-500', 'border-amber-500');
+  btn.style.background = '';
+  btn.style.borderColor = '';
   btn.innerHTML = '';
  } else {
-  btn.classList.add('bg-amber-500', 'border-amber-500');
+  btn.style.background = 'var(--color-accent)';
+  btn.style.borderColor = 'var(--color-accent)';
   btn.innerHTML = '<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
  }
 }
@@ -655,7 +657,7 @@ document.getElementById('blockFormEl').addEventListener('submit', function(e) {
  html += '<span class="text-xs font-medium" style="color: var(--color-text-muted);">' +
  String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' ~ ' +
  String(eh).padStart(2,'0') + ':' + String(em).padStart(2,'0') + '</span>';
- html += '<span class="text-xs font-semibold" style="color: var(--color-success, #10b981);">' + durLabel + ' 여유</span>';
+ html += '<span class="text-xs font-semibold" style="color: var(--color-success);">' + durLabel + ' 여유</span>';
  html += '</div>';
  });
  html += '</div>';

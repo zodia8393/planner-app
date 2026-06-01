@@ -33,12 +33,12 @@
  {% set total_subs = todo.subtasks|length %}
  <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ done_subs }}/{{ total_subs }}</span>
  {% endif %}
- <span class="text-xs px-2 py-0.5 rounded-full font-medium
- {% if todo.priority == 0 %}bg-red-500 text-white
- {% elif todo.priority == 1 %}bg-orange-500 text-white
- {% elif todo.priority == 3 %}text-white" style="background: var(--color-text-muted);
- {% else %}{{ priority_map[todo.priority].bg }} {{ priority_map[todo.priority].text }}{% endif %}">{{ priority_map[todo.priority].label }}</span>
- {% if todo.energy_level == 3 %}<span class="text-xs text-red-500" title="고에너지">🔥</span>{% elif todo.energy_level == 1 %}<span class="text-xs text-green-500" title="저에너지">🟢</span>{% endif %}
+ <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+ style="{% if todo.priority == 0 %}background: var(--color-danger); color: #fff;
+ {% elif todo.priority == 1 %}background: var(--color-warning); color: #fff;
+ {% elif todo.priority == 3 %}background: var(--color-text-muted); color: #fff;
+ {% else %}background: var(--color-info-soft); color: var(--color-info);{% endif %}">{{ priority_map[todo.priority].label }}</span>
+ {% if todo.energy_level == 3 %}<span class="text-xs" style="color: var(--color-danger);" title="고에너지">🔥</span>{% elif todo.energy_level == 1 %}<span class="text-xs" style="color: var(--color-success);" title="저에너지">🟢</span>{% endif %}
  {% if todo.category_name %}
  <span class="inline-flex items-center gap-1 text-xs" style="color: var(--color-text-muted);">
  <span class="w-2 h-2 rounded-full" style="background:{{ todo.category_color }}"></span>
@@ -49,7 +49,7 @@
  <span class="text-xs" style="color: var(--color-text-muted);">🔄 {{ repeat_map.get(todo.repeat_type, '') }}</span>
  {% endif %}
  {% if todo.reminder_offsets %}
- <span class="text-xs text-amber-500" title="개별 알림 설정됨">🔔</span>
+ <span class="text-xs" style="color: var(--color-accent);" title="개별 알림 설정됨">🔔</span>
  {% endif %}
  </div>
 
@@ -59,7 +59,7 @@
 
  <div class="flex items-center gap-3 mt-1.5 flex-wrap">
  {% if todo.due_date %}
- <span class="text-xs {% if not todo.completed and todo.due_date < today.isoformat() %}text-red-500 font-medium{% else %}{% endif %}">
+ <span class="text-xs {% if not todo.completed and todo.due_date < today.isoformat() %}font-medium{% else %}{% endif %}" {% if not todo.completed and todo.due_date < today.isoformat() %}style="color: var(--color-danger);"{% endif %}>
  📅 {{ todo.due_date|relative_date }}
  </span>
  {% endif %}
