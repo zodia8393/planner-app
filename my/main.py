@@ -1504,6 +1504,216 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
     })
 
 
+# ── Achievements & Push & Quick-add & Import/Export ──
+
+@app.get("/achievements", response_class=HTMLResponse)
+async def achievements_page(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        try:
+            check_achievements(conn, pid)
+            achievements = get_earned_achievements(conn, pid)
+            streak = get_completion_streak(conn, pid)
+            total = get_total_completed(conn, pid)
+            earned_count = sum(1 for a in achievements if a["earned"])
+        except Exception:
+            achievements = []; streak = 0; total = 0; earned_count = 0
+    return render(request, "achievements.html", {
+        "page": "achievements",
+        "achievements": achievements,
+        "streak": streak,
+        "total_completed": total,
+        "earned_count": earned_count,
+        "total_count": len(achievements) if achievements else len(ACHIEVEMENT_DEFS),
+    })
+
+
+@app.get("/api/achievements/check", response_class=JSONResponse)
+async def api_check_achievements(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        try:
+            newly = check_achievements(conn, pid)
+            streak = get_completion_streak(conn, pid)
+            today_count = get_today_completed_count(conn, pid)
+            today_total = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND due_date=?",
+                (pid, date.today().isoformat()),
+            ).fetchone()[0] or 0
+        except Exception:
+            newly = []; streak = 0; today_count = 0; today_total = 0
+    return JSONResponse({
+        "new_achievements": [{"icon": a["icon"], "title": a["title"], "desc": a["desc"]} for a in newly],
+        "streak": streak,
+        "today_completed": today_count,
+        "today_total": today_total,
+    })
+
+
+@app.get("/api/push/vapid-key", response_class=JSONResponse)
+async def api_vapid_key():
+    from common.webpush import get_vapid_public_key
+    return JSONResponse({"publicKey": get_vapid_public_key()})
+
+
+@app.post("/api/push/subscribe", response_class=JSONResponse)
+async def api_push_subscribe(request: Request):
+    pid = get_profile_id(request)
+    body = await request.json()
+    sub_json = json.dumps(body.get("subscription", body))
+    with get_db() as conn:
+        from common.webpush import save_subscription
+        save_subscription(conn, pid, sub_json)
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/push/unsubscribe", response_class=JSONResponse)
+async def api_push_unsubscribe(request: Request):
+    pid = get_profile_id(request)
+    body = await request.json()
+    endpoint = body.get("endpoint", "")
+    with get_db() as conn:
+        from common.webpush import remove_subscription
+        remove_subscription(conn, pid, endpoint)
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/push/test", response_class=JSONResponse)
+async def api_push_test(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        from common.webpush import send_push
+        send_push(conn, pid, "My Planner", "푸시 알림이 정상 동작합니다!", "/")
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/quick-add", response_class=JSONResponse)
+async def api_quick_add(request: Request):
+    pid = get_profile_id(request)
+    body = await request.json()
+    title = clamp_text(fix_mojibake(body.get("title", "")), 200).strip()
+    if not title:
+        return JSONResponse({"ok": False, "error": "제목이 필요합니다"}, status_code=400)
+    from common.nlp_date import extract_date_from_text
+    parsed_date, remaining_text = extract_date_from_text(title)
+    due_date = parsed_date.isoformat() if parsed_date else None
+    clean_title = remaining_text.strip() or title
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
+        conn.execute(
+            "INSERT INTO todos (title, due_date, priority, sort_order, profile_id) VALUES (?,?,?,?,?)",
+            (clean_title, due_date, 2, max_order + 1, pid),
+        )
+    return JSONResponse({"ok": True, "title": clean_title, "due_date": due_date})
+
+
+@app.post("/api/import/todos", response_class=JSONResponse)
+async def api_import_todos(request: Request):
+    pid = get_profile_id(request)
+    form = await request.form()
+    file = form.get("file")
+    source = form.get("source", "csv")
+    if not file:
+        return JSONResponse({"ok": False, "error": "파일이 필요합니다"}, status_code=400)
+    import csv as csv_mod
+    content = (await file.read()).decode("utf-8-sig", errors="replace")
+    reader = csv_mod.DictReader(io.StringIO(content))
+    count = 0
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
+        for row in reader:
+            if source == "todoist":
+                title = row.get("Content", row.get("content", "")).strip()
+                due = row.get("Due Date", row.get("due_date", "")).strip()
+                pri_str = row.get("Priority", row.get("priority", "")).strip()
+                pri_map = {"4": 0, "3": 1, "2": 2, "1": 3}
+                priority = int(pri_map.get(pri_str, 2))
+            else:
+                title = (row.get("title", "") or row.get("Title", "") or "").strip()
+                due = (row.get("due_date", "") or row.get("Due Date", "") or "").strip()
+                priority = safe_int(row.get("priority", "2"), 2)
+            if not title:
+                continue
+            if due and not validate_date_str(due):
+                due = None
+            max_order += 1
+            conn.execute(
+                "INSERT INTO todos (title, due_date, priority, sort_order, profile_id) VALUES (?,?,?,?,?)",
+                (clamp_text(title, 200), due or None, clamp_priority(priority), max_order, pid),
+            )
+            count += 1
+    return JSONResponse({"ok": True, "count": count})
+
+
+@app.get("/api/export/todos")
+async def api_export_todos(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT t.title, t.due_date, t.priority, t.completed, t.completed_at, c.name as category "
+            "FROM todos t LEFT JOIN categories c ON t.category_id=c.id WHERE t.profile_id=? ORDER BY t.created_at",
+            (pid,),
+        ).fetchall()
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["title", "due_date", "priority", "completed", "completed_at", "category"])
+    for r in rows:
+        writer.writerow([r["title"], r["due_date"] or "", r["priority"], r["completed"], r["completed_at"] or "", r["category"] or ""])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=todos_export.csv"},
+    )
+
+
+@app.get("/api/export/habits")
+async def api_export_habits(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT h.name, hl.log_date, hl.count, hl.completed "
+            "FROM habit_logs hl JOIN habits h ON hl.habit_id=h.id WHERE hl.profile_id=? ORDER BY hl.log_date",
+            (pid,),
+        ).fetchall()
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["habit_name", "date", "count", "completed"])
+    for r in rows:
+        writer.writerow([r["name"], r["log_date"], r["count"], r["completed"]])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=habits_export.csv"},
+    )
+
+
+@app.get("/api/export/worklogs")
+async def api_export_worklogs(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT wl.log_date, wl.title, wl.content, wl.hours, c.name as category "
+            "FROM work_logs wl LEFT JOIN categories c ON wl.category_id=c.id WHERE wl.profile_id=? ORDER BY wl.log_date",
+            (pid,),
+        ).fetchall()
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["date", "title", "content", "hours", "category"])
+    for r in rows:
+        writer.writerow([r["log_date"], r["title"], r["content"] or "", r["hours"], r["category"] or ""])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=worklogs_export.csv"},
+    )
+
+
 # ── Routes: Todos ──
 
 
