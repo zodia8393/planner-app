@@ -1,7 +1,7 @@
 {% extends"base.html" %}
 {% block title %}타임테이블 - JM Planner{% endblock %}
 {% block page_title %}타임테이블{% endblock %}
-{% block page_subtitle %}{{ target_date }}{% endblock %}
+{% block page_subtitle %}일과 스케줄 관리{% endblock %}
 
 {% block content %}
 <!-- Date navigation -->
@@ -77,8 +77,8 @@
  <title>{{ target_month }}월 {{ target_day }}일 타임테이블</title>
  <!-- Background circles -->
  <circle cx="200" cy="200" r="185" fill="none" stroke-width="1" style="stroke: var(--color-border);"/>
- <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.4;"/>
- <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.3;"/>
+ <circle cx="200" cy="200" r="155" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.5;"/>
+ <circle cx="200" cy="200" r="120" fill="none" stroke-width="0.5" style="stroke: var(--color-border); opacity: 0.4;"/>
 
  <!-- Hour ticks and labels -->
  {% for h in range(24) %}
@@ -89,14 +89,16 @@
  stroke-width="{% if h % 6 == 0 %}2{% else %}1{% endif %}"
  style="stroke: var(--color-text-faint);"
  />
+ {% if h % 3 == 0 %}
  <text
  x="{{ 200 + 194 * (angle | cos_deg) }}"
  y="{{ 200 + 194 * (angle | sin_deg) }}"
  text-anchor="middle" dominant-baseline="central"
  class="select-none"
- style="font-size: {% if h % 3 == 0 %}10{% else %}8{% endif %}px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint);">
+ style="font-size: 10px; font-weight: {% if h % 6 == 0 %}700{% else %}400{% endif %}; fill: var(--color-text-faint);">
  {{ h }}
  </text>
+ {% endif %}
  {% endfor %}
 
  <!-- OUTER TRACK: User-defined timetable blocks (r: 130~170) -->
@@ -255,7 +257,7 @@
  </p>
  <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
  </div>
- <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
+ <div class="flex items-center gap-1 opacity-60 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0 {% if edit_day_type == 'today' %}hidden{% endif %}">
  <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
  class="p-1 rounded hover-surface" title="편집" aria-label="편집">
  <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

@@ -1,6 +1,6 @@
 {% from"widgets/_widget_wrapper.html" import widget %}
 {% call widget('widget-insights', '이번 주 인사이트') %}
-{% if insights %}
+{% if insights and insights.this_week_completed > 0 %}
 <div class="work-card rounded-xl p-4">
  <div class="flex items-center justify-between mb-3">
   <h3 class="text-sm font-extrabold" style="color: var(--color-text); letter-spacing: -0.01em;">이번 주 하이라이트</h3>

@@ -1086,7 +1086,7 @@ def _run_automation_rules(conn, pid, today_str):
 
 
 # ── Include common routers ──
-from common.routers import memos as _r_memos, notices as _r_notices
+from common.routers import memos as _r_memos
 from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos
 from common.routers import settings as _r_settings, misc as _r_misc
@@ -1118,7 +1118,6 @@ app.state.auth_cookie_name = "jm_profile"
 app.state.auth_cookie_max_age = 365 * 24 * 3600
 
 app.include_router(_r_memos.router)
-app.include_router(_r_notices.router)
 app.include_router(_r_worklogs.router)
 app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
@@ -1263,10 +1262,6 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         """, (pid,)).fetchall()
 
         categories = conn.execute("SELECT * FROM categories ORDER BY sort_order").fetchall()
-
-        recent_notices = conn.execute("""
-            SELECT * FROM notices ORDER BY pinned DESC, created_at DESC LIMIT 2
-        """).fetchall()
 
         today_worklogs = conn.execute("""
             SELECT wl.*, c.name as category_name, c.color as category_color
@@ -1436,7 +1431,6 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "today_todos": [dict(r) for r in today_todos],
         "week_events": [dict(r) for r in week_events],
         "recent_memos": [dict(r) for r in recent_memos],
-        "recent_notices": [dict(r) for r in recent_notices],
         "today_worklogs": [dict(r) for r in today_worklogs],
         "today_work_hours": today_work_hours,
         "categories": [dict(r) for r in categories],
@@ -3083,6 +3077,9 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
             end_h = int(ep[0]) + int(ep[1]) / 60.0
         except (ValueError, IndexError, KeyError):
             continue
+        # Clamp invalid times exceeding 24:00
+        start_h = min(start_h, 24.0)
+        end_h = min(end_h, 24.0)
         if end_h <= start_h:
             end_h = 24.0  # wrap past midnight
         outer_blocks.append({
@@ -3184,6 +3181,9 @@ async def create_timetable_block(request: Request,
     time_re = re.compile(r'^\d{2}:\d{2}$')
     if not time_re.match(start_time) or not time_re.match(end_time):
         return redirect(request, "/timetable")
+    # Reject times exceeding 24:00
+    if start_time > "24:00" or end_time > "24:00":
+        return redirect(request, "/timetable")
     if end_time <= start_time:
         return redirect(request, "/timetable")
     if day_type not in DAY_TYPE_ORDER:
@@ -3216,6 +3216,9 @@ async def update_timetable_block(request: Request, block_id: int,
     import re
     time_re = re.compile(r'^\d{2}:\d{2}$')
     if not time_re.match(start_time) or not time_re.match(end_time):
+        return redirect(request, "/timetable")
+    # Reject times exceeding 24:00
+    if start_time > "24:00" or end_time > "24:00":
         return redirect(request, "/timetable")
     if end_time <= start_time:
         return redirect(request, "/timetable")

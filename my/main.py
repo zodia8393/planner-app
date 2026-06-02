@@ -1062,7 +1062,7 @@ def redirect(request: Request, url: str):
 
 
 # ── Include common routers ──
-from common.routers import memos as _r_memos, notices as _r_notices
+from common.routers import memos as _r_memos
 from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos
 from common.routers import settings as _r_settings, misc as _r_misc
@@ -1093,7 +1093,6 @@ app.state.auth_cookie_max_age = 365 * 24 * 3600
 app.state.ensure_default_categories = ensure_default_categories
 
 app.include_router(_r_memos.router)
-app.include_router(_r_notices.router)
 app.include_router(_r_worklogs.router)
 app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
@@ -1323,16 +1322,6 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             (pid, today_str),
         ).fetchone()[0]
 
-        # Dashboard: recent notices (same network group)
-        network_group = get_network_group(request)
-        recent_notices = conn.execute("""
-            SELECT n.*, p.name as author_name
-            FROM notices n LEFT JOIN profiles p ON n.profile_id = p.id
-            WHERE n.network_group = ?
-            ORDER BY n.pinned DESC, n.created_at DESC
-            LIMIT 2
-        """, (network_group,)).fetchall()
-
         tb_monday = today - timedelta(days=today.weekday())
         tb_sunday = tb_monday + timedelta(days=6)
         time_budgets_raw = conn.execute("""
@@ -1485,7 +1474,6 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "project_progress": [dict(r) for r in project_progress],
         "today_worklogs": [dict(r) for r in today_worklogs],
         "today_work_hours": round(today_worklogs_hours, 1),
-        "recent_notices": [dict(r) for r in recent_notices],
         "time_budgets": time_budgets,
         "over_budget": over_budget,
         "priority_map": PRIORITY_MAP,
@@ -3135,6 +3123,7 @@ async def timetable_page(request: Request, dt: str = "", day_type: str = ""):
             sp=ub["start_time"].split(":"); ep=ub["end_time"].split(":")
             start_h=int(sp[0])+int(sp[1])/60.0; end_h=int(ep[0])+int(ep[1])/60.0
         except Exception: continue
+        start_h = min(start_h, 24.0); end_h = min(end_h, 24.0)
         if end_h <= start_h: end_h = 24.0
         outer_blocks.append({"type":"user_block","title":f"{ub.get('icon','')} {ub['title']}".strip(),"start_hour":start_h,"end_hour":end_h,"color":ub.get("color") or "#6366f1","id":ub["id"],"raw_start":ub["start_time"],"raw_end":ub["end_time"]})
     outer_blocks.sort(key=lambda b: b["start_hour"])
@@ -3167,6 +3156,7 @@ async def create_timetable_block(request: Request, start_time: str = Form(""), e
     if not title or not start_time or not end_time: return redirect(request, "/timetable")
     import re; time_re = re.compile(r'^\d{2}:\d{2}$')
     if not time_re.match(start_time) or not time_re.match(end_time) or end_time <= start_time: return redirect(request, "/timetable")
+    if start_time > "24:00" or end_time > "24:00": return redirect(request, "/timetable")
     if day_type not in DAY_TYPE_ORDER: day_type = "default"
     with get_db() as conn:
         mx = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM timetable_blocks WHERE profile_id=? AND day_type=?", (pid, day_type)).fetchone()[0]
@@ -3181,6 +3171,7 @@ async def update_timetable_block(request: Request, block_id: int, start_time: st
     if not title or not start_time or not end_time: return redirect(request, "/timetable")
     import re; time_re = re.compile(r'^\d{2}:\d{2}$')
     if not time_re.match(start_time) or not time_re.match(end_time) or end_time <= start_time: return redirect(request, "/timetable")
+    if start_time > "24:00" or end_time > "24:00": return redirect(request, "/timetable")
     with get_db() as conn:
         conn.execute("UPDATE timetable_blocks SET start_time=?,end_time=?,title=?,color=?,icon=? WHERE id=? AND profile_id=?", (start_time,end_time,title,color,icon or "",block_id,pid))
     return redirect(request, "/timetable")
