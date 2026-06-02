@@ -181,7 +181,113 @@
  </div>
  </div>
  </div>
+
+ <!-- Push Notification (VAPID) -->
+ <div class="mt-4 pt-4" style="border-top: 1px solid var(--color-border);">
+  <div class="flex items-center justify-between mb-2">
+   <div>
+    <p class="text-sm font-bold" style="color: var(--color-text);">푸시 알림 (탭 닫아도 수신)</p>
+    <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">브라우저를 닫아도 마감 알림을 받을 수 있습니다.</p>
+   </div>
+   <button id="pushToggleBtn" onclick="togglePushSubscription()"
+    class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+    style="background: var(--color-accent); color: #fff;">
+    활성화
+   </button>
+  </div>
+  <p id="pushStatus" class="text-xs" style="color: var(--color-text-faint);"></p>
+  <button id="pushTestBtn" onclick="testPush()" class="hidden mt-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+   style="border: 1px solid var(--color-border); color: var(--color-text-muted);">테스트 알림 보내기</button>
  </div>
+ </div>
+
+ <script>
+ // Push subscription management
+ (function(){
+  var pushBtn = document.getElementById('pushToggleBtn');
+  var pushStatus = document.getElementById('pushStatus');
+  var pushTestBtn = document.getElementById('pushTestBtn');
+
+  function updatePushUI(){
+   if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    pushStatus.textContent = '이 브라우저에서는 푸시 알림을 지원하지 않습니다.';
+    pushBtn.style.display = 'none';
+    return;
+   }
+   navigator.serviceWorker.ready.then(function(reg){
+    reg.pushManager.getSubscription().then(function(sub){
+     if(sub){
+      pushBtn.textContent = '비활성화';
+      pushBtn.style.background = 'var(--color-border)';
+      pushBtn.style.color = 'var(--color-text-muted)';
+      pushStatus.textContent = '푸시 알림 활성화됨';
+      pushStatus.style.color = 'var(--color-success)';
+      pushTestBtn.classList.remove('hidden');
+     } else {
+      pushBtn.textContent = '활성화';
+      pushBtn.style.background = 'var(--color-accent)';
+      pushBtn.style.color = '#fff';
+      pushStatus.textContent = '';
+      pushTestBtn.classList.add('hidden');
+     }
+    });
+   });
+  }
+
+  window.togglePushSubscription = function(){
+   navigator.serviceWorker.ready.then(function(reg){
+    reg.pushManager.getSubscription().then(function(sub){
+     if(sub){
+      // Unsubscribe
+      sub.unsubscribe().then(function(){
+       fetch('/api/push/unsubscribe', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({endpoint: sub.endpoint})
+       });
+       updatePushUI();
+       if(typeof showToast === 'function') showToast('푸시 알림 비활성화됨', 'info');
+      });
+     } else {
+      // Subscribe
+      fetch('/api/push/vapid-key').then(function(r){return r.json()}).then(function(data){
+       var key = data.publicKey;
+       // Convert base64url to Uint8Array
+       var padding = '='.repeat((4 - key.length % 4) % 4);
+       var base64 = (key + padding).replace(/-/g, '+').replace(/_/g, '/');
+       var raw = atob(base64);
+       var arr = new Uint8Array(raw.length);
+       for(var i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+
+       reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: arr
+       }).then(function(newSub){
+        fetch('/api/push/subscribe', {
+         method: 'POST',
+         headers: {'Content-Type':'application/json'},
+         body: JSON.stringify({subscription: newSub.toJSON()})
+        });
+        updatePushUI();
+        if(typeof showToast === 'function') showToast('푸시 알림 활성화됨!', 'success');
+       }).catch(function(err){
+        if(typeof showToast === 'function') showToast('알림 권한이 필요합니다', 'error');
+       });
+      });
+     }
+    });
+   });
+  };
+
+  window.testPush = function(){
+   fetch('/api/push/test', {method:'POST'}).then(function(){
+    if(typeof showToast === 'function') showToast('테스트 알림 전송됨', 'success');
+   });
+  };
+
+  updatePushUI();
+ })();
+ </script>
 
  <script>
  (function(){
@@ -619,6 +725,83 @@
  }).catch(function(){ document.getElementById('qrLoading').textContent='QR 생성 실패'; });
  </script>
  </div>
+ </details>
+
+ <!-- Data Import/Export -->
+ <details class="work-card rounded-xl">
+ <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
+  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">데이터 가져오기 / 내보내기</h4>
+ </summary>
+ <div class="px-4 pb-4 space-y-4">
+  <!-- Import -->
+  <div>
+   <h5 class="font-bold mb-2" style="color: var(--color-text);">다른 앱에서 가져오기</h5>
+   <p class="text-xs mb-3" style="color: var(--color-text-muted);">Todoist, Google Tasks 등의 CSV 파일을 가져올 수 있습니다.</p>
+   <form id="importForm" onsubmit="return handleImport(event)">
+    <div class="flex items-center gap-2 mb-2">
+     <select id="importSource" class="flex-1 px-3 py-2 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+      <option value="todoist">Todoist (CSV)</option>
+      <option value="csv">일반 CSV (제목, 마감일, 우선순위)</option>
+     </select>
+    </div>
+    <div class="flex items-center gap-2">
+     <input type="file" id="importFile" accept=".csv,.json" class="flex-1 text-sm" style="color: var(--color-text-muted);">
+     <button type="submit" class="px-4 py-2 text-sm font-medium btn-primary rounded-lg">가져오기</button>
+    </div>
+   </form>
+   <p id="importResult" class="text-xs mt-2 hidden"></p>
+  </div>
+
+  <hr style="border-color: var(--color-border-subtle);">
+
+  <!-- Export -->
+  <div>
+   <h5 class="font-bold mb-2" style="color: var(--color-text);">데이터 내보내기</h5>
+   <p class="text-xs mb-3" style="color: var(--color-text-muted);">할일, 습관 기록, 업무일지를 CSV로 다운로드합니다.</p>
+   <div class="flex flex-wrap gap-2">
+    <a href="/api/export/todos" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
+     할일 CSV
+    </a>
+    <a href="/api/export/habits" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
+     습관 CSV
+    </a>
+    <a href="/api/export/worklogs" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
+     업무일지 CSV
+    </a>
+   </div>
+  </div>
+ </div>
+
+ <script>
+ function handleImport(e){
+  e.preventDefault();
+  var file = document.getElementById('importFile').files[0];
+  if(!file){ showToast('파일을 선택하세요', 'error'); return false; }
+  var source = document.getElementById('importSource').value;
+  var formData = new FormData();
+  formData.append('file', file);
+  formData.append('source', source);
+  fetch('/api/import/todos', { method: 'POST', body: formData })
+   .then(function(r){return r.json()})
+   .then(function(data){
+    var el = document.getElementById('importResult');
+    el.classList.remove('hidden');
+    if(data.ok){
+     el.style.color = 'var(--color-success)';
+     el.textContent = data.count + '건 가져오기 완료';
+     showToast(data.count + '건 가져옴', 'success');
+    } else {
+     el.style.color = 'var(--color-danger)';
+     el.textContent = data.error || '오류 발생';
+    }
+   });
+  return false;
+ }
+ </script>
  </details>
 </div>
 {% endblock %}

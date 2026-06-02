@@ -215,16 +215,31 @@
  _cmdIdx = -1;
  return;
  }
+ // Check for action prefix "할일 추가: ..." or "추가: ..."
+ var addMatch = q.match(/^(?:할일\s*)?추가[:：]\s*(.+)/);
+ if (addMatch) {
+  var title = addMatch[1].trim();
+  var sr = document.getElementById('cmdSearchResults');
+  var qa = document.getElementById('cmdQuickActions');
+  sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider" style="color:var(--color-text-faint);">빠른 추가</div>' +
+   '<button onclick="cmdPaletteAddTodo(\'' + title.replace(/'/g, "\\'") + '\')" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left" style="color:var(--color-text-muted);">' +
+   '<span class="w-6 text-center" style="color:var(--color-accent);">+</span> "' + title.replace(/</g,'&lt;') + '" 할일 추가</button>';
+  sr.classList.remove('hidden');
+  qa.classList.add('hidden');
+  _cmdIdx = -1;
+  return;
+ }
+
  _cmdDebounce = setTimeout(function() {
  fetch('/api/search?q=' + encodeURIComponent(q)).then(function(r){return r.json()}).then(function(data) {
  var sr = document.getElementById('cmdSearchResults');
  var qa = document.getElementById('cmdQuickActions');
  if (!data.items || data.items.length === 0) {
- sr.innerHTML = '<div class="px-3 py-4 text-sm text-center">검색 결과 없음</div>';
+ sr.innerHTML = '<div class="px-3 py-4 text-sm text-center" style="color:var(--color-text-faint);">검색 결과 없음</div>';
  } else {
- sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider">검색 결과</div>' +
+ sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider" style="color:var(--color-text-faint);">검색 결과</div>' +
  data.items.map(function(it) {
- return '<a href="' + it.url + '" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors">' +
+ return '<a href="' + it.url + '" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors" style="color:var(--color-text-muted);">' +
  '<span class="w-auto text-[10px] px-1.5 py-0.5 rounded font-medium">' + it.type + '</span>' +
  '<span class="truncate">' + it.title.replace(/</g,'&lt;') + '</span></a>';
  }).join('');
@@ -803,4 +818,63 @@ document.addEventListener('htmx:afterSettle', function(e) {
   l.href = link.href;
   document.head.appendChild(l);
  }, true);
+})();
+
+/* ── Number counter roll animation ── */
+(function() {
+ function animateCounters() {
+  document.querySelectorAll('.stat-number:not([data-counted])').forEach(function(el) {
+   var text = el.textContent.trim();
+   var match = text.match(/^(\d+)/);
+   if (!match) return;
+   var target = parseInt(match[1]);
+   if (target <= 0 || target > 9999) return;
+   el.dataset.counted = '1';
+   var suffix = text.replace(/^\d+/, '');
+   var start = 0;
+   var duration = Math.min(600, target * 30);
+   var startTime = null;
+   function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.round(start + (target - start) * eased);
+    el.textContent = current + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+   }
+   requestAnimationFrame(step);
+  });
+ }
+ // Run on load and after HTMX swaps
+ if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', animateCounters);
+ } else {
+  animateCounters();
+ }
+ document.addEventListener('htmx:afterSettle', animateCounters);
+})();
+
+/* ── Stagger entrance for dashboard grid children ── */
+(function() {
+ function applyStagger() {
+  var grid = document.getElementById('dashboardGrid');
+  if (!grid) return;
+  var children = grid.querySelectorAll(':scope > div, :scope > section');
+  children.forEach(function(child, i) {
+   if (child.classList.contains('stagger-applied')) return;
+   child.classList.add('stagger-applied');
+   child.style.opacity = '0';
+   child.style.transform = 'translateY(8px)';
+   setTimeout(function() {
+    child.style.transition = 'opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out)';
+    child.style.opacity = '1';
+    child.style.transform = 'translateY(0)';
+   }, i * 60);
+  });
+ }
+ if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', applyStagger);
+ } else {
+  applyStagger();
+ }
 })();

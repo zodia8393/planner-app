@@ -255,3 +255,43 @@ self.addEventListener('activate', () => {
         }).catch(() => {});
     }, 5000);
 });
+
+// ── VAPID Web Push handler ──
+self.addEventListener('push', (e) => {
+    if (!e.data) return;
+    let payload;
+    try {
+        payload = e.data.json();
+    } catch (err) {
+        payload = { title: 'JM Planner', body: e.data.text() };
+    }
+    const options = {
+        body: payload.body || '',
+        icon: payload.icon || '/static/icon-192.png',
+        badge: '/static/icon-96.png',
+        tag: payload.tag || 'planner-push',
+        data: { url: payload.url || '/' },
+        vibrate: [200, 100, 200],
+        requireInteraction: false,
+    };
+    e.waitUntil(
+        self.registration.showNotification(payload.title || 'JM Planner', options)
+    );
+});
+
+// ── Push notification click handler ──
+self.addEventListener('notificationclick', (e) => {
+    e.notification.close();
+    const url = (e.notification.data && e.notification.data.url) || '/';
+    e.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            for (const client of windowClients) {
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    client.navigate(url);
+                    return client.focus();
+                }
+            }
+            return clients.openWindow(url);
+        })
+    );
+});

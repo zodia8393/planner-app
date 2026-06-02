@@ -556,6 +556,24 @@ def init_db():
             created_at TEXT DEFAULT (datetime('now', 'localtime'))
         );
         CREATE INDEX IF NOT EXISTS idx_timetable_blocks_profile ON timetable_blocks(profile_id, day_type);
+
+        CREATE TABLE IF NOT EXISTS achievements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            achievement_id TEXT NOT NULL,
+            achieved_at TEXT NOT NULL DEFAULT (date('now', 'localtime')),
+            UNIQUE(profile_id, achievement_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_achievements_profile ON achievements(profile_id);
+
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            endpoint TEXT NOT NULL DEFAULT '',
+            subscription_json TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            UNIQUE(profile_id, endpoint)
+        );
         """)
 
         for tbl in ("work_profiles", ):
@@ -989,7 +1007,12 @@ async def _gcal_delete_event(profile_id: int, gcal_id: str):
     await _common_gcal_delete_event(token, cal_id, gcal_id)
 
 
-from common.stats import get_stats, get_weekly_chart_data, week_number_in_month, get_week_range
+from common.stats import get_stats, get_weekly_chart_data, week_number_in_month, get_week_range, get_productivity_insights
+from common.achievements import (
+    check_achievements, get_earned_achievements, get_completion_streak,
+    get_today_completed_count, get_total_completed, ACHIEVEMENT_DEFS,
+)
+from common.webpush import get_vapid_public_key, save_subscription, remove_subscription, send_push
 
 
 def calc_dday(target_date_str: str) -> int:
@@ -1389,6 +1412,22 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             elif s_min > now_minutes and tt_next is None:
                 tt_next = bdata
 
+        # Achievement & gamification data
+        streak = get_completion_streak(conn, pid)
+        today_done_count = get_today_completed_count(conn, pid)
+        today_total_count = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND ((due_date <= ? AND completed=0) OR (completed=1 AND date(completed_at)=?))",
+            (pid, today_str, today_str),
+        ).fetchone()[0] or 0
+        # Quick achievement check (fast, idempotent)
+        new_achievements = check_achievements(conn, pid)
+        earned_count = conn.execute(
+            "SELECT COUNT(*) FROM achievements WHERE profile_id=?", (pid,)
+        ).fetchone()[0] or 0
+
+        # Smart insights
+        insights = get_productivity_insights(conn, pid)
+
     return render(request, "dashboard.html", {
         "page": "dashboard",
         "stats": stats,
@@ -1408,7 +1447,90 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "tt_widget_blocks": tt_widget_blocks,
         "tt_current": tt_current,
         "tt_next": tt_next,
+        "streak": streak,
+        "today_done_count": today_done_count,
+        "today_total_count": today_total_count if today_total_count > 0 else max(today_done_count, 1),
+        "earned_count": earned_count,
+        "total_achievements": len(ACHIEVEMENT_DEFS),
+        "insights": insights,
         **plan_data,
+    })
+
+
+# ── Routes: Achievements ──
+
+@app.get("/achievements", response_class=HTMLResponse)
+async def achievements_page(request: Request):
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        check_achievements(conn, pid)
+        achievements = get_earned_achievements(conn, pid)
+        streak = get_completion_streak(conn, pid)
+        total = get_total_completed(conn, pid)
+        earned_count = sum(1 for a in achievements if a["earned"])
+    return render(request, "achievements.html", {
+        "page": "achievements",
+        "achievements": achievements,
+        "streak": streak,
+        "total_completed": total,
+        "earned_count": earned_count,
+        "total_count": len(achievements),
+    })
+
+
+# ── Web Push API ──
+
+@app.get("/api/push/vapid-key", response_class=JSONResponse)
+async def api_vapid_key():
+    return JSONResponse({"publicKey": get_vapid_public_key()})
+
+
+@app.post("/api/push/subscribe", response_class=JSONResponse)
+async def api_push_subscribe(request: Request):
+    pid = get_profile_id(request)
+    body = await request.json()
+    sub_json = json.dumps(body.get("subscription", body))
+    with get_db() as conn:
+        save_subscription(conn, pid, sub_json)
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/push/unsubscribe", response_class=JSONResponse)
+async def api_push_unsubscribe(request: Request):
+    pid = get_profile_id(request)
+    body = await request.json()
+    endpoint = body.get("endpoint", "")
+    with get_db() as conn:
+        remove_subscription(conn, pid, endpoint)
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/push/test", response_class=JSONResponse)
+async def api_push_test(request: Request):
+    """Send a test push notification."""
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        send_push(conn, pid, "JM Planner", "푸시 알림이 정상 동작합니다!", "/")
+    return JSONResponse({"ok": True})
+
+
+@app.get("/api/achievements/check", response_class=JSONResponse)
+async def api_check_achievements(request: Request):
+    """Called after todo toggle to check for new achievements."""
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        newly = check_achievements(conn, pid)
+        streak = get_completion_streak(conn, pid)
+        today_count = get_today_completed_count(conn, pid)
+        today_total = conn.execute(
+            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND due_date=?",
+            (pid, date.today().isoformat()),
+        ).fetchone()[0] or 0
+    return JSONResponse({
+        "new_achievements": [{"icon": a["icon"], "title": a["title"], "desc": a["desc"]} for a in newly],
+        "streak": streak,
+        "today_completed": today_count,
+        "today_total": today_total,
     })
 
 
@@ -1833,9 +1955,155 @@ def _collect_export_data(conn, tpl_id, pid, date=None):
 
 
 
-# ── Quick-add from dashboard ──
+# ── Quick-add from dashboard / command palette ──
+
+# ── Data Import/Export ──
+
+@app.post("/api/import/todos", response_class=JSONResponse)
+async def api_import_todos(request: Request):
+    """Import todos from CSV (Todoist format or generic)."""
+    pid = get_profile_id(request)
+    form = await request.form()
+    file = form.get("file")
+    source = form.get("source", "csv")
+    if not file:
+        return JSONResponse({"ok": False, "error": "파일이 필요합니다"}, status_code=400)
+
+    import csv as csv_mod
+    content = (await file.read()).decode("utf-8-sig", errors="replace")
+    reader = csv_mod.DictReader(io.StringIO(content))
+
+    count = 0
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
+        for row in reader:
+            if source == "todoist":
+                title = row.get("Content", row.get("content", "")).strip()
+                due = row.get("Due Date", row.get("due_date", "")).strip()
+                pri_str = row.get("Priority", row.get("priority", "")).strip()
+                # Todoist priority: 4=highest, 1=lowest → our 0=highest, 3=lowest
+                pri_map = {"4": 0, "3": 1, "2": 2, "1": 3}
+                priority = int(pri_map.get(pri_str, 2))
+            else:
+                # Generic CSV: title, due_date, priority
+                title = (row.get("title", "") or row.get("Title", "") or "").strip()
+                due = (row.get("due_date", "") or row.get("Due Date", "") or "").strip()
+                priority = safe_int(row.get("priority", "2"), 2)
+
+            if not title:
+                continue
+            # Validate date
+            if due and not validate_date_str(due):
+                due = None
+
+            max_order += 1
+            conn.execute(
+                "INSERT INTO todos (title, due_date, priority, sort_order, profile_id) VALUES (?,?,?,?,?)",
+                (clamp_text(title, 200), due or None, clamp_priority(priority), max_order, pid),
+            )
+            count += 1
+    return JSONResponse({"ok": True, "count": count})
 
 
+@app.get("/api/export/todos")
+async def api_export_todos(request: Request):
+    """Export all todos as CSV."""
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT t.title, t.due_date, t.priority, t.completed, t.completed_at, c.name as category "
+            "FROM todos t LEFT JOIN categories c ON t.category_id=c.id WHERE t.profile_id=? ORDER BY t.created_at",
+            (pid,),
+        ).fetchall()
+
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["title", "due_date", "priority", "completed", "completed_at", "category"])
+    for r in rows:
+        writer.writerow([r["title"], r["due_date"] or "", r["priority"], r["completed"], r["completed_at"] or "", r["category"] or ""])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=todos_export.csv"},
+    )
+
+
+@app.get("/api/export/habits")
+async def api_export_habits(request: Request):
+    """Export habit logs as CSV."""
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT h.name, hl.log_date, hl.count, hl.completed "
+            "FROM habit_logs hl JOIN habits h ON hl.habit_id=h.id WHERE hl.profile_id=? ORDER BY hl.log_date",
+            (pid,),
+        ).fetchall()
+
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["habit_name", "date", "count", "completed"])
+    for r in rows:
+        writer.writerow([r["name"], r["log_date"], r["count"], r["completed"]])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=habits_export.csv"},
+    )
+
+
+@app.get("/api/export/worklogs")
+async def api_export_worklogs(request: Request):
+    """Export work logs as CSV."""
+    pid = get_profile_id(request)
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT wl.log_date, wl.title, wl.content, wl.hours, c.name as category "
+            "FROM work_logs wl LEFT JOIN categories c ON wl.category_id=c.id WHERE wl.profile_id=? ORDER BY wl.log_date",
+            (pid,),
+        ).fetchall()
+
+    output = io.StringIO()
+    import csv as csv_mod
+    writer = csv_mod.writer(output)
+    writer.writerow(["date", "title", "content", "hours", "category"])
+    for r in rows:
+        writer.writerow([r["log_date"], r["title"], r["content"] or "", r["hours"], r["category"] or ""])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue().encode("utf-8-sig")]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=worklogs_export.csv"},
+    )
+
+
+@app.post("/api/quick-add", response_class=JSONResponse)
+async def api_quick_add(request: Request):
+    """Quick-add a todo from command palette. Supports NLP date parsing."""
+    pid = get_profile_id(request)
+    body = await request.json()
+    title = clamp_text(fix_mojibake(body.get("title", "")), 200).strip()
+    if not title:
+        return JSONResponse({"ok": False, "error": "제목이 필요합니다"}, status_code=400)
+
+    from common.nlp_date import extract_date_from_text
+    parsed_date, remaining_text = extract_date_from_text(title)
+    due_date = parsed_date.isoformat() if parsed_date else None
+    clean_title = remaining_text.strip() or title
+
+    with get_db() as conn:
+        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
+        conn.execute(
+            "INSERT INTO todos (title, due_date, priority, sort_order, profile_id) VALUES (?,?,?,?,?)",
+            (clean_title, due_date, 2, max_order + 1, pid),
+        )
+        todo_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        _audit_log(conn, "todo", todo_id, "create", {"title": clean_title, "source": "quick-add"})
+    event_bus.emit("todo", {"action": "created", "id": todo_id})
+    return JSONResponse({"ok": True, "id": todo_id, "title": clean_title, "due_date": due_date})
 
 
 # ── Routes: Memo view partial ──
@@ -2070,6 +2338,9 @@ async def stats_page(request: Request):
         ).fetchall()
         heatmap = {row["d"]: row["cnt"] for row in heatmap_data if row["d"]}
 
+        # Productivity insights
+        insights = get_productivity_insights(conn, pid)
+
     return render(request, "stats.html", {
         "page": "stats",
         "stats": stats,
@@ -2083,6 +2354,7 @@ async def stats_page(request: Request):
         "heatmap": heatmap,
         "heatmap_start": year_ago,
         "heatmap_today": date.today().isoformat(),
+        "insights": insights,
     })
 
 

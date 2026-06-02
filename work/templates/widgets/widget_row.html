@@ -78,6 +78,43 @@
  {% endif %}
  </div>
 
+ {# Streak + Daily Progress card #}
+ <a href="/achievements" data-widget="streak" class="work-card rounded-xl p-4 card-hover widget-detail-m block no-underline" style="text-decoration: none;">
+ <div class="flex items-center justify-between mb-3">
+  <span class="stat-label">오늘 진행</span>
+  <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--color-accent-soft);">
+   <span class="text-base" aria-hidden="true">🔥</span>
+  </div>
+ </div>
+ <div class="flex items-center gap-3">
+  {# Daily progress ring #}
+  {% set pct = ((today_done_count / today_total_count * 100)|round|int) if today_total_count > 0 else 0 %}
+  <div class="progress-ring-wrap" style="width:48px;height:48px;flex-shrink:0;">
+   <svg viewBox="0 0 48 48" class="w-full h-full">
+    <circle cx="24" cy="24" r="20" fill="none" stroke="var(--color-border)" stroke-width="4"/>
+    <circle cx="24" cy="24" r="20" fill="none"
+     stroke="{% if pct >= 100 %}var(--color-success){% else %}var(--color-accent){% endif %}"
+     stroke-width="4" stroke-linecap="round"
+     stroke-dasharray="{{ (pct * 125.6 / 100)|round(1) }} 125.6"
+     transform="rotate(-90 24 24)"
+     class="progress-ring-circle"/>
+   </svg>
+   <span class="progress-ring-text" style="color: var(--color-text);">{{ pct }}%</span>
+  </div>
+  <div>
+   <div class="flex items-center gap-1.5 mb-0.5">
+    {% if streak > 0 %}
+    <span class="text-lg font-extrabold" style="color: var(--color-accent);">{{ streak }}</span>
+    <span class="text-xs font-semibold" style="color: var(--color-accent-text);">일 연속</span>
+    {% else %}
+    <span class="text-xs font-semibold" style="color: var(--color-text-muted);">오늘부터 시작!</span>
+    {% endif %}
+   </div>
+   <p class="text-xs" style="color: var(--color-text-faint);">{{ today_done_count }}/{{ today_total_count }} 완료</p>
+  </div>
+ </div>
+ </a>
+
  {# Focus quick start card #}
  <div data-widget="focus-quick" class="work-card rounded-xl p-4 card-hover widget-detail-l">
  <div class="flex items-center justify-between mb-3">

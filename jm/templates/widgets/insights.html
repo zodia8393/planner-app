@@ -1,0 +1,61 @@
+{% from"widgets/_widget_wrapper.html" import widget %}
+{% call widget('widget-insights', '이번 주 인사이트') %}
+{% if insights %}
+<div class="work-card rounded-xl p-4">
+ <div class="flex items-center justify-between mb-3">
+  <h3 class="text-sm font-extrabold" style="color: var(--color-text); letter-spacing: -0.01em;">이번 주 하이라이트</h3>
+  <a href="/stats" class="text-xs font-medium hover-accent transition-colors" style="color: var(--color-accent);">자세히</a>
+ </div>
+ <div class="grid grid-cols-2 gap-3">
+  {# Weekly comparison #}
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">주간 완료</p>
+   <div class="flex items-baseline gap-1.5">
+    <span class="text-lg font-extrabold stat-number" style="color: var(--color-text);">{{ insights.this_week_completed }}</span>
+    {% if insights.week_diff > 0 %}
+    <span class="text-xs font-bold" style="color: var(--color-success);">+{{ insights.week_diff }}</span>
+    {% elif insights.week_diff < 0 %}
+    <span class="text-xs font-bold" style="color: var(--color-danger);">{{ insights.week_diff }}</span>
+    {% endif %}
+   </div>
+   <p class="text-[10px] mt-0.5" style="color: var(--color-text-faint);">지난주 {{ insights.last_week_completed }}건</p>
+  </div>
+
+  {# Focus time #}
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">집중 시간</p>
+   <div class="flex items-baseline gap-1">
+    <span class="text-lg font-extrabold stat-number" style="color: var(--color-accent);">{{ insights.focus_hours }}</span>
+    <span class="text-xs font-medium" style="color: var(--color-text-faint);">시간</span>
+   </div>
+  </div>
+
+  {# Best day #}
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">최고 요일</p>
+   <p class="text-sm font-bold" style="color: var(--color-text);">{{ insights.best_day }}</p>
+   <p class="text-[10px]" style="color: var(--color-text-faint);">{{ insights.best_day_count }}건 완료</p>
+  </div>
+
+  {# Best time #}
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">집중 시간대</p>
+   <p class="text-sm font-bold" style="color: var(--color-text);">{{ insights.best_period }}</p>
+  </div>
+ </div>
+
+ {% if insights.top_categories %}
+ <div class="mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
+  <p class="text-xs font-medium mb-2" style="color: var(--color-text-faint);">이번 달 TOP 카테고리</p>
+  <div class="flex flex-wrap gap-2">
+   {% for cat in insights.top_categories %}
+   <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">
+    {{ cat.name }} <span class="font-bold">{{ cat.count }}</span>
+   </span>
+   {% endfor %}
+  </div>
+ </div>
+ {% endif %}
+</div>
+{% endif %}
+{% endcall %}

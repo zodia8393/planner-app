@@ -51,7 +51,12 @@ from common.filters import register_filters, render_error_page
 from common.middleware import EventBus, CSRFMiddleware, SyncBroadcastMiddleware, patch_formparser_utf8
 from common.constants import PRIORITY_MAP, REPEAT_MAP, WEEKDAY_NAMES
 from common.recurrence import next_occurrence, expand_recurring_events
-from common.stats import get_stats, get_weekly_chart_data, week_number_in_month, get_week_range
+from common.stats import get_stats, get_weekly_chart_data, week_number_in_month, get_week_range, get_productivity_insights
+from common.achievements import (
+    check_achievements, get_earned_achievements, get_completion_streak,
+    get_today_completed_count, get_total_completed, ACHIEVEMENT_DEFS,
+)
+from common.webpush import get_vapid_public_key, save_subscription, remove_subscription, send_push
 from common.db import get_db as _common_get_db
 from common.image import MAGIC_BYTES, _check_image_magic
 from common.holidays import KOREAN_HOLIDAYS, get_holidays_for_month
@@ -743,6 +748,24 @@ def init_db():
                 created_at TEXT DEFAULT (datetime('now', 'localtime'))
             );
             CREATE INDEX IF NOT EXISTS idx_timetable_blocks_profile ON timetable_blocks(profile_id, day_type);
+
+        CREATE TABLE IF NOT EXISTS achievements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            achievement_id TEXT NOT NULL,
+            achieved_at TEXT NOT NULL DEFAULT (date('now', 'localtime')),
+            UNIQUE(profile_id, achievement_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_achievements_profile ON achievements(profile_id);
+
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            endpoint TEXT NOT NULL DEFAULT '',
+            subscription_json TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            UNIQUE(profile_id, endpoint)
+        );
         """)
 
     # One-time cleanup: remove duplicate focus mode worklog entries

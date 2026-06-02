@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}대시보드 - {{ config.planner_name|default('Work Planner') }}{% endblock %}
+{% block title %}대시보드 - {{ config.planner_name|default('JM Planner') }}{% endblock %}
 {% block page_title %}대시보드{% endblock %}
 {% block page_subtitle %}오늘의 업무 현황{% endblock %}
 
@@ -35,7 +35,8 @@
  {% include"widgets/progress.html" %}
  {% include"widgets/worklogs.html" %}
  {% include"widgets/events.html" %}
- {% include"widgets/notices.html" %}
+ {# notices: 개인 플래너에서 공지사항 미사용 → 제거 #}
+ {% include"widgets/insights.html" %}
  {% include"widgets/timetable.html" %}
  {% include"widgets/time_budgets.html" %}
 </div>

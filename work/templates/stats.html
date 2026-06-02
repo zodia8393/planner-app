@@ -1,6 +1,6 @@
 {% extends"base.html" %}
 {% block head_extra %}<script src="/static/chart.umd.min.js" defer></script>{% endblock %}
-{% block title %}통계 - Work Planner{% endblock %}
+{% block title %}통계 - JM Planner{% endblock %}
 {% block page_title %}통계{% endblock %}
 {% block page_subtitle %}업무 성과 분석{% endblock %}
 
@@ -131,6 +131,69 @@
  </div>
  </div>
 </div>
+
+{% if insights %}
+<!-- Productivity Insights -->
+<div class="work-card rounded-xl p-5 mt-6">
+ <h3 class="font-extrabold text-sm mb-4" style="color: var(--color-text); letter-spacing: -0.01em;">생산성 패턴 분석</h3>
+
+ <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">가장 생산적인 요일</p>
+   <p class="text-lg font-bold" style="color: var(--color-accent);">{{ insights.best_day }}</p>
+   <p class="text-[10px]" style="color: var(--color-text-faint);">{{ insights.best_day_count }}건 완료</p>
+  </div>
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">최고 집중 시간대</p>
+   <p class="text-lg font-bold" style="color: var(--color-accent);">{{ insights.best_period }}</p>
+  </div>
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">이번 주 vs 지난 주</p>
+   <div class="flex items-baseline gap-1">
+    <span class="text-lg font-bold" style="color: var(--color-text);">{{ insights.this_week_completed }}</span>
+    {% if insights.week_diff > 0 %}
+    <span class="text-xs font-bold" style="color: var(--color-success);">+{{ insights.week_diff_pct }}%</span>
+    {% elif insights.week_diff < 0 %}
+    <span class="text-xs font-bold" style="color: var(--color-danger);">{{ insights.week_diff_pct }}%</span>
+    {% else %}
+    <span class="text-xs font-bold" style="color: var(--color-text-faint);">동일</span>
+    {% endif %}
+   </div>
+  </div>
+  <div class="rounded-lg p-3" style="background: var(--color-bg);">
+   <p class="text-xs font-medium mb-1" style="color: var(--color-text-faint);">주간 집중 시간</p>
+   <div class="flex items-baseline gap-1">
+    <span class="text-lg font-bold" style="color: var(--color-accent);">{{ insights.focus_hours }}</span>
+    <span class="text-xs" style="color: var(--color-text-faint);">시간</span>
+   </div>
+  </div>
+ </div>
+
+ <!-- Weekday bar chart (CSS only) -->
+ <p class="text-xs font-medium mb-2" style="color: var(--color-text-faint);">요일별 완료 분포 (최근 8주)</p>
+ <div class="flex items-end gap-1.5" style="height: 80px;">
+  {% set max_dow = insights.dow_counts|max if insights.dow_counts|max > 0 else 1 %}
+  {% for count in insights.dow_counts %}
+  <div class="flex-1 flex flex-col items-center gap-1">
+   <div class="w-full rounded-t" style="height: {{ (count / max_dow * 60)|round|int }}px; min-height: 2px; background: var(--color-accent); opacity: {{ 0.3 + (count / max_dow * 0.7) }};"></div>
+   <span class="text-[10px]" style="color: var(--color-text-faint);">{{ ['월','화','수','목','금','토','일'][loop.index0] }}</span>
+  </div>
+  {% endfor %}
+ </div>
+
+ <!-- Time-of-day distribution -->
+ <p class="text-xs font-medium mt-4 mb-2" style="color: var(--color-text-faint);">시간대별 완료 분포</p>
+ <div class="flex items-end gap-1.5" style="height: 60px;">
+  {% set max_hr = insights.hour_buckets|max if insights.hour_buckets|max > 0 else 1 %}
+  {% for count in insights.hour_buckets %}
+  <div class="flex-1 flex flex-col items-center gap-1">
+   <div class="w-full rounded-t" style="height: {{ (count / max_hr * 44)|round|int }}px; min-height: 2px; background: {% if loop.index0 == 0 %}var(--color-info){% elif loop.index0 == 1 %}var(--color-success){% elif loop.index0 == 2 %}var(--color-warning){% else %}var(--color-accent){% endif %}; opacity: {{ 0.4 + (count / max_hr * 0.6) }};"></div>
+   <span class="text-[10px]" style="color: var(--color-text-faint);">{{ ['새벽','오전','오후','저녁'][loop.index0] }}</span>
+  </div>
+  {% endfor %}
+ </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

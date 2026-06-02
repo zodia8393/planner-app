@@ -1,0 +1,65 @@
+{% extends"base.html" %}
+{% block title %}업적 - {{ config.planner_name|default('JM Planner') }}{% endblock %}
+{% block page_title %}업적{% endblock %}
+{% block page_subtitle %}{{ earned_count }}/{{ total_count }} 달성{% endblock %}
+
+{% block content %}
+<!-- Summary cards -->
+<div class="grid grid-cols-3 gap-3 mb-6">
+ <div class="work-card rounded-xl p-4 text-center">
+  <div class="text-3xl mb-1">🔥</div>
+  <p class="text-2xl font-extrabold" style="color: var(--color-accent);">{{ streak }}</p>
+  <p class="text-xs font-medium" style="color: var(--color-text-muted);">연속 일수</p>
+ </div>
+ <div class="work-card rounded-xl p-4 text-center">
+  <div class="text-3xl mb-1">🏆</div>
+  <p class="text-2xl font-extrabold" style="color: var(--color-accent);">{{ earned_count }}</p>
+  <p class="text-xs font-medium" style="color: var(--color-text-muted);">달성 업적</p>
+ </div>
+ <div class="work-card rounded-xl p-4 text-center">
+  <div class="text-3xl mb-1">✅</div>
+  <p class="text-2xl font-extrabold" style="color: var(--color-success);">{{ total_completed }}</p>
+  <p class="text-xs font-medium" style="color: var(--color-text-muted);">총 완료</p>
+ </div>
+</div>
+
+<!-- Progress -->
+<div class="work-card rounded-xl p-4 mb-6">
+ <div class="flex items-center justify-between mb-2">
+  <span class="text-sm font-bold" style="color: var(--color-text);">전체 진행률</span>
+  <span class="text-sm font-bold" style="color: var(--color-accent);">{{ ((earned_count / total_count * 100)|round|int) if total_count > 0 else 0 }}%</span>
+ </div>
+ <div class="progress-premium">
+  <div class="progress-premium-bar" style="width: {{ ((earned_count / total_count * 100)|round|int) if total_count > 0 else 0 }}%; background: var(--gradient-accent);"></div>
+ </div>
+</div>
+
+<!-- Achievement grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+ {% for a in achievements %}
+ <div class="work-card rounded-xl p-4 transition-all {% if a.earned %}card-hover{% else %}opacity-50 grayscale{% endif %}">
+  <div class="flex items-start gap-3">
+   <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl
+    {% if a.earned %}achievement-glow{% endif %}"
+    style="background: {% if a.earned %}var(--color-accent-soft){% else %}var(--color-border-subtle){% endif %};">
+    {{ a.icon }}
+   </div>
+   <div class="flex-1 min-w-0">
+    <p class="text-sm font-bold {% if not a.earned %}{% endif %}" style="color: var(--color-text);">{{ a.title }}</p>
+    <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">{{ a.desc }}</p>
+    {% if a.earned %}
+    <p class="text-[10px] mt-1 font-medium" style="color: var(--color-accent);">{{ a.achieved_at }} 달성</p>
+    {% endif %}
+   </div>
+   {% if a.earned %}
+   <div class="flex-shrink-0">
+    <svg class="w-5 h-5" style="color: var(--color-success);" fill="currentColor" viewBox="0 0 24 24">
+     <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
+    </svg>
+   </div>
+   {% endif %}
+  </div>
+ </div>
+ {% endfor %}
+</div>
+{% endblock %}
