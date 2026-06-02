@@ -90,12 +90,14 @@ def get_productivity_insights(conn, pid: int) -> dict:
     range_start = (today - timedelta(weeks=8)).isoformat()
     rows = conn.execute(
         "SELECT date(completed_at) as d, strftime('%%w', completed_at) as dow "
-        "FROM todos WHERE profile_id=? AND completed=1 AND completed_at >= ?",
+        "FROM todos WHERE profile_id=? AND completed=1 AND completed_at IS NOT NULL AND completed_at >= ?",
         (pid, range_start),
     ).fetchall()
 
     dow_counts = [0] * 7
     for r in rows:
+        if r["dow"] is None:
+            continue
         dow = int(r["dow"])
         # SQLite %w: 0=Sunday, 1=Monday...
         py_dow = (dow - 1) % 7  # Convert to 0=Monday
@@ -108,13 +110,15 @@ def get_productivity_insights(conn, pid: int) -> dict:
     # 2. Time-of-day pattern
     hour_rows = conn.execute(
         "SELECT CAST(strftime('%%H', completed_at) AS INTEGER) as hr "
-        "FROM todos WHERE profile_id=? AND completed=1 AND completed_at >= ?",
+        "FROM todos WHERE profile_id=? AND completed=1 AND completed_at >= ? AND completed_at IS NOT NULL",
         (pid, range_start),
     ).fetchall()
 
     hour_buckets = [0, 0, 0, 0]  # dawn(0-6), morning(6-12), afternoon(12-18), evening(18-24)
     for r in hour_rows:
         hr = r["hr"]
+        if hr is None:
+            continue
         if hr < 6:
             hour_buckets[0] += 1
         elif hr < 12:
