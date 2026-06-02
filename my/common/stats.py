@@ -84,6 +84,12 @@ HOUR_LABELS = ["새벽(0-6)", "오전(6-12)", "오후(12-18)", "저녁(18-24)"]
 
 def get_productivity_insights(conn, pid: int) -> dict:
     """Analyze productivity patterns from completed todos. Returns insights dict."""
+    try:
+        return _get_productivity_insights_inner(conn, pid)
+    except Exception:
+        return {}
+
+def _get_productivity_insights_inner(conn, pid: int) -> dict:
     today = date.today()
 
     # 1. Weekday completion rate (last 8 weeks)

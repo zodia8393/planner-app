@@ -1413,17 +1413,19 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 tt_next = bdata
 
         # Achievement & gamification data
-        streak = get_completion_streak(conn, pid)
-        today_done_count = get_today_completed_count(conn, pid)
-        today_total_count = conn.execute(
-            "SELECT COUNT(*) FROM todos WHERE profile_id=? AND ((due_date <= ? AND completed=0) OR (completed=1 AND date(completed_at)=?))",
-            (pid, today_str, today_str),
-        ).fetchone()[0] or 0
-        # Quick achievement check (fast, idempotent)
-        new_achievements = check_achievements(conn, pid)
-        earned_count = conn.execute(
-            "SELECT COUNT(*) FROM achievements WHERE profile_id=?", (pid,)
-        ).fetchone()[0] or 0
+        try:
+            streak = get_completion_streak(conn, pid)
+            today_done_count = get_today_completed_count(conn, pid)
+            today_total_count = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND ((due_date <= ? AND completed=0) OR (completed=1 AND date(completed_at)=?))",
+                (pid, today_str, today_str),
+            ).fetchone()[0] or 0
+            new_achievements = check_achievements(conn, pid)
+            earned_count = conn.execute(
+                "SELECT COUNT(*) FROM achievements WHERE profile_id=?", (pid,)
+            ).fetchone()[0] or 0
+        except Exception:
+            streak = 0; today_done_count = 0; today_total_count = 1; earned_count = 0
 
         # Smart insights
         insights = get_productivity_insights(conn, pid)
