@@ -1610,6 +1610,23 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
             if s_min <= now_minutes < e_min: tt_current = bdata
             elif s_min > now_minutes and tt_next is None: tt_next = bdata
 
+        # Achievement & gamification data
+        try:
+            streak = get_completion_streak(conn, pid)
+            today_done_count = get_today_completed_count(conn, pid)
+            today_total_count = conn.execute(
+                "SELECT COUNT(*) FROM todos WHERE profile_id=? AND ((due_date <= ? AND completed=0) OR (completed=1 AND date(completed_at)=?))",
+                (pid, today_str, today_str),
+            ).fetchone()[0] or 0
+            check_achievements(conn, pid)
+            earned_count = conn.execute(
+                "SELECT COUNT(*) FROM achievements WHERE profile_id=?", (pid,)
+            ).fetchone()[0] or 0
+        except Exception:
+            streak = 0; today_done_count = 0; today_total_count = 1; earned_count = 0
+
+        insights = get_productivity_insights(conn, pid)
+
     return render(request, "dashboard.html", {
         "page": "dashboard",
         "stats": stats,
@@ -1632,6 +1649,12 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "tt_widget_blocks": tt_widget_blocks,
         "tt_current": tt_current,
         "tt_next": tt_next,
+        "streak": streak,
+        "today_done_count": today_done_count,
+        "today_total_count": today_total_count if today_total_count > 0 else max(today_done_count, 1),
+        "earned_count": earned_count,
+        "total_achievements": len(ACHIEVEMENT_DEFS),
+        "insights": insights,
         **plan_data,
     })
 
