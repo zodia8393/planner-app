@@ -110,11 +110,11 @@
  <label class="block text-xs font-medium mb-2" style="color: var(--color-text-faint);">추적 방식</label>
  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="trackingTypeGroup">
  {% for val, label in [('daily','매일 1회'), ('counter','하루 N회'), ('interval','N시간마다'), ('specific','특정 시간'), ('weekly','주 N회')] %}
- <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors has-[:checked]:border-amber-500"
+ <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors"
  style="border-color: var(--color-border); color: var(--color-text);"
  onmouseenter="this.style.background='var(--color-accent-soft)'" onmouseleave="this.style.background=''">
  <input type="radio" name="tracking_type" value="{{ val }}" {% if val=='daily' %}checked{% endif %}
- class="w-3.5 h-3.5 text-amber-600 accent-amber-600" onchange="updateTrackingUI()">
+ class="w-3.5 h-3.5" style="accent-color: var(--color-accent);" onchange="updateTrackingUI()">
  <span class="text-xs font-medium">{{ label }}</span>
  </label>
  {% endfor %}
@@ -181,7 +181,7 @@
  <!-- Reminder -->
  <div class="flex items-center gap-3">
  <label class="flex items-center gap-2 cursor-pointer">
- <input type="checkbox" name="reminder_enabled" value="1" class="w-4 h-4 rounded accent-amber-600">
+ <input type="checkbox" name="reminder_enabled" value="1" class="w-4 h-4 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs font-medium" style="color: var(--color-text-muted);">알림 설정</span>
  </label>
  <input type="time" name="reminder_time" value="08:00"

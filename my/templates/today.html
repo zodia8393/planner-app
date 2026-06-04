@@ -1,7 +1,7 @@
 {% extends"base.html" %}
 {% block title %}오늘 - My Planner{% endblock %}
 {% block page_title %}오늘{% endblock %}
-{% block page_subtitle %}{{ today_str }}{% endblock %}
+{% block page_subtitle %}{{ today_str|format_date }}{% endblock %}
 
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

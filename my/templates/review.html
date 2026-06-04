@@ -61,7 +61,7 @@
  <span>{{ cat.done }}/{{ cat.total }}</span>
  </div>
  <div class="progress-premium">
- <div class="h-full bg-amber-500 rounded-full" style="width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
+ <div class="h-full rounded-full" style="background: var(--color-accent); width:{{ (cat.done / cat.total * 100)|round|int if cat.total > 0 else 0 }}%"></div>
  </div>
  </div>
  {% endfor %}
@@ -94,14 +94,14 @@
 {% endif %}
 
 {% if not cat_stats and not hours_by_cat and not daily_completed %}
-<div class="work-card rounded-xl p-8 text-center">
- <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3" style="background: var(--gradient-warm);">
- <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+<div class="empty-state">
+ <div class="empty-state-icon">
+ <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/>
  </svg>
  </div>
- <p class="text-sm font-medium">이 기간에 분석할 데이터가 없습니다</p>
- <p class="text-xs mt-1" style="color: var(--color-text-muted);">할일을 완료하거나 업무일지를 작성하면 리뷰 데이터가 표시됩니다</p>
+ <p class="empty-state-title">이 기간에 분석할 데이터가 없습니다</p>
+ <p class="empty-state-desc">할일을 완료하거나 업무일지를 작성하면 리뷰 데이터가 표시됩니다</p>
  <div class="flex gap-2 justify-center mt-4">
  <a href="/todos" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">할일 보기</a>
  <a href="/worklogs" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">업무일지</a>
@@ -113,13 +113,18 @@
 {% block scripts %}
 {% if daily_completed %}
 <script>
-new Chart(document.getElementById('dailyChart'), {
+(function(){
+ var isDark = document.documentElement.classList.contains('dark');
+ var gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(226,232,240,0.8)';
+ var textColor = isDark ? '#94a3b8' : '#64748b';
+ var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
+ new Chart(document.getElementById('dailyChart'), {
  type: 'bar',
  data: {
  labels: {{ daily_completed|map(attribute='d')|list|tojson }},
  datasets: [{
  data: {{ daily_completed|map(attribute='cnt')|list|tojson }},
- backgroundColor: 'rgba(99,102,241,0.5)',
+ backgroundColor: accentColor + '80',
  borderRadius: 4
  }]
  },
@@ -127,11 +132,12 @@ new Chart(document.getElementById('dailyChart'), {
  responsive: true,
  plugins: { legend: { display: false } },
  scales: {
- y: { beginAtZero: true, ticks: { stepSize: 1 } },
- x: { ticks: { font: { size: 10 } } }
+ y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+ x: { ticks: { font: { size: 10 }, color: textColor }, grid: { display: false } }
  }
  }
-});
+ });
+})();
 </script>
 {% endif %}
 {% endblock %}

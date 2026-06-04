@@ -214,13 +214,13 @@ document.addEventListener('DOMContentLoaded', function() {
  {
  label: '완료',
  data: {{ chart_data.completed | tojson }},
- backgroundColor: '#d97706',
+ backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim(),
  borderRadius: 4,
  },
  {
  label: '전체',
  data: {{ chart_data.total | tojson }},
- backgroundColor: '#e2e8f0',
+ backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim(),
  borderRadius: 4,
  }
  ]
@@ -249,8 +249,8 @@ document.addEventListener('DOMContentLoaded', function() {
  {
  label: '등록',
  data: monthlyData.map(d => d.total),
- borderColor: '#3b82f6',
- backgroundColor: 'rgba(59,130,246,0.08)',
+ borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-info').trim(),
+ backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-info').trim() + '14',
  borderWidth: 1,
  fill: true,
  tension: 0.3,
@@ -258,8 +258,8 @@ document.addEventListener('DOMContentLoaded', function() {
  {
  label: '완료',
  data: monthlyData.map(d => d.done),
- borderColor: '#16a34a',
- backgroundColor: 'rgba(22,163,74,0.08)',
+ borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim(),
+ backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim() + '14',
  borderWidth: 2.5,
  fill: true,
  tension: 0.3,

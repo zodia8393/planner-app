@@ -80,7 +80,7 @@
 {% set ns.started = true %}
 <div class="flex items-center gap-2 mb-2 {% if not loop.first %}mt-5{% endif %}">
  <span class="text-xs font-semibold">{{ memo_date|format_date }}</span>
- <div class="flex-1 h-px"></div>
+ <div class="flex-1 h-px" style="background:var(--color-border);"></div>
 </div>
 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 {% endif %}

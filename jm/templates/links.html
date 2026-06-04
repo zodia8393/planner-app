@@ -84,7 +84,7 @@
  <p class="text-xs mb-2" style="color: var(--color-text-muted);">{{ link.description }}</p>
  {% endif %}
  {% if link.category %}
- <span class="inline-block px-2 py-0.5 text-[11px] font-medium rounded">{{ link.category }}</span>
+ <span class="inline-block px-2 py-0.5 text-[11px] font-medium rounded" style="background:var(--color-accent-soft);color:var(--color-accent-text);">{{ link.category }}</span>
  {% endif %}
  </a>
  </div>
@@ -115,7 +115,7 @@
  </div>
  <div class="min-w-0 flex-1">
  <p class="font-bold text-sm" style="color: var(--color-text);">{{ label }}
- {% if key == current_app %}<span class="text-xs font-normal text-amber-500 ml-1">(현재)</span>{% endif %}
+ {% if key == current_app %}<span class="text-xs font-normal ml-1" style="color: var(--color-accent);">(현재)</span>{% endif %}
  </p>
  <p class="text-xs truncate" style="color: var(--color-text-muted);">{{ url }}</p>
  </div>

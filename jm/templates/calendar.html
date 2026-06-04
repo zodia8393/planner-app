@@ -49,33 +49,33 @@
 <!-- Navigation -->
 <div class="flex items-center justify-center gap-3 mb-4">
  {% if cal_view == 'year' %}
- <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <a href="/calendar?year={{ year - 1 }}&view=year" aria-label="이전 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
  </svg>
  </a>
  <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년</h3>
- <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <a href="/calendar?year={{ year + 1 }}&view=year" aria-label="다음 연도" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
  </svg>
  </a>
- <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
+ <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid var(--color-accent-soft);">
  올해
  </a>
  {% else %}
- <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <a href="/calendar?year={{ prev_year }}&month={{ prev_month }}&view={{ cal_view }}" aria-label="이전 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
  </svg>
  </a>
  <h3 class="text-lg font-extrabold min-w-[140px] text-center" style="color: var(--color-text); letter-spacing: -0.02em;">{{ year }}년 {{ month }}월</h3>
- <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+ <a href="/calendar?year={{ next_year }}&month={{ next_month }}&view={{ cal_view }}" aria-label="다음 {% if cal_view == 'week' %}주{% else %}달{% endif %}" class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
  </svg>
  </a>
- <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
+ <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid var(--color-accent-soft);">
  오늘
  </a>
  {% endif %}
@@ -163,8 +163,8 @@
  {% endfor %}
  {% for todo in day_todos %}
  <div class="flex items-center gap-1 px-2 py-1 rounded">
- <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){b.classList.toggle('bg-emerald-500');b.classList.toggle('border-emerald-500');var s=p.querySelector('span');if(s)s.classList.toggle('line-through');if(b.innerHTML.trim())b.innerHTML='';else b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
- {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}{% endif %}">
+ <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){var done=!b.style.background;if(done){b.style.background='var(--color-success)';b.style.borderColor='var(--color-success)';b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';}else{b.style.background='';b.style.borderColor='';b.innerHTML='';}var s=p.querySelector('span');if(s)s.classList.toggle('line-through');})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
+ style="{% if todo.completed %}background: var(--color-success); border-color: var(--color-success);{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -196,7 +196,7 @@
  <!-- Empty cells before month starts (Sunday=0 start) -->
  {% set sun_start = (start_weekday + 1) % 7 %}
  {% for _ in range(sun_start) %}
- <div class="cal-cell border-b border-r /50"></div>
+ <div class="cal-cell border-b" style="border-right: 1px solid var(--color-border);"></div>
  {% endfor %}
 
  {% for day in range(1, days_in_month + 1) %}
@@ -235,8 +235,8 @@
  {% for todo in day_todos %}
  {% if ns.shown < 4 %}
  <div class="flex items-center gap-1 px-1 mb-0.5">
- <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){b.classList.toggle('bg-emerald-500');b.classList.toggle('border-emerald-500');var s=p.querySelector('span');if(s)s.classList.toggle('line-through');if(b.innerHTML.trim())b.innerHTML='';else b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center
- {% if todo.completed %}bg-emerald-500 border-emerald-500{% else %}{% endif %}">
+ <button onclick="event.stopPropagation();var b=this,p=b.closest('.flex');fetch('/todos/{{ todo.id }}/toggle',{method:'POST'}).then(function(){var done=!b.style.background;if(done){b.style.background='var(--color-success)';b.style.borderColor='var(--color-success)';b.innerHTML='<svg class=\'w-2 h-2 text-white\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'3\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4.5 12.75l6 6 9-13.5\'/></svg>';}else{b.style.background='';b.style.borderColor='';b.innerHTML='';}var s=p.querySelector('span');if(s)s.classList.toggle('line-through');})" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
+ style="{% if todo.completed %}background: var(--color-success); border-color: var(--color-success);{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -257,7 +257,7 @@
  <!-- Fill remaining cells -->
  {% set remaining = (7 - (sun_start + days_in_month) % 7) % 7 %}
  {% for _ in range(remaining) %}
- <div class="cal-cell border-b border-r /50"></div>
+ <div class="cal-cell border-b" style="border-right: 1px solid var(--color-border);"></div>
  {% endfor %}
  </div>
 </div>
