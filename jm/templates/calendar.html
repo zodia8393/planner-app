@@ -265,11 +265,11 @@
 
 <!-- Add event modal -->
 <div id="eventModal" class="fixed inset-0 z-50 hidden">
- <div class="modal-backdrop absolute inset-0" onclick="closeEventModal()"></div>
+ <div class="modal-backdrop absolute inset-0" data-action="close-event-modal"></div>
  <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto">
  <div class="rounded-2xl p-6 relative" style="background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-xl);">
- <button onclick="closeEventModal()" class="absolute top-4 right-4 p-1.5 rounded-lg transition-colors" style="color: var(--color-text-faint);"
- onmouseenter="this.style.background='var(--color-border-subtle)'" onmouseleave="this.style.background=''" aria-label="닫기">
+ <button data-action="close-event-modal" class="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hoverable-subtle" style="color: var(--color-text-faint);"
+ aria-label="닫기">
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
@@ -346,7 +346,7 @@
  <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
  <option value='{"value":1,"unit":"day"}'>1일 전</option>
  </select>
- <button type="button" onclick="addNewEventOffset()" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
+ <button type="button" data-action="add-new-event-offset" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="newEventUseDefault" checked onchange="toggleNewEventDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">

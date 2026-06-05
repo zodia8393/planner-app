@@ -236,7 +236,7 @@
  <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ user_blocks|length }}</span>
  </h3>
  {% if edit_day_type != 'today' %}
- <button onclick="toggleAddForm()" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
+ <button data-action="toggle-add-form" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
  style="background: var(--color-accent-soft); color: var(--color-accent);"
  id="addBlockBtn">+ 추가</button>
  {% endif %}

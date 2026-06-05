@@ -106,7 +106,7 @@
  <p class="text-sm font-medium">알림 권한</p>
  <p id="settingsNotifStatus" class="text-xs mt-0.5">확인 중...</p>
  </div>
- <button id="settingsNotifBtn" onclick="requestNotifPermission()"
+ <button id="settingsNotifBtn" data-action="request-notif-permission"
  class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">
  알림 허용하기
  </button>
@@ -133,7 +133,7 @@
  <option value='{"value":2,"unit":"day"}'>2일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button onclick="addOffset('event')" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="event" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
 
@@ -151,7 +151,7 @@
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button onclick="addOffset('todo')" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="todo" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
 
@@ -177,7 +177,7 @@
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button onclick="addOffset('dday')" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="dday" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
  </div>
@@ -189,14 +189,14 @@
     <p class="text-sm font-bold" style="color: var(--color-text);">푸시 알림 (탭 닫아도 수신)</p>
     <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">브라우저를 닫아도 마감 알림을 받을 수 있습니다.</p>
    </div>
-   <button id="pushToggleBtn" onclick="togglePushSubscription()"
+   <button id="pushToggleBtn" data-action="toggle-push-subscription"
     class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
     style="background: var(--color-accent); color: #fff;">
     활성화
    </button>
   </div>
   <p id="pushStatus" class="text-xs" style="color: var(--color-text-faint);"></p>
-  <button id="pushTestBtn" onclick="testPush()" class="hidden mt-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+  <button id="pushTestBtn" data-action="test-push" class="hidden mt-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
    style="border: 1px solid var(--color-border); color: var(--color-text-muted);">테스트 알림 보내기</button>
  </div>
  </div>
@@ -370,7 +370,7 @@
  </summary>
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
- <button onclick="toggleDarkMode()"
+ <button data-action="toggle-dark-mode-settings"
  class="w-full py-2.5 font-medium rounded-lg hover-surface transition-colors text-sm">
  <span class="dark:hidden">🌙 다크 모드로 전환</span>
  <span class="hidden dark:inline">☀️ 라이트 모드로 전환</span>
@@ -387,11 +387,11 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
  <div class="flex gap-3" id="accentPicker">
- <button onclick="setAccentColor('indigo')" data-color="indigo" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #6366f1; border: 2px solid rgba(255,255,255,0.15);" aria-label="인디고 색상" title="인디고"></button>
- <button onclick="setAccentColor('emerald')" data-color="emerald" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #10b981; border: 2px solid rgba(255,255,255,0.15);" aria-label="에메랄드 색상" title="에메랄드"></button>
- <button onclick="setAccentColor('rose')" data-color="rose" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #f43f5e; border: 2px solid rgba(255,255,255,0.15);" aria-label="로즈 색상" title="로즈"></button>
- <button onclick="setAccentColor('amber')" data-color="amber" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #d97706; border: 2px solid rgba(255,255,255,0.15);" aria-label="앰버 색상" title="앰버"></button>
- <button onclick="setAccentColor('sky')" data-color="sky" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #0ea5e9; border: 2px solid rgba(255,255,255,0.15);" aria-label="스카이 색상" title="스카이"></button>
+ <button data-action="set-accent-color" data-color="indigo" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #6366f1; border: 2px solid rgba(255,255,255,0.15);" aria-label="인디고 색상" title="인디고"></button>
+ <button data-action="set-accent-color" data-color="emerald" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #10b981; border: 2px solid rgba(255,255,255,0.15);" aria-label="에메랄드 색상" title="에메랄드"></button>
+ <button data-action="set-accent-color" data-color="rose" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #f43f5e; border: 2px solid rgba(255,255,255,0.15);" aria-label="로즈 색상" title="로즈"></button>
+ <button data-action="set-accent-color" data-color="amber" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #d97706; border: 2px solid rgba(255,255,255,0.15);" aria-label="앰버 색상" title="앰버"></button>
+ <button data-action="set-accent-color" data-color="sky" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #0ea5e9; border: 2px solid rgba(255,255,255,0.15);" aria-label="스카이 색상" title="스카이"></button>
  </div>
  </div>
  </details>
@@ -405,13 +405,13 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
  <div class="flex gap-2" id="fontSizePicker">
- <button onclick="setFontSize('small')" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-xs" style="color: var(--color-text-muted);">가</span> 작게
  </button>
- <button onclick="setFontSize('medium')" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-sm">가</span> 보통
  </button>
- <button onclick="setFontSize('large')" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-base">가</span> 크게
  </button>
  </div>
@@ -663,7 +663,7 @@
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시간</label>
  <input type="time" id="mbTime" value="08:00" class="px-3 py-2.5 text-sm border rounded-lg">
  </div>
- <button onclick="saveMorningBrief()" class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">저장</button>
+ <button data-action="save-morning-brief" class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">저장</button>
  </div>
  <script>
  (function(){

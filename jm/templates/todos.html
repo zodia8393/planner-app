@@ -58,7 +58,7 @@
  </a>
  {% endfor %}
  <span class="text-xs" style="color: var(--color-text-faint);">|</span>
- <button onclick="bulkModeOn()" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
+ <button data-action="bulk-mode-on" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
  일괄
  </button>
 </div>
@@ -157,7 +157,7 @@
  <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent flex-1 min-w-24"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
- <button type="button" onclick="document.getElementById('descField').classList.toggle('hidden')" class="btn-sm hover:underline whitespace-nowrap" style="color: var(--color-accent);">+ 설명</button>
+ <button type="button" data-action="toggle-desc-field" class="btn-sm hover:underline whitespace-nowrap" style="color: var(--color-accent);">+ 설명</button>
  </div>
  <!-- Reminder offsets for new todo -->
  <div class="mt-2">
@@ -179,7 +179,7 @@
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button type="button" onclick="addNewTodoOffset()" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
+ <button type="button" data-action="add-new-todo-offset" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
@@ -236,11 +236,11 @@
 <!-- Bulk action bar -->
 <div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex items-center gap-3 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
  <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
- <button onclick="bulkSelectAll()" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
+ <button data-action="bulk-select-all" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
  <div class="flex-1"></div>
- <button onclick="bulkAction('complete')" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
- <button onclick="bulkAction('delete')" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
- <button onclick="bulkModeOff()" class="px-2 py-1.5 text-xs hover-text">취소</button>
+ <button data-action="bulk-action" data-bulk-type="complete" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
+ <button data-action="bulk-action" data-bulk-type="delete" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
+ <button data-action="bulk-mode-off" class="px-2 py-1.5 text-xs hover-text">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->

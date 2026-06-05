@@ -85,7 +85,7 @@
  <div class="group grid grid-cols-12 gap-2 items-center px-5 py-3 hover-surface/50 transition-colors fade-in">
  <div class="col-span-12 sm:col-span-5">
  {% if item.previewable %}
- <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="flex items-center gap-2.5 min-w-0 text-left w-full">
+ <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="flex items-center gap-2.5 min-w-0 text-left w-full">
  <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
  <span class="text-sm truncate hover-accent transition-colors">{{ item.name }}</span>
  </button>
@@ -107,7 +107,7 @@
  </div>
  <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
  {% if item.previewable %}
- <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1 hover-accent transition-colors" title="미리보기" aria-label="미리보기">
+ <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1 hover-accent transition-colors" title="미리보기" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -134,7 +134,7 @@
  <span class="text-xs" style="color: var(--color-text-muted);">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
  <div class="flex items-center gap-1">
  {% if item.previewable %}
- <button onclick="openPreview('/files/{{ item.path }}?preview=1', '{{ item.name }}', '{{ item.preview_type }}')" class="p-1.5 hover-accent" aria-label="미리보기">
+ <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1.5 hover-accent" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -181,7 +181,7 @@
 {% block scripts %}
 <!-- Preview modal -->
 <div id="previewModal" class="fixed inset-0 z-[100] hidden">
- <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePreview()"></div>
+ <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-action="close-preview"></div>
  <div class="absolute inset-3 sm:inset-6 lg:inset-12 flex flex-col rounded-2xl shadow-2xl overflow-hidden" style="background: var(--color-surface);">
  <!-- Header -->
  <div class="flex items-center justify-between px-5 py-3 border-b flex-shrink-0">
@@ -192,7 +192,7 @@
  </svg>
  <span id="previewTitle" class="text-sm font-semibold truncate"></span>
  </div>
- <button onclick="closePreview()" class="p-1.5 rounded-lg hover-surface transition-colors flex-shrink-0" aria-label="닫기">
+ <button data-action="close-preview" class="p-1.5 rounded-lg hover-surface transition-colors flex-shrink-0" aria-label="닫기">
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
@@ -220,7 +220,7 @@
  <p id="statusTitle" class="text-sm font-semibold truncate"></p>
  <p id="statusDetail" class="text-xs truncate"></p>
  </div>
- <button onclick="hideStatus()" class="hover-text flex-shrink-0" aria-label="닫기">
+ <button data-action="hide-status" class="hover-text flex-shrink-0" aria-label="닫기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
  </svg>
