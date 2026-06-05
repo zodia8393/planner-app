@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}자동화 - My Planner{% endblock %}
+{% block title %}자동화 - JM Planner{% endblock %}
 {% block page_title %}자동화 규칙{% endblock %}
 {% block page_subtitle %}{{ rules|length }}개{% endblock %}
 
@@ -23,7 +23,7 @@
  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
  <form action="/automations/apply-starter" method="POST" class="inline">
  <input type="hidden" name="preset" value="daily_standup">
- <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <button type="submit" aria-label="추천 자동화 적용" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
  <span class="text-lg">🌅</span>
  <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매일 업무 정리</p>
  <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매일"업무 우선순위 정리" 할일 생성</p>
@@ -31,7 +31,7 @@
  </form>
  <form action="/automations/apply-starter" method="POST" class="inline">
  <input type="hidden" name="preset" value="weekly_review">
- <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <button type="submit" aria-label="추천 자동화 적용" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
  <span class="text-lg">📋</span>
  <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매주 금요일 리뷰</p>
  <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">금요일마다"주간 리뷰" 할일 생성</p>
@@ -39,7 +39,7 @@
  </form>
  <form action="/automations/apply-starter" method="POST" class="inline">
  <input type="hidden" name="preset" value="monthly_report">
- <button type="submit" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
+ <button type="submit" aria-label="추천 자동화 적용" class="w-full p-3 rounded-xl text-left transition-colors hover:shadow-md" style="background: var(--color-border-subtle); border: 1px solid var(--color-border);">
  <span class="text-lg">📊</span>
  <p class="text-sm font-semibold mt-1" style="color: var(--color-text);">매월 1일 보고서</p>
  <p class="text-xs mt-0.5" style="color: var(--color-text-faint);">매월 1일"월간 보고서" 할일 생성</p>
@@ -52,13 +52,13 @@
 <div class="work-card rounded-xl p-4 mb-4">
  <h3 class="text-sm font-bold mb-3">새 규칙 만들기</h3>
  <form action="/automations" method="POST" id="automationForm">
- <input type="text" name="name" placeholder="규칙 이름 (예: 매주 월요일 회의 준비)" required
+ <input type="text" name="name" aria-label="규칙 이름" placeholder="규칙 이름 (예: 매주 월요일 회의 준비)" required
  class="w-full px-3 py-2 text-sm border rounded-lg mb-3">
 
  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
  <div>
  <label class="block text-xs font-medium mb-1">트리거</label>
- <select id="triggerType" onchange="updateTriggerUI()"
+ <select id="triggerType" aria-label="트리거 유형" onchange="updateTriggerUI()"
  class="w-full px-3 py-2 text-sm border rounded-lg">
  <option value="daily">매일</option>
  <option value="weekly" selected>매주</option>
@@ -68,7 +68,7 @@
  </div>
  <div id="triggerExtra">
  <label class="block text-xs font-medium mb-1">요일</label>
- <select id="triggerWeekday"
+ <select id="triggerWeekday" aria-label="요일 선택"
  class="w-full px-3 py-2 text-sm border rounded-lg">
  <option value="0">월요일</option>
  <option value="1">화요일</option>
@@ -78,7 +78,7 @@
  <option value="5">토요일</option>
  <option value="6">일요일</option>
  </select>
- <select id="triggerDay" style="display:none"
+ <select id="triggerDay" aria-label="날짜 선택" style="display:none"
  class="w-full px-3 py-2 text-sm border rounded-lg">
  {% for d in range(1, 29) %}
  <option value="{{ d }}">{{ d }}일</option>
@@ -90,9 +90,9 @@
  <div id="rruleTriggerPanel" style="display:none" class="p-3 border rounded-lg space-y-2 mb-3">
  <div class="flex items-center gap-2">
  <span class="text-xs" style="color: var(--color-text-muted);">매</span>
- <input type="number" id="rruleInterval" value="1" min="1" max="99"
+ <input type="number" id="rruleInterval" aria-label="반복 간격" value="1" min="1" max="99"
  class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
- <select id="rruleFreq" onchange="updateRruleExtra()"
+ <select id="rruleFreq" aria-label="반복 단위" onchange="updateRruleExtra()"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="DAILY">일</option>
  <option value="WEEKLY" selected>주</option>
@@ -102,28 +102,28 @@
  <div id="rruleBydayRow" class="flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
  <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
- <input type="checkbox" class="rrule-byday-auto" value="{{ code }}"> {{ label }}
+ <input type="checkbox" class="rrule-byday-auto" aria-label="반복 요일" value="{{ code }}"> {{ label }}
  </label>
  {% endfor %}
  </div>
  <div id="rruleBymonthdayRow" style="display:none">
- <input type="text" id="rruleBymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+ <input type="text" id="rruleBymonthday" aria-label="월 반복 날짜" placeholder="날짜 (쉼표구분, 예: 1,15)"
  class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  </div>
 
  <div class="border-t pt-3 mb-3">
  <label class="block text-xs font-medium mb-2">생성할 할일</label>
- <input type="text" id="actionTitle" placeholder="할일 제목" required
+ <input type="text" id="actionTitle" aria-label="할일 제목" placeholder="할일 제목" required
  class="w-full px-3 py-2 text-sm border rounded-lg mb-2">
  <div class="grid grid-cols-2 gap-2">
- <select id="actionPriority"
+ <select id="actionPriority" aria-label="우선순위"
  class="px-3 py-2 text-sm border rounded-lg">
  <option value="1">긴급</option>
  <option value="2" selected>보통</option>
  <option value="3">낮음</option>
  </select>
- <select id="actionCategory"
+ <select id="actionCategory" aria-label="카테고리"
  class="px-3 py-2 text-sm border rounded-lg">
  <option value="">카테고리 없음</option>
  {% for cat in categories %}
@@ -173,7 +173,7 @@
  {% if rule.enabled %}비활성{% else %}활성{% endif %}
  </button>
  </form>
- <button hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
+ <button aria-label="삭제" hx-delete="/automations/{{ rule.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
  class="px-3 py-1.5 text-xs rounded-lg hover-danger-bg" style="color:var(--color-danger);border:1px solid var(--color-danger-soft);">삭제</button>
  </div>
  </div>

@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}오늘 - My Planner{% endblock %}
+{% block title %}오늘 - JM Planner{% endblock %}
 {% block page_title %}오늘{% endblock %}
 {% block page_subtitle %}{{ today_str|format_date }}{% endblock %}
 
@@ -19,7 +19,7 @@
  <div class="space-y-2">
  {% for t in todos[:8] %}
  <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg {% if t.completed %}opacity-50{% endif %}" style="background: var(--color-border-subtle);" data-todo-id="{{ t.id }}">
- <button hx-post="/todos/{{ t.id }}/toggle" hx-swap="none"
+ <button aria-label="완료 토글" hx-post="/todos/{{ t.id }}/toggle" hx-swap="none"
  hx-on::after-request="toggleInPlace(this, 'todo')"
  class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors flex-shrink-0"
  {% if t.completed %}style="background: var(--color-accent); border-color: var(--color-accent);"{% endif %}>
@@ -84,7 +84,7 @@
  <div class="space-y-2">
  {% for h in habits %}
  <div class="flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors {% if h.today_done %}opacity-60{% endif %}" style="background: var(--color-border-subtle);" data-habit-id="{{ h.id }}">
- <button hx-post="/habits/{{ h.id }}/toggle" hx-swap="none"
+ <button aria-label="완료 토글" hx-post="/habits/{{ h.id }}/toggle" hx-swap="none"
  hx-vals='{"date": "{{ today_str }}"}'
  hx-on::after-request="toggleInPlace(this, 'habit')"
  class="w-6 h-6 rounded-lg flex items-center justify-center text-sm flex-shrink-0"

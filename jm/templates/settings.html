@@ -28,12 +28,12 @@
  <form action="/settings/categories" method="POST" class="flex gap-2 items-end mb-4">
  <div class="flex-1">
  <label class="text-xs font-medium mb-1 block" style="color: var(--color-text-faint);">이름</label>
- <input type="text" name="name" placeholder="카테고리 이름" required
+ <input type="text" name="name" placeholder="카테고리 이름" required aria-label="카테고리 이름"
  class="input-premium w-full px-4 py-2.5 text-sm" style="background: var(--color-bg);">
  </div>
  <div>
  <label class="text-xs font-medium mb-1 block" style="color: var(--color-text-faint);">색상</label>
- <input type="color" name="color" value="#d97706"
+ <input type="color" name="color" value="#d97706" aria-label="카테고리 색상"
  class="w-14 h-10 rounded-lg cursor-pointer" style="border: 1.5px solid var(--color-border);">
  </div>
  <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">추가</button>
@@ -76,7 +76,7 @@
  <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:{{ cat.color }}"></span>
  <span class="text-sm flex-1">{{ cat.name }}</span>
  <input type="hidden" name="category_id" value="{{ cat.id }}">
- <input type="number" name="weekly_hours" value="{{ cat.budget_hours or '' }}" step="0.5" min="0" max="168" placeholder="0"
+ <input type="number" name="weekly_hours" aria-label="주간 시간 예산" value="{{ cat.budget_hours or '' }}" step="0.5" min="0" max="168" placeholder="0"
  class="w-20 px-2.5 py-1.5 text-sm text-right border rounded-lg">
  <span class="text-xs w-12" style="color: var(--color-text-muted);">시간/주</span>
  </div>
@@ -121,7 +121,7 @@
  </div>
  <div id="eventOffsets" class="flex flex-wrap gap-1.5 mb-2"></div>
  <div class="flex gap-2">
- <select id="eventOffsetSelect" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="eventOffsetSelect" aria-label="일정 알림 시간 선택" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>정시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -133,7 +133,7 @@
  <option value='{"value":2,"unit":"day"}'>2일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button data-action="add-offset" data-offset-type="event" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="event" aria-label="일정 알림 추가" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
 
@@ -144,14 +144,14 @@
  </div>
  <div id="todoOffsets" class="flex flex-wrap gap-1.5 mb-2"></div>
  <div class="flex gap-2">
- <select id="todoOffsetSelect" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="todoOffsetSelect" aria-label="할일 알림 시간 선택" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>당일 09:00</option>
  <option value='{"value":1,"unit":"day"}' selected>1일 전</option>
  <option value='{"value":2,"unit":"day"}'>2일 전</option>
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button data-action="add-offset" data-offset-type="todo" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="todo" aria-label="할일 알림 추가" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
 
@@ -171,13 +171,13 @@
  </div>
  <div id="ddayOffsets" class="flex flex-wrap gap-1.5 mb-2"></div>
  <div class="flex gap-2">
- <select id="ddayOffsetSelect" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="ddayOffsetSelect" aria-label="D-day 알림 시간 선택" class="flex-1 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":1,"unit":"day"}' selected>1일 전</option>
  <option value='{"value":2,"unit":"day"}'>2일 전</option>
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button data-action="add-offset" data-offset-type="dday" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
+ <button data-action="add-offset" data-offset-type="dday" aria-label="D-day 알림 추가" class="px-3 py-1.5 text-xs btn-primary rounded-lg">추가</button>
  </div>
  </div>
  </div>
@@ -189,14 +189,14 @@
     <p class="text-sm font-bold" style="color: var(--color-text);">푸시 알림 (탭 닫아도 수신)</p>
     <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">브라우저를 닫아도 마감 알림을 받을 수 있습니다.</p>
    </div>
-   <button id="pushToggleBtn" data-action="toggle-push-subscription"
+   <button id="pushToggleBtn" data-action="toggle-push-subscription" aria-label="푸시 알림 토글"
     class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
     style="background: var(--color-accent); color: #fff;">
     활성화
    </button>
   </div>
   <p id="pushStatus" class="text-xs" style="color: var(--color-text-faint);"></p>
-  <button id="pushTestBtn" data-action="test-push" class="hidden mt-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+  <button id="pushTestBtn" data-action="test-push" aria-label="푸시 알림 테스트" class="hidden mt-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
    style="border: 1px solid var(--color-border); color: var(--color-text-muted);">테스트 알림 보내기</button>
  </div>
  </div>
@@ -370,7 +370,7 @@
  </summary>
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
- <button data-action="toggle-dark-mode-settings"
+ <button data-action="toggle-dark-mode-settings" aria-label="테마 전환"
  class="w-full py-2.5 font-medium rounded-lg hover-surface transition-colors text-sm">
  <span class="dark:hidden">🌙 다크 모드로 전환</span>
  <span class="hidden dark:inline">☀️ 라이트 모드로 전환</span>
@@ -405,13 +405,13 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
  <div class="flex gap-2" id="fontSizePicker">
- <button data-action="set-font-size" data-size="small" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="small" aria-label="작은 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-xs" style="color: var(--color-text-muted);">가</span> 작게
  </button>
- <button data-action="set-font-size" data-size="medium" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="medium" aria-label="보통 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-sm">가</span> 보통
  </button>
- <button data-action="set-font-size" data-size="large" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="large" aria-label="큰 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
  <span class="text-base">가</span> 크게
  </button>
  </div>
@@ -475,17 +475,17 @@
  <!-- Background type selection -->
  <div class="space-y-3 mb-5">
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
- <input type="radio" name="type" value="none" {% if current_bg_type == 'none' %}checked{% endif %}
+ <input type="radio" name="type" value="none" aria-label="배경 없음" {% if current_bg_type == 'none' %}checked{% endif %}
  class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">기본 (배경 없음)</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
- <input type="radio" name="type" value="preset" {% if current_bg_type == 'preset' %}checked{% endif %}
+ <input type="radio" name="type" value="preset" aria-label="프리셋 배경" {% if current_bg_type == 'preset' %}checked{% endif %}
  class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">프리셋 그라데이션</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
- <input type="radio" name="type" value="upload" {% if current_bg_type == 'upload' %}checked{% endif %}
+ <input type="radio" name="type" value="upload" aria-label="사용자 이미지 배경" {% if current_bg_type == 'upload' %}checked{% endif %}
  class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
  <span class="text-sm font-medium">사진 업로드</span>
  </label>
@@ -496,37 +496,37 @@
  <label class="text-xs mb-2 block font-medium">그라데이션 선택</label>
  <div class="grid grid-cols-3 gap-2">
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-1" class="sr-only peer" {% if current_bg_preset == 'gradient-1' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-1" aria-label="그라데이션 1" class="sr-only peer" {% if current_bg_preset == 'gradient-1' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)"></div>
  <p class="text-[11px] text-center mt-1">Sunset</p>
  </label>
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-2" class="sr-only peer" {% if current_bg_preset == 'gradient-2' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-2" aria-label="그라데이션 2" class="sr-only peer" {% if current_bg_preset == 'gradient-2' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)"></div>
  <p class="text-[11px] text-center mt-1">Ocean</p>
  </label>
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-3" class="sr-only peer" {% if current_bg_preset == 'gradient-3' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-3" aria-label="그라데이션 3" class="sr-only peer" {% if current_bg_preset == 'gradient-3' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"></div>
  <p class="text-[11px] text-center mt-1">Forest</p>
  </label>
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-4" class="sr-only peer" {% if current_bg_preset == 'gradient-4' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-4" aria-label="그라데이션 4" class="sr-only peer" {% if current_bg_preset == 'gradient-4' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%)"></div>
  <p class="text-[11px] text-center mt-1">Warm</p>
  </label>
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-5" class="sr-only peer" {% if current_bg_preset == 'gradient-5' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-5" aria-label="그라데이션 5" class="sr-only peer" {% if current_bg_preset == 'gradient-5' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #0c0d2e 0%, #1a1b4b 50%, #3b1d6e 100%)"></div>
  <p class="text-[11px] text-center mt-1">Night Sky</p>
  </label>
  <label class="cursor-pointer">
- <input type="radio" name="preset" value="gradient-6" class="sr-only peer" {% if current_bg_preset == 'gradient-6' %}checked{% endif %}>
+ <input type="radio" name="preset" value="gradient-6" aria-label="그라데이션 6" class="sr-only peer" {% if current_bg_preset == 'gradient-6' %}checked{% endif %}>
  <div class="h-16 rounded-lg border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-1 transition-all"
  style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ee9ca7 100%)"></div>
  <p class="text-[11px] text-center mt-1">Rose Gold</p>
@@ -537,7 +537,7 @@
  <!-- File upload -->
  <div id="uploadSection" class="mb-5 {% if current_bg_type != 'upload' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">이미지 업로드 (최대 5MB, jpg/png/webp)</label>
- <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp"
+ <input type="file" name="file" accept=".jpg" aria-label="배경 이미지 선택",.jpeg,.png,.webp"
  class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium" style="--file-bg: var(--color-surface-elevated); --file-color: var(--color-text-muted);">
  {% if bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
  <p class="mt-2 text-xs" style="color: var(--color-success);">현재 업로드된 이미지: {{ bg_setting.image }}</p>
@@ -547,7 +547,7 @@
  <!-- Opacity slider -->
  <div id="opacitySection" class="mb-5 {% if current_bg_type == 'none' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">오버레이 투명도: <span id="opacityValue">{{ current_bg_opacity }}</span></label>
- <input type="range" name="opacity" min="0.3" max="0.95" step="0.05" value="{{ current_bg_opacity }}"
+ <input type="range" name="opacity" aria-label="배경 투명도" min="0.3" max="0.95" step="0.05" value="{{ current_bg_opacity }}"
  class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="accent-color: var(--color-accent);"
  oninput="document.getElementById('opacityValue').textContent=this.value">
  <div class="flex justify-between text-[11px] mt-1">
@@ -616,7 +616,7 @@
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">캘린더 선택</label>
  <div class="flex gap-2">
- <select id="gcalSelect" class="flex-1 px-3 py-2.5 text-sm border rounded-lg">
+ <select id="gcalSelect" aria-label="Google 캘린더 선택" class="flex-1 px-3 py-2.5 text-sm border rounded-lg">
  <option value="primary">기본 캘린더</option>
  </select>
  <button onclick="fetch('/api/gcal/calendars').then(r=>r.json()).then(cals=>{const s=document.getElementById('gcalSelect');s.innerHTML='';cals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.summary;s.appendChild(o)})}).catch(function(){alert('캘린더 목록을 불러올 수 없습니다')})"
@@ -654,16 +654,16 @@
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">활성화</label>
  <label class="relative inline-flex items-center cursor-pointer">
- <input type="checkbox" id="mbEnabled" class="sr-only peer">
+ <input type="checkbox" id="mbEnabled" aria-label="모닝 브리프 활성화" class="sr-only peer">
  <div class="toggle-track w-11 h-6 rounded-full transition-colors" style="background: var(--color-border);"></div>
  <div class="absolute left-1 top-1 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background: var(--color-surface);"></div>
  </label>
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시간</label>
- <input type="time" id="mbTime" value="08:00" class="px-3 py-2.5 text-sm border rounded-lg">
+ <input type="time" id="mbTime" aria-label="모닝 브리프 시간" value="08:00" class="px-3 py-2.5 text-sm border rounded-lg">
  </div>
- <button data-action="save-morning-brief" class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">저장</button>
+ <button data-action="save-morning-brief" aria-label="모닝 브리프 저장" class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">저장</button>
  </div>
  <script>
  (function(){
@@ -685,7 +685,7 @@
  <h5 class="font-bold mb-2" style="color: var(--color-text);">캘린더 내보내기</h5>
  <p class="text-xs mb-4" style="color: var(--color-text-muted);">아래 URL을 외부 캘린더에 등록하면 플래너 일정이 자동 동기화됩니다.</p>
  <div class="flex gap-2 items-center">
- <input type="text" id="icalUrl" readonly
+ <input type="text" id="icalUrl" readonly aria-label="iCal URL"
  value="{{ request.url.scheme }}://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
  class="flex-1 px-3 py-2.5 text-xs border rounded-lg font-mono">
  <button onclick="navigator.clipboard.writeText(document.getElementById('icalUrl').value).then(()=>{this.textContent='복사됨!';setTimeout(()=>this.textContent='복사',1500)})"
@@ -740,13 +740,13 @@
    <p class="text-xs mb-3" style="color: var(--color-text-muted);">Todoist, Google Tasks 등의 CSV 파일을 가져올 수 있습니다.</p>
    <form id="importForm" onsubmit="return handleImport(event)">
     <div class="flex items-center gap-2 mb-2">
-     <select id="importSource" class="flex-1 px-3 py-2 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+     <select id="importSource" aria-label="가져오기 소스" class="flex-1 px-3 py-2 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
       <option value="todoist">Todoist (CSV)</option>
       <option value="csv">일반 CSV (제목, 마감일, 우선순위)</option>
      </select>
     </div>
     <div class="flex items-center gap-2">
-     <input type="file" id="importFile" accept=".csv,.json" class="flex-1 text-sm" style="color: var(--color-text-muted);">
+     <input type="file" id="importFile" aria-label="가져올 파일 선택" accept=".csv,.json" class="flex-1 text-sm" style="color: var(--color-text-muted);">
      <button type="submit" class="px-4 py-2 text-sm font-medium btn-primary rounded-lg">가져오기</button>
     </div>
    </form>

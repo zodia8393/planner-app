@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}공유폴더 - My Planner{% endblock %}
+{% block title %}공유폴더 - JM Planner{% endblock %}
 {% block page_title %}공유폴더{% endblock %}
 {% block page_subtitle %}팀 공유 파일{% endblock %}
 
@@ -37,15 +37,15 @@
  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
  </svg>
  파일 업로드
- <input type="file" name="files" multiple class="hidden" onchange="uploadFiles(this.files)">
+ <input type="file" name="files" multiple class="hidden" aria-label="파일 선택" onchange="uploadFiles(this.files)">
  </label>
  </form>
 
  <!-- New folder -->
  <form action="/files/mkdir/{{ current_path }}" method="POST" class="flex gap-2 items-center" hx-boost="false">
- <input type="text" name="folder_name" placeholder="새 폴더명" required
+ <input type="text" name="folder_name" placeholder="새 폴더명" aria-label="폴더명" required
  class="px-3 py-2 text-sm border rounded-lg focus-accent w-36" style="background: var(--color-surface);">
- <button type="submit" class="px-3 py-2 text-sm font-medium rounded-lg hover-surface transition-colors flex items-center gap-1">
+ <button type="submit" aria-label="폴더 생성" class="px-3 py-2 text-sm font-medium rounded-lg hover-surface transition-colors flex items-center gap-1">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.06-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
  </svg>
@@ -85,7 +85,7 @@
  <div class="group grid grid-cols-12 gap-2 items-center px-5 py-3 hover-surface/50 transition-colors fade-in">
  <div class="col-span-12 sm:col-span-5">
  {% if item.previewable %}
- <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="flex items-center gap-2.5 min-w-0 text-left w-full">
+ <button data-action="open-preview" aria-label="파일 미리보기" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="flex items-center gap-2.5 min-w-0 text-left w-full">
  <span class="text-lg flex-shrink-0">{{ item.icon }}</span>
  <span class="text-sm truncate hover-accent transition-colors">{{ item.name }}</span>
  </button>
@@ -107,7 +107,7 @@
  </div>
  <div class="hidden sm:flex col-span-1 justify-end gap-0.5">
  {% if item.previewable %}
- <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1 hover-accent transition-colors" title="미리보기" aria-label="미리보기">
+ <button data-action="open-preview" aria-label="파일 미리보기" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1 hover-accent transition-colors" title="미리보기" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -134,7 +134,7 @@
  <span class="text-xs" style="color: var(--color-text-muted);">{% if item.uploader %}{{ item.uploader }} · {% endif %}{{ item.size }} · {{ item.modified }}</span>
  <div class="flex items-center gap-1">
  {% if item.previewable %}
- <button data-action="open-preview" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1.5 hover-accent" aria-label="미리보기">
+ <button data-action="open-preview" aria-label="파일 미리보기" data-preview-url="/files/{{ item.path }}?preview=1" data-name="{{ item.name }}" data-type="{{ item.preview_type }}" class="p-1.5 hover-accent" aria-label="미리보기">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

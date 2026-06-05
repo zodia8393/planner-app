@@ -3,21 +3,21 @@
  <div class="flex items-center justify-between mb-1">
  <h4 class="font-bold text-sm" style="color: var(--color-accent);">메모 편집</h4>
  </div>
- <input type="text" name="title" value="{{ memo.title or '' }}" placeholder="제목"
+ <input type="text" name="title" value="{{ memo.title or '' }}" aria-label="메모 제목" placeholder="제목"
  class="w-full px-3 py-2 text-sm border rounded-lg focus-accent">
- <textarea name="content" rows="3" required placeholder="내용"
+ <textarea name="content" rows="3" required placeholder="내용" aria-label="메모 내용"
  class="w-full px-3 py-2 text-sm border rounded-lg focus-accent resize-none">{{ memo.content }}</textarea>
  <div class="flex gap-2 items-center">
- <select name="category_id" class="flex-1 px-3 py-1.5 text-sm border rounded-lg">
+ <select name="category_id" aria-label="카테고리" class="flex-1 px-3 py-1.5 text-sm border rounded-lg">
  <option value="">카테고리 없음</option>
  {% for cat in categories %}
  <option value="{{ cat.id }}" {% if cat.id == memo.category_id %}selected{% endif %}>{{ cat.name }}</option>
  {% endfor %}
  </select>
- <input type="date" name="created_at" value="{{ memo.created_at[:10] if memo.created_at else '' }}"
+ <input type="date" name="created_at" aria-label="날짜" value="{{ memo.created_at[:10] if memo.created_at else '' }}"
  class="px-3 py-1.5 text-sm border rounded-lg focus-accent"
  title="메모 날짜">
- <button type="button" hx-get="/memos/{{ memo.id }}/view" hx-target="closest [data-memo-id]" hx-swap="outerHTML"
+ <button type="button" aria-label="취소" hx-get="/memos/{{ memo.id }}/view" hx-target="closest [data-memo-id]" hx-swap="outerHTML"
  class="px-3 py-1.5 text-sm hover-text rounded-lg hover-surface">취소</button>
  <button type="submit" class="px-4 py-1.5 btn-primary font-medium text-sm rounded-lg transition-colors">저장</button>
  </div>

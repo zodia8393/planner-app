@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}할일 템플릿 - My Planner{% endblock %}
+{% block title %}할일 템플릿 - JM Planner{% endblock %}
 {% block page_title %}할일 템플릿{% endblock %}
 {% block page_subtitle %}{{ templates|length }}개{% endblock %}
 
@@ -17,7 +17,7 @@
 <div class="work-card rounded-xl p-4 mb-4">
  <h3 class="text-sm font-bold mb-3">새 템플릿 만들기</h3>
  <form action="/todo-templates" method="POST" id="newTplForm">
- <input type="text" name="name" placeholder="템플릿 이름 (예: 주간 회의 준비)" required
+ <input type="text" name="name" aria-label="템플릿 이름" placeholder="템플릿 이름 (예: 주간 회의 준비)" required
  class="w-full px-3 py-2 text-sm border rounded-lg mb-2">
  <input type="hidden" name="items_json" id="itemsJson" value="[]">
  <div id="tplItems" class="space-y-2 mb-3"></div>
@@ -36,7 +36,7 @@
  <form action="/todo-templates/{{ tpl.id }}/apply" method="POST">
  <button type="submit" class="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">할일로 생성</button>
  </form>
- <button hx-delete="/todo-templates/{{ tpl.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
+ <button aria-label="삭제" hx-delete="/todo-templates/{{ tpl.id }}" hx-confirm="삭제할까요?" hx-target="closest .work-card" hx-swap="outerHTML"
  class="px-3 py-1.5 text-xs rounded-lg hover-danger-bg" style="color:var(--color-danger);border:1px solid var(--color-danger-soft);">삭제</button>
  </div>
  </div>
@@ -75,8 +75,8 @@ function addTplItem() {
  var container = document.getElementById('tplItems');
  var div = document.createElement('div');
  div.className = 'flex gap-2 items-center';
- div.innerHTML = '<input type="text" placeholder="할일 제목" class="flex-1 px-2 py-1 text-sm border rounded" data-tpl-title>' +
- '<select class="px-2 py-1 text-xs border rounded" data-tpl-priority>' +
+ div.innerHTML = '<input type="text" placeholder="할일 제목" aria-label="할일 제목" class="flex-1 px-2 py-1 text-sm border rounded" data-tpl-title>' +
+ '<select class="px-2 py-1 text-xs border rounded" data-tpl-priority aria-label="우선순위">' +
  '<option value="2">보통</option><option value="1">긴급</option><option value="3">낮음</option></select>' +
  '<button type="button" onclick="this.parentElement.remove();updateItemsJson()" class="text-red-400 text-xs hover-danger">&times;</button>';
  container.appendChild(div);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - My Planner</title>
+    <title>로그인 - JM Planner</title>
     <link rel="stylesheet" href="/static/tailwind.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <style>
@@ -24,7 +24,7 @@
                 {% endif %}
             </div>
             <h1 class="text-xl font-bold mb-1" style="color: var(--color-text);">
-                {% if profile_name %}{{ profile_name }}{% else %}My Planner{% endif %}
+                {% if profile_name %}{{ profile_name }}{% else %}JM Planner{% endif %}
             </h1>
             <p class="text-sm mb-6" style="color: var(--color-text-faint);">PIN을 입력하세요</p>
 
@@ -33,8 +33,8 @@
             {% endif %}
 
             <form action="/login" method="POST" class="space-y-4">
-                <input type="password" name="pin" placeholder="PIN" maxlength="10" required autofocus
-                       class="pin-input w-full px-4 py-3 text-lg font-bold border rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all" style="background: var(--color-border-subtle); border-color: var(--color-border);"
+                <input type="password" name="pin" placeholder="PIN" aria-label="PIN 입력" maxlength="10" required autofocus
+                       class="pin-input w-full px-4 py-3 text-lg font-bold border rounded-xl focus-accent focus:border-transparent transition-all" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        inputmode="numeric" autocomplete="off">
                 <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 transition-all">
                     로그인

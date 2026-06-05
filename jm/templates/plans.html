@@ -99,7 +99,7 @@
  <div class="p-2 space-y-1.5 min-h-[60px] lg:min-h-[100px]">
  {% for todo in day.todos %}
  <div class="flex items-start gap-2 px-2 py-1.5 rounded-lg group hover-surface transition-colors" data-todo-id="{{ todo.id }}">
- <button hx-post="/todos/{{ todo.id }}/toggle" hx-swap="none"
+ <button aria-label="완료 토글" hx-post="/todos/{{ todo.id }}/toggle" hx-swap="none"
  hx-on::after-request="togglePlanTodo(this)"
  class="flex-shrink-0 mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors
  {% if todo.completed %}bg-amber-500 border-amber-500{% else %} hover:border-amber-400{% endif %}">

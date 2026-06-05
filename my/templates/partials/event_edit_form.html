@@ -11,18 +11,18 @@
  <form hx-put="/events/{{ event.id }}" hx-target="#editEventContainer" hx-swap="innerHTML" class="space-y-3">
  <input type="hidden" name="return_year" value="{{ return_year }}">
  <input type="hidden" name="return_month" value="{{ return_month }}">
- <input type="text" name="title" value="{{ event.title }}" required
+ <input type="text" name="title" value="{{ event.title }}" required aria-label="일정 제목"
  class="w-full px-4 py-2.5 text-sm border rounded-lg focus-accent">
  <div class="grid grid-cols-2 gap-2">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시작</label>
- <input type="datetime-local" name="start_time" value="{{ event.start_time }}"
+ <input type="datetime-local" name="start_time" value="{{ event.start_time }}" aria-label="시작 시간"
  class="w-full px-3 py-2 text-sm border rounded-lg"
 >
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">종료</label>
- <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}"
+ <input type="datetime-local" name="end_time" value="{{ event.end_time or '' }}" aria-label="종료 시간"
  class="w-full px-3 py-2 text-sm border rounded-lg"
 >
  </div>
@@ -30,12 +30,12 @@
  <div class="grid grid-cols-2 gap-2">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">색상</label>
- <input type="color" name="color" value="{{ event.color or '#d97706' }}"
+ <input type="color" name="color" value="{{ event.color or '#d97706' }}" aria-label="일정 색상"
  class="w-full h-10 rounded-lg border cursor-pointer">
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">카테고리</label>
- <select name="category_id" class="w-full px-3 py-2 text-sm border rounded-lg">
+ <select name="category_id" aria-label="카테고리" class="w-full px-3 py-2 text-sm border rounded-lg">
  <option value="">없음</option>
  {% for cat in categories %}
  <option value="{{ cat.id }}" {% if cat.id == event.category_id %}selected{% endif %}>{{ cat.name }}</option>
@@ -43,12 +43,12 @@
  </select>
  </div>
  </div>
- <textarea name="memo" placeholder="메모" rows="2"
+ <textarea name="memo" placeholder="메모" rows="2" aria-label="메모"
  class="w-full px-4 py-2 text-sm border rounded-lg">{{ event.memo or '' }}</textarea>
  <div class="grid grid-cols-2 gap-2">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복</label>
- <select name="recurrence"
+ <select name="recurrence" aria-label="반복 설정"
  class="w-full px-3 py-2 text-sm border rounded-lg">
  <option value="">없음</option>
  <option value="daily" {% if event.recurrence == 'daily' %}selected{% endif %}>매일</option>
@@ -60,7 +60,7 @@
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복 종료</label>
- <input type="date" name="recurrence_end" value="{{ event.recurrence_end or '' }}"
+ <input type="date" name="recurrence_end" aria-label="반복 종료일" value="{{ event.recurrence_end or '' }}"
  class="w-full px-3 py-2 text-sm border rounded-lg"
 >
  </div>
@@ -71,7 +71,7 @@
  <input type="hidden" name="reminder_offsets" id="eventReminderOffsets_{{ event.id }}" value="{{ event.reminder_offsets or '' }}">
  <div class="flex flex-wrap gap-1 mb-1.5" id="eventOffsetChips_{{ event.id }}"></div>
  <div class="flex gap-1.5">
- <select id="eventOffsetSel_{{ event.id }}" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="eventOffsetSel_{{ event.id }}" aria-label="알림 시간 선택" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>정시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -81,10 +81,10 @@
  <option value='{"value":2,"unit":"hour"}'>2시간 전</option>
  <option value='{"value":1,"unit":"day"}'>1일 전</option>
  </select>
- <button type="button" onclick="addEventOffset({{ event.id }})" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
+ <button type="button" onclick="addEventOffset({{ event.id }})" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="eventUseDefault_{{ event.id }}" onchange="toggleEventDefault({{ event.id }})"
+ <input type="checkbox" id="eventUseDefault_{{ event.id }}" aria-label="기본값 사용" onchange="toggleEventDefault({{ event.id }})"
  {% if not event.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
@@ -137,7 +137,7 @@
  <button type="submit" class="flex-1 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm">
  저장
  </button>
- <button type="button" onclick="if(confirm('삭제할까요?'))fetch('/events/{{ event.id }}',{method:'DELETE'}).finally(function(){location.reload()})"
+ <button type="button" aria-label="일정 삭제" onclick="if(confirm('삭제할까요?'))fetch('/events/{{ event.id }}',{method:'DELETE'}).finally(function(){location.reload()})"
  class="px-4 py-2.5 font-medium rounded-lg hover-danger-bg transition-colors text-sm" style="background: var(--color-danger-soft); color: var(--color-danger);">
  삭제
  </button>

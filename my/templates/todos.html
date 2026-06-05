@@ -1,6 +1,6 @@
 {% extends"base.html" %}
 {% block head_extra %}<script src="/static/sortable.min.js"></script>{% endblock %}
-{% block title %}업무 - My Planner{% endblock %}
+{% block title %}업무 - JM Planner{% endblock %}
 {% block page_title %}업무 관리{% endblock %}
 {% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
 
@@ -58,7 +58,7 @@
  </a>
  {% endfor %}
  <span class="text-xs" style="color: var(--color-text-faint);">|</span>
- <button data-action="bulk-mode-on" id="bulkToggle" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
+ <button data-action="bulk-mode-on" id="bulkToggle" aria-label="일괄 처리 모드" class="btn-sm rounded-lg font-semibold transition-colors whitespace-nowrap border" style="background: var(--color-surface);">
  일괄
  </button>
 </div>
@@ -111,7 +111,7 @@
 <div class="work-card rounded-xl p-4 mb-4" id="addForm">
  <form action="/todos" method="POST">
  <div class="flex gap-2">
- <input type="text" name="title" placeholder="새 업무 추가..." required
+ <input type="text" name="title" placeholder="새 업무 추가..." required aria-label="새 업무 제목"
  class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
  <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
  추가
@@ -124,40 +124,40 @@
  옵션 더보기
  </summary>
  <div class="flex flex-wrap items-center gap-1.5">
- <input type="date" name="due_date" value="{{ today.isoformat() }}"
+ <input type="date" name="due_date" value="{{ today.isoformat() }}" aria-label="마감일"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);"
 >
- <select name="priority" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
+ <select name="priority" aria-label="우선순위" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
  {% for pk, pv in priority_map.items() %}
  <option value="{{ pk }}" {% if pk == 2 %}selected{% endif %}>{{ pv.label }}</option>
  {% endfor %}
  </select>
- <select name="category_id" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
+ <select name="category_id" aria-label="카테고리" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
  <option value="">카테고리</option>
  {% for cat in categories %}
  <option value="{{ cat.id }}">{{ cat.name }}</option>
  {% endfor %}
  </select>
- <select name="repeat_type" id="addRepeatType" onchange="toggleAddRrule()"
+ <select name="repeat_type" id="addRepeatType" aria-label="반복 설정" onchange="toggleAddRrule()"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
  {% for rk, rv in repeat_map.items() %}
  <option value="{{ rk }}">{{ rv }}</option>
  {% endfor %}
  </select>
- <select name="energy_level" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
+ <select name="energy_level" aria-label="에너지 레벨" class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
  <option value="1">🟢 저에너지</option>
  <option value="2" selected>🔵 보통에너지</option>
  <option value="3">🔥 고에너지</option>
  </select>
- <input type="text" name="tags" placeholder="태그 (쉼표 구분)"
+ <input type="text" name="tags" placeholder="태그 (쉼표 구분)" aria-label="태그"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent flex-1 min-w-24"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
- <button type="button" data-action="toggle-desc-field" class="btn-sm hover:underline whitespace-nowrap" style="color: var(--color-accent);">+ 설명</button>
+ <button type="button" data-action="toggle-desc-field" aria-label="설명 필드 표시" class="btn-sm hover:underline whitespace-nowrap" style="color: var(--color-accent);">+ 설명</button>
  </div>
  <!-- Reminder offsets for new todo -->
  <div class="mt-2">
@@ -165,7 +165,7 @@
  <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="">
  <div class="flex flex-wrap gap-1 mb-1.5" id="newTodoOffsetChips"></div>
  <div class="flex gap-1.5">
- <select id="newTodoOffsetSel" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="newTodoOffsetSel" aria-label="알림 시간 선택" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -179,10 +179,10 @@
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button type="button" data-action="add-new-todo-offset" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
+ <button type="button" data-action="add-new-todo-offset" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newTodoUseDefault" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
+ <input type="checkbox" id="newTodoUseDefault" aria-label="기본 알림 사용" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
@@ -190,9 +190,9 @@
  <div id="addRrulePanel" class="hidden mt-2 p-3 border rounded-lg space-y-2">
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
- <input type="number" name="rrule_interval" value="1" min="1" max="99"
+ <input type="number" name="rrule_interval" value="1" aria-label="반복 간격" min="1" max="99"
  class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
- <select name="rrule_freq" id="addRruleFreq" onchange="toggleAddRruleExtra()"
+ <select name="rrule_freq" id="addRruleFreq" aria-label="반복 단위" onchange="toggleAddRruleExtra()"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="DAILY">일</option>
  <option value="WEEKLY" selected>주</option>
@@ -203,31 +203,31 @@
  <div id="addBydayRow" class="flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
  <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
- <input type="checkbox" class="rrule-byday-add" value="{{ code }}"> {{ label }}
+ <input type="checkbox" class="rrule-byday-add" aria-label="반복 요일" value="{{ code }}"> {{ label }}
  </label>
  {% endfor %}
  </div>
  <div id="addBymonthdayRow" class="hidden">
- <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)"
+ <input type="text" name="rrule_bymonthday" aria-label="월 반복 날짜" placeholder="날짜 (쉼표구분, 예: 1,15)"
  class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
- <select name="rrule_end_type" id="addRruleEndType" onchange="toggleAddEndFields()"
+ <select name="rrule_end_type" id="addRruleEndType" aria-label="반복 종료 방식" onchange="toggleAddEndFields()"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="never">무제한</option>
  <option value="count">횟수</option>
  <option value="until">날짜</option>
  </select>
- <input type="number" name="rrule_count" id="addRruleCount" min="1" max="999" value="10" placeholder="횟수"
+ <input type="number" name="rrule_count" id="addRruleCount" aria-label="반복 횟수" min="1" max="999" value="10" placeholder="횟수"
  class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
- <input type="date" name="rrule_until" id="addRruleUntil"
+ <input type="date" name="rrule_until" id="addRruleUntil" aria-label="반복 종료일"
  class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  <div id="addRrulePreview" class="text-[11px]" style="color: var(--color-accent);"></div>
  </div>
  <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
- <textarea name="description" placeholder="설명 (선택)" rows="2"
+ <textarea name="description" placeholder="설명 (선택)" aria-label="설명" rows="2"
  class="w-full mt-2 px-3 py-2 text-sm border rounded-lg focus-accent hidden" id="descField"></textarea>
  </details>
  </form>
@@ -236,11 +236,11 @@
 <!-- Bulk action bar -->
 <div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex items-center gap-3 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
  <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
- <button data-action="bulk-select-all" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
+ <button data-action="bulk-select-all" aria-label="전체 선택" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
  <div class="flex-1"></div>
- <button data-action="bulk-action" data-bulk-type="complete" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
- <button data-action="bulk-action" data-bulk-type="delete" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
- <button data-action="bulk-mode-off" class="px-2 py-1.5 text-xs hover-text">취소</button>
+ <button data-action="bulk-action" data-bulk-type="complete" aria-label="선택 항목 완료 처리" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
+ <button data-action="bulk-action" data-bulk-type="delete" aria-label="선택 항목 삭제" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
+ <button data-action="bulk-mode-off" aria-label="일괄 처리 취소" class="px-2 py-1.5 text-xs hover-text">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->

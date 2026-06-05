@@ -4,33 +4,33 @@
  <h4 class="font-bold text-sm" style="color: var(--color-accent);">편집</h4>
  <a href="/todos" hx-boost="false" class="text-xs hover-text">취소</a>
  </div>
- <input type="text" name="title" value="{{ todo.title }}" required
+ <input type="text" name="title" value="{{ todo.title }}" required aria-label="할일 제목"
  class="w-full px-4 py-2.5 text-sm border rounded-lg focus-accent">
- <textarea name="description" rows="2" placeholder="설명"
+ <textarea name="description" rows="2" placeholder="설명" aria-label="설명"
  class="w-full px-4 py-2 text-sm border rounded-lg focus-accent">{{ todo.description }}</textarea>
  <div class="flex flex-wrap gap-2">
- <input type="date" name="due_date" value="{{ todo.due_date or '' }}"
+ <input type="date" name="due_date" aria-label="마감일" value="{{ todo.due_date or '' }}"
  class="px-3 py-1.5 text-sm border rounded-lg"
 >
- <select name="priority" class="px-3 py-1.5 text-sm border rounded-lg">
+ <select name="priority" aria-label="우선순위" class="px-3 py-1.5 text-sm border rounded-lg">
  {% for pk, pv in priority_map.items() %}
  <option value="{{ pk }}" {% if pk == todo.priority %}selected{% endif %}>{{ pv.label }}</option>
  {% endfor %}
  </select>
- <select name="category_id" class="px-3 py-1.5 text-sm border rounded-lg">
+ <select name="category_id" aria-label="카테고리" class="px-3 py-1.5 text-sm border rounded-lg">
  <option value="">카테고리</option>
  {% for cat in categories %}
  <option value="{{ cat.id }}" {% if cat.id == todo.category_id %}selected{% endif %}>{{ cat.name }}</option>
  {% endfor %}
  </select>
  {% set is_custom_rrule = todo.repeat_type and todo.repeat_type.startswith('FREQ=') %}
- <select name="repeat_type" id="editRepeatType_{{ todo.id }}" onchange="toggleEditRrule({{ todo.id }})"
+ <select name="repeat_type" aria-label="반복 설정" id="editRepeatType_{{ todo.id }}" onchange="toggleEditRrule({{ todo.id }})"
  class="px-3 py-1.5 text-sm border rounded-lg">
  {% for rk, rv in repeat_map.items() %}
  <option value="{{ rk }}" {% if (not is_custom_rrule and rk == todo.repeat_type) or (is_custom_rrule and rk == 'custom') %}selected{% endif %}>{{ rv }}</option>
  {% endfor %}
  </select>
- <select name="energy_level" class="px-3 py-1.5 text-sm border rounded-lg">
+ <select name="energy_level" aria-label="에너지 레벨" class="px-3 py-1.5 text-sm border rounded-lg">
  <option value="1" {% if todo.energy_level == 1 %}selected{% endif %}>🟢 저에너지</option>
  <option value="2" {% if not todo.energy_level or todo.energy_level == 2 %}selected{% endif %}>🔵 보통</option>
  <option value="3" {% if todo.energy_level == 3 %}selected{% endif %}>🔥 고에너지</option>
@@ -40,9 +40,9 @@
  <div id="editRrulePanel_{{ todo.id }}" class="{% if not is_custom_rrule %}hidden{% endif %} p-3 border rounded-lg space-y-2">
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
- <input type="number" name="rrule_interval" value="{{ todo._rrule_interval if is_custom_rrule else 1 }}" min="1" max="99"
+ <input type="number" name="rrule_interval" aria-label="반복 간격" value="{{ todo._rrule_interval if is_custom_rrule else 1 }}" min="1" max="99"
  class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
- <select name="rrule_freq" id="editRruleFreq_{{ todo.id }}" onchange="toggleEditRruleExtra({{ todo.id }})"
+ <select name="rrule_freq" aria-label="반복 단위" id="editRruleFreq_{{ todo.id }}" onchange="toggleEditRruleExtra({{ todo.id }})"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="DAILY" {% if is_custom_rrule and todo._rrule_freq == 'DAILY' %}selected{% endif %}>일</option>
  <option value="WEEKLY" {% if is_custom_rrule and todo._rrule_freq == 'WEEKLY' %}selected{% endif %}>주</option>
@@ -53,26 +53,26 @@
  <div id="editBydayRow_{{ todo.id }}" class="{% if not (is_custom_rrule and todo._rrule_freq == 'WEEKLY') %}hidden{% endif %} flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
  <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
- <input type="checkbox" class="rrule-byday-edit-{{ todo.id }}" value="{{ code }}" {% if is_custom_rrule and code in (todo._rrule_byday or []) %}checked{% endif %}>
+ <input type="checkbox" class="rrule-byday-edit-{{ todo.id }}" aria-label="반복 요일" value="{{ code }}" {% if is_custom_rrule and code in (todo._rrule_byday or []) %}checked{% endif %}>
  {{ label }}
  </label>
  {% endfor %}
  </div>
  <div id="editBymonthdayRow_{{ todo.id }}" class="{% if not (is_custom_rrule and todo._rrule_freq == 'MONTHLY') %}hidden{% endif %}">
- <input type="text" name="rrule_bymonthday" placeholder="날짜 (쉼표구분, 예: 1,15)" value="{{ todo._rrule_bymonthday_str if is_custom_rrule else '' }}"
+ <input type="text" name="rrule_bymonthday" aria-label="월 반복 날짜" placeholder="날짜 (쉼표구분, 예: 1,15)" value="{{ todo._rrule_bymonthday_str if is_custom_rrule else '' }}"
  class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
- <select name="rrule_end_type" id="editRruleEndType_{{ todo.id }}" onchange="toggleEditEndFields({{ todo.id }})"
+ <select name="rrule_end_type" aria-label="반복 종료 방식" id="editRruleEndType_{{ todo.id }}" onchange="toggleEditEndFields({{ todo.id }})"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="never" {% if is_custom_rrule and not todo._rrule_count and not todo._rrule_until %}selected{% endif %}>무제한</option>
  <option value="count" {% if is_custom_rrule and todo._rrule_count %}selected{% endif %}>횟수</option>
  <option value="until" {% if is_custom_rrule and todo._rrule_until %}selected{% endif %}>날짜</option>
  </select>
- <input type="number" name="rrule_count" id="editRruleCount_{{ todo.id }}" min="1" max="999" value="{{ todo._rrule_count or 10 }}" placeholder="횟수"
+ <input type="number" name="rrule_count" aria-label="반복 횟수" id="editRruleCount_{{ todo.id }}" min="1" max="999" value="{{ todo._rrule_count or 10 }}" placeholder="횟수"
  class="{% if not (is_custom_rrule and todo._rrule_count) %}hidden{% endif %} w-20 px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface);">
- <input type="date" name="rrule_until" id="editRruleUntil_{{ todo.id }}" value="{{ todo._rrule_until or '' }}"
+ <input type="date" name="rrule_until" aria-label="반복 종료일" id="editRruleUntil_{{ todo.id }}" value="{{ todo._rrule_until or '' }}"
  class="{% if not (is_custom_rrule and todo._rrule_until) %}hidden{% endif %} px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  {% if is_custom_rrule %}
@@ -86,7 +86,7 @@
  <input type="hidden" name="reminder_offsets" id="todoReminderOffsets_{{ todo.id }}" value="{{ todo.reminder_offsets or '' }}">
  <div class="flex flex-wrap gap-1 mb-1.5" id="todoOffsetChips_{{ todo.id }}"></div>
  <div class="flex gap-1.5">
- <select id="todoOffsetSel_{{ todo.id }}" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="todoOffsetSel_{{ todo.id }}" aria-label="알림 시간 선택" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -100,15 +100,15 @@
  <option value='{"value":3,"unit":"day"}'>3일 전</option>
  <option value='{"value":1,"unit":"week"}'>1주 전</option>
  </select>
- <button type="button" onclick="addEditTodoOffset({{ todo.id }})" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
+ <button type="button" onclick="addEditTodoOffset({{ todo.id }})" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
  <input type="checkbox" id="todoUseDefault_{{ todo.id }}" onchange="toggleEditTodoDefault({{ todo.id }})"
- {% if not todo.reminder_offsets %}checked{% endif %} class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
+ {% if not todo.reminder_offsets %}checked{% endif %} aria-label="기본값 사용" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
- <input type="text" name="tags" value="{{ (todo.tags|parse_tags)|join(', ') }}" placeholder="태그 (쉼표 구분)"
+ <input type="text" name="tags" aria-label="태그" value="{{ (todo.tags|parse_tags)|join(', ') }}" placeholder="태그 (쉼표 구분)"
  class="w-full px-3 py-1.5 text-sm border rounded-lg">
  </form>
  <!-- Subtasks section (outside main form to use separate HTMX actions) -->
@@ -144,9 +144,9 @@
  <form hx-post="/todos/{{ todo.id }}/subtasks" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"
  onsubmit="var inp=this.querySelector('input[name=title]');if(!inp.value.trim()){inp.focus();return false;}">
  <div class="flex gap-1">
- <input type="text" name="title" placeholder="하위 작업 추가..." required
+ <input type="text" name="title" placeholder="하위 작업 추가..." aria-label="하위 작업 제목" required
  class="flex-1 px-2 py-1 text-xs border rounded focus-accent">
- <button type="submit" class="btn-sm btn-primary rounded text-xs">추가</button>
+ <button type="submit" aria-label="하위 작업 추가" class="btn-sm btn-primary rounded text-xs">추가</button>
  </div>
  </form>
  </div>

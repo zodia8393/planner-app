@@ -112,7 +112,7 @@
  class="mt-2 hidden" id="subtaskForm-{{ todo.id }}"
  onsubmit="var inp=this.querySelector('input[name=title]');if(!inp.value.trim()){inp.focus();return false;}">
  <div class="flex gap-1">
- <input type="text" name="title" placeholder="하위 작업..." required
+ <input type="text" name="title" placeholder="하위 작업..." required aria-label="하위 작업"
  class="flex-1 px-2 py-1 text-xs border rounded focus-accent"
  onkeydown="if(event.key==='Escape'){event.preventDefault();this.closest('form').classList.add('hidden');}">
  <button type="submit" class="btn-sm btn-primary rounded">추가</button>
@@ -142,7 +142,7 @@
  </button>
  </div>
  </div>
- <button data-swipe-complete class="hidden" hx-post="/todos/{{ todo.id }}/toggle" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
- <button data-swipe-delete class="hidden" hx-delete="/todos/{{ todo.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
+ <button data-swipe-complete aria-label="완료 처리" class="hidden" hx-post="/todos/{{ todo.id }}/toggle" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
+ <button data-swipe-delete aria-label="삭제" class="hidden" hx-delete="/todos/{{ todo.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
  </div>
 </div>

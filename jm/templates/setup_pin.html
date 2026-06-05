@@ -28,11 +28,11 @@
             {% endif %}
 
             <form action="/auth/setup-pin" method="POST" id="pinForm">
-                <input type="password" name="pin" id="pinInput" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required autofocus
+                <input type="password" name="pin" id="pinInput" aria-label="PIN 입력" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required autofocus
                        class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-4" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
 
-                <input type="password" name="pin_confirm" id="pinConfirm" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required
+                <input type="password" name="pin_confirm" id="pinConfirm" aria-label="PIN 확인" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required
                        class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-2" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
                 <p id="matchError" class="text-xs text-red-500 mb-4 hidden">PIN이 일치하지 않습니다</p>

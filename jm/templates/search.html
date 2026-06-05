@@ -17,7 +17,7 @@
 <form action="/search" method="GET" class="mb-4">
  <div class="flex gap-2">
  <label for="search-input" class="sr-only">검색어</label>
- <input type="text" name="q" id="search-input" value="{{ q }}" placeholder="할일, 일정, 메모, 공지, 업무일지 검색..." autofocus
+ <input type="text" name="q" id="search-input" aria-label="검색어" value="{{ q }}" placeholder="할일, 일정, 메모, 공지, 업무일지 검색..." autofocus
  class="flex-1 px-4 py-2.5 text-sm border rounded-xl focus-accent"
  hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#searchResults" hx-swap="innerHTML"
  hx-include="[name='q']" hx-push-url="true">
