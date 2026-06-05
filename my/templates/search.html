@@ -48,7 +48,7 @@
  {% for t in results.todos %}
  <a href="/todos" class="block py-1.5 text-sm hover-accent">
  <span class="font-medium">{{ t.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ t.due_date or '' }}</span>
- {% if t.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ t.snippet|safe }}</div>{% endif %}
+ {% if t.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ t.snippet|safe_snippet }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>
@@ -60,7 +60,7 @@
  {% for e in results.events %}
  <a href="/calendar" class="block py-1.5 text-sm hover-accent">
  <span class="font-medium">{{ e.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ e.start_time[:10] if e.start_time else '' }}</span>
- {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe }}</div>{% endif %}
+ {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe_snippet }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>
@@ -72,7 +72,7 @@
  {% for m in results.memos %}
  <a href="/memos" class="block py-1.5 text-sm hover-accent">
  <span class="text-xs" style="color: var(--color-text-muted);">{{ m.created_at[:10] }}</span>
- {% if m.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ m.snippet|safe }}</div>{% else %}<div class="truncate">{{ m.content[:100] }}</div>{% endif %}
+ {% if m.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ m.snippet|safe_snippet }}</div>{% else %}<div class="truncate">{{ m.content[:100] }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>
@@ -84,7 +84,7 @@
  {% for n in results.notices %}
  <a href="/notices" class="block py-1.5 text-sm hover-accent">
  <span class="font-medium">{{ n.title }}</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ n.created_at[:10] if n.created_at else '' }}</span>
- {% if n.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ n.snippet|safe }}</div>{% endif %}
+ {% if n.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ n.snippet|safe_snippet }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>
@@ -96,7 +96,7 @@
  {% for w in results.worklogs %}
  <a href="/worklogs" class="block py-1.5 text-sm hover-accent">
  <span class="text-xs" style="color: var(--color-text-muted);">{{ w.log_date }}</span>
- {% if w.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ w.snippet|safe }}</div>{% else %}<div class="truncate">{{ w.content[:100] }}</div>{% endif %}
+ {% if w.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ w.snippet|safe_snippet }}</div>{% else %}<div class="truncate">{{ w.content[:100] }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>
@@ -108,7 +108,7 @@
  {% for e in results.entries %}
  <a href="/forms/{{ e.tpl_id }}/entries?date={{ e.entry_date }}" class="block py-1.5 text-sm hover-accent">
  <span class="font-medium">[{{ e.tpl_name }}]</span> <span class="text-xs" style="color: var(--color-text-muted);">{{ e.entry_date }}</span>
- {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe }}</div>{% endif %}
+ {% if e.snippet %}<div class="text-xs mt-0.5 line-clamp-2" style="color: var(--color-text-muted);">{{ e.snippet|safe_snippet }}</div>{% endif %}
  </a>
  {% endfor %}
 </div>

@@ -96,6 +96,17 @@ if not access_logger.handlers:
     access_logger.addHandler(_h)
 
 
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "0"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        return response
+
+
 class StaticCacheMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
@@ -124,6 +135,7 @@ app.add_middleware(SyncBroadcastMiddleware, event_bus=event_bus,
                    skip_paths=("/worklogs/upload-image",),
                    skip_prefixes=("/files/",))
 app.add_middleware(CSRFMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(StaticCacheMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500, compresslevel=6)
@@ -2693,11 +2705,13 @@ async def get_onboarding(request: Request):
 @app.post("/api/onboarding/step/{step}")
 async def complete_onboarding_step(request: Request, step: int):
     pid = get_profile_id(request)
-    if step not in (1, 2, 3, 4):
+    _STEP_COLS = {1: "step1_done", 2: "step2_done", 3: "step3_done", 4: "step4_done"}
+    col = _STEP_COLS.get(step)
+    if not col:
         raise HTTPException(400)
     with get_db() as conn:
         conn.execute("INSERT OR IGNORE INTO onboarding_progress (profile_id) VALUES (?)", (pid,))
-        conn.execute(f"UPDATE onboarding_progress SET step{step}_done=1 WHERE profile_id=?", (pid,))
+        conn.execute(f"UPDATE onboarding_progress SET {col}=1 WHERE profile_id=?", (pid,))
     return JSONResponse({"ok": True})
 
 

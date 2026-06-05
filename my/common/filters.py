@@ -23,6 +23,7 @@ __all__ = [
     "format_filesize",
     "render_worklog_images",
     "render_error_page",
+    "safe_snippet",
     "register_filters",
 ]
 
@@ -134,6 +135,25 @@ def render_error_page(code: int, message: str) -> str:
 </body></html>"""
 
 
+def safe_snippet(value: str) -> str:
+    """Escape HTML in FTS5 snippet output, preserving only <mark>/</mark> tags.
+
+    FTS5 snippet() wraps matched terms in <mark>...</mark> but the surrounding
+    text may contain user-controlled HTML that must be escaped to prevent XSS.
+    """
+    if not value:
+        return ""
+    # Replace <mark> and </mark> with unique placeholders before escaping
+    _PH_OPEN = "\x00MARK_OPEN\x00"
+    _PH_CLOSE = "\x00MARK_CLOSE\x00"
+    s = str(value).replace("<mark>", _PH_OPEN).replace("</mark>", _PH_CLOSE)
+    # Escape all remaining HTML
+    s = str(markupsafe.escape(s))
+    # Restore <mark> tags
+    s = s.replace(_PH_OPEN, "<mark>").replace(_PH_CLOSE, "</mark>")
+    return markupsafe.Markup(s)
+
+
 def render_worklog_images(content):
     """Convert markdown image syntax to HTML img tags for worklog content."""
     if not content:
@@ -162,5 +182,6 @@ def register_filters(templates) -> None:
     templates.env.filters["format_number"] = format_number
     templates.env.filters["format_filesize"] = format_filesize
     templates.env.filters["render_images"] = render_worklog_images
+    templates.env.filters["safe_snippet"] = safe_snippet
     templates.env.filters["cos_deg"] = lambda deg: round(math.cos(math.radians(deg)), 6)
     templates.env.filters["sin_deg"] = lambda deg: round(math.sin(math.radians(deg)), 6)

@@ -917,6 +917,23 @@ function cmdPaletteAddTodo(title){
 })();
 </script>
 
+<!-- ══ Double-submit prevention ══ -->
+<script>
+(function(){
+ document.body.addEventListener('htmx:beforeRequest', function(e){
+  var btn = e.detail.elt.closest('button[type="submit"],button[hx-post],button[hx-delete],button[hx-put]');
+  if(btn) btn.disabled = true;
+ });
+ document.body.addEventListener('htmx:afterRequest', function(e){
+  var btn = e.detail.elt.closest('button[type="submit"],button[hx-post],button[hx-delete],button[hx-put]');
+  if(btn) setTimeout(function(){ btn.disabled = false; }, 300);
+ });
+ document.querySelectorAll('form:not([hx-post])').forEach(function(f){
+  f.addEventListener('submit', function(){ var b=this.querySelector('button[type=submit]'); if(b) b.disabled=true; });
+ });
+})();
+</script>
+
 <!-- ══ Part 2: Mobile UX JS (I: Bottom Sheet, K: Swipe, Q: Long-press) ══ -->
 
 {% block scripts %}{% endblock %}
