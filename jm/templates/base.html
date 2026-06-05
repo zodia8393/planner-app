@@ -5,7 +5,7 @@
  <script>
  (function(){var t=localStorage.getItem('theme')||'auto';if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
  </script>
- <style>html.dark{background:#1c1917;color-scheme:dark}html:not(.dark){background:#faf9f7;color-scheme:light}</style>
+ <style>html{background:#faf9f7;color-scheme:light}html.dark{background:#1c1917;color-scheme:dark}body{background:inherit}</style>
  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
  <title>{% block title %}JM Planner{% endblock %}</title>
  <link rel="manifest" href="/static/manifest.json">

@@ -1,7 +1,8 @@
  /* ── View Transitions: smooth crossfade between pages ── */
  @view-transition { navigation: auto; }
- ::view-transition-old(root) { animation-duration: 120ms; }
- ::view-transition-new(root) { animation-duration: 120ms; }
+ ::view-transition-old(root) { animation-duration: 100ms; animation-fill-mode: both; }
+ ::view-transition-new(root) { animation-duration: 100ms; animation-fill-mode: both; }
+ ::view-transition-group(root) { background: var(--color-bg); }
 
  /* ── Design Tokens ── */
  :root {
