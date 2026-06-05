@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}칸반 보드 - JM Planner{% endblock %}
+{% block title %}칸반 보드 - My Planner{% endblock %}
 {% block page_title %}칸반 보드{% endblock %}
 {% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
 
@@ -223,9 +223,12 @@
  form.append('column', column);
  fetch('/todos/' + _draggedId + '/move', {
  method: 'POST',
- body: form
+ body: form,
+ headers: {'HX-Request': 'true'}
  }).then(function(resp) {
- if (resp.ok) window.location.reload();
+ var redir = resp.headers.get('HX-Redirect');
+ if (redir) { htmx.ajax('GET', redir, {target:'body', swap:'innerHTML'}); }
+ else if (resp.ok) { htmx.ajax('GET', '/todos/kanban', {target:'body', swap:'innerHTML'}); }
  }).catch(function(){});
  });
 })();

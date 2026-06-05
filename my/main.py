@@ -1408,6 +1408,13 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                     WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
                     ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
                 """, (monday.isoformat(), sunday.isoformat(), pid)).fetchall()
+            # Batch subtask counts
+            _plan_ids = [t["id"] for t in plan_todos]
+            _sub_counts: dict = {}
+            if _plan_ids:
+                _ph = ",".join("?" * len(_plan_ids))
+                for _r in conn.execute(f"SELECT todo_id, COUNT(*) as cnt FROM subtasks WHERE todo_id IN ({_ph}) GROUP BY todo_id", _plan_ids).fetchall():
+                    _sub_counts[_r["todo_id"]] = _r["cnt"]
             week_days = []
             no_due_todos = [dict(t) for t in plan_todos if not t["due_date"]] if _include_no_due else []
             for i in range(7):
@@ -1416,16 +1423,12 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 for t in plan_todos:
                     if t["due_date"] == d.isoformat():
                         td = dict(t)
-                        td["subtask_count"] = conn.execute(
-                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
-                        ).fetchone()[0]
+                        td["subtask_count"] = _sub_counts.get(td["id"], 0)
                         day_todos.append(td)
                 # Attach no-due-date todos to today's column
                 if _include_no_due and d == today:
                     for t in no_due_todos:
-                        t["subtask_count"] = conn.execute(
-                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (t["id"],)
-                        ).fetchone()[0]
+                        t["subtask_count"] = _sub_counts.get(t["id"], 0)
                     day_todos.extend(no_due_todos)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),

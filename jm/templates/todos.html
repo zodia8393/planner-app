@@ -396,7 +396,9 @@ function bulkAction(action) {
  method: 'POST',
  headers: {'Content-Type': 'application/json'},
  body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
- }).finally(function() { location.reload(); });
+ }).then(function(r) { return r.json(); }).then(function(d) {
+  if (d.ok) htmx.ajax('GET', '/todos' + location.search, {target:'body', swap:'innerHTML'});
+ }).catch(function() { location.reload(); });
 }
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
 

@@ -65,12 +65,18 @@ async def todos_page(request: Request, filter: str = "all",
         categories = S.get_categories(conn, pid)
 
         grouped: OrderedDict[str, list] = OrderedDict()
-        for t in todos:
-            td = dict(t)
-            subs = conn.execute(
-                "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (td["id"],)
+        todo_list = [dict(t) for t in todos]
+        todo_ids = [t["id"] for t in todo_list]
+        subs_by_todo: dict[int, list] = {}
+        if todo_ids:
+            ph = ",".join("?" * len(todo_ids))
+            all_subs = conn.execute(
+                f"SELECT * FROM subtasks WHERE todo_id IN ({ph}) ORDER BY sort_order, id", todo_ids
             ).fetchall()
-            td["subtasks"] = [dict(s) for s in subs]
+            for s in all_subs:
+                subs_by_todo.setdefault(s["todo_id"], []).append(dict(s))
+        for td in todo_list:
+            td["subtasks"] = subs_by_todo.get(td["id"], [])
             key = td.get("due_date") or ""
             grouped.setdefault(key, []).append(td)
 
@@ -120,12 +126,18 @@ async def kanban_page(request: Request, group_by: str = ""):
             ("in_progress", {"label": "진행중", "todos": []}),
             ("done", {"label": "완료", "todos": []}),
         ])
-        for t in todos:
-            td = dict(t)
-            subs = conn.execute(
-                "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (td["id"],)
+        kanban_list = [dict(t) for t in todos]
+        kanban_ids = [t["id"] for t in kanban_list]
+        kanban_subs: dict[int, list] = {}
+        if kanban_ids:
+            ph = ",".join("?" * len(kanban_ids))
+            all_subs = conn.execute(
+                f"SELECT * FROM subtasks WHERE todo_id IN ({ph}) ORDER BY sort_order, id", kanban_ids
             ).fetchall()
-            td["subtasks"] = [dict(s) for s in subs]
+            for s in all_subs:
+                kanban_subs.setdefault(s["todo_id"], []).append(dict(s))
+        for td in kanban_list:
+            td["subtasks"] = kanban_subs.get(td["id"], [])
             col = _classify_kanban_column(td)
             columns[col]["todos"].append(td)
 

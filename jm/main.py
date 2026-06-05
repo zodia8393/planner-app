@@ -1195,6 +1195,13 @@ async def plans_page(request: Request, view: str = "week", offset: int = 0):
                 WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
                 ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
             """, (plan_monday.isoformat(), plan_sunday.isoformat(), pid)).fetchall()
+            # Batch subtask counts
+            _plan_ids = [t["id"] for t in plan_todos]
+            _sub_counts: dict = {}
+            if _plan_ids:
+                _ph = ",".join("?" * len(_plan_ids))
+                for _r in conn.execute(f"SELECT todo_id, COUNT(*) as cnt FROM subtasks WHERE todo_id IN ({_ph}) GROUP BY todo_id", _plan_ids).fetchall():
+                    _sub_counts[_r["todo_id"]] = _r["cnt"]
             week_days = []
             for i in range(7):
                 d = plan_monday + timedelta(days=i)
@@ -1202,9 +1209,7 @@ async def plans_page(request: Request, view: str = "week", offset: int = 0):
                 for t in plan_todos:
                     if t["due_date"] == d.isoformat():
                         td = dict(t)
-                        td["subtask_count"] = conn.execute(
-                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
-                        ).fetchone()[0]
+                        td["subtask_count"] = _sub_counts.get(td["id"], 0)
                         day_todos.append(td)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),
@@ -1359,6 +1364,13 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 WHERE t.due_date BETWEEN ? AND ? AND t.profile_id = ?
                 ORDER BY t.due_date ASC, t.priority ASC, t.sort_order ASC
             """, (plan_monday.isoformat(), plan_sunday.isoformat(), pid)).fetchall()
+            # Batch subtask counts
+            _dash_ids = [t["id"] for t in plan_todos]
+            _dash_sub_counts: dict = {}
+            if _dash_ids:
+                _ph = ",".join("?" * len(_dash_ids))
+                for _r in conn.execute(f"SELECT todo_id, COUNT(*) as cnt FROM subtasks WHERE todo_id IN ({_ph}) GROUP BY todo_id", _dash_ids).fetchall():
+                    _dash_sub_counts[_r["todo_id"]] = _r["cnt"]
             week_days = []
             for i in range(7):
                 d = plan_monday + timedelta(days=i)
@@ -1366,9 +1378,7 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
                 for t in plan_todos:
                     if t["due_date"] == d.isoformat():
                         td = dict(t)
-                        td["subtask_count"] = conn.execute(
-                            "SELECT COUNT(*) FROM subtasks WHERE todo_id=?", (td["id"],)
-                        ).fetchone()[0]
+                        td["subtask_count"] = _dash_sub_counts.get(td["id"], 0)
                         day_todos.append(td)
                 week_days.append({
                     "date": d, "date_str": d.isoformat(),

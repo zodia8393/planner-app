@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}타임테이블 - JM Planner{% endblock %}
+{% block title %}타임테이블 - My Planner{% endblock %}
 {% block page_title %}타임테이블{% endblock %}
 {% block page_subtitle %}일과 스케줄 관리{% endblock %}
 
@@ -606,9 +606,11 @@ document.getElementById('blockFormEl').addEventListener('submit', function(e) {
  var url = formEl.getAttribute('hx-put');
  if (!url) return;
  var formData = new FormData(formEl);
- fetch(url, {method: 'PUT', body: formData})
+ fetch(url, {method: 'PUT', body: formData, headers: {'HX-Request': 'true'}})
  .then(function(r) {
- if (r.ok) window.location.reload();
+ var redir = r.headers.get('HX-Redirect');
+ if (redir) { htmx.ajax('GET', redir, {target:'body', swap:'innerHTML'}); }
+ else if (r.ok) { htmx.ajax('GET', '/timetable' + location.search, {target:'body', swap:'innerHTML'}); }
  });
  }
 });

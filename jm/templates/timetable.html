@@ -606,9 +606,11 @@ document.getElementById('blockFormEl').addEventListener('submit', function(e) {
  var url = formEl.getAttribute('hx-put');
  if (!url) return;
  var formData = new FormData(formEl);
- fetch(url, {method: 'PUT', body: formData})
+ fetch(url, {method: 'PUT', body: formData, headers: {'HX-Request': 'true'}})
  .then(function(r) {
- if (r.ok) window.location.reload();
+ var redir = r.headers.get('HX-Redirect');
+ if (redir) { htmx.ajax('GET', redir, {target:'body', swap:'innerHTML'}); }
+ else if (r.ok) { htmx.ajax('GET', '/timetable' + location.search, {target:'body', swap:'innerHTML'}); }
  });
  }
 });
