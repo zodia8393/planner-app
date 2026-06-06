@@ -87,23 +87,24 @@
 
         var rows = allShortcuts.map(function (s) {
             return '<div class="flex justify-between items-center">' +
-                '<span class="text-slate-600 dark:text-slate-300">' + s.label + '</span>' +
-                '<kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">' + s.key + '</kbd></div>';
+                '<span style="color: var(--color-text-muted);">' + s.label + '</span>' +
+                '<kbd class="px-2 py-0.5 rounded text-xs font-mono" style="background: var(--color-surface-elevated); color: var(--color-text);">' + s.key + '</kbd></div>';
         }).join('');
 
         // SAFE: no user data — all labels/keys from hardcoded SHORTCUTS array
         modal.innerHTML =
             '<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="document.getElementById(\'shortcutsHelpModal\').classList.add(\'hidden\')"></div>' +
-            '<div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-700 fade-in">' +
-            '<h3 class="font-bold text-lg text-slate-800 dark:text-white mb-4">키보드 단축키</h3>' +
+            '<div class="relative rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 fade-in" style="background: var(--color-surface); border: 1px solid var(--color-border);">' +
+            '<h3 class="font-bold text-lg mb-4" style="color: var(--color-text);">키보드 단축키</h3>' +
             '<div class="space-y-2.5 text-sm">' + rows +
-            '<div class="border-t border-slate-200 dark:border-slate-700 pt-2 mt-2"></div>' +
-            '<div class="flex justify-between items-center"><span class="text-slate-600 dark:text-slate-300">검색</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">Ctrl+K</kbd></div>' +
-            '<div class="flex justify-between items-center"><span class="text-slate-600 dark:text-slate-300">닫기</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">Esc</kbd></div>' +
-            '<div class="flex justify-between items-center"><span class="text-slate-600 dark:text-slate-300">도움말</span><kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">?</kbd></div>' +
+            '<div class="pt-2 mt-2" style="border-top: 1px solid var(--color-border);"></div>' +
+            '<div class="flex justify-between items-center"><span style="color: var(--color-text-muted);">검색</span><kbd class="px-2 py-0.5 rounded text-xs font-mono" style="background: var(--color-surface-elevated); color: var(--color-text);">Ctrl+K</kbd></div>' +
+            '<div class="flex justify-between items-center"><span style="color: var(--color-text-muted);">닫기</span><kbd class="px-2 py-0.5 rounded text-xs font-mono" style="background: var(--color-surface-elevated); color: var(--color-text);">Esc</kbd></div>' +
+            '<div class="flex justify-between items-center"><span style="color: var(--color-text-muted);">도움말</span><kbd class="px-2 py-0.5 rounded text-xs font-mono" style="background: var(--color-surface-elevated); color: var(--color-text);">?</kbd></div>' +
             '</div>' +
             '<button onclick="document.getElementById(\'shortcutsHelpModal\').classList.add(\'hidden\')" ' +
-            'class="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" ' +
+            'class="mt-4 w-full py-2 rounded-lg text-sm font-medium transition-colors" ' +
+            'style="background: var(--color-surface-elevated); color: var(--color-text-muted);" ' +
             'aria-label="단축키 도움말 닫기">닫기</button>' +
             '</div>';
         document.body.appendChild(modal);

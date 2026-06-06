@@ -114,7 +114,7 @@
  style="border-color: var(--color-border); color: var(--color-text);"
  onmouseenter="this.style.background='var(--color-accent-soft)'" onmouseleave="this.style.background=''">
  <input type="radio" name="tracking_type" aria-label="추적 유형" value="{{ val }}" {% if val=='daily' %}checked{% endif %}
- class="w-3.5 h-3.5" style="accent-color: var(--color-accent);" onchange="updateTrackingUI()">
+ class="w-3.5 h-3.5" style="accent-color: var(--color-accent);" data-action="update-tracking-ui">
  <span class="text-xs font-medium">{{ label }}</span>
  </label>
  {% endfor %}
@@ -241,6 +241,10 @@ function renderSpecificTimes() {
  </svg>
  <h3 class="text-lg font-bold mb-2" style="color: var(--color-text);">매일 실천할 습관을 만들어보세요</h3>
  <p class="text-sm" style="color: var(--color-text-muted);">꾸준한 습관이 큰 변화를 만듭니다</p>
+ <button type="button" data-action="open-habit-form"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 첫 습관 만들기
+ </button>
 </div>
 {% else %}
 <!-- Habit list -->

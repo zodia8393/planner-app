@@ -142,7 +142,7 @@
  {% set day_events = wd.events %}
  {% set day_todos = wd.todos %}
  <div class="border-b p-3" style="{% if wd.is_today %}background: var(--color-accent-soft);{% endif %}"
- onclick="openEventModal('{{ wd.date_str }}')">
+ data-action="open-event-modal" data-date="{{ wd.date_str }}">
  <div class="flex items-center gap-3 mb-2">
  <div class="flex items-center gap-2 min-w-[80px]">
  <span class="text-sm font-bold
@@ -156,8 +156,8 @@
  {% for ev in day_events %}
  <div class="text-xs truncate px-2 py-1 rounded cursor-pointer hover:opacity-80 max-w-[200px]"
  style="background: {{ ev.color }}20; color: {{ ev.color }}"
- {% if ev.get('is_gcal') %}onclick="event.stopPropagation(); editGcalEvent('{{ ev.id }}')"
- {% else %}onclick="event.stopPropagation(); editEvent({{ ev.id }})"{% endif %}>
+ {% if ev.get('is_gcal') %}data-action="edit-gcal-event" data-gcal-id="{{ ev.id }}"
+ {% else %}data-action="edit-event" data-event-id="{{ ev.id }}"{% endif %}>
  {% if ev.get('is_gcal') %}<span class="opacity-60">G</span> {% endif %}
  {% if ev.start_time and ev.start_time|length > 10 %}<span class="opacity-60">{{ ev.start_time[11:16] }}</span> {% endif %}{{ ev.title }}
  </div>
@@ -210,7 +210,7 @@
  {% set holiday_name = holidays_by_date.get(day_str) %}
  <div class="cal-cell cal-cell-active border-b border-r p-1 lg:p-2 relative"
  style="{% if is_today %}background: var(--color-accent-soft);{% endif %}"
- onclick="openEventModal('{{ day_str }}')">
+ data-action="open-event-modal" data-date="{{ day_str }}">
  <div class="flex items-center justify-between mb-1">
  <span class="text-xs lg:text-sm font-semibold
  {% if is_today %}text-white rounded-full flex items-center justify-center{% elif holiday_name or weekday == 0 %}text-red-400{% elif weekday == 6 %}text-blue-400{% else %}{% endif %}"
@@ -225,9 +225,9 @@
  {% if ns.shown < 4 %}
  <div class="text-xs truncate px-1 py-0.5 rounded mb-0.5 cursor-pointer hover:opacity-80"
  style="background: {{ ev.color }}20; color: {{ ev.color }}"
- {% if ev.get('is_gcal') %}onclick="event.stopPropagation(); editGcalEvent('{{ ev.id }}')"
+ {% if ev.get('is_gcal') %}data-action="edit-gcal-event" data-gcal-id="{{ ev.id }}"
  title="Google: {{ ev.title }}{% if ev.get('location') %} ({{ ev.location }}){% endif %}"
- {% else %}onclick="event.stopPropagation(); editEvent({{ ev.id }})"{% endif %}>
+ {% else %}data-action="edit-event" data-event-id="{{ ev.id }}"{% endif %}>
  {% if ev.get('is_gcal') %}<span class="opacity-60">G</span> {% endif %}{{ ev.title }}
  </div>
  {% set ns.shown = ns.shown + 1 %}
@@ -316,7 +316,7 @@
  class="w-full px-4 py-2 text-sm border rounded-lg focus-accent"></textarea>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">반복</label>
- <select name="recurrence" id="eventRecurrence" aria-label="반복 설정" onchange="toggleEventRrule()"
+ <select name="recurrence" id="eventRecurrence" aria-label="반복 설정" data-action="toggle-event-rrule"
  class="w-full px-3 py-2 text-sm border rounded-lg">
  <option value="">없음</option>
  <option value="daily">매일</option>
@@ -350,7 +350,7 @@
  <button type="button" data-action="add-new-event-offset" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newEventUseDefault" aria-label="기본 알림 사용" checked onchange="toggleNewEventDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
+ <input type="checkbox" id="newEventUseDefault" aria-label="기본 알림 사용" checked data-action="toggle-new-event-default" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>

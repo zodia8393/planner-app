@@ -72,7 +72,11 @@
  <span>🎯</span>
  </div>
  <p class="empty-state-title">D-day가 없습니다</p>
- <p class="empty-state-desc">위에서 새 마감일을 추가해보세요</p>
+ <p class="empty-state-desc">D-day를 추가해보세요</p>
+ <button type="button" onclick="document.querySelector('form[action=\'/ddays\'] input[name=title]').scrollIntoView({behavior:'smooth'}); document.querySelector('form[action=\'/ddays\'] input[name=title]').focus();"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ D-day 추가하기
+ </button>
  </div>
  {% endfor %}
 </div>

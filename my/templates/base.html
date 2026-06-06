@@ -19,8 +19,8 @@
  <link rel="stylesheet" href="/static/tailwind.css?v=5">
  <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" onload="this.rel='stylesheet'">
  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
- <script src="/static/htmx.min.js"></script>
- <link rel="prefetch" href="/static/chart.umd.min.js" as="script">
+ <script src="/static/htmx.min.js?v=5"></script>
+ <link rel="prefetch" href="/static/chart.umd.min.js?v=5" as="script">
  {% block head_extra %}{% endblock %}
  <script src="/static/notifications.js?v=5" defer></script>
  <script src="/static/shortcuts.js?v=5" defer></script>
@@ -1066,6 +1066,80 @@ function cmdPaletteAddTodo(title){
    case 'toggle-push-subscription': togglePushSubscription(); break;
    case 'test-push': testPush(); break;
    case 'save-morning-brief': saveMorningBrief(); break;
+   /* ── onclick→data-action 전환 (calendar) ── */
+   case 'open-event-modal':
+    if (typeof openEventModal === 'function') openEventModal(el.getAttribute('data-date'));
+    break;
+   case 'edit-event':
+    e.stopPropagation();
+    if (typeof editEvent === 'function') editEvent(parseInt(el.getAttribute('data-event-id')));
+    break;
+   case 'edit-gcal-event':
+    e.stopPropagation();
+    if (typeof editGcalEvent === 'function') editGcalEvent(el.getAttribute('data-gcal-id'));
+    break;
+   /* ── onclick→data-action 전환 (timetable) ── */
+   case 'click-user-block':
+    if (typeof clickUserBlock === 'function') clickUserBlock(el);
+    break;
+   case 'show-block-detail':
+    if (typeof showBlockDetail === 'function') showBlockDetail(el);
+    break;
+   case 'edit-block':
+    if (typeof editBlock === 'function') editBlock(
+     parseInt(el.getAttribute('data-block-id')),
+     el.getAttribute('data-start'),
+     el.getAttribute('data-end'),
+     el.getAttribute('data-title'),
+     el.getAttribute('data-color'),
+     el.getAttribute('data-icon') || ''
+    );
+    break;
+   case 'select-color':
+    if (typeof selectColor === 'function') selectColor(el.getAttribute('data-color'));
+    break;
+   case 'select-icon':
+    if (typeof selectIcon === 'function') selectIcon(el.getAttribute('data-icon'));
+    break;
+   case 'cancel-block-form':
+    if (typeof cancelForm === 'function') cancelForm();
+    break;
+   /* ── onclick→data-action 전환 (worklogs) ── */
+   case 'set-wl-hours':
+    var wlH = document.getElementById('wlHours');
+    if (wlH) wlH.value = el.getAttribute('data-hours');
+    break;
+   /* ── onclick→data-action 전환 (habits) ── */
+   case 'open-habit-form':
+    var hf = document.getElementById('habitAddForm');
+    if (hf) { hf.open = true; setTimeout(function(){ var inp = document.querySelector('#habitAddForm input[name=name]'); if (inp) inp.focus(); }, 100); }
+    break;
+  }
+ });
+ /* ── onchange→data-action 전환 (change 이벤트 위임) ── */
+ document.addEventListener('change', function(e) {
+  var el = e.target.closest('[data-action]');
+  if (!el) return;
+  var action = el.getAttribute('data-action');
+  switch(action) {
+   case 'toggle-event-rrule':
+    if (typeof toggleEventRrule === 'function') toggleEventRrule();
+    break;
+   case 'toggle-new-event-default':
+    if (typeof toggleNewEventDefault === 'function') toggleNewEventDefault();
+    break;
+   case 'update-tracking-ui':
+    if (typeof updateTrackingUI === 'function') updateTrackingUI();
+    break;
+   case 'save-wl-category':
+    localStorage.setItem('wl_last_cat', el.value);
+    break;
+   case 'navigate-wl-date':
+    if (el.value) location.href = '/worklogs?date=' + el.value;
+    break;
+   case 'handle-image-file':
+    if (typeof handleImageFileSelect === 'function') handleImageFileSelect(el);
+    break;
   }
  });
 })();

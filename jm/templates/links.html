@@ -92,7 +92,11 @@
  <div class="col-span-full empty-state" id="emptyLinks">
  <div class="empty-state-icon"><span>🔗</span></div>
  <p class="empty-state-title">저장된 링크가 없습니다</p>
- <p class="empty-state-desc">위에서 자주 쓰는 링크를 추가해보세요</p>
+ <p class="empty-state-desc">유용한 링크를 저장해보세요</p>
+ <button type="button" onclick="document.querySelector('form[action=\'/links\'] input[name=title]').scrollIntoView({behavior:'smooth'}); document.querySelector('form[action=\'/links\'] input[name=title]').focus();"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 링크 추가하기
+ </button>
  </div>
  {% endfor %}
 </div>

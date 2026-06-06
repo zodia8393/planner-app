@@ -29,7 +29,7 @@
  </div>
  </div>
  {% if memo.title %}
- <p class="text-sm font-bold mb-1" style="color: var(--color-text);">{{ memo.title }}</p>
+ <p class="text-sm font-bold mb-1 truncate" style="color: var(--color-text);" title="{{ memo.title }}">{{ memo.title }}</p>
  {% endif %}
- <div class="memo-content text-sm leading-relaxed">{{ memo.content }}</div>
+ <div class="memo-content text-sm leading-relaxed line-clamp-3">{{ memo.content }}</div>
 </div>

@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi import APIRouter, Request, Form, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse
 from common.image import _check_image_magic
-from common.utils import clamp_text, fix_mojibake, validate_date_str
+from common.utils import clamp_text, fix_mojibake, validate_date_str, safe_int
 
 router = APIRouter()
 
@@ -43,7 +43,7 @@ async def worklogs_page(request: Request,
             if start_date > end_date:
                 start_date, end_date = end_date, start_date
 
-            cat_filter = int(category_id) if category_id else None
+            cat_filter = safe_int(category_id)
             if cat_filter:
                 logs = conn.execute("""
                     SELECT wl.*, c.name as category_name, c.color as category_color
@@ -159,7 +159,7 @@ async def create_worklog(request: Request,
         return S.redirect(request, f"/worklogs?date={log_date or date.today().isoformat()}")
     content = clamp_text(fix_mojibake(content), 5000)
     hours = max(0.0, min(24.0, hours))
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     log_date = validate_date_str(log_date) or date.today().isoformat()
     with S.get_db() as conn:
         conn.execute("""
@@ -218,7 +218,7 @@ async def update_worklog(request: Request, log_id: int,
     title = clamp_text(fix_mojibake(title), 200)
     content = clamp_text(fix_mojibake(content), 5000)
     hours = max(0.0, min(24.0, hours))
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     with S.get_db() as conn:
         log = conn.execute("SELECT log_date FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid)).fetchone()
         if not log:

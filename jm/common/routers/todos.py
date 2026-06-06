@@ -381,7 +381,9 @@ async def update_todo(request: Request, todo_id: int,
                       reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
-    title = clamp_text(fix_mojibake(title), 200)
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="제목은 필수입니다")
     description = clamp_text(fix_mojibake(description), 2000)
     assignee = clamp_text(fix_mojibake(assignee), 100)
     priority = clamp_priority(priority)

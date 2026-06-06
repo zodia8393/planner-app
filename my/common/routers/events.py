@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from common.holidays import get_holidays_for_month, get_holidays_for_year
 from common.recurrence import expand_recurring_events
-from common.utils import clamp_text, fix_mojibake, validate_date_str, validate_datetime_str
+from common.utils import clamp_text, fix_mojibake, validate_date_str, validate_datetime_str, safe_int
 
 router = APIRouter()
 
@@ -18,6 +18,11 @@ async def calendar_page(request: Request, year: Optional[int] = None, month: Opt
     today = date.today()
     y = year or today.year
     m = month or today.month
+
+    # Clamp year/month to valid range; redirect to today if out of bounds
+    if not (2000 <= y <= 2099) or not (1 <= m <= 12):
+        from starlette.responses import RedirectResponse
+        return RedirectResponse(url="/calendar", status_code=302)
 
     if m < 1:
         m = 12; y -= 1
@@ -222,7 +227,7 @@ async def create_event(request: Request,
     end_time = validate_datetime_str(end_time)
     if start_time and end_time and end_time < start_time:
         start_time, end_time = end_time, start_time
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     recurrence_end = validate_date_str(recurrence_end) or ""
 
     # Parse reminder_offsets (JSON string or empty for global default)
@@ -296,11 +301,13 @@ async def update_event(request: Request, event_id: int,
                        return_month: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
-    title = clamp_text(fix_mojibake(title), 200)
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="제목은 필수입니다")
     memo = clamp_text(fix_mojibake(memo), 2000)
     start_time = validate_datetime_str(start_time) or datetime.now().strftime("%Y-%m-%dT%H:%M")
     end_time = validate_datetime_str(end_time)
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     recurrence_end = validate_date_str(recurrence_end) or ""
 
     r_offsets = reminder_offsets.strip() if reminder_offsets else None

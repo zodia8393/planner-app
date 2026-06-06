@@ -27,7 +27,7 @@
  <!-- Content -->
  <div class="flex-1 min-w-0">
  <div class="flex items-center gap-2 flex-wrap">
- <p class="text-sm font-medium {% if todo.completed %}line-through {% else %}{% endif %}">{{ todo.title }}</p>
+ <p class="text-sm font-medium truncate max-w-[60vw] {% if todo.completed %}line-through {% else %}{% endif %}" title="{{ todo.title }}">{{ todo.title }}</p>
  {% if todo.subtasks %}
  {% set done_subs = todo.subtasks|selectattr('completed')|list|length %}
  {% set total_subs = todo.subtasks|length %}

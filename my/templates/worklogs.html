@@ -49,7 +49,7 @@
  </svg>
  </a>
  <input type="date" value="{{ current_date }}" aria-label="날짜 선택"
- onchange="if(this.value) location.href='/worklogs?date='+this.value"
+ data-action="navigate-wl-date"
  class="text-lg font-bold bg-transparent border-none cursor-pointer text-center px-1"
  style="color: var(--color-text)">
  <a href="/worklogs?date={{ next_date }}"
@@ -129,7 +129,7 @@
  <label class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs hover-accent rounded-lg cursor-pointer hover-surface transition-colors border">
  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
  이미지 첨부
- <input type="file" accept="image/*" multiple class="hidden" id="worklogImageFile" aria-label="이미지 파일 선택"" onchange="handleImageFileSelect(this)">
+ <input type="file" accept="image/*" multiple class="hidden" id="worklogImageFile" aria-label="이미지 파일 선택" data-action="handle-image-file">
  </label>
  <span id="uploadStatus" class="text-xs hidden"></span>
  </div>
@@ -142,14 +142,14 @@
  style="background:var(--color-surface);border-color:var(--color-border);color:var(--color-text);">
  <div class="flex gap-1">
  {% for h in [0.5, 1, 2, 4] %}
- <button type="button" onclick="document.getElementById('wlHours').value={{ h }}"
+ <button type="button" data-action="set-wl-hours" data-hours="{{ h }}"
  class="btn-sm rounded hover-accent-bg hover-accent transition-colors">{{ h }}h</button>
  {% endfor %}
  </div>
  </div>
  <select name="category_id" id="wlCategory" aria-label="카테고리" class="flex-1 min-w-[100px] px-3 py-2.5 text-sm border rounded-lg"
  style="background:var(--color-surface);border-color:var(--color-border);color:var(--color-text);"
- onchange="localStorage.setItem('wl_last_cat', this.value)">
+ data-action="save-wl-category">
  <option value="">카테고리 없음</option>
  {% for cat in categories %}
  <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -184,6 +184,10 @@
  <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  </div>
  <p class="empty-state-title">해당 기간에 기록된 업무가 없습니다</p>
+ <p class="empty-state-desc">오늘의 업무를 기록해보세요</p>
+ <a href="/worklogs" class="mt-4 inline-block px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 업무 기록하기
+ </a>
  </div>
  {% endif %}
  {% else %}
@@ -196,7 +200,11 @@
  <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  </div>
  <p class="empty-state-title">이 날짜에 기록된 업무가 없습니다</p>
- <p class="text-sm mt-1">위에서 새 업무를 기록해보세요</p>
+ <p class="empty-state-desc">오늘의 업무를 기록해보세요</p>
+ <button type="button" onclick="document.querySelector('form[action=\'/worklogs\'] input[name=title]').scrollIntoView({behavior:'smooth'}); document.querySelector('form[action=\'/worklogs\'] input[name=title]').focus();"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 업무 기록하기
+ </button>
  </div>
  {% endfor %}
  {% endif %}

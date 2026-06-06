@@ -277,7 +277,11 @@
  </svg>
  </div>
  <p class="empty-state-title">업무가 없습니다</p>
- <p class="empty-state-desc">위에서 새 업무를 추가해보세요</p>
+ <p class="empty-state-desc">첫 할일을 추가해보세요</p>
+ <button type="button" onclick="document.getElementById('addForm').scrollIntoView({behavior:'smooth'}); document.querySelector('#addForm input[name=title]').focus();"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 할일 추가하기
+ </button>
  </div>
  {% endfor %}
 </div>
