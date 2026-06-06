@@ -46,7 +46,7 @@
  <div class="w-4 h-4 rounded-full" style="background: {{ cat.color }}"></div>
  <span class="text-sm font-medium">{{ cat.name }}</span>
  </div>
- <button onclick="if(confirm('삭제할까요?'))fetch('/settings/categories/{{ cat.id }}',{method:'DELETE'}).then(function(){document.querySelector('[data-cat-id=&quot;{{ cat.id }}&quot;]').remove()})"
+ <button onclick="confirmAction('삭제할까요?',function(){fetch('/settings/categories/{{ cat.id }}',{method:'DELETE'}).then(function(){document.querySelector('[data-cat-id=&quot;{{ cat.id }}&quot;]').remove()})})"
  class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover-danger-bg hover-danger transition-all"
  title="삭제" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

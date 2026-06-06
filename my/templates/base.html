@@ -16,14 +16,14 @@
  <link rel="apple-touch-icon" href="/static/icon-192.png">
  <meta name="mobile-web-app-capable" content="yes">
  <meta name="format-detection" content="telephone=no">
- <link rel="stylesheet" href="/static/tailwind.css">
+ <link rel="stylesheet" href="/static/tailwind.css?v=5">
  <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" onload="this.rel='stylesheet'">
  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
  <script src="/static/htmx.min.js"></script>
  <link rel="prefetch" href="/static/chart.umd.min.js" as="script">
  {% block head_extra %}{% endblock %}
- <script src="/static/notifications.js" defer></script>
- <script src="/static/shortcuts.js" defer></script>
+ <script src="/static/notifications.js?v=5" defer></script>
+ <script src="/static/shortcuts.js?v=5" defer></script>
  <link rel="stylesheet" href="/static/css/app.css?v=5">
 </head>
 <body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
@@ -486,7 +486,7 @@
  </div>
 </div>
 
-<script src="/static/js/app.js" defer></script>
+<script src="/static/js/app.js?v=5" defer></script>
 <!-- Focus mode timer -->
 <div id="focusBtn" data-action="open-focus-modal"
  class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110 hoverable-accent"
@@ -897,9 +897,20 @@ function cmdPaletteAddTodo(title){
   if(!container) return;
   var toast = document.createElement('div');
   toast.className = 'achievement-toast';
-  toast.innerHTML = '<span style="font-size:1.5rem;">'+icon+'</span>'+
-   '<div><p style="font-weight:700;font-size:0.875rem;color:var(--color-text);">'+title+'</p>'+
-   '<p style="font-size:0.75rem;color:var(--color-text-muted);">'+desc+'</p></div>';
+  var iconEl = document.createElement('span');
+  iconEl.style.fontSize = '1.5rem';
+  iconEl.textContent = icon;
+  var wrapDiv = document.createElement('div');
+  var titleP = document.createElement('p');
+  titleP.style.cssText = 'font-weight:700;font-size:0.875rem;color:var(--color-text);';
+  titleP.textContent = title;
+  var descP = document.createElement('p');
+  descP.style.cssText = 'font-size:0.75rem;color:var(--color-text-muted);';
+  descP.textContent = desc;
+  wrapDiv.appendChild(titleP);
+  wrapDiv.appendChild(descP);
+  toast.appendChild(iconEl);
+  toast.appendChild(wrapDiv);
   container.appendChild(toast);
   setTimeout(function(){
    toast.style.opacity = '0';
@@ -986,6 +997,42 @@ function cmdPaletteAddTodo(title){
    case 'test-push': testPush(); break;
    case 'save-morning-brief': saveMorningBrief(); break;
   }
+ });
+})();
+</script>
+
+<!-- ══ Custom Confirm Modal ══ -->
+<div id="confirmModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-label="확인">
+ <div class="rounded-2xl shadow-2xl p-6 mx-4 w-full max-w-sm" style="background: var(--color-surface);">
+  <p id="confirmMessage" class="text-sm font-medium mb-5" style="color: var(--color-text);"></p>
+  <div class="flex gap-3">
+   <button id="confirmCancel" type="button" class="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors" style="background: var(--color-surface-elevated); color: var(--color-text-muted);">취소</button>
+   <button id="confirmOk" type="button" class="flex-1 py-2.5 rounded-xl text-sm font-medium text-white transition-colors" style="background: var(--color-accent);">확인</button>
+  </div>
+ </div>
+</div>
+<script>
+(function(){
+ var modal = document.getElementById('confirmModal');
+ var msgEl = document.getElementById('confirmMessage');
+ var okBtn = document.getElementById('confirmOk');
+ var cancelBtn = document.getElementById('confirmCancel');
+ var _cb = null;
+ window.confirmAction = function(message, callback) {
+  msgEl.textContent = message;
+  _cb = callback;
+  modal.classList.remove('hidden');
+ };
+ function close() { modal.classList.add('hidden'); _cb = null; }
+ okBtn.addEventListener('click', function() { var cb = _cb; close(); if (cb) cb(); });
+ cancelBtn.addEventListener('click', close);
+ modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+ document.addEventListener('submit', function(e) {
+  var form = e.target;
+  var msg = form.getAttribute('data-confirm');
+  if (!msg) return;
+  e.preventDefault();
+  confirmAction(msg, function() { form.removeAttribute('data-confirm'); form.submit(); });
  });
 })();
 </script>

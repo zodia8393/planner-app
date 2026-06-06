@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}자동화 - JM Planner{% endblock %}
+{% block title %}자동화 - My Planner{% endblock %}
 {% block page_title %}자동화 규칙{% endblock %}
 {% block page_subtitle %}{{ rules|length }}개{% endblock %}
 
@@ -168,8 +168,8 @@
  <div class="flex items-center gap-2 ml-3">
  <form action="/automations/{{ rule.id }}/toggle" method="POST">
  <button type="submit" class="px-3 py-1.5 text-xs border rounded-lg
- {% if rule.enabled %}text-amber-600 border-amber-200 hover-accent-bg
- {% else %}text-green-600 border-green-200 hover-success-bg{% endif %}">
+ {% if rule.enabled %}hover-accent-bg{% else %}text-green-600 border-green-200 hover-success-bg{% endif %}"
+ {% if rule.enabled %}style="color: var(--color-accent); border-color: var(--color-accent-soft);"{% endif %}>
  {% if rule.enabled %}비활성{% else %}활성{% endif %}
  </button>
  </form>

@@ -191,7 +191,7 @@
  var card = e.target.closest('[data-todo-id]');
  if (card) card.style.opacity = '1';
  board.querySelectorAll('.kanban-drop-zone').forEach(function(z) {
- z.classList.remove('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
+ z.classList.remove('kanban-drop-active');
  z.classList.add('border-transparent');
  });
  _draggedId = null;
@@ -202,14 +202,14 @@
  if (!zone) return;
  e.preventDefault();
  e.dataTransfer.dropEffect = 'move';
- zone.classList.add('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
+ zone.classList.add('kanban-drop-active');
  zone.classList.remove('border-transparent');
  });
 
  board.addEventListener('dragleave', function(e) {
  var zone = e.target.closest('.kanban-drop-zone');
  if (zone && !zone.contains(e.relatedTarget)) {
- zone.classList.remove('border-amber-400', 'bg-amber-50/50', 'dark:bg-amber-900/10');
+ zone.classList.remove('kanban-drop-active');
  zone.classList.add('border-transparent');
  }
  });

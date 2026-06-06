@@ -76,7 +76,7 @@
  class="{% if not (is_custom_rrule and todo._rrule_until) %}hidden{% endif %} px-2 py-1 text-xs border rounded-lg" style="background: var(--color-surface);">
  </div>
  {% if is_custom_rrule %}
- <div class="text-[11px] text-amber-500">{{ rrule_to_korean(todo.repeat_type) }}</div>
+ <div class="text-[11px]" style="color: var(--color-accent);">{{ rrule_to_korean(todo.repeat_type) }}</div>
  {% endif %}
  </div>
  <input type="hidden" name="rrule_byday" id="editRruleByday_{{ todo.id }}" value="">

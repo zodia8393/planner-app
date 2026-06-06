@@ -86,7 +86,14 @@
  var toast = document.createElement('div');
  toast.className = 'toast toast-' + type;
  var icons = { success: '✓', error: '✕', info: 'i' };
- toast.innerHTML = '<span style="font-weight:700;font-size:0.875rem;">' + (icons[type] || '') + '</span><span>' + message + '</span>';
+ var iconSpan = document.createElement('span');
+ iconSpan.style.fontWeight = '700';
+ iconSpan.style.fontSize = '0.875rem';
+ iconSpan.textContent = icons[type] || '';
+ var msgSpan = document.createElement('span');
+ msgSpan.textContent = message;
+ toast.appendChild(iconSpan);
+ toast.appendChild(msgSpan);
  container.appendChild(toast);
  setTimeout(function() {
  toast.classList.add('toast-hide');
@@ -104,9 +111,15 @@
  var toast = document.createElement('div');
  toast.className = 'toast toast-info';
  toast.style.cursor = 'pointer';
- toast.innerHTML = '<span>삭제됨</span><button style="margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border-radius:6px;font-weight:600;font-size:0.8rem;" onclick="event.stopPropagation()">되돌리기</button>';
+ var delSpan = document.createElement('span');
+ delSpan.textContent = '삭제됨';
+ var undoBtn = document.createElement('button');
+ undoBtn.style.cssText = 'margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border-radius:6px;font-weight:600;font-size:0.8rem;';
+ undoBtn.textContent = '되돌리기';
+ toast.appendChild(delSpan);
+ toast.appendChild(undoBtn);
  container.appendChild(toast);
- toast.querySelector('button').onclick = function(e) {
+ undoBtn.onclick = function(e) {
  e.stopPropagation();
  clearTimeout(_undoTimers[id]);
  delete _undoTimers[id];

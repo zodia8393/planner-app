@@ -168,6 +168,28 @@ html.dark body[data-accent="sky"] {
  border-radius: var(--radius-sm);
  }
 
+ /* ── Todo checkbox states ── */
+ .todo-check-done {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+ }
+ .todo-check-undone:hover {
+  border-color: var(--color-accent) !important;
+ }
+ .pin-focus:focus {
+  border-color: var(--color-accent) !important;
+ }
+ .notice-pinned {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+ }
+
+ /* ── Kanban drop zone active state ── */
+ .kanban-drop-active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+ }
+
  /* ── Scrollbar ── */
  ::-webkit-scrollbar { width: 6px; height: 6px; }
  ::-webkit-scrollbar-track { background: transparent; }

@@ -391,14 +391,14 @@ function bulkSelectAll() {
 function bulkAction(action) {
  if (_bulkSelected.size === 0) return;
  var msg = action === 'delete' ? _bulkSelected.size + '개 항목을 삭제할까요?' : _bulkSelected.size + '개 항목을 완료 처리할까요?';
- if (!confirm(msg)) return;
- fetch('/todos/bulk', {
+ confirmAction(msg, function() { fetch('/todos/bulk', {
  method: 'POST',
  headers: {'Content-Type': 'application/json'},
  body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
  }).then(function(r) { return r.json(); }).then(function(d) {
   if (d.ok) htmx.ajax('GET', '/todos' + location.search, {target:'body', swap:'innerHTML'});
  }).catch(function() { location.reload(); });
+ });
 }
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIN 설정 - JM Planner</title>
+    <title>PIN 설정 - My Planner</title>
     <link rel="stylesheet" href="/static/tailwind.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <style>
@@ -15,7 +15,7 @@
 <body class="h-full flex items-center justify-center">
     <div class="w-full max-w-sm mx-4">
         <div class="rounded-2xl shadow-xl p-8 text-center border" style="background: var(--color-surface); border-color: var(--color-border);">
-            <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/30">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style="background: var(--color-accent);">
                 <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
@@ -29,15 +29,15 @@
 
             <form action="/auth/setup-pin" method="POST" id="pinForm">
                 <input type="password" name="pin" id="pinInput" aria-label="PIN 입력" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required autofocus
-                       class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-4" style="background: var(--color-border-subtle); border-color: var(--color-border);"
+                       class="pin-input w-full px-4 py-3 border-2 rounded-xl pin-focus focus:outline-none transition-all mb-4" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
 
                 <input type="password" name="pin_confirm" id="pinConfirm" aria-label="PIN 확인" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required
-                       class="pin-input w-full px-4 py-3 border-2 rounded-xl focus:border-amber-500 focus:outline-none transition-all mb-2" style="background: var(--color-border-subtle); border-color: var(--color-border);"
+                       class="pin-input w-full px-4 py-3 border-2 rounded-xl pin-focus focus:outline-none transition-all mb-2" style="background: var(--color-border-subtle); border-color: var(--color-border);"
                        placeholder="····">
                 <p id="matchError" class="text-xs text-red-500 mb-4 hidden">PIN이 일치하지 않습니다</p>
 
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold rounded-xl hover:from-amber-700 hover:to-amber-800 transition-all shadow-lg shadow-amber-500/30">
+                <button type="submit" class="w-full py-3 text-white font-bold rounded-xl transition-all btn-primary">
                     설정 완료
                 </button>
             </form>

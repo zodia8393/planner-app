@@ -35,7 +35,7 @@
  <button type="submit" class="flex-1 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm">
  저장
  </button>
- <button type="button" aria-label="일정 삭제" onclick="if(confirm('삭제할까요?'))fetch('/events/gcal/{{ event.gcal_id }}',{method:'DELETE',headers:{'HX-Request':'true'}}).then(function(){htmx.ajax('GET','/calendar'+location.search,{target:'body',swap:'innerHTML'})})"
+ <button type="button" aria-label="일정 삭제" onclick="confirmAction('삭제할까요?',function(){fetch('/events/gcal/{{ event.gcal_id }}',{method:'DELETE',headers:{'HX-Request':'true'}}).then(function(){htmx.ajax('GET','/calendar'+location.search,{target:'body',swap:'innerHTML'})})})"
  class="px-4 py-2.5 font-medium rounded-lg hover-danger-bg transition-colors text-sm" style="background: var(--color-danger-soft); color: var(--color-danger);">
  삭제
  </button>

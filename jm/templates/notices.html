@@ -47,7 +47,7 @@
 <div class="grid gap-3 lg:grid-cols-2">
  {% for notice in notices %}
  <div class="work-card rounded-xl p-4 card-hover fade-in group relative
- {% if notice.pinned %}ring-2 ring-amber-300{% endif %}"
+ {% if notice.pinned %}notice-pinned{% endif %}"
  data-notice-id="{{ notice.id }}">
  <div class="flex items-start justify-between">
  <div class="flex-1 min-w-0">
@@ -72,7 +72,7 @@
  <button type="submit"
  class="p-1 rounded hover-accent-bg hover-accent transition-all"
  title="{% if notice.pinned %}고정 해제{% else %}고정{% endif %}" aria-label="{% if notice.pinned %}고정 해제{% else %}고정{% endif %}">
- <svg class="w-4 h-4 {% if notice.pinned %}text-amber-500{% endif %}" fill="{% if notice.pinned %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+ <svg class="w-4 h-4" {% if notice.pinned %}style="color: var(--color-accent);"{% endif %} fill="{% if notice.pinned %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6A2.25 2.25 0 016 3.75h1.5m9 0h-9" />
  </svg>
  </button>
@@ -83,7 +83,7 @@
  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
  </svg>
  </button>
- <button onclick="if(confirm('삭제할까요?'))fetch('/notices/{{ notice.id }}',{method:'DELETE'}).then(function(){document.querySelector('[data-notice-id=&quot;{{ notice.id }}&quot;]').remove()})"
+ <button onclick="confirmAction('삭제할까요?',function(){fetch('/notices/{{ notice.id }}',{method:'DELETE'}).then(function(){document.querySelector('[data-notice-id=&quot;{{ notice.id }}&quot;]').remove()})})"
  class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover-danger-bg hover-danger transition-all" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
