@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}업무일지 - My Planner{% endblock %}
+{% block title %}업무일지 - JM Planner{% endblock %}
 {% block page_title %}업무일지{% endblock %}
 {% block page_subtitle %}{% if week_mode %}최근 7일{% else %}{{ current_date }}{% endif %} ({{ logs|length }}건, {{ total_hours }}h){% endblock %}
 
@@ -180,8 +180,8 @@
  {% endfor %}
  {% if not logs_by_date %}
  <div class="empty-state">
- <div class="empty-state-icon">
- <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ <div class="empty-state-icon" style="font-size: 2.5rem;">
+ &#x1F4DD;
  </div>
  <p class="empty-state-title">해당 기간에 기록된 업무가 없습니다</p>
  <p class="empty-state-desc">오늘의 업무를 기록해보세요</p>
@@ -196,12 +196,12 @@
  {% include"partials/_worklog_card.html" %}
  {% else %}
  <div class="empty-state">
- <div class="empty-state-icon">
- <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+ <div class="empty-state-icon" style="font-size: 2.5rem;">
+ &#x1F4DD;
  </div>
  <p class="empty-state-title">이 날짜에 기록된 업무가 없습니다</p>
  <p class="empty-state-desc">오늘의 업무를 기록해보세요</p>
- <button type="button" onclick="document.querySelector('form[action=\'/worklogs\'] input[name=title]').scrollIntoView({behavior:'smooth'}); document.querySelector('form[action=\'/worklogs\'] input[name=title]').focus();"
+ <button type="button" data-action="scroll-to-form-input" data-form-action="/worklogs" data-input-name="title"
  class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
  업무 기록하기
  </button>

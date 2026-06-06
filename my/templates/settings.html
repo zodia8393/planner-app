@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}설정 - My Planner{% endblock %}
+{% block title %}설정 - JM Planner{% endblock %}
 {% block page_title %}설정{% endblock %}
 {% block page_subtitle %}카테고리, 테마 관리{% endblock %}
 
@@ -46,7 +46,7 @@
  <div class="w-4 h-4 rounded-full" style="background: {{ cat.color }}"></div>
  <span class="text-sm font-medium">{{ cat.name }}</span>
  </div>
- <button onclick="confirmAction('삭제할까요?',function(){fetch('/settings/categories/{{ cat.id }}',{method:'DELETE'}).then(function(){document.querySelector('[data-cat-id=&quot;{{ cat.id }}&quot;]').remove()})})"
+ <button data-action="delete-category" data-cat-id="{{ cat.id }}"
  class="lg:opacity-0 lg:group-hover:opacity-100 p-2 rounded hover-danger-bg hover-danger transition-all"
  title="삭제" aria-label="삭제">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -476,17 +476,17 @@
  <div class="space-y-3 mb-5">
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="none" aria-label="배경 없음" {% if current_bg_type == 'none' %}checked{% endif %}
- class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" data-action="update-bg-preview">
  <span class="text-sm font-medium">기본 (배경 없음)</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="preset" aria-label="프리셋 배경" {% if current_bg_type == 'preset' %}checked{% endif %}
- class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" data-action="update-bg-preview">
  <span class="text-sm font-medium">프리셋 그라데이션</span>
  </label>
  <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover-surface transition-colors">
  <input type="radio" name="type" value="upload" aria-label="사용자 이미지 배경" {% if current_bg_type == 'upload' %}checked{% endif %}
- class="w-4 h-4" style="accent-color: var(--color-accent);" onchange="updateBgPreview()">
+ class="w-4 h-4" style="accent-color: var(--color-accent);" data-action="update-bg-preview">
  <span class="text-sm font-medium">사진 업로드</span>
  </label>
  </div>
@@ -619,14 +619,14 @@
  <select id="gcalSelect" aria-label="Google 캘린더 선택" class="flex-1 px-3 py-2.5 text-sm border rounded-lg">
  <option value="primary">기본 캘린더</option>
  </select>
- <button onclick="fetch('/api/gcal/calendars').then(r=>r.json()).then(cals=>{const s=document.getElementById('gcalSelect');s.innerHTML='';cals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.summary;s.appendChild(o)})}).catch(function(){alert('캘린더 목록을 불러올 수 없습니다')})"
+ <button data-action="fetch-gcal-calendars"
  class="px-3 py-2 text-xs rounded-lg hover-surface transition-colors">
  목록 불러오기
  </button>
  </div>
  <form action="/settings/gcal/calendar-id" method="POST" class="mt-2">
  <input type="hidden" name="calendar_id" id="gcalIdInput" value="{{ gcal_calendar_id }}">
- <button type="submit" onclick="document.getElementById('gcalIdInput').value=document.getElementById('gcalSelect').value"
+ <button type="submit" data-action="save-gcal-id"
  class="w-full py-2 btn-primary text-sm font-medium rounded-lg transition-colors">
  캘린더 저장
  </button>
@@ -688,7 +688,7 @@
  <input type="text" id="icalUrl" readonly aria-label="iCal URL"
  value="{{ request.url.scheme }}://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
  class="flex-1 px-3 py-2.5 text-xs border rounded-lg font-mono">
- <button onclick="navigator.clipboard.writeText(document.getElementById('icalUrl').value).then(()=>{this.textContent='복사됨!';setTimeout(()=>this.textContent='복사',1500)})"
+ <button data-action="copy-ical-url"
  class="px-4 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
  복사
  </button>

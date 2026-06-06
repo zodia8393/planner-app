@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}링크 - My Planner{% endblock %}
+{% block title %}링크 - JM Planner{% endblock %}
 {% block page_title %}링크{% endblock %}
 {% block page_subtitle %}자주 쓰는 링크 관리{% endblock %}
 
@@ -93,7 +93,7 @@
  <div class="empty-state-icon"><span>🔗</span></div>
  <p class="empty-state-title">저장된 링크가 없습니다</p>
  <p class="empty-state-desc">유용한 링크를 저장해보세요</p>
- <button type="button" onclick="document.querySelector('form[action=\'/links\'] input[name=title]').scrollIntoView({behavior:'smooth'}); document.querySelector('form[action=\'/links\'] input[name=title]').focus();"
+ <button type="button" data-action="scroll-to-form-input" data-form-action="/links" data-input-name="title"
  class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
  링크 추가하기
  </button>
@@ -106,7 +106,7 @@
 <div class="mt-8">
  <h3 class="text-sm font-bold mb-3">플래너 바로가기</h3>
  <div class="grid gap-3 sm:grid-cols-3">
- {% set apps = [("work","업무 플래너",""), ("jm","My 플래너","bg-emerald-600"), ("couple","커플 플래너","bg-pink-600")] %}
+ {% set apps = [("work","업무 플래너",""), ("jm","JM 플래너","bg-emerald-600"), ("couple","커플 플래너","bg-pink-600")] %}
  {% for key, label, color in apps %}
  {% set info = tunnel_data.get(key, {}) %}
  {% set url = info.get('url', '') if info is mapping else (info if info is string else '') %}

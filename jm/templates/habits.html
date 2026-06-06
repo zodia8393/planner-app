@@ -233,13 +233,8 @@ function renderSpecificTimes() {
 {% if not habits %}
 <!-- Empty state -->
 <div class="work-card rounded-xl p-8 text-center">
- <svg class="w-20 h-20 mx-auto mb-4" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
- <circle cx="60" cy="60" r="50" fill="var(--color-accent-soft)" stroke="var(--color-accent)" stroke-width="2"/>
- <path d="M40 60l10 10 20-20" stroke="var(--color-accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
- <circle cx="85" cy="35" r="8" fill="var(--color-accent)" opacity="0.3"/>
- <circle cx="30" cy="45" r="5" fill="var(--color-accent)" opacity="0.2"/>
- </svg>
- <h3 class="text-lg font-bold mb-2" style="color: var(--color-text);">매일 실천할 습관을 만들어보세요</h3>
+ <div style="font-size: 3rem; margin-bottom: 1rem;">&#x1F331;</div>
+ <h3 class="text-lg font-bold mb-2" style="color: var(--color-text);">첫 습관을 만들어보세요</h3>
  <p class="text-sm" style="color: var(--color-text-muted);">꾸준한 습관이 큰 변화를 만듭니다</p>
  <button type="button" data-action="open-habit-form"
  class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">

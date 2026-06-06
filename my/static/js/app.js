@@ -179,7 +179,7 @@
  if (document.querySelector('[hx-get]')) {
  htmx.trigger(document.body, 'sse-refresh');
  } else {
- window.location.reload();
+ _partialRefresh(window.location.pathname);
  }
  }
  };
@@ -305,12 +305,12 @@
  if (e.key === 'ArrowDown') {
  e.preventDefault();
  _cmdIdx = Math.min(_cmdIdx + 1, items.length - 1);
- items.forEach(function(el,i){el.classList.toggle('',i===_cmdIdx);el.classList.toggle('',i===_cmdIdx);});
+ items.forEach(function(el,i){if(i===_cmdIdx){el.style.background='var(--color-accent-soft)';}else{el.style.background='';}});
  if (items[_cmdIdx]) items[_cmdIdx].scrollIntoView({block:'nearest'});
  } else if (e.key === 'ArrowUp') {
  e.preventDefault();
  _cmdIdx = Math.max(_cmdIdx - 1, 0);
- items.forEach(function(el,i){el.classList.toggle('',i===_cmdIdx);el.classList.toggle('',i===_cmdIdx);});
+ items.forEach(function(el,i){if(i===_cmdIdx){el.style.background='var(--color-accent-soft)';}else{el.style.background='';}});
  if (items[_cmdIdx]) items[_cmdIdx].scrollIntoView({block:'nearest'});
  } else if (e.key === 'Enter' && _cmdIdx >= 0 && items[_cmdIdx]) {
  e.preventDefault();
@@ -364,6 +364,11 @@
  showToast('네트워크 오류: 연결을 확인해주세요', 'error');
  });
 
+ // Server error handling (422/400 etc.)
+ document.body.addEventListener('htmx:responseError', function(e) {
+ try { var d = JSON.parse(e.detail.xhr.responseText); showToast(d.detail || '오류가 발생했습니다', 'error'); } catch(x) { showToast('오류가 발생했습니다', 'error'); }
+ });
+
  // Global drag-drop file upload
  (function() {
  var dragCounter = 0;
@@ -408,7 +413,7 @@
  fetch('/files', { method: 'POST', body: formData }).then(function(res) {
  if (res.ok) {
  showToast('파일 업로드 완료', 'success');
- if (location.pathname.indexOf('/files') === 0) location.reload();
+ if (location.pathname.indexOf('/files') === 0) _partialRefresh(location.pathname);
  } else {
  showToast('업로드 실패', 'error');
  }
@@ -664,7 +669,7 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
  if (pullDist > 120 && !ptrTriggered) {
  ptrTriggered = true;
  ptrIndicator.querySelector('.ptr-text').textContent = '새로고침 중...';
- setTimeout(function() { location.reload(); }, 300);
+ setTimeout(function() { _partialRefresh(location.pathname); ptrIndicator.classList.remove('visible'); }, 300);
  }
  }, { passive: true });
  mainEl.addEventListener('touchend', function() {

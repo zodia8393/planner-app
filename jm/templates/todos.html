@@ -111,7 +111,7 @@
 <div class="work-card rounded-xl p-4 mb-4" id="addForm">
  <form action="/todos" method="POST">
  <div class="flex gap-2">
- <input type="text" name="title" placeholder="새 업무 추가..." required aria-label="새 업무 제목"
+ <input type="text" name="title" placeholder="할 일 입력 (/오늘, /높음 등 슬래시 명령 지원)" required aria-label="새 업무 제목"
  class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
  <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
  추가
@@ -141,7 +141,7 @@
  <option value="{{ cat.id }}">{{ cat.name }}</option>
  {% endfor %}
  </select>
- <select name="repeat_type" id="addRepeatType" aria-label="반복 설정" onchange="toggleAddRrule()"
+ <select name="repeat_type" id="addRepeatType" aria-label="반복 설정" data-action="toggle-add-rrule"
  class="px-2 py-1.5 text-xs border rounded-lg focus-accent"
  style="border-color:var(--color-border);background:var(--color-surface);color:var(--color-text);">
  {% for rk, rv in repeat_map.items() %}
@@ -182,7 +182,7 @@
  <button type="button" data-action="add-new-todo-offset" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newTodoUseDefault" aria-label="기본 알림 사용" checked onchange="toggleNewTodoDefault()" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
+ <input type="checkbox" id="newTodoUseDefault" aria-label="기본 알림 사용" checked data-action="toggle-new-todo-default" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
@@ -192,7 +192,7 @@
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
  <input type="number" name="rrule_interval" value="1" aria-label="반복 간격" min="1" max="99"
  class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
- <select name="rrule_freq" id="addRruleFreq" aria-label="반복 단위" onchange="toggleAddRruleExtra()"
+ <select name="rrule_freq" id="addRruleFreq" aria-label="반복 단위" data-action="toggle-add-rrule-extra"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="DAILY">일</option>
  <option value="WEEKLY" selected>주</option>
@@ -213,7 +213,7 @@
  </div>
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
- <select name="rrule_end_type" id="addRruleEndType" aria-label="반복 종료 방식" onchange="toggleAddEndFields()"
+ <select name="rrule_end_type" id="addRruleEndType" aria-label="반복 종료 방식" data-action="toggle-add-end-fields"
  class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
  <option value="never">무제한</option>
  <option value="count">횟수</option>
@@ -271,14 +271,12 @@
  </div>
  {% else %}
  <div class="empty-state">
- <div class="empty-state-icon">
- <svg class="w-7 h-7" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
- <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
- </svg>
+ <div class="empty-state-icon" style="font-size: 2.5rem;">
+ &#x2705;
  </div>
  <p class="empty-state-title">업무가 없습니다</p>
  <p class="empty-state-desc">첫 할일을 추가해보세요</p>
- <button type="button" onclick="document.getElementById('addForm').scrollIntoView({behavior:'smooth'}); document.querySelector('#addForm input[name=title]').focus();"
+ <button type="button" data-action="scroll-to-add-form" data-form-id="addForm"
  class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
  할일 추가하기
  </button>
@@ -403,7 +401,7 @@ function bulkAction(action) {
  body: JSON.stringify({action: action, ids: Array.from(_bulkSelected)})
  }).then(function(r) { return r.json(); }).then(function(d) {
   if (d.ok) htmx.ajax('GET', '/todos' + location.search, {target:'body', swap:'innerHTML'});
- }).catch(function() { location.reload(); });
+ }).catch(function() { _partialRefresh('/todos' + location.search); });
  });
 }
 if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }

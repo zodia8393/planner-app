@@ -95,7 +95,7 @@
  </button>
  <span class="text-xs flex-1 min-w-0 cursor-pointer {% if sub.completed %}line-through {% endif %}"
  style="color: var(--color-text-muted);"
- onclick="(function(el){var s=el,inp=document.createElement('input');inp.type='text';inp.value=s.textContent.trim();inp.className='text-xs px-1 py-0.5 border rounded focus-accent flex-1 min-w-0';inp.style.background='var(--color-surface)';s.replaceWith(inp);inp.focus();inp.select();var saving=false;function save(){if(saving)return;saving=true;var v=inp.value.trim();if(!v){inp.replaceWith(s);return;}htmx.ajax('PUT','/subtasks/{{ sub.id }}',{target:'#todo-{{ todo.id }}',swap:'outerHTML',values:{title:v}});}inp.addEventListener('blur',function(){setTimeout(save,100);});inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();save();}if(e.key==='Escape'){e.preventDefault();inp.replaceWith(s);}});})(this)">{{ sub.title }}</span>
+ data-action="inline-edit-subtask" data-sub-id="{{ sub.id }}" data-todo-id="{{ todo.id }}">{{ sub.title }}</span>
  <button hx-delete="/subtasks/{{ sub.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"
  class="lg:opacity-0 lg:group-hover/sub:opacity-100 p-1 hover-danger transition-all flex-shrink-0" aria-label="서브태스크 삭제">
  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -122,7 +122,7 @@
 
  <!-- Actions -->
  <div class="flex items-center gap-1 flex-shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
- <button onclick="var f=document.getElementById('subtaskForm-{{ todo.id }}');f.classList.toggle('hidden');if(!f.classList.contains('hidden'))f.querySelector('input[name=title]').focus();"
+ <button data-action="toggle-subtask-form" data-todo-id="{{ todo.id }}"
  class="p-2 rounded hover-surface hover-accent" title="하위 작업" aria-label="하위 작업">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

@@ -124,12 +124,12 @@ def render_error_page(code: int, message: str) -> str:
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
 body{{height:100%;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf9f7;color:#1c1917}}
-@media(prefers-color-scheme:dark){{body{{background:#1c1917;color:#fafaf9}}.err-msg{{color:#e2e8f0}}.err-sub{{color:#94a3b8}}.err-btn{{background:#818cf8}}.err-btn:hover{{background:#6366f1}}}}
-.err-code{{font-size:4.5rem;font-weight:800;color:#6366f1;margin-bottom:1rem}}
+@media(prefers-color-scheme:dark){{body{{background:#1c1917;color:#fafaf9}}.err-msg{{color:#e7e5e4}}.err-sub{{color:#a8a29e}}.err-btn{{background:#f59e0b;color:#1c1917}}.err-btn:hover{{background:#d97706}}}}
+.err-code{{font-size:4.5rem;font-weight:800;color:#d97706;margin-bottom:1rem}}
 .err-msg{{font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem}}
 .err-sub{{font-size:1rem;color:#64748b;margin-bottom:1.5rem}}
-.err-btn{{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:#6366f1;color:#fff;font-weight:500;border-radius:0.75rem;text-decoration:none;transition:background 0.2s}}
-.err-btn:hover{{background:#4f46e5}}
+.err-btn{{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:#d97706;color:#fff;font-weight:500;border-radius:0.75rem;text-decoration:none;transition:background 0.2s}}
+.err-btn:hover{{background:#b45309}}
 </style>
 </head>
 <body>

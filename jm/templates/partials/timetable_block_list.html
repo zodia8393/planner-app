@@ -14,7 +14,7 @@
  <p class="text-xs" style="color: var(--color-text-muted);">{{ b.start_time }} ~ {{ b.end_time }}</p>
  </div>
  <div class="flex items-center gap-1 opacity-60 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex-shrink-0">
- <button onclick="editBlock({{ b.id }}, '{{ b.start_time }}', '{{ b.end_time }}', '{{ b.title|e }}', '{{ b.color }}', '{{ b.icon|e }}')"
+ <button data-action="edit-block" data-block-id="{{ b.id }}" data-start="{{ b.start_time }}" data-end="{{ b.end_time }}" data-title="{{ b.title|e }}" data-color="{{ b.color }}" data-icon="{{ b.icon|e }}"
  class="p-1 rounded hover-surface" title="편집" aria-label="편집">
  <svg class="w-3.5 h-3.5" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>

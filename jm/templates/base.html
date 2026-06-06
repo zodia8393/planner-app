@@ -20,6 +20,17 @@
  <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" onload="this.rel='stylesheet'">
  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
  <script src="/static/htmx.min.js?v=5"></script>
+ <script>
+ function _partialRefresh(url){
+  fetch(url,{headers:{'X-Partial':'1'}}).then(function(r){return r.text()}).then(function(html){
+   var parser=new DOMParser();
+   var doc=parser.parseFromString(html,'text/html');
+   var src=doc.getElementById('mainContent');
+   var dst=document.getElementById('mainContent');
+   if(src&&dst){dst.innerHTML=src.innerHTML;htmx.process(dst);document.dispatchEvent(new Event('htmx:afterSettle'));}
+  }).catch(function(){});
+ }
+ </script>
  <link rel="prefetch" href="/static/chart.umd.min.js?v=5" as="script">
  {% block head_extra %}{% endblock %}
  <script src="/static/notifications.js?v=5" defer></script>
@@ -130,62 +141,62 @@
  </summary>
  <div id="sidebarMoreContent" style="display: flex; flex-direction: column; gap: 2px; margin-top: 2px;">
  <a href="/timetable" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'timetable' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/timetable">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/timetable')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/timetable" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
   타임테이블
  </a>
  <a href="/habits" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'habits' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/habits">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/habits')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/habits" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /></svg>
   습관
  </a>
  <a href="/worklogs" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'worklogs' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/worklogs">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/worklogs')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/worklogs" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
   업무일지
  </a>
  <a href="/memos" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'memos' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/memos">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/memos')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/memos" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
   메모
  </a>
  <a href="/todo-templates" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'todo-templates' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/todo-templates">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/todo-templates')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/todo-templates" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>
   할일 템플릿
  </a>
  <a href="/automations" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'automations' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/automations">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/automations')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/automations" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
   자동화
  </a>
  <a href="/ddays" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'ddays' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/ddays">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/ddays')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/ddays" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
   D-day
  </a>
  <a href="/links" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'links' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/links">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/links')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/links" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
   링크
  </a>
  <a href="/achievements" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'achievements' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/achievements">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/achievements')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/achievements" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0016.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.003 6.003 0 01-5.54 0"/></svg>
   업적
  </a>
  <a href="/stats" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'stats' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/stats">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/stats')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/stats" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
   통계
  </a>
  <a href="/review" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'review' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/review">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/review')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/review" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" /></svg>
   리뷰
  </a>
  <a href="/search" class="nav-item sidebar-more-item flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium {% if page == 'search' %}nav-active{% endif %}" style="color: var(--color-text-muted);" data-sidebar-href="/search">
-  <button class="fav-star" onclick="event.preventDefault();event.stopPropagation();toggleFavorite('/search')" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
+  <button class="fav-star" data-action="toggle-favorite" data-href="/search" aria-label="즐겨찾기 토글"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg></button>
   <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" /></svg>
   검색
  </a>
@@ -502,7 +513,7 @@
  <input type="number" id="focusCustomMin" placeholder="분" aria-label="집중 시간(분)" min="1" max="480" value="25"
  class="flex-1 px-3 py-2 text-sm rounded-lg text-center"
  style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);">
- <button onclick="_focusStart(parseInt(document.getElementById('focusCustomMin').value)||25)"
+ <button data-action="focus-start-custom"
  class="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
  style="background: var(--color-accent);"
  aria-label="사용자 지정 집중 시작">시작</button>
@@ -510,7 +521,7 @@
  <input type="text" id="focusTitle" placeholder="작업 내용 (선택)" aria-label="작업 내용"
  class="w-full px-3 py-2 text-sm rounded-lg mb-2"
  style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);">
- <button onclick="document.getElementById('focusModal').classList.add('hidden')"
+ <button data-action="close-focus-modal"
  class="w-full text-xs py-1 transition-colors"
  style="color: var(--color-text-faint);" aria-label="집중 모드 닫기">닫기</button>
  </div>
@@ -844,7 +855,7 @@ function cmdPaletteAddTodo(title){
    // Refresh if on todos or dashboard
    var path = location.pathname;
    if(path === '/' || path === '/todos'){
-    location.reload();
+    _partialRefresh(path);
    }
   } else {
    showToast(data.error || '오류', 'error');
@@ -1104,6 +1115,143 @@ function cmdPaletteAddTodo(title){
     var hf = document.getElementById('habitAddForm');
     if (hf) { hf.open = true; setTimeout(function(){ var inp = document.querySelector('#habitAddForm input[name=name]'); if (inp) inp.focus(); }, 100); }
     break;
+   /* ── 즐겨찾기 토글 ── */
+   case 'toggle-favorite':
+    e.preventDefault(); e.stopPropagation();
+    if (typeof toggleFavorite === 'function') toggleFavorite(el.getAttribute('data-href'));
+    break;
+   /* ── 서브태스크 폼 토글 ── */
+   case 'toggle-subtask-form':
+    var sf = document.getElementById('subtaskForm-' + el.getAttribute('data-todo-id'));
+    if (sf) { sf.classList.toggle('hidden'); if (!sf.classList.contains('hidden')) sf.querySelector('input[name=title]').focus(); }
+    break;
+   /* ── 서브태스크 인라인 편집 ── */
+   case 'inline-edit-subtask':
+    (function(s) {
+     var inp = document.createElement('input');
+     inp.type = 'text'; inp.value = s.textContent.trim();
+     inp.className = 'text-xs px-1 py-0.5 border rounded focus-accent flex-1 min-w-0';
+     inp.style.background = 'var(--color-surface)';
+     s.replaceWith(inp); inp.focus(); inp.select();
+     var saving = false;
+     function save() {
+      if (saving) return; saving = true;
+      var v = inp.value.trim();
+      if (!v) { inp.replaceWith(s); return; }
+      htmx.ajax('PUT', '/subtasks/' + el.getAttribute('data-sub-id'), {target: '#todo-' + el.getAttribute('data-todo-id'), swap: 'outerHTML', values: {title: v}});
+     }
+     inp.addEventListener('blur', function() { setTimeout(save, 100); });
+     inp.addEventListener('keydown', function(ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); save(); }
+      if (ev.key === 'Escape') { ev.preventDefault(); inp.replaceWith(s); }
+     });
+    })(el);
+    break;
+   /* ── 할일 편집폼: 알림 오프셋 추가 ── */
+   case 'add-edit-todo-offset':
+    if (typeof addEditTodoOffset === 'function') addEditTodoOffset(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   /* ── 할일 편집폼: byday 수집 후 제출 ── */
+   case 'collect-edit-byday':
+    if (typeof collectEditByday === 'function') collectEditByday(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   /* ── 일정 편집 모달 닫기 ── */
+   case 'close-edit-event':
+    document.getElementById('editEventContainer').innerHTML = '';
+    break;
+   /* ── 일정 알림 오프셋 추가 ── */
+   case 'add-event-offset':
+    if (typeof addEventOffset === 'function') addEventOffset(parseInt(el.getAttribute('data-event-id')));
+    break;
+   /* ── 일정 삭제 ── */
+   case 'delete-event':
+    confirmAction('삭제할까요?', function() {
+     fetch('/events/' + el.getAttribute('data-event-id'), {method: 'DELETE', headers: {'HX-Request': 'true'}})
+      .then(function() { htmx.ajax('GET', '/calendar' + location.search, {target: 'body', swap: 'innerHTML'}); });
+    });
+    break;
+   /* ── Google 일정 삭제 ── */
+   case 'delete-gcal-event':
+    confirmAction('삭제할까요?', function() {
+     fetch('/events/gcal/' + el.getAttribute('data-gcal-id'), {method: 'DELETE', headers: {'HX-Request': 'true'}})
+      .then(function() { htmx.ajax('GET', '/calendar' + location.search, {target: 'body', swap: 'innerHTML'}); });
+    });
+    break;
+   /* ── 캘린더 할일 토글 ── */
+   case 'toggle-cal-todo':
+    e.stopPropagation();
+    (function(btn) {
+     var todoId = btn.getAttribute('data-todo-id');
+     var p = btn.closest('.flex');
+     fetch('/todos/' + todoId + '/toggle', {method: 'POST'}).then(function() {
+      var done = !btn.style.background;
+      if (done) {
+       btn.style.background = 'var(--color-success)'; btn.style.borderColor = 'var(--color-success)';
+       btn.innerHTML = '<svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+      } else {
+       btn.style.background = ''; btn.style.borderColor = ''; btn.innerHTML = '';
+      }
+      var s = p.querySelector('span'); if (s) s.classList.toggle('line-through');
+     });
+    })(el);
+    break;
+   /* ── 카테고리 삭제 ── */
+   case 'delete-category':
+    (function(catId) {
+     confirmAction('삭제할까요?', function() {
+      fetch('/settings/categories/' + catId, {method: 'DELETE'}).then(function() {
+       var row = document.querySelector('[data-cat-id="' + catId + '"]');
+       if (row) row.remove();
+      });
+     });
+    })(el.getAttribute('data-cat-id'));
+    break;
+   /* ── Google 캘린더 목록 불러오기 ── */
+   case 'fetch-gcal-calendars':
+    fetch('/api/gcal/calendars').then(function(r) { return r.json(); }).then(function(cals) {
+     var s = document.getElementById('gcalSelect'); s.innerHTML = '';
+     cals.forEach(function(c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.summary; s.appendChild(o); });
+    }).catch(function() { alert('캘린더 목록을 불러올 수 없습니다'); });
+    break;
+   /* ── Google 캘린더 ID 저장 ── */
+   case 'save-gcal-id':
+    document.getElementById('gcalIdInput').value = document.getElementById('gcalSelect').value;
+    break;
+   /* ── iCal URL 복사 ── */
+   case 'copy-ical-url':
+    navigator.clipboard.writeText(document.getElementById('icalUrl').value).then(function() {
+     el.textContent = '복사됨!'; setTimeout(function() { el.textContent = '복사'; }, 1500);
+    });
+    break;
+   /* ── 공지 삭제 ── */
+   case 'delete-notice':
+    (function(nid) {
+     confirmAction('삭제할까요?', function() {
+      fetch('/notices/' + nid, {method: 'DELETE'}).then(function() {
+       var row = document.querySelector('[data-notice-id="' + nid + '"]');
+       if (row) row.remove();
+      });
+     });
+    })(el.getAttribute('data-notice-id'));
+    break;
+   /* ── 폼으로 스크롤+포커스 ── */
+   case 'scroll-to-add-form':
+    var formEl = document.getElementById(el.getAttribute('data-form-id'));
+    if (formEl) { formEl.scrollIntoView({behavior:'smooth'}); var inp2 = formEl.querySelector('input[name=title]'); if (inp2) inp2.focus(); }
+    break;
+   case 'scroll-to-form-input':
+    var formSel = 'form[action="' + el.getAttribute('data-form-action') + '"] input[name=' + el.getAttribute('data-input-name') + ']';
+    var tgtInp = document.querySelector(formSel);
+    if (tgtInp) { tgtInp.scrollIntoView({behavior:'smooth'}); tgtInp.focus(); }
+    break;
+   case 'focus-input':
+    var fi = document.querySelector(el.getAttribute('data-target'));
+    if (fi) fi.focus();
+    break;
+   /* ── 업무일지 undo 삭제 ── */
+   case 'undo-delete-worklog':
+    if (typeof undoDelete === 'function') undoDelete(el.closest('[data-log-id]'), '/worklogs/' + el.getAttribute('data-log-id'));
+    break;
   }
  });
  /* ── onchange→data-action 전환 (change 이벤트 위임) ── */
@@ -1129,6 +1277,51 @@ function cmdPaletteAddTodo(title){
     break;
    case 'handle-image-file':
     if (typeof handleImageFileSelect === 'function') handleImageFileSelect(el);
+    break;
+   /* ── 할일 반복 설정 ── */
+   case 'toggle-add-rrule':
+    if (typeof toggleAddRrule === 'function') toggleAddRrule();
+    break;
+   case 'toggle-add-rrule-extra':
+    if (typeof toggleAddRruleExtra === 'function') toggleAddRruleExtra();
+    break;
+   case 'toggle-add-end-fields':
+    if (typeof toggleAddEndFields === 'function') toggleAddEndFields();
+    break;
+   case 'toggle-new-todo-default':
+    if (typeof toggleNewTodoDefault === 'function') toggleNewTodoDefault();
+    break;
+   /* ── 할일 편집폼 반복 설정 ── */
+   case 'toggle-edit-rrule':
+    if (typeof toggleEditRrule === 'function') toggleEditRrule(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   case 'toggle-edit-rrule-extra':
+    if (typeof toggleEditRruleExtra === 'function') toggleEditRruleExtra(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   case 'toggle-edit-end-fields':
+    if (typeof toggleEditEndFields === 'function') toggleEditEndFields(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   case 'toggle-edit-todo-default':
+    if (typeof toggleEditTodoDefault === 'function') toggleEditTodoDefault(parseInt(el.getAttribute('data-todo-id')));
+    break;
+   /* ── 일정 편집폼 기본값 토글 ── */
+   case 'toggle-event-default':
+    if (typeof toggleEventDefault === 'function') toggleEventDefault(parseInt(el.getAttribute('data-event-id')));
+    break;
+   /* ── 자동화 트리거 UI ── */
+   case 'update-trigger-ui':
+    if (typeof updateTriggerUI === 'function') updateTriggerUI();
+    break;
+   case 'update-rrule-extra':
+    if (typeof updateRruleExtra === 'function') updateRruleExtra();
+    break;
+   /* ── 파일 업로드 ── */
+   case 'upload-files':
+    if (typeof uploadFiles === 'function') uploadFiles(el.files);
+    break;
+   /* ── 배경 설정 미리보기 ── */
+   case 'update-bg-preview':
+    if (typeof updateBgPreview === 'function') updateBgPreview();
     break;
   }
  });
