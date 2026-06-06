@@ -5,7 +5,7 @@ from datetime import date, datetime
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
-from common.nlp_date import extract_date_from_text
+from common.nlp_date import extract_date_from_text, extract_time_from_text
 from common.recurrence import next_occurrence, build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str, safe_int
 from common.filters import parse_tags
@@ -244,6 +244,17 @@ async def create_todo(request: Request,
             due_date = nlp_date.isoformat()
             title = remaining_title
 
+    # NLP time extraction from title
+    nlp_time, title_after_time = extract_time_from_text(title)
+    if nlp_time and title_after_time:
+        title = title_after_time
+        # Prepend time indicator to description (no due_time column)
+        time_tag = f"⏰ {nlp_time}"
+        if description:
+            description = f"{time_tag}\n{description}"
+        else:
+            description = time_tag
+
     # Build RRULE from custom fields if repeat_type is 'custom'
     if repeat_type == "custom" and rrule_freq:
         byday = [d.strip() for d in rrule_byday.split(",") if d.strip()] if rrule_byday else []
@@ -309,7 +320,10 @@ async def toggle_todo(request: Request, todo_id: int):
             if updated:
                 td = dict(updated)
                 td["subtasks"] = [dict(s) for s in conn.execute("SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)).fetchall()]
-                return S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean, "today": date.today()})
+                response = S.render(request, "partials/todo_item.html", {"todo": td, "priority_map": PRIORITY_MAP, "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean, "today": date.today()})
+                if new_status == 1:
+                    response.headers["HX-Trigger-After-Settle"] = "todo-completed"
+                return response
         return HTMLResponse("")
 
     referer = request.headers.get("HX-Current-URL") or request.headers.get("referer") or ""

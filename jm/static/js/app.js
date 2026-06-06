@@ -152,6 +152,8 @@
 
  _ws.onopen = function() {
  _wsReconnectDelay = 1000;
+ var ob = document.getElementById('offlineBanner');
+ if (ob) ob.classList.add('hidden');
  // Client-side ping every 25s to keep NAT/proxy alive
  clearInterval(_wsPingInterval);
  _wsPingInterval = setInterval(function() {
@@ -184,6 +186,8 @@
 
  _ws.onclose = function() {
  clearInterval(_wsPingInterval);
+ var ob = document.getElementById('offlineBanner');
+ if (ob) ob.classList.remove('hidden');
  setTimeout(function() {
  _wsReconnectDelay = Math.min(_wsReconnectDelay * 2, 30000);
  connectWS();
@@ -714,11 +718,8 @@ function showConfetti(){
  setTimeout(function(){el.remove()},3500);
  }
 }
-document.addEventListener('htmx:afterRequest',function(e){
- var cfg=e.detail&&e.detail.requestConfig;
- if(cfg&&cfg.path&&cfg.path.indexOf('/toggle')>-1&&cfg.verb==='post'){
+document.body.addEventListener('todo-completed',function(){
  showConfetti();
- }
 });
 
 fetch('/api/track-visit',{method:'POST'}).catch(function(){});

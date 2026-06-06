@@ -49,6 +49,8 @@
  {% endif %}
 </div>
 
+<!-- Offline Banner -->
+<div id="offlineBanner" class="hidden fixed top-0 left-0 right-0 z-50 text-center py-1 text-xs font-medium" style="background: var(--color-warning-soft); color: var(--color-warning);">오프라인 — 재연결 중...</div>
 <!-- Toast Container -->
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <!-- Pull-to-Refresh Indicator -->
@@ -431,16 +433,6 @@
  <span class="text-xs font-medium">자동화</span>
  </a>
  </div>
- <!-- Dark mode one-tap -->
- <div class="pt-3 flex gap-2" style="border-top: 1px solid var(--color-border);">
- <button data-action="toggle-dark-mode-and-more"
- aria-label="테마 전환"
- class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
- style="background: var(--color-border-subtle); color: var(--color-text-muted);">
- <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
- 테마 전환
- </button>
- </div>
  </div>
 </div>
 
@@ -477,8 +469,6 @@
  <span class="w-6 text-center opacity-60">+</span> 할일 추가...</button>
  <button data-action="cmd-start-focus" data-minutes="25" aria-label="집중 모드 25분 시작" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left" style="color: var(--color-text-muted);">
  <span class="w-6 text-center opacity-60">⏱</span> 집중 모드 25분</button>
- <button data-action="toggle-dark-mode-and-cmd" aria-label="테마 전환" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left" style="color: var(--color-text-muted);">
- <span class="w-6 text-center opacity-60">🌓</span> 테마 전환</button>
  </div>
  <div id="cmdSearchResults" class="hidden p-2 space-y-0.5"></div>
  </div>

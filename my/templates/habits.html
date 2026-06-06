@@ -252,7 +252,7 @@ function renderSpecificTimes() {
 <div class="grid gap-3 lg:grid-cols-2 mb-6">
  {% for h in habits %}
  {% set pct = ((h.today_count / h.target_count * 100)|int) if (h.tracking_type in ('times_per_day','every_n_hours') and h.target_count > 0) else 0 %}
- <div class="habit-card work-card group" style="border-left-color: {{ h.color }};">
+ <div class="habit-card work-card group" style="border-left-color: {{ h.color }};" data-list-nav tabindex="0">
  <div class="flex items-start gap-3">
  <!-- Left: Action area -->
  <div class="flex-shrink-0 pt-0.5">

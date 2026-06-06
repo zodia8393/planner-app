@@ -440,16 +440,6 @@ html.dark body[data-accent="sky"] {
  box-shadow: var(--shadow-sm);
  }
 
- .btn-ghost {
- background: transparent;
- color: var(--color-text-muted);
- font-weight: 500;
- transition: all var(--duration-fast) var(--ease-in-out);
- }
- .btn-ghost:hover {
- background: var(--color-border-subtle);
- color: var(--color-text);
- }
 
  /* ── Premium Input ── */
  .input-premium {
@@ -630,8 +620,6 @@ html.dark body[data-accent="sky"] {
  .hoverable-subtle:hover { background: var(--color-border-subtle); }
  .hoverable-accent { transition: background var(--duration-fast) var(--ease-in-out); }
  .hoverable-accent:hover { background: var(--color-accent-hover); }
- .hoverable-opacity { transition: opacity var(--duration-fast) var(--ease-in-out); }
- .hoverable-opacity:hover { opacity: 0.8; }
 
  /* ── Energy filter active state ── */
  .energy-active { color: #fff !important; }
@@ -1788,12 +1776,6 @@ html.dark body[data-accent="sky"] {
  to { transform: translateY(0); opacity: 1; }
 }
 
-/* ── Counter roll animation ── */
-@keyframes counter-roll {
- from { transform: translateY(100%); opacity: 0; }
- to { transform: translateY(0); opacity: 1; }
-}
-.counter-roll { animation: counter-roll 0.4s var(--ease-out); display: inline-block; }
 
 /* ── Skeleton loading ── */
 @keyframes skeleton-shimmer {
@@ -1834,7 +1816,8 @@ html.dark body[data-accent="sky"] {
  animation: particle-burst 0.6s ease-out forwards;
 }
 
-/* ── Todo keyboard navigation focus ── */
+/* ── List keyboard navigation focus (j/k) ── */
+[data-list-nav].list-nav-focus,
 [data-todo-nav].todo-nav-focus {
  outline: 2px solid var(--color-accent);
  outline-offset: 2px;

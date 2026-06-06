@@ -12,6 +12,7 @@ from typing import Optional
 __all__ = [
     "parse_korean_date",
     "extract_date_from_text",
+    "extract_time_from_text",
     "format_date_display",
 ]
 
@@ -333,6 +334,89 @@ def extract_date_from_text(
                     after = after[pm.end():].strip()
                 remaining = f"{before} {after}".strip()
                 return parsed, remaining
+
+    return None, text
+
+
+# ── Time parsing patterns ──
+
+# "오후 3시 30분" / "오전 10시" / "오후 3시"
+_PAT_TIME_AMPM = re.compile(
+    r"(오전|오후)\s*(\d{1,2})시\s*(?:(\d{1,2})분)?"
+)
+
+# "3시 30분" / "15시" / "3시" (no AM/PM → default PM for 1-11)
+_PAT_TIME_HOUR = re.compile(
+    r"(\d{1,2})시\s*(?:(\d{1,2})분)?"
+)
+
+# "15:00" / "3:30"
+_PAT_TIME_COLON = re.compile(
+    r"(\d{1,2}):(\d{2})"
+)
+
+# Particles that can follow a time expression
+_TIME_PARTICLES = re.compile(r"^(에|까지|부터)\s*")
+
+_TIME_EXTRACT_PATTERNS: list[re.Pattern] = [
+    _PAT_TIME_AMPM,
+    _PAT_TIME_COLON,
+    _PAT_TIME_HOUR,
+]
+
+
+def _parse_time_match(m: re.Match, pat: re.Pattern) -> Optional[str]:
+    """Convert a time regex match to HH:MM string."""
+    groups = m.groups()
+
+    if pat is _PAT_TIME_AMPM:
+        ampm = groups[0]
+        hour = int(groups[1])
+        minute = int(groups[2]) if groups[2] else 0
+        if ampm == "오후" and hour < 12:
+            hour += 12
+        elif ampm == "오전" and hour == 12:
+            hour = 0
+    elif pat is _PAT_TIME_COLON:
+        hour = int(groups[0])
+        minute = int(groups[1])
+    else:
+        # _PAT_TIME_HOUR: default PM for 1-11
+        hour = int(groups[0])
+        minute = int(groups[1]) if groups[1] else 0
+        if 1 <= hour < 12:
+            hour += 12
+
+    if 0 <= hour <= 23 and 0 <= minute <= 59:
+        return f"{hour:02d}:{minute:02d}"
+    return None
+
+
+def extract_time_from_text(text: str) -> tuple[Optional[str], str]:
+    """Extract time expression from text, return (time_str, remaining_text).
+
+    E.g. "오후 3시 보고서 제출" -> ("15:00", "보고서 제출")
+         "15:00 회의" -> ("15:00", "회의")
+         "3시 미팅" -> ("15:00", "미팅")
+    """
+    if not text or not isinstance(text, str):
+        return None, text or ""
+
+    text = text.strip()
+
+    for pat in _TIME_EXTRACT_PATTERNS:
+        m = pat.search(text)
+        if m:
+            time_str = _parse_time_match(m, pat)
+            if time_str is not None:
+                before = text[:m.start()].strip()
+                after = text[m.end():].strip()
+                # Strip Korean particles
+                pm = _TIME_PARTICLES.match(after)
+                if pm:
+                    after = after[pm.end():].strip()
+                remaining = f"{before} {after}".strip()
+                return time_str, remaining
 
     return None, text
 

@@ -80,10 +80,12 @@
         modal.setAttribute('aria-label', '키보드 단축키 도움말');
 
         var allShortcuts = SHORTCUTS.slice();
-        // Add todo-nav shortcuts to help
-        allShortcuts.push({ key: 'J/K', label: '할일 항목 이동' });
-        allShortcuts.push({ key: 'X/Space', label: '할일 완료 토글' });
-        allShortcuts.push({ key: 'Enter', label: '할일 인라인 편집' });
+        // Add list-nav shortcuts to help
+        allShortcuts.push({ key: 'J/K', label: '목록 항목 이동' });
+        allShortcuts.push({ key: 'X/Space', label: '항목 토글/체크' });
+        allShortcuts.push({ key: 'Enter', label: '항목 인라인 편집' });
+        allShortcuts.push({ key: 'Ctrl+Shift+N', label: '새 메모' });
+        allShortcuts.push({ key: 'Ctrl+Shift+E', label: '새 일정' });
 
         var rows = allShortcuts.map(function (s) {
             return '<div class="flex justify-between items-center">' +
@@ -110,61 +112,71 @@
         document.body.appendChild(modal);
     }
 
-    /* ── Todo keyboard navigation (j/k/x/Space/Enter) ── */
-    var _todoNavIndex = -1;
+    /* ── List keyboard navigation (j/k/x/Space/Enter) ── */
+    /* Works on /todos (data-todo-nav), /habits, /worklogs, /memos (data-list-nav) */
+    var _listNavIndex = -1;
 
-    function getTodoNavItems() {
-        return Array.from(document.querySelectorAll('[data-todo-nav]'));
+    function getListNavItems() {
+        // Prefer data-todo-nav on /todos, data-list-nav everywhere else
+        var items = Array.from(document.querySelectorAll('[data-todo-nav]'));
+        if (items.length === 0) {
+            items = Array.from(document.querySelectorAll('[data-list-nav]'));
+        }
+        return items;
     }
 
-    function setTodoNavFocus(index) {
-        var items = getTodoNavItems();
+    function setListNavFocus(index) {
+        var items = getListNavItems();
         if (items.length === 0) return;
         // Remove old focus
-        items.forEach(function (el) { el.classList.remove('todo-nav-focus'); });
+        items.forEach(function (el) { el.classList.remove('todo-nav-focus', 'list-nav-focus'); });
         // Clamp index
         if (index < 0) index = 0;
         if (index >= items.length) index = items.length - 1;
-        _todoNavIndex = index;
-        var target = items[_todoNavIndex];
-        target.classList.add('todo-nav-focus');
+        _listNavIndex = index;
+        var target = items[_listNavIndex];
+        var focusClass = target.hasAttribute('data-todo-nav') ? 'todo-nav-focus' : 'list-nav-focus';
+        target.classList.add(focusClass);
         target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
 
-    function isTodoPage() {
-        return location.pathname === '/todos';
+    var _LIST_NAV_PAGES = ['/todos', '/habits', '/worklogs', '/memos'];
+
+    function isListNavPage() {
+        return _LIST_NAV_PAGES.indexOf(location.pathname) >= 0;
     }
 
-    function handleTodoNav(e) {
-        if (!isTodoPage()) return false;
-        var items = getTodoNavItems();
+    function handleListNav(e) {
+        if (!isListNavPage()) return false;
+        var items = getListNavItems();
         if (items.length === 0) return false;
 
         var key = e.key;
 
         if (key === 'j') {
             e.preventDefault();
-            setTodoNavFocus(_todoNavIndex + 1);
+            setListNavFocus(_listNavIndex + 1);
             return true;
         }
         if (key === 'k') {
             e.preventDefault();
-            setTodoNavFocus(_todoNavIndex - 1);
+            setListNavFocus(_listNavIndex - 1);
             return true;
         }
         if (key === 'x' || key === ' ') {
-            if (_todoNavIndex < 0 || _todoNavIndex >= items.length) return false;
+            if (_listNavIndex < 0 || _listNavIndex >= items.length) return false;
             e.preventDefault();
-            var current = items[_todoNavIndex];
+            var current = items[_listNavIndex];
             // Click the toggle button (checkbox)
-            var toggleBtn = current.querySelector('button[hx-post*="/toggle"]');
+            var toggleBtn = current.querySelector('button[hx-post*="/toggle"]') ||
+                            current.querySelector('form button[type="submit"]');
             if (toggleBtn) toggleBtn.click();
             return true;
         }
         if (key === 'Enter' && !e.ctrlKey && !e.metaKey) {
-            if (_todoNavIndex < 0 || _todoNavIndex >= items.length) return false;
+            if (_listNavIndex < 0 || _listNavIndex >= items.length) return false;
             e.preventDefault();
-            var current = items[_todoNavIndex];
+            var current = items[_listNavIndex];
             // Click the edit button
             var editBtn = current.querySelector('button[hx-get*="/edit"]');
             if (editBtn) editBtn.click();
@@ -244,11 +256,39 @@
             return;
         }
 
-        // Skip if typing in input (except for todo nav keys when applicable)
+        // Ctrl+Shift+N: new memo
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+            e.preventDefault();
+            if (location.pathname === '/memos') {
+                var memoForm = document.querySelector('details:has(form[action="/memos"])');
+                if (memoForm && !memoForm.open) memoForm.open = true;
+                var memoInput = document.getElementById('memo-content');
+                if (memoInput) memoInput.focus();
+            } else {
+                location.href = '/memos';
+            }
+            return;
+        }
+
+        // Ctrl+Shift+E: new calendar event
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
+            e.preventDefault();
+            if (location.pathname === '/calendar') {
+                var addEventBtn = document.querySelector('[data-action="open-event-modal"]') ||
+                                  document.querySelector('button[onclick*="openEventModal"]') ||
+                                  document.querySelector('.fab');
+                if (addEventBtn) addEventBtn.click();
+            } else {
+                location.href = '/calendar';
+            }
+            return;
+        }
+
+        // Skip if typing in input (except for list nav keys when applicable)
         if (isTyping()) return;
 
-        // Todo navigation (j/k/x/Space/Enter) on /todos page
-        if (handleTodoNav(e)) return;
+        // List navigation (j/k/x/Space/Enter) on list pages
+        if (handleListNav(e)) return;
 
         // Ctrl/Cmd+K: command palette
         if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {

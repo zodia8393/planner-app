@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from common.constants import RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
-from common.nlp_date import parse_korean_date, extract_date_from_text, format_date_display
+from common.nlp_date import parse_korean_date, extract_date_from_text, extract_time_from_text, format_date_display
 from common.recurrence import build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, fix_mojibake, validate_date_str
 from common.search import search_fts
@@ -280,12 +280,18 @@ async def quick_add_todo(request: Request,
         if nlp_date and remaining_title:
             due_date = nlp_date.isoformat()
             title = remaining_title
+    # NLP time extraction from title
+    nlp_time, title_after_time = extract_time_from_text(title)
+    description = ""
+    if nlp_time and title_after_time:
+        title = title_after_time
+        description = f"⏰ {nlp_time}"
     due_date = due_date or date.today().isoformat()
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
         conn.execute("""
-            INSERT INTO todos (title, due_date, sort_order, profile_id) VALUES (?, ?, ?, ?)
-        """, (title, due_date, max_order + 1, pid))
+            INSERT INTO todos (title, description, due_date, sort_order, profile_id) VALUES (?, ?, ?, ?, ?)
+        """, (title, description, due_date, max_order + 1, pid))
     return S.redirect(request, "/")
 
 
