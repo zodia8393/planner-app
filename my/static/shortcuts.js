@@ -79,7 +79,13 @@
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('aria-label', '키보드 단축키 도움말');
 
-        var rows = SHORTCUTS.map(function (s) {
+        var allShortcuts = SHORTCUTS.slice();
+        // Add todo-nav shortcuts to help
+        allShortcuts.push({ key: 'J/K', label: '할일 항목 이동' });
+        allShortcuts.push({ key: 'X/Space', label: '할일 완료 토글' });
+        allShortcuts.push({ key: 'Enter', label: '할일 인라인 편집' });
+
+        var rows = allShortcuts.map(function (s) {
             return '<div class="flex justify-between items-center">' +
                 '<span class="text-slate-600 dark:text-slate-300">' + s.label + '</span>' +
                 '<kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">' + s.key + '</kbd></div>';
@@ -102,15 +108,145 @@
         document.body.appendChild(modal);
     }
 
+    /* ── Todo keyboard navigation (j/k/x/Space/Enter) ── */
+    var _todoNavIndex = -1;
+
+    function getTodoNavItems() {
+        return Array.from(document.querySelectorAll('[data-todo-nav]'));
+    }
+
+    function setTodoNavFocus(index) {
+        var items = getTodoNavItems();
+        if (items.length === 0) return;
+        // Remove old focus
+        items.forEach(function (el) { el.classList.remove('todo-nav-focus'); });
+        // Clamp index
+        if (index < 0) index = 0;
+        if (index >= items.length) index = items.length - 1;
+        _todoNavIndex = index;
+        var target = items[_todoNavIndex];
+        target.classList.add('todo-nav-focus');
+        target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    function isTodoPage() {
+        return location.pathname === '/todos';
+    }
+
+    function handleTodoNav(e) {
+        if (!isTodoPage()) return false;
+        var items = getTodoNavItems();
+        if (items.length === 0) return false;
+
+        var key = e.key;
+
+        if (key === 'j') {
+            e.preventDefault();
+            setTodoNavFocus(_todoNavIndex + 1);
+            return true;
+        }
+        if (key === 'k') {
+            e.preventDefault();
+            setTodoNavFocus(_todoNavIndex - 1);
+            return true;
+        }
+        if (key === 'x' || key === ' ') {
+            if (_todoNavIndex < 0 || _todoNavIndex >= items.length) return false;
+            e.preventDefault();
+            var current = items[_todoNavIndex];
+            // Click the toggle button (checkbox)
+            var toggleBtn = current.querySelector('button[hx-post*="/toggle"]');
+            if (toggleBtn) toggleBtn.click();
+            return true;
+        }
+        if (key === 'Enter' && !e.ctrlKey && !e.metaKey) {
+            if (_todoNavIndex < 0 || _todoNavIndex >= items.length) return false;
+            e.preventDefault();
+            var current = items[_todoNavIndex];
+            // Click the edit button
+            var editBtn = current.querySelector('button[hx-get*="/edit"]');
+            if (editBtn) editBtn.click();
+            return true;
+        }
+        return false;
+    }
+
+    /* ── Ctrl+Enter: submit focused form ── */
+    function handleCtrlEnter(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            var form = document.activeElement && document.activeElement.closest('form');
+            if (form) {
+                e.preventDefault();
+                // Find submit button or submit directly
+                var submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.click();
+                } else {
+                    form.requestSubmit ? form.requestSubmit() : form.submit();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* ── Modal focus trap ── */
+    window.trapFocus = function (modal) {
+        var focusable = modal.querySelectorAll(
+            'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        modal.addEventListener('keydown', function (e) {
+            if (e.key !== 'Tab') return;
+            if (e.shiftKey) {
+                if (document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+            } else {
+                if (document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+        first.focus();
+    };
+
+    // Auto-trap focus when modals become visible
+    function setupModalFocusTraps() {
+        var modalIds = ['confirmModal', 'focusModal', 'cmdPalette'];
+        modalIds.forEach(function (id) {
+            var modal = document.getElementById(id);
+            if (!modal) return;
+            var observer = new MutationObserver(function () {
+                if (!modal.classList.contains('hidden')) {
+                    trapFocus(modal);
+                }
+            });
+            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupModalFocusTraps);
+
     document.addEventListener('keydown', function (e) {
+        // Ctrl+Enter: submit form (works even when typing)
+        if (handleCtrlEnter(e)) return;
+
         // Escape: close modals
         if (e.key === 'Escape') {
             closeAllModals();
             return;
         }
 
-        // Skip if typing in input
+        // Skip if typing in input (except for todo nav keys when applicable)
         if (isTyping()) return;
+
+        // Todo navigation (j/k/x/Space/Enter) on /todos page
+        if (handleTodoNav(e)) return;
 
         // Ctrl/Cmd+K: command palette
         if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {

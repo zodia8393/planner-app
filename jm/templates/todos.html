@@ -244,6 +244,7 @@
 </div>
 
 <!-- Todo list grouped by date -->
+<section aria-label="할일 목록">
 <div id="todoList" class="space-y-4">
  {% for date_key, todos in todo_groups.items() %}
  <div>
@@ -280,6 +281,7 @@
  </div>
  {% endfor %}
 </div>
+</section>
 
 {% endblock %}
 

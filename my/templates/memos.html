@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}메모 - JM Planner{% endblock %}
+{% block title %}메모 - My Planner{% endblock %}
 {% block page_title %}메모{% endblock %}
 {% block page_subtitle %}{{ memos|length }}개{% endblock %}
 
@@ -70,6 +70,7 @@
 </div>
 
 <!-- Memo list grouped by date -->
+<section aria-label="메모 목록">
 {% set ns = namespace(current_date='', started=false) %}
 <div class="space-y-1">
 {% for memo in memos %}
@@ -98,4 +99,5 @@
 {% endfor %}
 {% if memos|length > 0 %}</div>{% endif %}
 </div>
+</section>
 {% endblock %}

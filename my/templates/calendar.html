@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block title %}캘린더 - JM Planner{% endblock %}
+{% block title %}캘린더 - My Planner{% endblock %}
 {% block page_title %}캘린더{% endblock %}
 {% block page_subtitle %}{% if cal_view == 'year' %}{{ year }}년{% else %}{{ year }}년 {{ month }}월{% endif %}{% endblock %}
 
@@ -81,6 +81,7 @@
  {% endif %}
 </div>
 
+<section aria-label="캘린더">
 {% if cal_view == 'year' %}
 <!-- ====== YEAR VIEW ====== -->
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
@@ -367,6 +368,7 @@
 
 <!-- Edit event container -->
 <div id="editEventContainer"></div>
+</section>
 
 {% endblock %}
 

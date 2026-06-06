@@ -1,4 +1,4 @@
-<div class="work-card rounded-xl fade-in group touch-item swipe-item {% if todo.completed %}opacity-50{% endif %}" data-long-press data-todo-id="{{ todo.id }}" id="todo-{{ todo.id }}">
+<article class="work-card rounded-xl fade-in group touch-item swipe-item {% if todo.completed %}opacity-50{% endif %}" data-long-press data-todo-id="{{ todo.id }}" data-todo-nav tabindex="0" id="todo-{{ todo.id }}">
  <div class="swipe-bg swipe-bg-left">완료</div>
  <div class="swipe-bg swipe-bg-right">삭제</div>
  <div class="swipe-content p-4">
@@ -145,4 +145,4 @@
  <button data-swipe-complete aria-label="완료 처리" class="hidden" hx-post="/todos/{{ todo.id }}/toggle" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
  <button data-swipe-delete aria-label="삭제" class="hidden" hx-delete="/todos/{{ todo.id }}" hx-target="#todo-{{ todo.id }}" hx-swap="outerHTML"></button>
  </div>
-</div>
+</article>

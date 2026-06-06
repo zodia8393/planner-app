@@ -244,6 +244,7 @@ function renderSpecificTimes() {
 </div>
 {% else %}
 <!-- Habit list -->
+<section aria-label="습관 목록">
 <div class="grid gap-3 lg:grid-cols-2 mb-6">
  {% for h in habits %}
  {% set pct = ((h.today_count / h.target_count * 100)|int) if (h.tracking_type in ('times_per_day','every_n_hours') and h.target_count > 0) else 0 %}
@@ -393,5 +394,6 @@ function renderSpecificTimes() {
  </div>
  {% endfor %}
 </div>
+</section>
 {% endif %}
 {% endblock %}

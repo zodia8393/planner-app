@@ -163,6 +163,7 @@
 </div>
 
 <!-- Work log list -->
+<section aria-label="업무일지 목록">
 <div class="space-y-3">
  {% if range_mode %}
  {# Range mode: logs grouped by date #}
@@ -200,6 +201,7 @@
  {% endfor %}
  {% endif %}
 </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
