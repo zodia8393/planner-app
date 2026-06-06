@@ -489,7 +489,7 @@ html.dark body[data-accent="sky"] {
  /* ── Usage Hint (unified tip block) ── */
  .usage-hint summary {
  color: var(--color-text-faint);
- font-size: 0.75rem;
+ font-size: var(--font-xs);
  font-weight: 500;
  }
  .usage-hint summary:hover {
@@ -500,7 +500,7 @@ html.dark body[data-accent="sky"] {
  border: 1px solid transparent;
  border-radius: var(--radius-lg);
  padding: 0.75rem;
- font-size: 0.75rem;
+ font-size: var(--font-xs);
  line-height: 1.6;
  color: var(--color-text-muted);
  }
@@ -540,13 +540,13 @@ html.dark body[data-accent="sky"] {
  background: var(--color-accent-soft);
  }
  .empty-state-title {
- font-size: 0.9375rem;
+ font-size: var(--font-base);
  font-weight: 600;
  color: var(--color-text);
  margin-bottom: 0.375rem;
  }
  .empty-state-desc {
- font-size: 0.8125rem;
+ font-size: var(--font-sm);
  color: var(--color-text-faint);
  line-height: 1.5;
  }
@@ -560,13 +560,13 @@ html.dark body[data-accent="sky"] {
  border-bottom: 1px solid var(--color-border-subtle);
  }
  .section-header h3 {
- font-size: 0.875rem;
+ font-size: var(--font-sm);
  font-weight: 700;
  color: var(--color-text);
  letter-spacing: -0.01em;
  }
  .section-header a {
- font-size: 0.75rem;
+ font-size: var(--font-xs);
  font-weight: 500;
  color: var(--color-accent);
  transition: color var(--duration-fast);
@@ -575,14 +575,14 @@ html.dark body[data-accent="sky"] {
 
  /* ── Premium Stat Number ── */
  .stat-number {
- font-size: 1.75rem;
+ font-size: var(--font-3xl);
  font-weight: 800;
  letter-spacing: -0.02em;
  line-height: 1.2;
  color: var(--color-text);
  }
  .stat-label {
- font-size: 0.75rem;
+ font-size: var(--font-xs);
  font-weight: 500;
  color: var(--color-text-faint);
  text-transform: uppercase;
@@ -664,7 +664,7 @@ html.dark body[data-accent="sky"] {
  pointer-events: auto;
  padding: 0.75rem 1.25rem;
  border-radius: var(--radius-lg);
- font-size: 0.875rem;
+ font-size: var(--font-sm);
  font-weight: 500;
  box-shadow: var(--shadow-lg);
  animation: toastSlideIn var(--duration-normal) var(--ease-out);

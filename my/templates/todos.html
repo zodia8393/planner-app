@@ -34,7 +34,7 @@
 </div>
 
 <!-- Filters -->
-<div class="flex flex-wrap items-center gap-2 mb-3 overflow-x-auto pb-1">
+<div class="flex flex-wrap items-center gap-2 mb-3 overflow-x-auto scroll-fade-right pb-1">
  {% set filters = [("all","전체"), ("active","미완료"), ("completed","완료")] %}
  {% for fk, fl in filters %}
  <a href="/todos?filter={{ fk }}{% if current_category_id %}&category_id={{ current_category_id }}{% endif %}"

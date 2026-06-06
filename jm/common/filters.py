@@ -116,21 +116,28 @@ def format_filesize(value) -> str:
 
 
 def render_error_page(code: int, message: str) -> str:
-    """Render a standalone error page with Tailwind styling."""
+    """Render a standalone error page with inline styles (no CDN dependency)."""
     return f"""<!DOCTYPE html>
-<html lang="ko" class="h-full">
+<html lang="ko" style="height:100%">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{code}</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{height:100%;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf9f7;color:#1c1917}}
+@media(prefers-color-scheme:dark){{body{{background:#1c1917;color:#fafaf9}}.err-msg{{color:#e2e8f0}}.err-sub{{color:#94a3b8}}.err-btn{{background:#818cf8}}.err-btn:hover{{background:#6366f1}}}}
+.err-code{{font-size:4.5rem;font-weight:800;color:#6366f1;margin-bottom:1rem}}
+.err-msg{{font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem}}
+.err-sub{{font-size:1rem;color:#64748b;margin-bottom:1.5rem}}
+.err-btn{{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:#6366f1;color:#fff;font-weight:500;border-radius:0.75rem;text-decoration:none;transition:background 0.2s}}
+.err-btn:hover{{background:#4f46e5}}
+</style>
 </head>
-<body class="h-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-<div class="text-center px-6">
-    <p class="text-7xl font-bold text-indigo-600 mb-4">{code}</p>
-    <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">{message}</h1>
-    <p class="text-slate-500 dark:text-slate-400 mb-6">잠시 후 다시 시도하거나 대시보드로 돌아가세요</p>
-    <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors">
-        대시보드로 돌아가기
-    </a>
+<body>
+<div style="text-align:center;padding:0 1.5rem">
+    <p class="err-code">{code}</p>
+    <h1 class="err-msg">{message}</h1>
+    <p class="err-sub">잠시 후 다시 시도하거나 대시보드로 돌아가세요</p>
+    <a href="/" class="err-btn">대시보드로 돌아가기</a>
 </div>
 </body></html>"""
 
