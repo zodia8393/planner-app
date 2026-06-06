@@ -234,9 +234,25 @@
   var title = addMatch[1].trim();
   var sr = document.getElementById('cmdSearchResults');
   var qa = document.getElementById('cmdQuickActions');
-  sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider" style="color:var(--color-text-faint);">빠른 추가</div>' +
-   '<button onclick="cmdPaletteAddTodo(\'' + title.replace(/'/g, "\\'") + '\')" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left" style="color:var(--color-text-muted);">' +
-   '<span class="w-6 text-center" style="color:var(--color-accent);">+</span> "' + title.replace(/</g,'&lt;') + '" 할일 추가</button>';
+  sr.textContent = '';
+  var headerDiv = document.createElement('div');
+  headerDiv.className = 'px-3 py-1 text-[10px] font-bold uppercase tracking-wider';
+  headerDiv.style.color = 'var(--color-text-faint)';
+  headerDiv.textContent = '빠른 추가';
+  sr.appendChild(headerDiv);
+  var addBtn = document.createElement('button');
+  addBtn.className = 'cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left';
+  addBtn.style.color = 'var(--color-text-muted)';
+  addBtn.addEventListener('click', (function(t) { return function() { cmdPaletteAddTodo(t); }; })(title));
+  var plusSpan = document.createElement('span');
+  plusSpan.className = 'w-6 text-center';
+  plusSpan.style.color = 'var(--color-accent)';
+  plusSpan.textContent = '+';
+  addBtn.appendChild(plusSpan);
+  var labelSpan = document.createElement('span');
+  labelSpan.textContent = '"' + title + '" 할일 추가';
+  addBtn.appendChild(labelSpan);
+  sr.appendChild(addBtn);
   sr.classList.remove('hidden');
   qa.classList.add('hidden');
   _cmdIdx = -1;
@@ -247,15 +263,31 @@
  fetch('/api/search?q=' + encodeURIComponent(q)).then(function(r){return r.json()}).then(function(data) {
  var sr = document.getElementById('cmdSearchResults');
  var qa = document.getElementById('cmdQuickActions');
+ sr.textContent = '';
  if (!data.items || data.items.length === 0) {
+ // SAFE: no user data — static message
  sr.innerHTML = '<div class="px-3 py-4 text-sm text-center" style="color:var(--color-text-faint);">검색 결과 없음</div>';
  } else {
- sr.innerHTML = '<div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider" style="color:var(--color-text-faint);">검색 결과</div>' +
- data.items.map(function(it) {
- return '<a href="' + it.url + '" class="cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors" style="color:var(--color-text-muted);">' +
- '<span class="w-auto text-[10px] px-1.5 py-0.5 rounded font-medium">' + it.type + '</span>' +
- '<span class="truncate">' + it.title.replace(/</g,'&lt;') + '</span></a>';
- }).join('');
+ var srHeader = document.createElement('div');
+ srHeader.className = 'px-3 py-1 text-[10px] font-bold uppercase tracking-wider';
+ srHeader.style.color = 'var(--color-text-faint)';
+ srHeader.textContent = '검색 결과';
+ sr.appendChild(srHeader);
+ data.items.forEach(function(it) {
+ var link = document.createElement('a');
+ link.href = it.url;
+ link.className = 'cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors';
+ link.style.color = 'var(--color-text-muted)';
+ var typeSpan = document.createElement('span');
+ typeSpan.className = 'w-auto text-[10px] px-1.5 py-0.5 rounded font-medium';
+ typeSpan.textContent = it.type;
+ link.appendChild(typeSpan);
+ var titleSpan = document.createElement('span');
+ titleSpan.className = 'truncate';
+ titleSpan.textContent = it.title;
+ link.appendChild(titleSpan);
+ sr.appendChild(link);
+ });
  }
  sr.classList.remove('hidden');
  qa.classList.add('hidden');
@@ -335,6 +367,7 @@
  overlay.id = 'dropOverlay';
  overlay.className = 'fixed inset-0 z-[9999] hidden items-center justify-center pointer-events-none';
  overlay.style.cssText = 'background: var(--color-accent-soft); border: 3px dashed var(--color-accent);';
+ // SAFE: no user data — static SVG icon and fixed text
  overlay.innerHTML = '<div class="rounded-2xl shadow-xl px-8 py-6 text-center pointer-events-none" style="background: var(--color-surface);"><svg class="w-12 h-12 mx-auto mb-3" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg><p style="color: var(--color-accent-text); font-weight: 500;">파일을 놓으면 업로드합니다</p></div>';
  document.body.appendChild(overlay);
 
@@ -387,6 +420,7 @@
  marked.setOptions({ breaks: true, gfm: true });
  document.querySelectorAll('.memo-content').forEach(function(el) {
  if (el.dataset.rendered) return;
+ // SAFE: sanitized by DOMPurify — no raw user data
  el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
  el.dataset.rendered = '1';
  });
@@ -437,7 +471,9 @@
  fetch('/api/reminders').then(function(r) { return r.json(); }).catch(function(){ return []; }).then(function(items) {
  var list = document.getElementById('notifList');
  var badge = document.getElementById('notifBadge');
+ list.textContent = '';
  if (!items.length) {
+ // SAFE: no user data — static empty-state message
  list.innerHTML = '<p class="p-4 text-sm text-center" style="color: var(--color-text-faint);">알림이 없습니다</p>';
  badge.classList.add('hidden');
  return;
@@ -445,15 +481,32 @@
  badge.textContent = items.length;
  badge.classList.remove('hidden');
  var icons = { overdue: '🔴', today: '🟡', event: '🔵' };
- var html = '';
- function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
  items.forEach(function(item) {
- html += '<a href="' + escHtml(item.url) + '" class="flex items-start gap-3 p-3 transition-colors" style="color: var(--color-text-muted);" onmouseover="this.style.background=\'var(--color-border-subtle)\'" onmouseout="this.style.background=\'\'">';
- html += '<span class="text-base mt-0.5">' + (icons[item.type] || '📌') + '</span>';
- html += '<div class="flex-1 min-w-0"><p class="text-sm font-medium truncate" style="color: var(--color-text);">' + escHtml(item.title) + '</p>';
- html += '<p class="text-xs" style="color: var(--color-text-faint);">' + escHtml(item.body) + '</p></div></a>';
+ var link = document.createElement('a');
+ link.href = item.url || '#';
+ link.className = 'flex items-start gap-3 p-3 transition-colors';
+ link.style.color = 'var(--color-text-muted)';
+ link.addEventListener('mouseover', function() { this.style.background = 'var(--color-border-subtle)'; });
+ link.addEventListener('mouseout', function() { this.style.background = ''; });
+ var iconSpan = document.createElement('span');
+ iconSpan.className = 'text-base mt-0.5';
+ iconSpan.textContent = icons[item.type] || '📌';
+ link.appendChild(iconSpan);
+ var contentDiv = document.createElement('div');
+ contentDiv.className = 'flex-1 min-w-0';
+ var titleP = document.createElement('p');
+ titleP.className = 'text-sm font-medium truncate';
+ titleP.style.color = 'var(--color-text)';
+ titleP.textContent = item.title || '';
+ contentDiv.appendChild(titleP);
+ var bodyP = document.createElement('p');
+ bodyP.className = 'text-xs';
+ bodyP.style.color = 'var(--color-text-faint)';
+ bodyP.textContent = item.body || '';
+ contentDiv.appendChild(bodyP);
+ link.appendChild(contentDiv);
+ list.appendChild(link);
  });
- list.innerHTML = html;
  }).catch(function() {});
  }
 
@@ -688,6 +741,7 @@ function openBottomSheet(contentEl) {
  overlay.onclick = closeBottomSheet;
  var sheet = document.createElement('div');
  sheet.className = 'bottom-sheet';
+ // SAFE: no user data — static handle element
  sheet.innerHTML = '<div class="bottom-sheet-handle"></div>';
  var content = contentEl.cloneNode(true);
  content.classList.remove('hidden');
@@ -808,6 +862,7 @@ document.addEventListener('htmx:beforeRequest', function(e) {
  if (target && !target.querySelector('.skeleton-card')) {
  var skeleton = document.createElement('div');
  skeleton.className = 'skeleton-card htmx-skeleton';
+ // SAFE: no user data — static skeleton placeholder
  skeleton.innerHTML = '<div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line" style="width:85%"></div>';
  target.prepend(skeleton);
  }

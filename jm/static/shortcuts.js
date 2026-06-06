@@ -91,6 +91,7 @@
                 '<kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs font-mono">' + s.key + '</kbd></div>';
         }).join('');
 
+        // SAFE: no user data — all labels/keys from hardcoded SHORTCUTS array
         modal.innerHTML =
             '<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="document.getElementById(\'shortcutsHelpModal\').classList.add(\'hidden\')"></div>' +
             '<div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-700 fade-in">' +

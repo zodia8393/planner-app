@@ -17,6 +17,7 @@
                 case 'dismiss-onboarding':
                     var ob = document.getElementById('onboardingChecklist');
                     if (ob) ob.style.display = 'none';
+                    localStorage.setItem('onboarding_done', '1');
                     fetch('/api/onboarding/dismiss', {method: 'POST'}).catch(function(){});
                     break;
                 case 'onboarding-step':
@@ -61,25 +62,28 @@
             var prog = document.getElementById('onboardingProgress');
             var w = parseInt(prog.style.width) || 0;
             prog.style.width = Math.min(100, w + 25) + '%';
-            if (parseInt(prog.style.width) >= 100) setTimeout(function() { document.getElementById('onboardingChecklist').style.display = 'none'; }, 1000);
+            if (parseInt(prog.style.width) >= 100) { localStorage.setItem('onboarding_done', '1'); setTimeout(function() { document.getElementById('onboardingChecklist').style.display = 'none'; }, 1000); }
         }).catch(function(){});
         if (links[step]) window.location.href = links[step];
     }
 
     function initOnboarding() {
+        if (localStorage.getItem('onboarding_done')) return;
         fetch('/api/onboarding').then(function(r) { return r.json(); }).then(function(d) {
-            if (d.dismissed) return;
+            if (d.dismissed) { localStorage.setItem('onboarding_done', '1'); return; }
             var done = 0;
             for (var i = 1; i <= 4; i++) {
                 if (d['step' + i]) { done++; markOnboardingDone(i); }
             }
-            if (done < 4) {
-                var checklist = document.getElementById('onboardingChecklist');
-                if (checklist) {
-                    checklist.classList.remove('hidden');
-                    var prog = document.getElementById('onboardingProgress');
-                    if (prog) prog.style.width = (done / 4 * 100) + '%';
-                }
+            if (done >= 4) {
+                localStorage.setItem('onboarding_done', '1');
+                return;
+            }
+            var checklist = document.getElementById('onboardingChecklist');
+            if (checklist) {
+                checklist.style.display = '';
+                var prog = document.getElementById('onboardingProgress');
+                if (prog) prog.style.width = (done / 4 * 100) + '%';
             }
         }).catch(function(){});
     }

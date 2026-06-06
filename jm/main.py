@@ -104,6 +104,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "0"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        # CSP: 'unsafe-inline' required — 8 inline <script> blocks in base.html
+        # + 62 inline event handlers (onclick/onchange) across templates.
+        # Removing 'unsafe-inline' requires migrating all to external JS + addEventListener.
         response.headers["Content-Security-Policy"] = (
             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
