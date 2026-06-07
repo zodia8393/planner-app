@@ -161,6 +161,46 @@ async def delete_automation(request: Request, rule_id: int):
     return S.redirect(request, "/automations")
 
 
+@router.post("/automations/apply-starter", response_class=HTMLResponse)
+async def apply_starter_automation(request: Request):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    form = await request.form()
+    preset = form.get("preset", "")
+    starters = {
+        "weekly_review": {
+            "name": "매주 금요일 주간 리뷰",
+            "trigger_type": "weekly",
+            "trigger_config": json.dumps({"weekday": 4}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "주간 업무 리뷰 작성", "priority": 1}),
+        },
+        "daily_standup": {
+            "name": "매일 오전 업무 정리",
+            "trigger_type": "daily",
+            "trigger_config": json.dumps({}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "오늘의 업무 우선순위 정리", "priority": 2}),
+        },
+        "monthly_report": {
+            "name": "매월 1일 월간 보고서",
+            "trigger_type": "monthly",
+            "trigger_config": json.dumps({"day": 1}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "월간 업무 보고서 작성", "priority": 1}),
+        },
+    }
+    if preset not in starters:
+        return S.redirect(request, "/automations")
+    s = starters[preset]
+    with S.get_db() as conn:
+        conn.execute(
+            "INSERT INTO automation_rules (profile_id, name, trigger_type, trigger_config, action_type, action_config) VALUES (?,?,?,?,?,?)",
+            (pid, s["name"], s["trigger_type"], s["trigger_config"], s["action_type"], s["action_config"]),
+        )
+    return S.redirect(request, "/automations")
+
+
 # ── Audit Log ──
 
 @router.get("/audit-log", response_class=HTMLResponse)

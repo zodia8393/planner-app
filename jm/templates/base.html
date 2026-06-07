@@ -17,10 +17,10 @@
  <link rel="apple-touch-icon" href="/static/icon-192.png">
  <meta name="mobile-web-app-capable" content="yes">
  <meta name="format-detection" content="telephone=no">
- <link rel="stylesheet" href="/static/tailwind.css?v=5">
+ <link rel="stylesheet" href="/static/tailwind.css?v={{ asset_hash('tailwind.css') }}">
  <link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" as="style" onload="this.rel='stylesheet'">
  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
- <script src="/static/htmx.min.js?v=5"></script>
+ <script src="/static/htmx.min.js?v={{ asset_hash('htmx.min.js') }}"></script>
  <script>
  function _partialRefresh(url){
   fetch(url,{headers:{'X-Partial':'1'}}).then(function(r){return r.text()}).then(function(html){
@@ -32,10 +32,10 @@
   }).catch(function(){});
  }
  </script>
- <link rel="prefetch" href="/static/chart.umd.min.js?v=5" as="script">
- <script src="/static/notifications.js?v=5" defer></script>
- <script src="/static/shortcuts.js?v=5" defer></script>
- <link rel="stylesheet" href="/static/css/app.css?v=5">
+ <link rel="prefetch" href="/static/chart.umd.min.js?v={{ asset_hash('chart.umd.min.js') }}" as="script">
+ <script src="/static/notifications.js?v={{ asset_hash('notifications.js') }}" defer></script>
+ <script src="/static/shortcuts.js?v={{ asset_hash('shortcuts.js') }}" defer></script>
+ <link rel="stylesheet" href="/static/css/app.css?v={{ asset_hash('css/app.css') }}">
 </head>
 <body class="h-full main-bg {% if bg_setting and bg_setting.type != 'none' %}has-custom-bg{% endif %}" style="color: var(--color-text);" data-accent="amber" data-fontsize="medium">
 <script>(function(){var a=localStorage.getItem('accent_color');if(a)document.body.dataset.accent=a;var f=localStorage.getItem('font_size');if(f){document.body.dataset.fontsize=f;var m={small:'13px',medium:'14px',large:'16px'};document.documentElement.style.fontSize=m[f]||'14px'}var colorMap={amber:'#d97706',indigo:'#6366f1',emerald:'#10b981',rose:'#f43f5e',sky:'#0ea5e9'};var meta=document.querySelector('meta[name="theme-color"]');if(meta&&a)meta.content=colorMap[a]||'#d97706';})()</script>
@@ -497,7 +497,7 @@
  </div>
 </div>
 
-<script src="/static/js/app.js?v=5" defer></script>
+<script src="/static/js/app.js?v={{ asset_hash('js/app.js') }}" defer></script>
 <!-- Focus mode timer -->
 <div id="focusBtn" data-action="open-focus-modal"
  class="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110 hoverable-accent"
@@ -604,10 +604,10 @@
   </div>
  </div>
 </div>
-<script src="/static/js/sidebar-favorites.js?v=5" defer></script>
-<script src="/static/js/slash-commands.js?v=5" defer></script>
-<script src="/static/js/htmx-helpers.js?v=5" defer></script>
-<script src="/static/js/actions.js?v=5" defer></script>
+<script src="/static/js/sidebar-favorites.js?v={{ asset_hash('js/sidebar-favorites.js') }}" defer></script>
+<script src="/static/js/slash-commands.js?v={{ asset_hash('js/slash-commands.js') }}" defer></script>
+<script src="/static/js/htmx-helpers.js?v={{ asset_hash('js/htmx-helpers.js') }}" defer></script>
+<script src="/static/js/actions.js?v={{ asset_hash('js/actions.js') }}" defer></script>
 {% endif %}{# end if not is_htmx — below: mobile tab bar/modals/base scripts #}
 
 {% block scripts %}{% endblock %}

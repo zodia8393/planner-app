@@ -4,7 +4,7 @@
 {% block page_subtitle %}오늘의 업무 현황{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="/static/css/dashboard-grid.css?v=4">
+<link rel="stylesheet" href="/static/css/dashboard-grid.css?v={{ asset_hash('css/dashboard-grid.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -43,5 +43,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/dashgrid.js?v=2"></script>
+<script src="/static/js/dashgrid.js?v={{ asset_hash('js/dashgrid.js') }}"></script>
 {% endblock %}

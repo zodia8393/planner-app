@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JM Planner - 오프라인</title>
     <style>
+        :root {
+            --accent: #d97706; --accent-hover: #b45309; --accent-glow: rgba(217,119,6,0.3);
+            --bg: #faf9f7; --surface: #ffffff; --text: #1e293b; --text-muted: #64748b;
+            --text-faint: #94a3b8; --border: #e2e8f0; --border-subtle: #f1f5f9;
+            --danger: #ef4444;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1c1917; --surface: #292524; --text: #f5f5f4; --text-muted: #a8a29e;
+                --text-faint: #78716c; --border: #44403c; --border-subtle: #292524;
+            }
+        }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #334155;
+            color: var(--text-muted);
             padding: 1rem;
         }
         .container {
@@ -23,19 +35,19 @@
         }
         .icon {
             width: 80px; height: 80px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
             border-radius: 1.25rem;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.3);
+            box-shadow: 0 8px 25px var(--accent-glow);
         }
         .icon svg { width: 40px; height: 40px; color: white; }
-        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: #1e293b; }
-        .subtitle { font-size: 0.875rem; color: #64748b; line-height: 1.6; margin-bottom: 1.5rem; }
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); }
+        .subtitle { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
         .retry-btn {
             display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.75rem 2rem;
-            background: #d97706;
+            background: var(--accent);
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -44,7 +56,7 @@
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
         }
-        .retry-btn:hover { background: #b45309; }
+        .retry-btn:hover { background: var(--accent-hover); }
         .retry-btn:active { transform: scale(0.97); }
         .cached-pages {
             margin-top: 2rem;
@@ -53,42 +65,42 @@
         .cached-pages h2 {
             font-size: 0.8rem;
             font-weight: 600;
-            color: #94a3b8;
+            color: var(--text-faint);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.75rem;
         }
         .page-list {
             list-style: none;
-            background: white;
+            background: var(--surface);
             border-radius: 0.75rem;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
-        .page-list li { border-bottom: 1px solid #f1f5f9; }
+        .page-list li { border-bottom: 1px solid var(--border-subtle); }
         .page-list li:last-child { border-bottom: none; }
         .page-list a {
             display: flex; align-items: center; gap: 0.75rem;
             padding: 0.875rem 1rem;
             text-decoration: none;
-            color: #475569;
+            color: var(--text-muted);
             font-size: 0.875rem;
             font-weight: 500;
             transition: background 0.15s;
         }
-        .page-list a:hover { background: #f8fafc; }
+        .page-list a:hover { background: var(--border-subtle); }
         .page-list .page-icon { font-size: 1.1rem; }
         .empty-msg {
             padding: 1rem;
             text-align: center;
-            color: #94a3b8;
+            color: var(--text-faint);
             font-size: 0.8rem;
         }
         .status-dot {
             display: inline-block;
             width: 8px; height: 8px;
-            background: #ef4444;
+            background: var(--danger);
             border-radius: 50%;
             margin-right: 0.5rem;
             animation: pulse 2s infinite;

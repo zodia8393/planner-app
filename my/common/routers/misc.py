@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from common.constants import RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
-from common.nlp_date import parse_korean_date, extract_date_from_text, extract_time_from_text, format_date_display
+from common.nlp_date import parse_korean_date, extract_date_from_text, format_date_display
 from common.recurrence import build_rrule, parse_rrule, rrule_to_korean
 from common.utils import clamp_text, fix_mojibake, validate_date_str
 from common.search import search_fts
@@ -161,6 +161,46 @@ async def delete_automation(request: Request, rule_id: int):
     return S.redirect(request, "/automations")
 
 
+@router.post("/automations/apply-starter", response_class=HTMLResponse)
+async def apply_starter_automation(request: Request):
+    S = request.app.state
+    pid = S.get_profile_id(request)
+    form = await request.form()
+    preset = form.get("preset", "")
+    starters = {
+        "weekly_review": {
+            "name": "매주 금요일 주간 리뷰",
+            "trigger_type": "weekly",
+            "trigger_config": json.dumps({"weekday": 4}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "주간 업무 리뷰 작성", "priority": 1}),
+        },
+        "daily_standup": {
+            "name": "매일 오전 업무 정리",
+            "trigger_type": "daily",
+            "trigger_config": json.dumps({}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "오늘의 업무 우선순위 정리", "priority": 2}),
+        },
+        "monthly_report": {
+            "name": "매월 1일 월간 보고서",
+            "trigger_type": "monthly",
+            "trigger_config": json.dumps({"day": 1}),
+            "action_type": "create_todo",
+            "action_config": json.dumps({"title": "월간 업무 보고서 작성", "priority": 1}),
+        },
+    }
+    if preset not in starters:
+        return S.redirect(request, "/automations")
+    s = starters[preset]
+    with S.get_db() as conn:
+        conn.execute(
+            "INSERT INTO automation_rules (profile_id, name, trigger_type, trigger_config, action_type, action_config) VALUES (?,?,?,?,?,?)",
+            (pid, s["name"], s["trigger_type"], s["trigger_config"], s["action_type"], s["action_config"]),
+        )
+    return S.redirect(request, "/automations")
+
+
 # ── Audit Log ──
 
 @router.get("/audit-log", response_class=HTMLResponse)
@@ -280,18 +320,12 @@ async def quick_add_todo(request: Request,
         if nlp_date and remaining_title:
             due_date = nlp_date.isoformat()
             title = remaining_title
-    # NLP time extraction from title
-    nlp_time, title_after_time = extract_time_from_text(title)
-    description = ""
-    if nlp_time and title_after_time:
-        title = title_after_time
-        description = f"⏰ {nlp_time}"
     due_date = due_date or date.today().isoformat()
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
         conn.execute("""
-            INSERT INTO todos (title, description, due_date, sort_order, profile_id) VALUES (?, ?, ?, ?, ?)
-        """, (title, description, due_date, max_order + 1, pid))
+            INSERT INTO todos (title, due_date, sort_order, profile_id) VALUES (?, ?, ?, ?)
+        """, (title, due_date, max_order + 1, pid))
     return S.redirect(request, "/")
 
 

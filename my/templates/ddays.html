@@ -69,7 +69,11 @@
  {% else %}
  <div class="col-span-full empty-state">
  <div class="empty-state-icon">
- <span>🎯</span>
+ <svg class="w-10 h-10 mx-auto" style="color: var(--color-accent);" fill="none" viewBox="0 0 48 48" stroke-width="1.5" stroke="currentColor">
+  <line x1="10" y1="8" x2="10" y2="40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M10 8h22l-6 8 6 8H10z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-linejoin="round"/>
+  <circle cx="10" cy="40" r="2.5" fill="currentColor" opacity="0.3"/>
+ </svg>
  </div>
  <p class="empty-state-title">D-day가 없습니다</p>
  <p class="empty-state-desc">D-day를 추가해보세요</p>
