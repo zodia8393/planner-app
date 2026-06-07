@@ -138,7 +138,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function() {
  var filterWrap = document.getElementById('linkFilter');
  if (!filterWrap) return;

@@ -210,6 +210,29 @@
  {% endif %}
 </div>
 </section>
+
+<!-- Pagination -->
+{% if pg_total > pg_per_page %}
+<nav class="flex items-center justify-center gap-3 mt-6 mb-2" aria-label="페이지네이션">
+ {% if pg_has_prev %}
+ <a href="/worklogs?page={{ pg_page - 1 }}{% if pg_filter_qs %}&{{ pg_filter_qs }}{% endif %}"
+ class="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ <svg class="w-4 h-4 inline -mt-0.5 mr-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+ 이전
+ </a>
+ {% endif %}
+ <span class="text-sm font-medium" style="color: var(--color-text-muted);">{{ pg_page }} / {{ pg_total_pages }}</span>
+ {% if pg_has_next %}
+ <a href="/worklogs?page={{ pg_page + 1 }}{% if pg_filter_qs %}&{{ pg_filter_qs }}{% endif %}"
+ class="px-3.5 py-2 text-sm font-medium rounded-lg transition-colors border"
+ style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+ 다음
+ <svg class="w-4 h-4 inline -mt-0.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+ </a>
+ {% endif %}
+</nav>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

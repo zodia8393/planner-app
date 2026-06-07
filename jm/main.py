@@ -19,6 +19,7 @@ if _env_path.exists():
             os.environ.setdefault(_k.strip(), _v.strip())
 import json
 import uuid
+import secrets
 import sqlite3
 import calendar as cal_mod
 import asyncio
@@ -59,6 +60,7 @@ from common.gcal import (
 )
 from common.excel import parse_excel_with_merges as _parse_excel_with_merges, infer_field_type as _infer_field_type
 from common.holidays import KOREAN_HOLIDAYS, get_holidays_for_month
+from common.routers.timetable import resolve_timetable_blocks as _resolve_timetable_blocks
 
 
 # ── Starlette FormParser latin-1 -> utf-8 patch ──
@@ -94,17 +96,19 @@ if not access_logger.handlers:
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Generate CSP nonce per request — shared via request.state with render()
+        nonce = secrets.token_urlsafe(16)
+        request.state.csp_nonce = nonce
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "0"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-        # CSP: 'unsafe-inline' still required — 3 inline <script> blocks remain in base.html
-        # (theme detect, accent/font restore, _partialRefresh) + Jinja-dependent scripts.
-        # 5 blocks extracted to static/js/ (sidebar-favorites, slash-commands, htmx-helpers, actions).
+        # CSP: nonce-based — all inline scripts carry nonce="{{ csp_nonce }}"
+        # 'unsafe-inline' removed; nonce covers inline scripts, 'self' covers external JS
         response.headers["Content-Security-Policy"] = (
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "img-src 'self' data: blob:; "
             "connect-src 'self' wss: ws:; "
@@ -160,6 +164,8 @@ def render(request: Request, name: str, context: dict = None):
     ctx = context or {}
     # Detect HTMX partial request
     ctx["is_htmx"] = "HX-Request" in request.headers
+    # CSP nonce for inline scripts
+    ctx["csp_nonce"] = getattr(request.state, "csp_nonce", "")
     try:
         with get_db() as conn:
             row = conn.execute("SELECT * FROM work_profiles WHERE id=1").fetchone()

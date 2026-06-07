@@ -89,50 +89,7 @@
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
- <script>
- (function(){
- var eid = {{ event.id }};
- var labels = {'0_minute':'정시','5_minute':'5분 전','10_minute':'10분 전','15_minute':'15분 전','30_minute':'30분 전','1_hour':'1시간 전','2_hour':'2시간 전','1_day':'1일 전','2_day':'2일 전','1_week':'1주 전'};
- var input = document.getElementById('eventReminderOffsets_'+eid);
- var offsets = [];
- try { offsets = JSON.parse(input.value || '[]'); } catch(e) { offsets = []; }
- if (!Array.isArray(offsets)) offsets = [];
-
- function render() {
- var c = document.getElementById('eventOffsetChips_'+eid);
- c.innerHTML = '';
- offsets.forEach(function(o, i) {
- var lbl = labels[o.value+'_'+o.unit] || (o.value+(o.unit==='minute'?'분':o.unit==='hour'?'시간':'일')+' 전');
- c.innerHTML += '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-medium rounded-full" style="background: var(--color-accent-soft); color: var(--color-accent-text);">'+lbl+' <button type="button" onclick="removeEventOffset('+eid+','+i+')" class="hover-danger" style="color: var(--color-accent);">&times;</button></span>';
- });
- input.value = offsets.length ? JSON.stringify(offsets) : '';
- }
- window['_evOff'+eid] = offsets;
- window.addEventOffset = function(id) {
- var sel = document.getElementById('eventOffsetSel_'+id);
- var o = JSON.parse(sel.value);
- var arr = window['_evOff'+id];
- if (arr.some(function(x){return x.value===o.value&&x.unit===o.unit})) return;
- arr.push(o);
- offsets = arr;
- document.getElementById('eventUseDefault_'+id).checked = false;
- render();
- };
- window.removeEventOffset = function(id, idx) {
- window['_evOff'+id].splice(idx, 1);
- offsets = window['_evOff'+id];
- render();
- };
- window.toggleEventDefault = function(id) {
- if (document.getElementById('eventUseDefault_'+id).checked) {
- window['_evOff'+id] = [];
- offsets = [];
- render();
- }
- };
- render();
- })();
- </script>
+ <div data-init-event-offset data-event-id="{{ event.id }}"></div>
  <div class="flex gap-2">
  <button type="submit" class="flex-1 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm">
  저장

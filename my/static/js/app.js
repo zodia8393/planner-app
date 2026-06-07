@@ -862,21 +862,11 @@ document.addEventListener('htmx:afterSettle', function() {
  if (document.querySelector('[data-long-press]:not([data-lp-init])')) initLongPress();
 });
 
-/* ── M: Skeleton Loading for HTMX ── */
-document.addEventListener('htmx:beforeRequest', function(e) {
- const target = e.detail.target;
- if (target && !target.querySelector('.skeleton-card')) {
- const skeleton = document.createElement('div');
- skeleton.className = 'skeleton-card htmx-skeleton';
- // SAFE: no user data — static skeleton placeholder
- skeleton.innerHTML = '<div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line" style="width:85%"></div>';
- target.prepend(skeleton);
- }
-});
-document.addEventListener('htmx:afterSettle', function(e) {
- const target = e.detail.target;
- if (target) {
- target.querySelectorAll('.htmx-skeleton').forEach(function(s) { s.remove(); });
+/* ── M: Skeleton Loading for HTMX (hx-boost page transitions) ── */
+document.body.addEventListener('htmx:beforeRequest', function(e) {
+ // Show skeleton page when hx-boost navigates (full page swap into #mainContent)
+ if (e.detail.elt.closest('[hx-boost]') && e.detail.target && e.detail.target.id === 'mainContent') {
+ e.detail.target.innerHTML = '<div class="skeleton-page"><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div></div>';
  }
 });
 

@@ -112,7 +112,7 @@
 
 {% block scripts %}
 {% if daily_completed %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function(){
  var isDark = document.documentElement.classList.contains('dark');
  var gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(226,232,240,0.8)';

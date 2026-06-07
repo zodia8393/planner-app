@@ -1,14 +1,20 @@
-from fastapi import APIRouter, Request, Form, HTTPException
+import math
+
+from fastapi import APIRouter, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from typing import Optional
 from datetime import datetime
 from common.utils import clamp_text, fix_mojibake, safe_int, validate_date_str
 
+PER_PAGE_DEFAULT = 20
+
 router = APIRouter()
 
 
 @router.get("/memos", response_class=HTMLResponse)
-async def memos_page(request: Request, category_id: str = None):
+async def memos_page(request: Request, category_id: str = None,
+                     page: int = Query(1, ge=1),
+                     per_page: int = Query(PER_PAGE_DEFAULT, ge=1, le=100)):
     S = request.app.state
     pid = S.get_profile_id(request)
     cat_id_int = safe_int(category_id)
@@ -18,18 +24,46 @@ async def memos_page(request: Request, category_id: str = None):
         if cat_id_int is not None:
             where_extra = " AND m.category_id = ?"
             params.append(cat_id_int)
+
+        # Total count for pagination
+        total = conn.execute(f"""
+            SELECT COUNT(*) FROM memos m WHERE m.profile_id = ?{where_extra}
+        """, params).fetchone()[0]
+
+        total_pages = max(1, math.ceil(total / per_page))
+        if page > total_pages:
+            page = total_pages
+        offset = (page - 1) * per_page
+
         memos = conn.execute(f"""
             SELECT m.*, c.name as category_name, c.color as category_color
             FROM memos m LEFT JOIN categories c ON m.category_id = c.id
             WHERE m.profile_id = ?{where_extra}
             ORDER BY m.created_at DESC
-        """, params).fetchall()
+            LIMIT ? OFFSET ?
+        """, params + [per_page, offset]).fetchall()
         categories = S.get_categories(conn, pid)
+
+    # Build filter query string for pagination links
+    qs_parts = []
+    if cat_id_int is not None:
+        qs_parts.append(f"category_id={cat_id_int}")
+    if per_page != PER_PAGE_DEFAULT:
+        qs_parts.append(f"per_page={per_page}")
+    filter_qs = "&".join(qs_parts)
+
     return S.render(request, "memos.html", {
         "page": "memos",
         "memos": [dict(m) for m in memos],
         "categories": [dict(c) for c in categories],
         "current_category_id": cat_id_int,
+        "pg_page": page,
+        "pg_per_page": per_page,
+        "pg_total": total,
+        "pg_total_pages": total_pages,
+        "pg_has_next": page < total_pages,
+        "pg_has_prev": page > 1,
+        "pg_filter_qs": filter_qs,
     })
 
 

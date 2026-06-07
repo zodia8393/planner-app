@@ -1,8 +1,9 @@
 import json
+import math
 from collections import OrderedDict
 from datetime import date, datetime
 
-from fastapi import APIRouter, Request, Form, HTTPException
+from fastapi import APIRouter, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
 from common.nlp_date import extract_date_from_text, extract_time_from_text
@@ -10,13 +11,17 @@ from common.recurrence import next_occurrence, build_rrule, parse_rrule, rrule_t
 from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str, safe_int
 from common.filters import parse_tags
 
+PER_PAGE_DEFAULT = 20
+
 router = APIRouter()
 
 
 @router.get("/todos", response_class=HTMLResponse)
 async def todos_page(request: Request, filter: str = "all",
                      category_id: str = None, assignee: str = None,
-                     energy: int = None, tag: str = None):
+                     energy: int = None, tag: str = None,
+                     page: int = Query(1, ge=1),
+                     per_page: int = Query(PER_PAGE_DEFAULT, ge=1, le=100)):
     S = request.app.state
     pid = S.get_profile_id(request)
     cat_id_int = safe_int(category_id)
@@ -53,6 +58,16 @@ async def todos_page(request: Request, filter: str = "all",
             where += " AND t.tags LIKE ?"
             params.append(f'%"{tag}"%')
 
+        # Total count for pagination
+        total = conn.execute(f"""
+            SELECT COUNT(*) FROM todos t WHERE {where}
+        """, params).fetchone()[0]
+
+        total_pages = max(1, math.ceil(total / per_page))
+        if page > total_pages:
+            page = total_pages
+        offset = (page - 1) * per_page
+
         todos = conn.execute(f"""
             SELECT t.*, c.name as category_name, c.color as category_color
             FROM todos t LEFT JOIN categories c ON t.category_id = c.id
@@ -60,7 +75,8 @@ async def todos_page(request: Request, filter: str = "all",
             ORDER BY t.completed ASC,
                      CASE WHEN t.due_date IS NULL THEN 1 ELSE 0 END,
                      t.due_date ASC, t.priority ASC, t.sort_order ASC
-        """, params).fetchall()
+            LIMIT ? OFFSET ?
+        """, params + [per_page, offset]).fetchall()
 
         categories = S.get_categories(conn, pid)
 
@@ -80,10 +96,26 @@ async def todos_page(request: Request, filter: str = "all",
             key = td.get("due_date") or ""
             grouped.setdefault(key, []).append(td)
 
+    # Build query string preserving existing filters for pagination links
+    qs_parts = []
+    if filter != "all":
+        qs_parts.append(f"filter={filter}")
+    if cat_id_int:
+        qs_parts.append(f"category_id={cat_id_int}")
+    if assignee:
+        qs_parts.append(f"assignee={assignee}")
+    if energy:
+        qs_parts.append(f"energy={energy}")
+    if tag:
+        qs_parts.append(f"tag={tag}")
+    if per_page != PER_PAGE_DEFAULT:
+        qs_parts.append(f"per_page={per_page}")
+    filter_qs = "&".join(qs_parts)
+
     return S.render(request, "todos.html", {
         "page": "todos",
         "todo_groups": grouped,
-        "todo_count": sum(len(v) for v in grouped.values()),
+        "todo_count": total,
         "categories": [dict(c) for c in categories],
         "current_filter": filter,
         "current_category_id": cat_id_int,
@@ -95,6 +127,13 @@ async def todos_page(request: Request, filter: str = "all",
         "rrule_freq_options": RRULE_FREQ_OPTIONS,
         "rrule_day_options": RRULE_DAY_OPTIONS,
         "rrule_to_korean": rrule_to_korean,
+        "pg_page": page,
+        "pg_per_page": per_page,
+        "pg_total": total,
+        "pg_total_pages": total_pages,
+        "pg_has_next": page < total_pages,
+        "pg_has_prev": page > 1,
+        "pg_filter_qs": filter_qs,
     })
 
 

@@ -5,6 +5,16 @@
 {% block page_subtitle %}업무 성과 분석{% endblock %}
 
 {% block content %}
+<div id="statsContainer"
+ data-chart-labels='{{ chart_data.labels | tojson }}'
+ data-chart-completed='{{ chart_data.completed | tojson }}'
+ data-chart-total='{{ chart_data.total | tojson }}'
+ data-monthly-data='{{ monthly_data | tojson }}'
+ data-cat-stats='{{ cat_stats | tojson }}'
+ data-heatmap='{{ heatmap | tojson }}'
+ data-heatmap-today="{{ heatmap_today }}"
+ data-heatmap-start="{{ heatmap_start }}"
+ style="display:contents;"></div>
 <details class="mb-4 group usage-hint">
  <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
@@ -197,146 +207,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
- const isDark = document.documentElement.classList.contains('dark');
- const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(226,232,240,0.8)';
- const textColor = isDark ? '#94a3b8' : '#64748b';
-
- // Weekly chart
- const weeklyCtx = document.getElementById('weeklyChart');
- if (weeklyCtx) {
- new Chart(weeklyCtx, {
- type: 'bar',
- data: {
- labels: {{ chart_data.labels | tojson }},
- datasets: [
- {
- label: '완료',
- data: {{ chart_data.completed | tojson }},
- backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim(),
- borderRadius: 4,
- },
- {
- label: '전체',
- data: {{ chart_data.total | tojson }},
- backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim(),
- borderRadius: 4,
- }
- ]
- },
- options: {
- responsive: true,
- maintainAspectRatio: false,
- plugins: { legend: { labels: { color: textColor } } },
- scales: {
- x: { grid: { display: false }, ticks: { color: textColor } },
- y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } }
- }
- }
- });
- }
-
- // Monthly chart
- const monthlyCtx = document.getElementById('monthlyChart');
- if (monthlyCtx) {
- const monthlyData = {{ monthly_data | tojson }};
- new Chart(monthlyCtx, {
- type: 'line',
- data: {
- labels: monthlyData.map(d => d.label),
- datasets: [
- {
- label: '등록',
- data: monthlyData.map(d => d.total),
- borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-info').trim(),
- backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-info').trim() + '14',
- borderWidth: 1,
- fill: true,
- tension: 0.3,
- },
- {
- label: '완료',
- data: monthlyData.map(d => d.done),
- borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim(),
- backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim() + '14',
- borderWidth: 2.5,
- fill: true,
- tension: 0.3,
- }
- ]
- },
- options: {
- responsive: true,
- maintainAspectRatio: false,
- plugins: { legend: { labels: { color: textColor } } },
- scales: {
- x: { grid: { display: false }, ticks: { color: textColor } },
- y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } }
- }
- }
- });
- }
-
- // Category chart
- const catCtx = document.getElementById('catChart');
- if (catCtx) {
- const catStats = {{ cat_stats | tojson }};
- const catData = catStats.filter(c => c.total > 0);
- if (catData.length > 0) {
- new Chart(catCtx, {
- type: 'doughnut',
- data: {
- labels: catData.map(c => c.name),
- datasets: [{
- data: catData.map(c => c.total),
- backgroundColor: catData.map(c => c.color),
- borderWidth: 2,
- borderColor: isDark ? '#1e293b' : '#ffffff',
- }]
- },
- options: {
- responsive: true,
- maintainAspectRatio: false,
- plugins: {
- legend: { position: 'bottom', labels: { color: textColor, padding: 16 } }
- }
- }
- });
- }
- }
-});
-
-(function() {
- var data = {{ heatmap | tojson }};
- var container = document.getElementById('heatmap');
- if (!container) return;
- var isDark = document.documentElement.classList.contains('dark');
- var today = new Date('{{ heatmap_today }}');
- var start = new Date('{{ heatmap_start }}');
- var dayOfWeek = start.getDay();
- var mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
- start.setDate(start.getDate() + mondayOffset);
- var cs = getComputedStyle(document.documentElement);
- var emptyColor = cs.getPropertyValue('--color-border').trim() || (isDark ? '#3c3835' : '#ddd9d6');
- var accentColor = cs.getPropertyValue('--color-accent').trim() || '#d97706';
- var colors = [emptyColor, accentColor+'40', accentColor+'80', accentColor+'BF', accentColor];
- var current = new Date(start);
- while (current <= today) {
- var col = document.createElement('div');
- col.style.cssText = 'display:flex;flex-direction:column;gap:3px';
- for (var d = 0; d < 7; d++) {
- var cell = document.createElement('div');
- var dateStr = current.getFullYear() + '-' + String(current.getMonth()+1).padStart(2,'0') + '-' + String(current.getDate()).padStart(2,'0');
- var count = data[dateStr] || 0;
- var level = count === 0 ? 0 : count <= 2 ? 1 : count <= 4 ? 2 : count <= 7 ? 3 : 4;
- cell.style.cssText = 'width:12px;height:12px;border-radius:2px;background:' + (current > today ? 'transparent' : colors[level]);
- cell.title = dateStr + ': ' + count + '건 완료';
- col.appendChild(cell);
- current.setDate(current.getDate() + 1);
- }
- container.appendChild(col);
- }
-})();
-</script>
+<script src="/static/js/stats.js?v={{ asset_hash('js/stats.js') }}" defer></script>
 {% endblock %}

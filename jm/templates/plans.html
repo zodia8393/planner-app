@@ -191,7 +191,7 @@
 
 {% endif %}
 
-<script>
+<script nonce="{{ csp_nonce }}">
 function togglePlanTodo(btn) {
  var item = btn.closest('[data-todo-id]');
  if (!item) return;

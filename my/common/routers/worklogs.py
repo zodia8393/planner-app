@@ -1,3 +1,4 @@
+import math
 import re as _re
 import uuid
 from datetime import date, datetime, timedelta
@@ -8,6 +9,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from common.image import _check_image_magic
 from common.utils import clamp_text, fix_mojibake, validate_date_str, safe_int
 
+PER_PAGE_DEFAULT = 20
+
 router = APIRouter()
 
 
@@ -16,7 +19,9 @@ async def worklogs_page(request: Request,
                         date_param: str = Query(None, alias="date"),
                         start: str = Query(None),
                         end: str = Query(None),
-                        category_id: str = Query(None, alias="cat")):
+                        category_id: str = Query(None, alias="cat"),
+                        page: int = Query(1, ge=1),
+                        per_page: int = Query(PER_PAGE_DEFAULT, ge=1, le=100)):
     S = request.app.state
     pid = S.get_profile_id(request)
     today = date.today()
@@ -44,23 +49,34 @@ async def worklogs_page(request: Request,
                 start_date, end_date = end_date, start_date
 
             cat_filter = safe_int(category_id)
+            count_where = "wl.profile_id = ? AND wl.log_date BETWEEN ? AND ?"
+            count_params: list = [pid, start_date, end_date]
             if cat_filter:
-                logs = conn.execute("""
-                    SELECT wl.*, c.name as category_name, c.color as category_color
-                    FROM work_logs wl LEFT JOIN categories c ON wl.category_id = c.id
-                    WHERE wl.profile_id = ? AND wl.log_date BETWEEN ? AND ? AND wl.category_id = ?
-                    ORDER BY wl.log_date DESC, wl.created_at DESC
-                """, (pid, start_date, end_date, cat_filter)).fetchall()
-            else:
-                logs = conn.execute("""
-                    SELECT wl.*, c.name as category_name, c.color as category_color
-                    FROM work_logs wl LEFT JOIN categories c ON wl.category_id = c.id
-                    WHERE wl.profile_id = ? AND wl.log_date BETWEEN ? AND ?
-                    ORDER BY wl.log_date DESC, wl.created_at DESC
-                """, (pid, start_date, end_date)).fetchall()
+                count_where += " AND wl.category_id = ?"
+                count_params.append(cat_filter)
+
+            # Total count + hours for pagination
+            agg = conn.execute(f"""
+                SELECT COUNT(*) as cnt, COALESCE(SUM(wl.hours), 0) as total_h
+                FROM work_logs wl WHERE {count_where}
+            """, count_params).fetchone()
+            total = agg["cnt"]
+            total_hours = agg["total_h"]
+
+            total_pages = max(1, math.ceil(total / per_page))
+            if page > total_pages:
+                page = total_pages
+            offset = (page - 1) * per_page
+
+            logs = conn.execute(f"""
+                SELECT wl.*, c.name as category_name, c.color as category_color
+                FROM work_logs wl LEFT JOIN categories c ON wl.category_id = c.id
+                WHERE {count_where}
+                ORDER BY wl.log_date DESC, wl.created_at DESC
+                LIMIT ? OFFSET ?
+            """, count_params + [per_page, offset]).fetchall()
 
             logs_list = [dict(l) for l in logs]
-            total_hours = sum(l.get("hours", 0) or 0 for l in logs_list)
 
             # Group by date
             logs_by_date: dict = {}
@@ -82,15 +98,28 @@ async def worklogs_page(request: Request,
             except ValueError:
                 current_dt = today
 
+            # Total count + hours for pagination
+            agg = conn.execute("""
+                SELECT COUNT(*) as cnt, COALESCE(SUM(wl.hours), 0) as total_h
+                FROM work_logs wl WHERE wl.profile_id = ? AND wl.log_date = ?
+            """, (pid, current_date)).fetchone()
+            total = agg["cnt"]
+            total_hours = agg["total_h"]
+
+            total_pages = max(1, math.ceil(total / per_page))
+            if page > total_pages:
+                page = total_pages
+            offset = (page - 1) * per_page
+
             logs = conn.execute("""
                 SELECT wl.*, c.name as category_name, c.color as category_color
                 FROM work_logs wl LEFT JOIN categories c ON wl.category_id = c.id
                 WHERE wl.profile_id = ? AND wl.log_date = ?
                 ORDER BY wl.created_at DESC
-            """, (pid, current_date)).fetchall()
+                LIMIT ? OFFSET ?
+            """, (pid, current_date, per_page, offset)).fetchall()
 
             logs_list = [dict(l) for l in logs]
-            total_hours = sum(l.get("hours", 0) or 0 for l in logs_list)
             logs_by_date = {}
 
     prev_date = (current_dt - timedelta(days=1)).isoformat()
@@ -123,6 +152,20 @@ async def worklogs_page(request: Request,
     else:
         prev_week_start = prev_week_end = next_week_start = next_week_end = ""
 
+    # Build filter query string for pagination links
+    qs_parts = []
+    if date_param:
+        qs_parts.append(f"date={date_param}")
+    if start_date and explicit_range:
+        qs_parts.append(f"start={start_date}")
+    if end_date and explicit_range:
+        qs_parts.append(f"end={end_date}")
+    if category_id:
+        qs_parts.append(f"cat={category_id}")
+    if per_page != PER_PAGE_DEFAULT:
+        qs_parts.append(f"per_page={per_page}")
+    filter_qs = "&".join(qs_parts)
+
     return S.render(request, "worklogs.html", {
         "page": "worklogs",
         "logs": logs_list,
@@ -142,6 +185,13 @@ async def worklogs_page(request: Request,
         "prev_week_end": prev_week_end,
         "next_week_start": next_week_start,
         "next_week_end": next_week_end,
+        "pg_page": page,
+        "pg_per_page": per_page,
+        "pg_total": total,
+        "pg_total_pages": total_pages,
+        "pg_has_next": page < total_pages,
+        "pg_has_prev": page > 1,
+        "pg_filter_qs": filter_qs,
     })
 
 
