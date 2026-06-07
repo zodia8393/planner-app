@@ -9,24 +9,24 @@
 (function () {
     'use strict';
 
-    var CHECK_INTERVAL = 60 * 1000; // 1 minute (more precise than old 5 min)
-    var STORAGE_KEY = 'planner_notif_schedule';
-    var ENABLED_KEY = 'planner_notif_enabled';
-    var NOTIFIED_KEY = 'planner_notified_v2';
+    const CHECK_INTERVAL = 60 * 1000; // 1 minute (more precise than old 5 min)
+    const STORAGE_KEY = 'planner_notif_schedule';
+    const ENABLED_KEY = 'planner_notif_enabled';
+    const NOTIFIED_KEY = 'planner_notified_v2';
 
     // ── Helpers ──
 
     function isEnabled() {
-        var val = localStorage.getItem(ENABLED_KEY);
+        const val = localStorage.getItem(ENABLED_KEY);
         return val !== 'false';
     }
 
     function getNotified() {
         try {
-            var data = JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '{}');
+            const data = JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '{}');
             // Prune old entries (older than 24 hours)
-            var now = Date.now();
-            var cleaned = {};
+            const now = Date.now();
+            const cleaned = {};
             Object.keys(data).forEach(function(key) {
                 if (now - data[key] < 86400000) {
                     cleaned[key] = data[key];
@@ -39,7 +39,7 @@
     }
 
     function markNotified(key) {
-        var notified = getNotified();
+        const notified = getNotified();
         notified[key] = Date.now();
         try {
             localStorage.setItem(NOTIFIED_KEY, JSON.stringify(notified));
@@ -47,7 +47,7 @@
     }
 
     function wasNotified(key) {
-        var notified = getNotified();
+        const notified = getNotified();
         return !!notified[key];
     }
 
@@ -98,17 +98,17 @@
             .then(function (items) {
                 if (!Array.isArray(items)) return;
 
-                var now = Date.now();
-                var pendingForSW = [];
+                const now = Date.now();
+                const pendingForSW = [];
 
                 items.forEach(function (item) {
-                    var key = item.type + '_' + item.id + '_' + (item.notify_at || item.time);
+                    const key = item.type + '_' + item.id + '_' + (item.notify_at || item.time);
 
                     if (wasNotified(key)) return;
 
                     // Check if we should fire now based on notify_at
-                    var notifyAt = item.notify_at ? new Date(item.notify_at).getTime() : now;
-                    var diff = notifyAt - now;
+                    const notifyAt = item.notify_at ? new Date(item.notify_at).getTime() : now;
+                    const diff = notifyAt - now;
 
                     // Fire if within the polling window (-60s to +60s)
                     if (diff >= -60000 && diff <= 60000) {
@@ -127,7 +127,7 @@
                 }
 
                 // Update badge
-                var badge = document.getElementById('notifBadge');
+                const badge = document.getElementById('notifBadge');
                 if (badge) {
                     if (items.length > 0) {
                         badge.textContent = items.length;
@@ -143,7 +143,7 @@
     function fireNotification(item, key) {
         if (wasNotified(key)) return;
         try {
-            var n = new Notification(item.title || 'Planner', {
+            const n = new Notification(item.title || 'Planner', {
                 body: item.body || '',
                 icon: '/static/icon-192.png',
                 tag: key,
@@ -171,7 +171,7 @@
         markNotified(key);
     }
 
-    var localTimers = {};
+    const localTimers = {};
 
     function scheduleLocal(item, key, delayMs) {
         if (localTimers[key]) return;
@@ -184,8 +184,8 @@
     // ── Settings page helper ──
 
     function updateNotifSettingsUI() {
-        var statusEl = document.getElementById('settingsNotifStatus');
-        var btnEl = document.getElementById('settingsNotifBtn');
+        const statusEl = document.getElementById('settingsNotifStatus');
+        const btnEl = document.getElementById('settingsNotifBtn');
         if (!statusEl) return;
 
         if (!('Notification' in window)) {
@@ -194,7 +194,7 @@
             return;
         }
 
-        var perm = Notification.permission;
+        const perm = Notification.permission;
         if (perm === 'granted') {
             statusEl.textContent = '허용됨';
             statusEl.className = 'text-xs text-green-600 dark:text-green-400 mt-0.5';

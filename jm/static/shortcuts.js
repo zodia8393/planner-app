@@ -5,7 +5,7 @@
 (function () {
     'use strict';
 
-    var SHORTCUTS = [
+    const SHORTCUTS = [
         { key: 'D', label: '대시보드', action: function () { location.href = '/'; } },
         { key: 'N', label: '할 일', action: function () { location.href = '/todos'; } },
         { key: 'C', label: '캘린더', action: function () { location.href = '/calendar'; } },
@@ -18,45 +18,45 @@
     ];
 
     function isTyping() {
-        var tag = document.activeElement && document.activeElement.tagName;
+        const tag = document.activeElement && document.activeElement.tagName;
         return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
             (document.activeElement && document.activeElement.isContentEditable);
     }
 
     function closeAllModals() {
         // Close command palette
-        var cp = document.getElementById('cmdPalette');
+        const cp = document.getElementById('cmdPalette');
         if (cp && !cp.classList.contains('hidden')) {
             cp.classList.add('hidden');
             return true;
         }
         // Close more menu
-        var moreMenu = document.getElementById('moreMenu');
+        const moreMenu = document.getElementById('moreMenu');
         if (moreMenu && !moreMenu.classList.contains('hidden')) {
             if (typeof toggleMoreMenu === 'function') toggleMoreMenu();
             return true;
         }
         // Close sidebar on mobile
-        var sb = document.getElementById('sidebar');
+        const sb = document.getElementById('sidebar');
         if (sb && window.innerWidth < 1024 && !sb.classList.contains('-translate-x-full')) {
             if (typeof toggleSidebar === 'function') toggleSidebar();
             return true;
         }
         // Close shortcuts modal
-        var shortcutsModal = document.getElementById('shortcutsHelpModal');
+        const shortcutsModal = document.getElementById('shortcutsHelpModal');
         if (shortcutsModal && !shortcutsModal.classList.contains('hidden')) {
             shortcutsModal.classList.add('hidden');
             return true;
         }
         // Close focus modal
-        var focusModal = document.getElementById('focusModal');
+        const focusModal = document.getElementById('focusModal');
         if (focusModal && !focusModal.classList.contains('hidden')) {
             focusModal.classList.add('hidden');
             return true;
         }
         // Close any other fixed modals
-        var modals = document.querySelectorAll('.fixed.inset-0.z-50:not(.hidden), .fixed.inset-0.z-\\[60\\]:not(.hidden)');
-        for (var i = 0; i < modals.length; i++) {
+        const modals = document.querySelectorAll('.fixed.inset-0.z-50:not(.hidden), .fixed.inset-0.z-\\[60\\]:not(.hidden)');
+        for (let i = 0; i < modals.length; i++) {
             if (modals[i].id !== 'dropOverlay') {
                 modals[i].classList.add('hidden');
                 return true;
@@ -66,20 +66,20 @@
     }
 
     function showShortcutsHelp() {
-        var existing = document.getElementById('shortcutsHelpModal');
+        const existing = document.getElementById('shortcutsHelpModal');
         if (existing) {
             existing.classList.toggle('hidden');
             return;
         }
 
-        var modal = document.createElement('div');
+        const modal = document.createElement('div');
         modal.id = 'shortcutsHelpModal';
         modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('aria-label', '키보드 단축키 도움말');
 
-        var allShortcuts = SHORTCUTS.slice();
+        const allShortcuts = SHORTCUTS.slice();
         // Add list-nav shortcuts to help
         allShortcuts.push({ key: 'J/K', label: '목록 항목 이동' });
         allShortcuts.push({ key: 'X/Space', label: '항목 토글/체크' });
@@ -87,7 +87,7 @@
         allShortcuts.push({ key: 'Ctrl+Shift+N', label: '새 메모' });
         allShortcuts.push({ key: 'Ctrl+Shift+E', label: '새 일정' });
 
-        var rows = allShortcuts.map(function (s) {
+        const rows = allShortcuts.map(function (s) {
             return '<div class="flex justify-between items-center">' +
                 '<span style="color: var(--color-text-muted);">' + s.label + '</span>' +
                 '<kbd class="px-2 py-0.5 rounded text-xs font-mono" style="background: var(--color-surface-elevated); color: var(--color-text);">' + s.key + '</kbd></div>';
@@ -114,11 +114,11 @@
 
     /* ── List keyboard navigation (j/k/x/Space/Enter) ── */
     /* Works on /todos (data-todo-nav), /habits, /worklogs, /memos (data-list-nav) */
-    var _listNavIndex = -1;
+    let _listNavIndex = -1;
 
     function getListNavItems() {
         // Prefer data-todo-nav on /todos, data-list-nav everywhere else
-        var items = Array.from(document.querySelectorAll('[data-todo-nav]'));
+        let items = Array.from(document.querySelectorAll('[data-todo-nav]'));
         if (items.length === 0) {
             items = Array.from(document.querySelectorAll('[data-list-nav]'));
         }
@@ -126,7 +126,7 @@
     }
 
     function setListNavFocus(index) {
-        var items = getListNavItems();
+        const items = getListNavItems();
         if (items.length === 0) return;
         // Remove old focus
         items.forEach(function (el) { el.classList.remove('todo-nav-focus', 'list-nav-focus'); });
@@ -134,13 +134,13 @@
         if (index < 0) index = 0;
         if (index >= items.length) index = items.length - 1;
         _listNavIndex = index;
-        var target = items[_listNavIndex];
-        var focusClass = target.hasAttribute('data-todo-nav') ? 'todo-nav-focus' : 'list-nav-focus';
+        const target = items[_listNavIndex];
+        const focusClass = target.hasAttribute('data-todo-nav') ? 'todo-nav-focus' : 'list-nav-focus';
         target.classList.add(focusClass);
         target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
 
-    var _LIST_NAV_PAGES = ['/todos', '/habits', '/worklogs', '/memos'];
+    const _LIST_NAV_PAGES = ['/todos', '/habits', '/worklogs', '/memos'];
 
     function isListNavPage() {
         return _LIST_NAV_PAGES.indexOf(location.pathname) >= 0;
@@ -148,10 +148,10 @@
 
     function handleListNav(e) {
         if (!isListNavPage()) return false;
-        var items = getListNavItems();
+        const items = getListNavItems();
         if (items.length === 0) return false;
 
-        var key = e.key;
+        const key = e.key;
 
         if (key === 'j') {
             e.preventDefault();
@@ -166,9 +166,9 @@
         if (key === 'x' || key === ' ') {
             if (_listNavIndex < 0 || _listNavIndex >= items.length) return false;
             e.preventDefault();
-            var current = items[_listNavIndex];
+            const current = items[_listNavIndex];
             // Click the toggle button (checkbox)
-            var toggleBtn = current.querySelector('button[hx-post*="/toggle"]') ||
+            const toggleBtn = current.querySelector('button[hx-post*="/toggle"]') ||
                             current.querySelector('form button[type="submit"]');
             if (toggleBtn) toggleBtn.click();
             return true;
@@ -176,9 +176,9 @@
         if (key === 'Enter' && !e.ctrlKey && !e.metaKey) {
             if (_listNavIndex < 0 || _listNavIndex >= items.length) return false;
             e.preventDefault();
-            var current = items[_listNavIndex];
+            const current = items[_listNavIndex];
             // Click the edit button
-            var editBtn = current.querySelector('button[hx-get*="/edit"]');
+            const editBtn = current.querySelector('button[hx-get*="/edit"]');
             if (editBtn) editBtn.click();
             return true;
         }
@@ -188,11 +188,11 @@
     /* ── Ctrl+Enter: submit focused form ── */
     function handleCtrlEnter(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            var form = document.activeElement && document.activeElement.closest('form');
+            const form = document.activeElement && document.activeElement.closest('form');
             if (form) {
                 e.preventDefault();
                 // Find submit button or submit directly
-                var submitBtn = form.querySelector('button[type="submit"]');
+                const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.click();
                 } else {
@@ -206,12 +206,12 @@
 
     /* ── Modal focus trap ── */
     window.trapFocus = function (modal) {
-        var focusable = modal.querySelectorAll(
+        const focusable = modal.querySelectorAll(
             'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
         );
         if (focusable.length === 0) return;
-        var first = focusable[0];
-        var last = focusable[focusable.length - 1];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
         modal.addEventListener('keydown', function (e) {
             if (e.key !== 'Tab') return;
             if (e.shiftKey) {
@@ -231,11 +231,11 @@
 
     // Auto-trap focus when modals become visible
     function setupModalFocusTraps() {
-        var modalIds = ['confirmModal', 'focusModal', 'cmdPalette'];
+        const modalIds = ['confirmModal', 'focusModal', 'cmdPalette'];
         modalIds.forEach(function (id) {
-            var modal = document.getElementById(id);
+            const modal = document.getElementById(id);
             if (!modal) return;
-            var observer = new MutationObserver(function () {
+            const observer = new MutationObserver(function () {
                 if (!modal.classList.contains('hidden')) {
                     trapFocus(modal);
                 }
@@ -260,9 +260,9 @@
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'N' || e.key === 'n')) {
             e.preventDefault();
             if (location.pathname === '/memos') {
-                var memoForm = document.querySelector('details:has(form[action="/memos"])');
+                const memoForm = document.querySelector('details:has(form[action="/memos"])');
                 if (memoForm && !memoForm.open) memoForm.open = true;
-                var memoInput = document.getElementById('memo-content');
+                const memoInput = document.getElementById('memo-content');
                 if (memoInput) memoInput.focus();
             } else {
                 location.href = '/memos';
@@ -274,7 +274,7 @@
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
             e.preventDefault();
             if (location.pathname === '/calendar') {
-                var addEventBtn = document.querySelector('[data-action="open-event-modal"]') ||
+                const addEventBtn = document.querySelector('[data-action="open-event-modal"]') ||
                                   document.querySelector('button[onclick*="openEventModal"]') ||
                                   document.querySelector('.fab');
                 if (addEventBtn) addEventBtn.click();
@@ -306,8 +306,8 @@
 
         // Single key shortcuts
         if (e.ctrlKey || e.metaKey || e.altKey) return;
-        var key = e.key.toUpperCase();
-        for (var i = 0; i < SHORTCUTS.length; i++) {
+        const key = e.key.toUpperCase();
+        for (let i = 0; i < SHORTCUTS.length; i++) {
             if (SHORTCUTS[i].key === key) {
                 SHORTCUTS[i].action();
                 return;

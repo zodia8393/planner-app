@@ -2,8 +2,8 @@
 
  // Dark mode init — 3-mode: light / dark / auto
  function applyTheme() {
- var mode = localStorage.getItem('theme') || 'auto';
- var html = document.documentElement;
+ const mode = localStorage.getItem('theme') || 'auto';
+ const html = document.documentElement;
  if (mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
  html.classList.add('dark');
  } else {
@@ -12,11 +12,11 @@
  updateThemeIcon(mode);
  }
  function updateThemeIcon(mode) {
- var btn = document.getElementById('themeToggleBtn');
- var label = document.getElementById('themeLabel');
- var iconSun = document.getElementById('themeIconSun');
- var iconMoon = document.getElementById('themeIconMoon');
- var iconAuto = document.getElementById('themeIconAuto');
+ const btn = document.getElementById('themeToggleBtn');
+ const label = document.getElementById('themeLabel');
+ const iconSun = document.getElementById('themeIconSun');
+ const iconMoon = document.getElementById('themeIconMoon');
+ const iconAuto = document.getElementById('themeIconAuto');
  if (!btn) return;
  if (iconSun) iconSun.classList.add('hidden');
  if (iconMoon) iconMoon.classList.add('hidden');
@@ -28,8 +28,8 @@
  function toggleDarkMode() {
  document.documentElement.style.transition = 'background 0.3s, color 0.3s';
  document.body.style.transition = 'background 0.3s, color 0.3s';
- var mode = localStorage.getItem('theme') || 'auto';
- var next = mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light';
+ const mode = localStorage.getItem('theme') || 'auto';
+ const next = mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light';
  localStorage.setItem('theme', next);
  applyTheme();
  updateBgOverlay();
@@ -56,8 +56,8 @@
  updateBgOverlay();
 
  function toggleMoreMenu() {
- var menu = document.getElementById('moreMenu');
- var sheet = menu.querySelector(':scope > div:last-child');
+ const menu = document.getElementById('moreMenu');
+ const sheet = menu.querySelector(':scope > div:last-child');
  if (menu.classList.contains('hidden')) {
  menu.classList.remove('hidden');
  requestAnimationFrame(function() {
@@ -82,15 +82,15 @@
  // Toast notification system
  function showToast(message, type) {
  type = type || 'success';
- var container = document.getElementById('toastContainer');
- var toast = document.createElement('div');
+ const container = document.getElementById('toastContainer');
+ const toast = document.createElement('div');
  toast.className = 'toast toast-' + type;
- var icons = { success: '✓', error: '✕', info: 'i' };
- var iconSpan = document.createElement('span');
+ const icons = { success: '✓', error: '✕', info: 'i' };
+ const iconSpan = document.createElement('span');
  iconSpan.style.fontWeight = '700';
  iconSpan.style.fontSize = '0.875rem';
  iconSpan.textContent = icons[type] || '';
- var msgSpan = document.createElement('span');
+ const msgSpan = document.createElement('span');
  msgSpan.textContent = message;
  toast.appendChild(iconSpan);
  toast.appendChild(msgSpan);
@@ -102,18 +102,18 @@
  }
 
  // Undo delete pattern: hide element → show undo toast → delete after 5s
- var _undoTimers = {};
+ const _undoTimers = {};
  function undoDelete(el, url) {
- var id = url;
+ const id = url;
  el.style.transition = 'opacity 0.3s, max-height 0.3s';
  el.style.opacity = '0'; el.style.maxHeight = '0'; el.style.overflow = 'hidden';
- var container = document.getElementById('toastContainer');
- var toast = document.createElement('div');
+ const container = document.getElementById('toastContainer');
+ const toast = document.createElement('div');
  toast.className = 'toast toast-info';
  toast.style.cursor = 'pointer';
- var delSpan = document.createElement('span');
+ const delSpan = document.createElement('span');
  delSpan.textContent = '삭제됨';
- var undoBtn = document.createElement('button');
+ const undoBtn = document.createElement('button');
  undoBtn.style.cssText = 'margin-left:8px;padding:2px 10px;background:rgba(255,255,255,0.2);border-radius:6px;font-weight:600;font-size:0.8rem;';
  undoBtn.textContent = '되돌리기';
  toast.appendChild(delSpan);
@@ -143,16 +143,16 @@
  }
 
  // WebSocket with exponential backoff reconnection
- var _wsReconnectDelay = 1000;
- var _wsPingInterval = null;
- var _ws = null;
+ let _wsReconnectDelay = 1000;
+ let _wsPingInterval = null;
+ let _ws = null;
  function connectWS() {
- var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+ const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
  _ws = new WebSocket(proto + '//' + location.host + '/ws');
 
  _ws.onopen = function() {
  _wsReconnectDelay = 1000;
- var ob = document.getElementById('offlineBanner');
+ const ob = document.getElementById('offlineBanner');
  if (ob) ob.classList.add('hidden');
  // Client-side ping every 25s to keep NAT/proxy alive
  clearInterval(_wsPingInterval);
@@ -164,17 +164,17 @@
  };
 
  _ws.onmessage = function(e) {
- var data;
+ let data;
  try { data = JSON.parse(e.data); } catch(ex) { return; }
  if (data.type === 'ping' || data.type === 'pong') return;
 
- var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
+ const cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
  if (cnt > 0) { sessionStorage.setItem('_sseSkip', String(cnt - 1)); return; }
 
  // Handle both old broadcast format and new emit format
- var page = data.data || data.event || '';
+ let page = data.data || data.event || '';
  if (typeof page === 'object') page = page.type || '';
- var currentPage = window.location.pathname.split('/')[1] || 'dashboard';
+ const currentPage = window.location.pathname.split('/')[1] || 'dashboard';
  if (page === currentPage || page === 'dashboard') {
  if (document.querySelector('[hx-get]')) {
  htmx.trigger(document.body, 'sse-refresh');
@@ -186,7 +186,7 @@
 
  _ws.onclose = function() {
  clearInterval(_wsPingInterval);
- var ob = document.getElementById('offlineBanner');
+ const ob = document.getElementById('offlineBanner');
  if (ob) ob.classList.remove('hidden');
  setTimeout(function() {
  _wsReconnectDelay = Math.min(_wsReconnectDelay * 2, 30000);
@@ -209,13 +209,13 @@
  });
 
  // Command Palette
- var _cmdDebounce = null;
- var _cmdIdx = -1;
+ let _cmdDebounce = null;
+ let _cmdIdx = -1;
  function toggleCommandPalette() {
- var cp = document.getElementById('cmdPalette');
+ const cp = document.getElementById('cmdPalette');
  cp.classList.toggle('hidden');
  if (!cp.classList.contains('hidden')) {
- var input = document.getElementById('cmdInput');
+ const input = document.getElementById('cmdInput');
  input.value = '';
  input.focus();
  _cmdIdx = -1;
@@ -224,7 +224,7 @@
  }
  }
  document.getElementById('cmdInput').addEventListener('input', function() {
- var q = this.value.trim();
+ const q = this.value.trim();
  clearTimeout(_cmdDebounce);
  if (q.length < 2) {
  document.getElementById('cmdQuickActions').classList.remove('hidden');
@@ -233,27 +233,27 @@
  return;
  }
  // Check for action prefix "할일 추가: ..." or "추가: ..."
- var addMatch = q.match(/^(?:할일\s*)?추가[:：]\s*(.+)/);
+ const addMatch = q.match(/^(?:할일\s*)?추가[:：]\s*(.+)/);
  if (addMatch) {
-  var title = addMatch[1].trim();
-  var sr = document.getElementById('cmdSearchResults');
-  var qa = document.getElementById('cmdQuickActions');
+  const title = addMatch[1].trim();
+  const sr = document.getElementById('cmdSearchResults');
+  const qa = document.getElementById('cmdQuickActions');
   sr.textContent = '';
-  var headerDiv = document.createElement('div');
+  const headerDiv = document.createElement('div');
   headerDiv.className = 'px-3 py-1 text-[10px] font-bold uppercase tracking-wider';
   headerDiv.style.color = 'var(--color-text-faint)';
   headerDiv.textContent = '빠른 추가';
   sr.appendChild(headerDiv);
-  var addBtn = document.createElement('button');
+  const addBtn = document.createElement('button');
   addBtn.className = 'cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors w-full text-left';
   addBtn.style.color = 'var(--color-text-muted)';
   addBtn.addEventListener('click', (function(t) { return function() { cmdPaletteAddTodo(t); }; })(title));
-  var plusSpan = document.createElement('span');
+  const plusSpan = document.createElement('span');
   plusSpan.className = 'w-6 text-center';
   plusSpan.style.color = 'var(--color-accent)';
   plusSpan.textContent = '+';
   addBtn.appendChild(plusSpan);
-  var labelSpan = document.createElement('span');
+  const labelSpan = document.createElement('span');
   labelSpan.textContent = '"' + title + '" 할일 추가';
   addBtn.appendChild(labelSpan);
   sr.appendChild(addBtn);
@@ -265,28 +265,28 @@
 
  _cmdDebounce = setTimeout(function() {
  fetch('/api/search?q=' + encodeURIComponent(q)).then(function(r){return r.json()}).then(function(data) {
- var sr = document.getElementById('cmdSearchResults');
- var qa = document.getElementById('cmdQuickActions');
+ const sr = document.getElementById('cmdSearchResults');
+ const qa = document.getElementById('cmdQuickActions');
  sr.textContent = '';
  if (!data.items || data.items.length === 0) {
  // SAFE: no user data — static message
  sr.innerHTML = '<div class="px-3 py-4 text-sm text-center" style="color:var(--color-text-faint);">검색 결과 없음</div>';
  } else {
- var srHeader = document.createElement('div');
+ const srHeader = document.createElement('div');
  srHeader.className = 'px-3 py-1 text-[10px] font-bold uppercase tracking-wider';
  srHeader.style.color = 'var(--color-text-faint)';
  srHeader.textContent = '검색 결과';
  sr.appendChild(srHeader);
  data.items.forEach(function(it) {
- var link = document.createElement('a');
+ const link = document.createElement('a');
  link.href = it.url;
  link.className = 'cmd-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover-surface transition-colors';
  link.style.color = 'var(--color-text-muted)';
- var typeSpan = document.createElement('span');
+ const typeSpan = document.createElement('span');
  typeSpan.className = 'w-auto text-[10px] px-1.5 py-0.5 rounded font-medium';
  typeSpan.textContent = it.type;
  link.appendChild(typeSpan);
- var titleSpan = document.createElement('span');
+ const titleSpan = document.createElement('span');
  titleSpan.className = 'truncate';
  titleSpan.textContent = it.title;
  link.appendChild(titleSpan);
@@ -300,7 +300,7 @@
  }, 300);
  });
  document.getElementById('cmdInput').addEventListener('keydown', function(e) {
- var items = document.querySelectorAll('#cmdResults .cmd-item:not(.hidden)');
+ let items = document.querySelectorAll('#cmdResults .cmd-item:not(.hidden)');
  if (!items.length) items = document.querySelectorAll('#cmdResults .cmd-item');
  if (e.key === 'ArrowDown') {
  e.preventDefault();
@@ -332,16 +332,16 @@
  // HTMX: close mobile sidebar before navigation
  document.addEventListener('htmx:beforeRequest', function(e) {
  if (window.innerWidth < 1024) {
- var sb = document.getElementById('sidebar');
- var ov = document.getElementById('sidebarOverlay');
+ const sb = document.getElementById('sidebar');
+ const ov = document.getElementById('sidebarOverlay');
  if (!sb.classList.contains('-translate-x-full')) {
  sb.classList.add('-translate-x-full');
  ov.classList.add('hidden');
  }
  }
- var verb = (e.detail.requestConfig || {}).verb;
+ const verb = (e.detail.requestConfig || {}).verb;
  if (verb && verb !== 'get') {
- var cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
+ const cnt = parseInt(sessionStorage.getItem('_sseSkip') || '0');
  sessionStorage.setItem('_sseSkip', String(cnt + 1));
  }
  });
@@ -349,10 +349,10 @@
  // HTMX: form submission feedback
  document.addEventListener('htmx:afterRequest', function(e) {
  if (!e.detail || !e.detail.requestConfig || e.detail.requestConfig.verb === 'get') return;
- var xhr = e.detail.xhr;
- var status = xhr ? xhr.status : 0;
+ const xhr = e.detail.xhr;
+ const status = xhr ? xhr.status : 0;
  if (status >= 200 && status < 400) {
- var verb = e.detail.requestConfig.verb;
+ const verb = e.detail.requestConfig.verb;
  showToast(verb === 'delete' ? '삭제되었습니다' : '저장되었습니다', 'success');
  } else if (status >= 400) {
  showToast('오류가 발생했습니다', 'error');
@@ -366,13 +366,13 @@
 
  // Server error handling (422/400 etc.)
  document.body.addEventListener('htmx:responseError', function(e) {
- try { var d = JSON.parse(e.detail.xhr.responseText); showToast(d.detail || '오류가 발생했습니다', 'error'); } catch(x) { showToast('오류가 발생했습니다', 'error'); }
+ try { const d = JSON.parse(e.detail.xhr.responseText); showToast(d.detail || '오류가 발생했습니다', 'error'); } catch(x) { showToast('오류가 발생했습니다', 'error'); }
  });
 
  // Global drag-drop file upload
  (function() {
- var dragCounter = 0;
- var overlay = document.createElement('div');
+ let dragCounter = 0;
+ const overlay = document.createElement('div');
  overlay.id = 'dropOverlay';
  overlay.className = 'fixed inset-0 z-[9999] hidden items-center justify-center pointer-events-none';
  overlay.style.cssText = 'background: var(--color-accent-soft); border: 3px dashed var(--color-accent);';
@@ -404,11 +404,11 @@
  overlay.classList.add('hidden');
  overlay.classList.remove('flex');
 
- var files = e.dataTransfer.files;
+ const files = e.dataTransfer.files;
  if (!files.length) return;
 
- var formData = new FormData();
- for (var i = 0; i < files.length; i++) formData.append('files', files[i]);
+ const formData = new FormData();
+ for (let i = 0; i < files.length; i++) formData.append('files', files[i]);
 
  fetch('/files', { method: 'POST', body: formData }).then(function(res) {
  if (res.ok) {
@@ -424,7 +424,7 @@
  })();
 
  // Render memo markdown on page load (marked + DOMPurify loaded on demand)
- var _memoLibsLoading = false;
+ let _memoLibsLoading = false;
  function _doMemoRender() {
  marked.setOptions({ breaks: true, gfm: true });
  document.querySelectorAll('.memo-content').forEach(function(el) {
@@ -440,10 +440,10 @@
  _doMemoRender();
  } else if (!_memoLibsLoading) {
  _memoLibsLoading = true;
- var s1 = document.createElement('script');
+ const s1 = document.createElement('script');
  s1.src = 'https://cdn.jsdelivr.net/npm/marked@12/marked.min.js';
  s1.onload = function() {
- var s2 = document.createElement('script');
+ const s2 = document.createElement('script');
  s2.src = 'https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js';
  s2.onload = function() { _memoLibsLoading = false; _doMemoRender(); };
  document.head.appendChild(s2);
@@ -456,7 +456,7 @@
 
  // Notification panel toggle
  function toggleNotifPanel() {
- var panel = document.getElementById('notifPanel');
+ const panel = document.getElementById('notifPanel');
  panel.classList.toggle('hidden');
  if (!panel.classList.contains('hidden')) {
  refreshNotifPanel();
@@ -464,7 +464,7 @@
  }
  // Close panel on outside click
  document.addEventListener('click', function(e) {
- var panel = document.getElementById('notifPanel');
+ const panel = document.getElementById('notifPanel');
  if (panel && !panel.classList.contains('hidden') && !e.target.closest('#notifPanel') && !e.target.closest('[onclick*="toggleNotifPanel"]')) {
  panel.classList.add('hidden');
  }
@@ -472,14 +472,14 @@
 
  // Refresh notification panel content
  function refreshNotifPanel() {
- var status = document.getElementById('notifPermStatus');
+ const status = document.getElementById('notifPermStatus');
  if ('Notification' in window) {
- var perm = Notification.permission;
+ const perm = Notification.permission;
  status.textContent = perm === 'granted' ? '허용됨' : perm === 'denied' ? '차단됨' : '미설정';
  }
  fetch('/api/reminders').then(function(r) { return r.json(); }).catch(function(){ return []; }).then(function(items) {
- var list = document.getElementById('notifList');
- var badge = document.getElementById('notifBadge');
+ const list = document.getElementById('notifList');
+ const badge = document.getElementById('notifBadge');
  list.textContent = '';
  if (!items.length) {
  // SAFE: no user data — static empty-state message
@@ -489,26 +489,26 @@
  }
  badge.textContent = items.length;
  badge.classList.remove('hidden');
- var icons = { overdue: '🔴', today: '🟡', event: '🔵' };
+ const icons = { overdue: '🔴', today: '🟡', event: '🔵' };
  items.forEach(function(item) {
- var link = document.createElement('a');
+ const link = document.createElement('a');
  link.href = item.url || '#';
  link.className = 'flex items-start gap-3 p-3 transition-colors';
  link.style.color = 'var(--color-text-muted)';
  link.addEventListener('mouseover', function() { this.style.background = 'var(--color-border-subtle)'; });
  link.addEventListener('mouseout', function() { this.style.background = ''; });
- var iconSpan = document.createElement('span');
+ const iconSpan = document.createElement('span');
  iconSpan.className = 'text-base mt-0.5';
  iconSpan.textContent = icons[item.type] || '📌';
  link.appendChild(iconSpan);
- var contentDiv = document.createElement('div');
+ const contentDiv = document.createElement('div');
  contentDiv.className = 'flex-1 min-w-0';
- var titleP = document.createElement('p');
+ const titleP = document.createElement('p');
  titleP.className = 'text-sm font-medium truncate';
  titleP.style.color = 'var(--color-text)';
  titleP.textContent = item.title || '';
  contentDiv.appendChild(titleP);
- var bodyP = document.createElement('p');
+ const bodyP = document.createElement('p');
  bodyP.className = 'text-xs';
  bodyP.style.color = 'var(--color-text-faint)';
  bodyP.textContent = item.body || '';
@@ -524,8 +524,8 @@
  // Offline form queuing: intercept failed form submissions
  document.addEventListener('htmx:sendError', function(e) {
  if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
- var cfg = e.detail || {};
- var requestConfig = cfg.requestConfig || {};
+ const cfg = e.detail || {};
+ const requestConfig = cfg.requestConfig || {};
  if (requestConfig.verb && requestConfig.verb !== 'get') {
  navigator.serviceWorker.controller.postMessage({
  type: 'QUEUE_FORM',
@@ -545,7 +545,7 @@
  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function() {});
  }
 
-var _focusTimer=null,_focusTotalSec=0,_focusRemain=0,_focusSaving=false;
+let _focusTimer=null,_focusTotalSec=0,_focusRemain=0,_focusSaving=false;
 function _focusStart(min){
  _focusTotalSec=min*60;_focusRemain=_focusTotalSec;
  localStorage.setItem('focus_end',Date.now()+_focusTotalSec*1000);
@@ -560,20 +560,20 @@ function _focusStart(min){
  _focusTimer=setInterval(_focusTick,1000);
 }
 function _focusTick(){
- var end=parseInt(localStorage.getItem('focus_end')||'0');
+ const end=parseInt(localStorage.getItem('focus_end')||'0');
  _focusRemain=Math.max(0,Math.round((end-Date.now())/1000));
- var m=Math.floor(_focusRemain/60),s=_focusRemain%60;
+ const m=Math.floor(_focusRemain/60),s=_focusRemain%60;
  document.getElementById('focusTime').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
- var total=parseInt(localStorage.getItem('focus_total')||'1');
+ const total=parseInt(localStorage.getItem('focus_total')||'1');
  document.getElementById('focusProgress').style.width=((total-_focusRemain)/total*100)+'%';
  if(_focusRemain<=0){clearInterval(_focusTimer);_focusStop(true);}
 }
 function _focusStop(save){
  clearInterval(_focusTimer);
  if(save&&_focusSaving) return;
- var total=parseInt(localStorage.getItem('focus_total')||'0');
- var elapsed=total-_focusRemain;
- var min=Math.max(1,Math.round(elapsed/60));
+ const total=parseInt(localStorage.getItem('focus_total')||'0');
+ const elapsed=total-_focusRemain;
+ const min=Math.max(1,Math.round(elapsed/60));
  if(save&&min>=1){
  _focusSaving=true;
  fetch('/focus/complete',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -598,7 +598,7 @@ function _focusReset(){
  document.getElementById('focusModal').classList.add('hidden');
 }
 function _focusRestore(){
- var end=parseInt(localStorage.getItem('focus_end')||'0');
+ const end=parseInt(localStorage.getItem('focus_end')||'0');
  if(end>Date.now()){
  clearInterval(_focusTimer);
  _focusTotalSec=parseInt(localStorage.getItem('focus_total')||'0');
@@ -616,24 +616,24 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
 
 (function() {
  // Accent color: apply saved preference
- var accent = localStorage.getItem('accent_color') || 'amber';
+ const accent = localStorage.getItem('accent_color') || 'amber';
  document.body.dataset.accent = accent;
 
  // Font size: apply saved preference
- var fontSize = localStorage.getItem('font_size') || 'medium';
+ const fontSize = localStorage.getItem('font_size') || 'medium';
  document.body.dataset.fontsize = fontSize;
- var fontSizeMap = { small: 'clamp(0.75rem, 0.5625rem + 0.5vw, 0.875rem)', medium: 'clamp(0.8125rem, 0.625rem + 0.5vw, 1rem)', large: 'clamp(0.9375rem, 0.75rem + 0.5vw, 1.125rem)' };
+ const fontSizeMap = { small: 'clamp(0.75rem, 0.5625rem + 0.5vw, 0.875rem)', medium: 'clamp(0.8125rem, 0.625rem + 0.5vw, 1rem)', large: 'clamp(0.9375rem, 0.75rem + 0.5vw, 1.125rem)' };
  document.documentElement.style.fontSize = fontSizeMap[fontSize] || 'clamp(0.8125rem, 0.625rem + 0.5vw, 1rem)';
 
  // Mobile tab bar: hide on scroll down, show on scroll up
- var lastScrollY = 0;
- var tabBar = document.getElementById('mobileTabBar');
- var focusBtn = document.getElementById('focusBtn');
+ let lastScrollY = 0;
+ const tabBar = document.getElementById('mobileTabBar');
+ const focusBtn = document.getElementById('focusBtn');
  if (tabBar) {
- var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+ const mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
  if (mainEl) {
  mainEl.addEventListener('scroll', function() {
- var currentY = mainEl.scrollTop;
+ const currentY = mainEl.scrollTop;
  if (currentY > lastScrollY && currentY > 60) {
  tabBar.style.transform = 'translateY(100%)';
  tabBar.style.transition = 'transform 0.3s ease';
@@ -649,9 +649,9 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
 
  // ── L: Pull-to-Refresh (enhanced with indicator) ──
  (function() {
- var ptrIndicator = document.getElementById('ptrIndicator');
- var pullStart = 0, pulling = false, ptrTriggered = false;
- var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+ const ptrIndicator = document.getElementById('ptrIndicator');
+ let pullStart = 0, pulling = false, ptrTriggered = false;
+ const mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
  if (!mainEl || !ptrIndicator) return;
  mainEl.addEventListener('touchstart', function(e) {
  if (mainEl.scrollTop <= 0) {
@@ -662,7 +662,7 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
  }, { passive: true });
  mainEl.addEventListener('touchmove', function(e) {
  if (!pulling) return;
- var pullDist = e.touches[0].clientY - pullStart;
+ const pullDist = e.touches[0].clientY - pullStart;
  if (pullDist > 60 && !ptrTriggered) {
  ptrIndicator.classList.add('visible');
  }
@@ -682,8 +682,8 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
 
  // ── J: Sticky header scroll effect ──
  (function() {
- var header = document.querySelector('.glass-header');
- var mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
+ const header = document.querySelector('.glass-header');
+ const mainEl = document.querySelector('main[role="main"]') || document.querySelector('main');
  if (!header || !mainEl) return;
  mainEl.addEventListener('scroll', function() {
  header.classList.toggle('scrolled', mainEl.scrollTop > 10);
@@ -691,7 +691,7 @@ document.addEventListener('htmx:afterSettle',_focusRestore);
  })();
 })();
 
-var _deferredInstallPrompt=null;
+let _deferredInstallPrompt=null;
 window.addEventListener('beforeinstallprompt',function(e){
  e.preventDefault();
  _deferredInstallPrompt=e;
@@ -710,9 +710,9 @@ function dismissPwaInstall(){
 }
 
 function showConfetti(){
- var colors=['#d97706','#f59e0b','#10b981','#6366f1','#ec4899','#ef4444'];
- for(var i=0;i<30;i++){
- var el=document.createElement('div');
+ const colors=['#d97706','#f59e0b','#10b981','#6366f1','#ec4899','#ef4444'];
+ for(let i=0;i<30;i++){
+ const el=document.createElement('div');
  el.className='confetti-piece';
  el.style.left=Math.random()*100+'vw';
  el.style.background=colors[Math.floor(Math.random()*colors.length)];
@@ -739,17 +739,17 @@ function dismissReview(action){
 }
 
 /* ── I: Bottom Sheet utility ── */
-var _activeSheet = null;
+let _activeSheet = null;
 function openBottomSheet(contentEl) {
  if (_activeSheet) closeBottomSheet();
- var overlay = document.createElement('div');
+ const overlay = document.createElement('div');
  overlay.className = 'bottom-sheet-overlay';
  overlay.onclick = closeBottomSheet;
- var sheet = document.createElement('div');
+ const sheet = document.createElement('div');
  sheet.className = 'bottom-sheet';
  // SAFE: no user data — static handle element
  sheet.innerHTML = '<div class="bottom-sheet-handle"></div>';
- var content = contentEl.cloneNode(true);
+ const content = contentEl.cloneNode(true);
  content.classList.remove('hidden');
  sheet.appendChild(content);
  document.body.appendChild(overlay);
@@ -761,7 +761,7 @@ function openBottomSheet(contentEl) {
  });
  _activeSheet = { overlay: overlay, sheet: sheet };
  // Swipe-down to dismiss
- var startY = 0, currentY = 0;
+ let startY = 0, currentY = 0;
  sheet.addEventListener('touchstart', function(e) {
  if (e.target.closest('input, textarea, select, button, a')) return;
  startY = e.touches[0].clientY;
@@ -787,7 +787,7 @@ function closeBottomSheet() {
  _activeSheet.overlay.classList.remove('active');
  _activeSheet.sheet.classList.remove('active');
  document.body.classList.remove('sheet-open');
- var ref = _activeSheet;
+ const ref = _activeSheet;
  setTimeout(function() {
  ref.overlay.remove();
  ref.sheet.remove();
@@ -801,8 +801,8 @@ function initSwipeItems() {
  document.querySelectorAll('.swipe-item').forEach(function(item) {
  if (item._swipeInit) return;
  item._swipeInit = true;
- var startX = 0, currentX = 0, threshold = 80;
- var content = item.querySelector('.swipe-content');
+ let startX = 0, currentX = 0, threshold = 80;
+ const content = item.querySelector('.swipe-content');
  if (!content) return;
  item.addEventListener('touchstart', function(e) {
  startX = e.touches[0].clientX;
@@ -819,11 +819,11 @@ function initSwipeItems() {
  item.classList.remove('swiping');
  if (currentX > threshold) {
  // Swipe right → complete
- var completeBtn = item.querySelector('[data-swipe-complete]');
+ const completeBtn = item.querySelector('[data-swipe-complete]');
  if (completeBtn) completeBtn.click();
  } else if (currentX < -threshold) {
  // Swipe left → delete
- var deleteBtn = item.querySelector('[data-swipe-delete]');
+ const deleteBtn = item.querySelector('[data-swipe-delete]');
  if (deleteBtn && confirm('삭제할까요?')) deleteBtn.click();
  }
  content.style.transform = '';
@@ -842,11 +842,11 @@ function initLongPress() {
  document.querySelectorAll('[data-long-press]').forEach(function(item) {
  if (item._lpInit) return;
  item._lpInit = true;
- var timer = null;
+ let timer = null;
  item.addEventListener('touchstart', function(e) {
  timer = setTimeout(function() {
  if (navigator.vibrate) navigator.vibrate(30);
- var menu = item.querySelector('.context-menu');
+ const menu = item.querySelector('.context-menu');
  if (menu) {
  menu.classList.toggle('hidden');
  setTimeout(function() { menu.classList.add('hidden'); }, 3000);
@@ -864,9 +864,9 @@ document.addEventListener('htmx:afterSettle', function() {
 
 /* ── M: Skeleton Loading for HTMX ── */
 document.addEventListener('htmx:beforeRequest', function(e) {
- var target = e.detail.target;
+ const target = e.detail.target;
  if (target && !target.querySelector('.skeleton-card')) {
- var skeleton = document.createElement('div');
+ const skeleton = document.createElement('div');
  skeleton.className = 'skeleton-card htmx-skeleton';
  // SAFE: no user data — static skeleton placeholder
  skeleton.innerHTML = '<div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:50%"></div><div class="skeleton-line" style="width:85%"></div>';
@@ -874,7 +874,7 @@ document.addEventListener('htmx:beforeRequest', function(e) {
  }
 });
 document.addEventListener('htmx:afterSettle', function(e) {
- var target = e.detail.target;
+ const target = e.detail.target;
  if (target) {
  target.querySelectorAll('.htmx-skeleton').forEach(function(s) { s.remove(); });
  }
@@ -882,12 +882,12 @@ document.addEventListener('htmx:afterSettle', function(e) {
 
 /* ── Prefetch: load page on link hover ── */
 (function() {
- var _prefetched = {};
+ const _prefetched = {};
  document.addEventListener('pointerenter', function(e) {
-  var link = e.target.closest('a[href^="/"]');
+  const link = e.target.closest('a[href^="/"]');
   if (!link || _prefetched[link.href]) return;
   _prefetched[link.href] = true;
-  var l = document.createElement('link');
+  const l = document.createElement('link');
   l.rel = 'prefetch';
   l.href = link.href;
   document.head.appendChild(l);
@@ -898,21 +898,21 @@ document.addEventListener('htmx:afterSettle', function(e) {
 (function() {
  function animateCounters() {
   document.querySelectorAll('.stat-number:not([data-counted])').forEach(function(el) {
-   var text = el.textContent.trim();
-   var match = text.match(/^(\d+)/);
+   const text = el.textContent.trim();
+   const match = text.match(/^(\d+)/);
    if (!match) return;
-   var target = parseInt(match[1]);
+   const target = parseInt(match[1]);
    if (target <= 0 || target > 9999) return;
    el.dataset.counted = '1';
-   var suffix = text.replace(/^\d+/, '');
-   var start = 0;
-   var duration = Math.min(600, target * 30);
-   var startTime = null;
+   const suffix = text.replace(/^\d+/, '');
+   const start = 0;
+   const duration = Math.min(600, target * 30);
+   let startTime = null;
    function step(ts) {
     if (!startTime) startTime = ts;
-    var progress = Math.min((ts - startTime) / duration, 1);
-    var eased = 1 - Math.pow(1 - progress, 3);
-    var current = Math.round(start + (target - start) * eased);
+    const progress = Math.min((ts - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * eased);
     el.textContent = current + suffix;
     if (progress < 1) requestAnimationFrame(step);
    }
@@ -931,9 +931,9 @@ document.addEventListener('htmx:afterSettle', function(e) {
 /* ── Stagger entrance for dashboard grid children ── */
 (function() {
  function applyStagger() {
-  var grid = document.getElementById('dashboardGrid');
+  const grid = document.getElementById('dashboardGrid');
   if (!grid) return;
-  var children = grid.querySelectorAll(':scope > div, :scope > section');
+  const children = grid.querySelectorAll(':scope > div, :scope > section');
   children.forEach(function(child, i) {
    if (child.classList.contains('stagger-applied')) return;
    child.classList.add('stagger-applied');

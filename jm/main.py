@@ -104,9 +104,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "0"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-        # CSP: 'unsafe-inline' required — 8 inline <script> blocks in base.html
-        # + 62 inline event handlers (onclick/onchange) across templates.
-        # Removing 'unsafe-inline' requires migrating all to external JS + addEventListener.
+        # CSP: 'unsafe-inline' still required — 3 inline <script> blocks remain in base.html
+        # (theme detect, accent/font restore, _partialRefresh) + Jinja-dependent scripts.
+        # 5 blocks extracted to static/js/ (sidebar-favorites, slash-commands, htmx-helpers, actions).
         response.headers["Content-Security-Policy"] = (
             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
@@ -162,6 +162,8 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 def render(request: Request, name: str, context: dict = None):
     """TemplateResponse wrapper that injects the single profile."""
     ctx = context or {}
+    # Detect HTMX partial request
+    ctx["is_htmx"] = "HX-Request" in request.headers
     try:
         with get_db() as conn:
             row = conn.execute("SELECT * FROM work_profiles WHERE id=1").fetchone()
