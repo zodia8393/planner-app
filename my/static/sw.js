@@ -263,7 +263,7 @@ self.addEventListener('push', (e) => {
     try {
         payload = e.data.json();
     } catch (err) {
-        payload = { title: 'JM Planner', body: e.data.text() };
+        payload = { title: 'MY PLANNER', body: e.data.text() };
     }
     const options = {
         body: payload.body || '',
@@ -275,7 +275,7 @@ self.addEventListener('push', (e) => {
         requireInteraction: false,
     };
     e.waitUntil(
-        self.registration.showNotification(payload.title || 'JM Planner', options)
+        self.registration.showNotification(payload.title || 'MY PLANNER', options)
     );
 });
 

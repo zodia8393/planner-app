@@ -212,16 +212,14 @@
         }
     }
 
-    /* ── Timetable Needle ── */
+    /* ── Timetable Needle (horizontal) ── */
     function initTimetableNeedle() {
-        const needle = document.getElementById('miniNeedle');
-        const mt = document.getElementById('miniTime');
-        if (!needle && !mt) return;
+        const needle = document.getElementById('ttNeedle');
+        if (!needle) return;
         const now = new Date();
         const h = now.getHours() + now.getMinutes() / 60;
-        const angle = (h / 24) * 360;
-        if (needle) needle.setAttribute('transform', 'rotate(' + angle + ',100,100)');
-        if (mt) mt.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        const pct = (h / 24) * 100;
+        needle.style.left = pct + '%';
     }
 
     /* ── Initialize ── */

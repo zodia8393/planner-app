@@ -12,14 +12,15 @@
 }
 
 /* ── Widget Ordering & Spanning (PC: >=1024px) ── */
-.dashboard-widget[data-widget="widget-row"]   { grid-column: span 12; order: 1; }
-.dashboard-widget[data-widget="quick-add"]    { grid-column: span 12; order: 2; }
-.dashboard-widget[data-widget="plan-view"]    { grid-column: span 12; order: 3; }
-.dashboard-widget[data-widget="progress"]     { grid-column: span 6;  order: 4; }
-.dashboard-widget[data-widget="events"]       { grid-column: span 6;  order: 5; }
-.dashboard-widget[data-widget="timetable"]    { grid-column: span 6;  order: 6; }
-.dashboard-widget[data-widget="worklogs"]     { grid-column: span 6;  order: 7; }
-.dashboard-widget[data-widget="time-budgets"] { grid-column: span 6;  order: 8; }
+.dashboard-widget[data-widget="widget-row"]    { grid-column: span 12; order: 1; }
+.dashboard-widget[data-widget="quick-add"]     { grid-column: span 12; order: 2; }
+.dashboard-widget[data-widget="plan-view"]     { grid-column: span 12; order: 3; }
+.dashboard-widget[data-widget="progress"]      { grid-column: span 6;  order: 4; }
+.dashboard-widget[data-widget="events"]        { grid-column: span 6;  order: 5; }
+.dashboard-widget[data-widget="timetable"]     { grid-column: span 6;  order: 6; }
+.dashboard-widget[data-widget="worklogs"]      { grid-column: span 6;  order: 7; }
+.dashboard-widget[data-widget="widget-insights"] { grid-column: span 6; order: 8; }
+.dashboard-widget[data-widget="time-budgets"]  { grid-column: span 6;  order: 9; }
 
 /* ── Tablet (768-1023px) — 2 columns ── */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -27,14 +28,15 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
-    .dashboard-widget[data-widget="widget-row"]   { grid-column: span 2; order: 1; }
-    .dashboard-widget[data-widget="quick-add"]    { grid-column: span 2; order: 2; }
-    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 2; order: 3; }
-    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 4; }
-    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 5; }
-    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 6; }
-    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 7; }
-    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="widget-row"]    { grid-column: span 2; order: 1; }
+    .dashboard-widget[data-widget="quick-add"]     { grid-column: span 2; order: 2; }
+    .dashboard-widget[data-widget="plan-view"]     { grid-column: span 2; order: 3; }
+    .dashboard-widget[data-widget="progress"]      { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="events"]        { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="timetable"]     { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="worklogs"]      { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="widget-insights"] { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="time-budgets"]  { grid-column: span 1; order: 9; }
 }
 
 /* ── Mobile (<768px) — 1 column, stacked ── */
@@ -43,14 +45,15 @@
         grid-template-columns: 1fr;
         gap: 6px;
     }
-    .dashboard-widget[data-widget="widget-row"]   { grid-column: span 1; order: 1; }
-    .dashboard-widget[data-widget="quick-add"]    { grid-column: span 1; order: 2; }
-    .dashboard-widget[data-widget="plan-view"]    { grid-column: span 1; order: 3; }
-    .dashboard-widget[data-widget="events"]       { grid-column: span 1; order: 4; }
-    .dashboard-widget[data-widget="timetable"]    { grid-column: span 1; order: 5; }
-    .dashboard-widget[data-widget="worklogs"]     { grid-column: span 1; order: 6; }
-    .dashboard-widget[data-widget="progress"]     { grid-column: span 1; order: 7; }
-    .dashboard-widget[data-widget="time-budgets"] { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="widget-row"]    { grid-column: span 1; order: 1; }
+    .dashboard-widget[data-widget="quick-add"]     { grid-column: span 1; order: 2; }
+    .dashboard-widget[data-widget="plan-view"]     { grid-column: span 1; order: 3; }
+    .dashboard-widget[data-widget="timetable"]     { grid-column: span 1; order: 4; }
+    .dashboard-widget[data-widget="events"]        { grid-column: span 1; order: 5; }
+    .dashboard-widget[data-widget="worklogs"]      { grid-column: span 1; order: 6; }
+    .dashboard-widget[data-widget="progress"]      { grid-column: span 1; order: 7; }
+    .dashboard-widget[data-widget="widget-insights"] { grid-column: span 1; order: 8; }
+    .dashboard-widget[data-widget="time-budgets"]  { grid-column: span 1; order: 9; }
 }
 
 /* ── Custom Background: Glass Panel ── */
@@ -239,24 +242,107 @@ html.dark .dashboard-widget[data-widget="quick-add"] {
     overflow: hidden;
 }
 
-/* Timetable: constrain SVG and content */
+/* ── Timetable Widget — Horizontal Timeline ── */
 .dashboard-widget[data-widget="timetable"] .widget-body > .work-card {
     height: 100%;
     display: flex;
     flex-direction: column;
 }
-.dashboard-widget[data-widget="timetable"] div.widget-detail-m {
-    flex: 1;
-    min-height: 0;
+.tt-timeline-wrap {
+    position: relative;
+    padding: 0 0.75rem 0.5rem;
+}
+.tt-timeline-bar {
+    position: relative;
+    height: 28px;
+    border-radius: 6px;
     overflow: hidden;
+    background: var(--color-border-subtle);
 }
-.dashboard-widget[data-widget="timetable"] div.widget-detail-m .flex {
+.tt-timeline-block {
+    position: absolute;
+    top: 0;
     height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-width: 2px;
+    transition: opacity 0.15s;
 }
-.dashboard-widget[data-widget="timetable"] div.widget-detail-m svg {
-    width: 120px !important;
-    height: 120px !important;
-    flex-shrink: 0;
+.tt-timeline-block:hover {
+    opacity: 0.85;
+}
+.tt-timeline-block-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 4px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.tt-timeline-needle {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--color-accent);
+    z-index: 2;
+    border-radius: 1px;
+}
+.tt-timeline-needle::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+}
+.tt-hour-markers {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 4px;
+}
+.tt-hour-markers span {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-text-faint);
+}
+.tt-current-info {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0 0.75rem 0.25rem;
+}
+.tt-info-card {
+    flex: 1;
+    padding: 0.5rem 0.625rem;
+    border-radius: 8px;
+    min-width: 0;
+}
+.tt-info-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 2px;
+}
+.tt-info-title {
+    font-size: 13px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+}
+.tt-info-time {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-top: 1px;
 }
 
 /* ── Scrollbar (thin, unobtrusive) ── */

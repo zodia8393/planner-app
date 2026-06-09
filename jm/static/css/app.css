@@ -1869,6 +1869,14 @@ html.dark body[data-accent="sky"] {
  border-radius: var(--radius-lg);
 }
 
+/* ── Notification Badge ── */
+#notifBadge:not(.hidden) {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ box-sizing: border-box;
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
  .fade-in, .scale-in, .slide-in, .page-transition { animation: none !important; }

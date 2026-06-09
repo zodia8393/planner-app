@@ -8,7 +8,7 @@
  </script>
  <style>html{background:#faf9f7;color-scheme:light}html.dark{background:#1c1917;color-scheme:dark}body{background:inherit}</style>
  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>{% block title %}JM Planner{% endblock %}</title>
+ <title>{% block title %}MY PLANNER{% endblock %}</title>
  <link rel="manifest" href="/static/manifest.json">
  <meta name="theme-color" content="#d97706">
  <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,7 +87,7 @@
  </svg>
  </div>
  <div>
- <h1 class="text-base font-bold leading-tight" style="color: var(--color-text);">JM Planner</h1>
+ <h1 class="text-base font-bold leading-tight" style="color: var(--color-text);">MY PLANNER</h1>
  <p class="text-xs font-medium" style="color: var(--color-text-faint);">
  {% if active_profile %}{{ active_profile.name }}{% else %}Plan your day{% endif %}
  </p>
@@ -239,7 +239,7 @@
  </svg>
  <span id="themeLabel">시스템 설정</span>
  </button>
- <div class="mt-2 px-3 text-xs font-medium" style="color: var(--color-text-faint);">JM Planner v1.0</div>
+ <div class="mt-2 px-3 text-xs font-medium" style="color: var(--color-text-faint);">MY PLANNER v1.0</div>
  </div>
  </aside>
 
@@ -271,7 +271,7 @@
  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
  </svg>
- <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4.5 h-4.5 text-white text-[11px] font-bold rounded-full flex items-center justify-center min-w-[18px] h-[18px] leading-none" style="background: var(--color-danger);">0</span>
+ <span id="notifBadge" class="hidden absolute rounded-full text-white text-[10px] font-bold leading-none" style="background: var(--color-danger); top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 2px 5px; text-align: center;">0</span>
  </button>
  <!-- Notification dropdown -->
  <div id="notifPanel" class="hidden absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl z-50"
@@ -584,7 +584,7 @@
  <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
  <div class="text-center mb-4">
  <span class="text-4xl">&#11088;</span>
- <h3 class="text-lg font-bold mt-2" style="color: var(--color-text);">JM Planner가 마음에 드시나요?</h3>
+ <h3 class="text-lg font-bold mt-2" style="color: var(--color-text);">MY PLANNER가 마음에 드시나요?</h3>
  <p class="text-sm mt-1" style="color: var(--color-text-muted);">7일 연속 사용해주셨어요! 별점을 남겨주시면 큰 힘이 됩니다.</p>
  </div>
  <div class="flex gap-2">

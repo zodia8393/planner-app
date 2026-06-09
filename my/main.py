@@ -1,5 +1,5 @@
 """
-My Planner - Universal personal planner with profile isolation & shared folders
+MY PLANNER - Universal personal planner with profile isolation & shared folders
 FastAPI + Jinja2 + HTMX + Tailwind CSS + SQLite
 """
 
@@ -94,7 +94,7 @@ async def lifespan(app):
     init_db()
     yield
 
-app = FastAPI(title="My Planner", docs_url=None, redoc_url=None, lifespan=lifespan)
+app = FastAPI(title="MY PLANNER", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
 OPEN_PATHS = {"/setup", "/health", "/sse", "/static", "/cal", "/settings/gcal/callback", "/auth/google/login", "/auth/google/callback", "/privacy", "/.well-known"}
@@ -262,7 +262,7 @@ def render(request: Request, name: str, context: dict = None):
         ctx["active_profile"] = None
         ctx["active_profile_id"] = None
     ctx.setdefault("today", date_mod.today())
-    ctx.setdefault("config", {"planner_name": "My Planner"})
+    ctx.setdefault("config", {"planner_name": "MY PLANNER"})
     ctx.setdefault("bg_setting", get_bg_setting(pid))
     return templates.TemplateResponse(request, name, ctx)
 
@@ -1055,7 +1055,7 @@ def _seed_sample_data(conn, profile_id: int):
     tomorrow = today + timedelta(days=1)
     conn.execute(
         "INSERT INTO todos (profile_id, title, priority, due_date, tags, sort_order) VALUES (?,?,?,?,?,?)",
-        (profile_id, "My Planner 둘러보기", 1, today.isoformat(), '["시작"]', 1),
+        (profile_id, "MY PLANNER 둘러보기", 1, today.isoformat(), '["시작"]', 1),
     )
     conn.execute(
         "INSERT INTO todos (profile_id, title, priority, due_date, tags, sort_order) VALUES (?,?,?,?,?,?)",
@@ -1067,11 +1067,11 @@ def _seed_sample_data(conn, profile_id: int):
     )
     conn.execute(
         "INSERT INTO events (profile_id, title, start_time, color, memo) VALUES (?,?,?,?,?)",
-        (profile_id, "My Planner 시작!", f"{today.isoformat()}T09:00", "#d97706", "환영합니다! 이 일정을 수정하거나 삭제해보세요."),
+        (profile_id, "MY PLANNER 시작!", f"{today.isoformat()}T09:00", "#d97706", "환영합니다! 이 일정을 수정하거나 삭제해보세요."),
     )
     conn.execute(
         "INSERT INTO memos (profile_id, author, title, content) VALUES (?,?,?,?)",
-        (profile_id, "My Planner", "환영합니다!", "## 시작 가이드\n\n- **할 일**: 좌측 메뉴에서 할 일을 관리하세요\n- **캘린더**: 일정을 한눈에 확인하세요\n- **집중 모드**: 포모도로 타이머로 생산성을 높이세요\n- **양식**: 13종의 업무 양식을 바로 사용하세요"),
+        (profile_id, "MY PLANNER", "환영합니다!", "## 시작 가이드\n\n- **할 일**: 좌측 메뉴에서 할 일을 관리하세요\n- **캘린더**: 일정을 한눈에 확인하세요\n- **집중 모드**: 포모도로 타이머로 생산성을 높이세요\n- **양식**: 13종의 업무 양식을 바로 사용하세요"),
     )
 
 
@@ -1132,7 +1132,7 @@ app.state.audit_log = _audit_log
 app.state.event_bus = event_bus
 app.state.base_dir = BASE_DIR
 app.state.app_name = "my-planner"
-app.state.app_display_name = "My Planner"
+app.state.app_display_name = "MY PLANNER"
 app.state.gcal_client_id = GCAL_CLIENT_ID
 app.state.worklog_img_dir = WORKLOG_IMG_DIR
 app.state.get_categories = lambda conn, pid: conn.execute(
