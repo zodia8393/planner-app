@@ -7,7 +7,7 @@ Tests against LIVE running servers:
   - Work Planner: https://127.0.0.1:8001 (self-signed cert)
 
 Run:
-  cd /workspace/app_planners && python3 tests/production_qa_test.py
+  cd /workspace/app/planners && python3 tests/production_qa_test.py
 
 Goal conditions:
   1. All page rendering error 0
@@ -32,6 +32,7 @@ from pathlib import Path
 from urllib.parse import unquote
 
 import httpx
+import pytest
 
 # ── Config ──
 MY_BASE = "http://127.0.0.1:8003"
@@ -65,11 +66,22 @@ def section(title: str):
     print(f"{'='*60}")
 
 
+def skip_if_live_server_unavailable(base_url: str, *, verify: bool = True):
+    """Skip pytest live-server checks when the target app is not running."""
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        return
+    try:
+        httpx.get(base_url, timeout=1.5, follow_redirects=False, verify=verify)
+    except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as exc:
+        pytest.skip(f"라이브 QA 서버가 실행 중이 아닙니다: {base_url} ({exc})")
+
+
 # ════════════════════════════════════════════════════════════════
 # MY PLANNER TESTS (port 8003)
 # ════════════════════════════════════════════════════════════════
 
 def test_my_planner():
+    skip_if_live_server_unavailable(MY_BASE)
     section("MY PLANNER (port 8003)")
 
     client = httpx.Client(base_url=MY_BASE, timeout=15, follow_redirects=False)
@@ -528,6 +540,7 @@ def test_my_planner():
 # ════════════════════════════════════════════════════════════════
 
 def test_jm_planner():
+    skip_if_live_server_unavailable(JM_BASE)
     section("JM PLANNER (port 8000)")
 
     # JM planner is single-user, no auth needed
@@ -636,6 +649,7 @@ def test_jm_planner():
 # ════════════════════════════════════════════════════════════════
 
 def test_work_planner():
+    skip_if_live_server_unavailable(WORK_BASE, verify=False)
     section("WORK PLANNER (port 8001, HTTPS)")
 
     client = httpx.Client(base_url=WORK_BASE, timeout=15, follow_redirects=False, verify=False)
@@ -713,10 +727,10 @@ def test_fetch_error_handling():
     section("GREP: fetch() without .catch()/.finally()")
 
     template_dirs = [
-        Path("/workspace/app_planners/my/templates"),
-        Path("/workspace/app_planners/jm/templates"),
-        Path("/workspace/app_planners/work/templates"),
-        Path("/workspace/app_planners/common/routers"),
+        Path("/workspace/app/planners/my/templates"),
+        Path("/workspace/app/planners/jm/templates"),
+        Path("/workspace/app/planners/work/templates"),
+        Path("/workspace/app/planners/common/routers"),
     ]
 
     issues = []
@@ -749,7 +763,7 @@ def test_fetch_error_handling():
                             has_error_handling = True
 
                 if not has_error_handling:
-                    rel = str(f).replace("/workspace/app_planners/", "")
+                    rel = str(f).replace("/workspace/app/planners/", "")
                     line_num = content[:content.find(block)].count('\n') + 1
                     snippet = block[:80].replace('\n', ' ').strip()
                     issues.append(f"  {rel}:{line_num}: {snippet}...")
@@ -773,9 +787,9 @@ def test_code_consistency():
 
     # Check all 3 apps have exception handlers
     for app_name, main_path in [
-        ("my", "/workspace/app_planners/my/main.py"),
-        ("jm", "/workspace/app_planners/jm/main.py"),
-        ("work", "/workspace/app_planners/work/main.py"),
+        ("my", "/workspace/app/planners/my/main.py"),
+        ("jm", "/workspace/app/planners/jm/main.py"),
+        ("work", "/workspace/app/planners/work/main.py"),
     ]:
         content = Path(main_path).read_text()
         handlers = [
@@ -792,7 +806,7 @@ def test_code_consistency():
 
     # Check Dockerfiles exist
     for app_name in ["my", "jm", "work"]:
-        dockerfile = Path(f"/workspace/app_planners/{app_name}/Dockerfile")
+        dockerfile = Path(f"/workspace/app/planners/{app_name}/Dockerfile")
         if dockerfile.exists():
             log_pass(f"{app_name}: Dockerfile exists")
         else:
@@ -800,7 +814,7 @@ def test_code_consistency():
 
     # Check fly.toml exists
     for app_name in ["my", "jm", "work"]:
-        flytoml = Path(f"/workspace/app_planners/{app_name}/fly.toml")
+        flytoml = Path(f"/workspace/app/planners/{app_name}/fly.toml")
         if flytoml.exists():
             log_pass(f"{app_name}: fly.toml exists")
         else:

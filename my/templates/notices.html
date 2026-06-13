@@ -20,7 +20,7 @@
 <details class="work-card rounded-xl p-4 mb-4">
  <summary class="flex items-center justify-between cursor-pointer select-none">
  <span class="text-sm font-semibold" style="color: var(--color-text);">새 공지 작성</span>
- <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent);">+</span>
+ <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent-text);">+</span>
  </summary>
  <form action="/notices" method="POST" class="space-y-2 mt-3">
  <label for="notice-title" class="sr-only">공지 제목</label>
@@ -53,7 +53,7 @@
  <div class="flex-1 min-w-0">
  <div class="flex items-center gap-2 mb-1 flex-wrap">
  {% if notice.pinned %}
- <span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background: var(--color-accent-soft); color: var(--color-accent);">고정</span>
+ <span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">고정</span>
  {% endif %}
  {% if notice.priority == 1 %}
  <span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background: var(--color-warning-soft); color: var(--color-warning);">중요</span>
@@ -97,6 +97,9 @@
  <div class="empty-state-icon"><span>📢</span></div>
  <p class="empty-state-title">공지사항이 없습니다</p>
  <p class="empty-state-desc">위에서 새 공지를 작성해보세요</p>
+ <div class="empty-state-actions">
+  <button type="button" data-action="scroll-to-form-input" data-form-action="/notices" data-input-name="title" class="empty-state-primary">공지 작성</button>
+ </div>
  </div>
  {% endfor %}
 </div>

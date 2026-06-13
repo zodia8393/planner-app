@@ -36,7 +36,7 @@
  </svg>
  </a>
  <a href="/worklogs"
- class="ml-1 btn-sm font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="ml-1 btn-sm font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent-text);">
  이번 주
  </a>
 </div>
@@ -60,7 +60,7 @@
  </a>
  {% if not is_today %}
  <a href="/worklogs"
- class="ml-1 btn-sm font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="ml-1 btn-sm font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent-text);">
  이번 주
  </a>
  {% endif %}
@@ -108,7 +108,7 @@
 <!-- Total hours badge -->
 {% if total_hours > 0 %}
 <div class="flex justify-center mb-4">
- <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: var(--color-accent-soft); color: var(--color-accent-text);">
  총 {{ total_hours }}시간 {% if range_mode %}({{ logs|length }}건){% endif %}
  </span>
 </div>
@@ -179,7 +179,7 @@
  </div>
  {% endfor %}
  {% if not logs_by_date %}
- <div class="empty-state">
+ <div class="empty-state worklog-empty-state">
  <div class="empty-state-icon" style="font-size: 2.5rem;">
  &#x1F4DD;
  </div>
@@ -195,7 +195,7 @@
  {% for log in logs %}
  {% include"partials/_worklog_card.html" %}
  {% else %}
- <div class="empty-state">
+ <div class="empty-state worklog-empty-state">
  <div class="empty-state-icon" style="font-size: 2.5rem;">
  &#x1F4DD;
  </div>

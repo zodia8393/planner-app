@@ -4,7 +4,7 @@ CRUD integration tests for all 3 planner apps.
 Covers: todo, memo, worklog, notice, event — full create/read/update/delete cycles.
 Each app uses an isolated temporary DB (shared via conftest.py).
 
-Run:  cd /workspace/app_planners && python3 -m pytest tests/crud_test.py -v
+Run:  cd /workspace/app/planners && python3 -m pytest tests/crud_test.py -v
 """
 
 import httpx
@@ -359,8 +359,8 @@ class TestWorklogCRUD:
         }, headers=ORIGIN, follow_redirects=False)
         assert r.status_code in (200, 303)
 
-        # Read list
-        r = await c.get("/worklogs")
+        # Read the dated list where the created worklog is shown.
+        r = await c.get(r.headers.get("location") or "/worklogs?date=2026-05-19")
         assert r.status_code == 200
 
         # Find worklog ID

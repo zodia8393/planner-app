@@ -56,6 +56,28 @@
   }, 300);
  });
 
+ document.body.addEventListener('htmx:afterSwap', function(evt){
+  const target = evt.detail && evt.detail.target;
+  if(!target || !target.querySelector) return;
+ let feedback = target.matches && target.matches('[data-todo-save-feedback]')
+  ? target
+  : target.querySelector('[data-todo-save-feedback]');
+ if(!feedback && target.id){
+  const swappedTarget = document.getElementById(target.id);
+  if(swappedTarget){
+   feedback = swappedTarget.matches && swappedTarget.matches('[data-todo-save-feedback]')
+    ? swappedTarget
+    : swappedTarget.querySelector('[data-todo-save-feedback]');
+  }
+ }
+ if(!feedback){
+  feedback = document.querySelector('[data-todo-save-feedback]');
+ }
+ if(!feedback) return;
+  feedback.scrollIntoView({block: 'nearest'});
+  feedback.focus({preventScroll: true});
+ });
+
  // Particle burst effect
  function spawnParticles(x, y, count){
   const colors = ['#f59e0b','#ef4444','#10b981','#6366f1','#ec4899','#8b5cf6'];
@@ -126,8 +148,22 @@
   }, 4000);
  }
 
+ function openMemoForm() {
+  const memoDetails = Array.from(document.querySelectorAll('details')).find(function(details) {
+   return details.querySelector('form[action="/memos"]');
+  });
+  if (memoDetails) memoDetails.open = true;
+  const memoInput = document.getElementById('memo-content');
+  if (memoInput) {
+   memoInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+   setTimeout(function(){ memoInput.focus(); }, 120);
+  }
+ }
+ window.openMemoForm = openMemoForm;
+
  /* ══ Event Delegation Handler (click) ══ */
  document.addEventListener('click', function(e) {
+  if (!e.target || !e.target.closest) return;
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.getAttribute('data-action');
@@ -142,6 +178,7 @@
    case 'cmd-start-focus': cmdStartFocus(parseInt(el.getAttribute('data-minutes'))||25); break;
    case 'toggle-dark-mode-and-cmd': toggleDarkMode(); toggleCommandPalette(); break;
    case 'toggle-dark-mode-and-more': toggleDarkMode(); toggleMoreMenu(); break;
+   case 'modal-content': e.stopPropagation(); break;
    case 'focus-start': _focusStart(parseInt(el.getAttribute('data-minutes'))||25); break;
    case 'focus-start-custom':
     _focusStart(parseInt(document.getElementById('focusCustomMin').value)||25); break;
@@ -173,6 +210,12 @@
    case 'add-new-todo-offset': addNewTodoOffset(); break;
    case 'toggle-dark-mode-settings': toggleDarkMode(); break;
    case 'set-accent-color': setAccentColor(el.getAttribute('data-color')); break;
+   case 'set-appearance-theme':
+    if (typeof setAppearanceTheme === 'function') setAppearanceTheme(el.getAttribute('data-theme'), el.getAttribute('data-preferred-sidebar'));
+    break;
+   case 'set-sidebar-style':
+    if (typeof setSidebarStyle === 'function') setSidebarStyle(el.getAttribute('data-sidebar-style'));
+    break;
    case 'set-font-size': setFontSize(el.getAttribute('data-size')); break;
    case 'add-offset': addOffset(el.getAttribute('data-offset-type')); break;
    case 'request-notif-permission': requestNotifPermission(); break;
@@ -182,6 +225,9 @@
    /* -- onclick->data-action (calendar) -- */
    case 'open-event-modal':
     if (typeof openEventModal === 'function') openEventModal(el.getAttribute('data-date'));
+    break;
+   case 'open-memo-form':
+    openMemoForm();
     break;
    case 'edit-event':
     e.stopPropagation();
@@ -367,8 +413,20 @@
   }
  });
 
+ document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  if (!e.target || !e.target.closest) return;
+  const el = e.target.closest('[data-action][role="button"], [data-action][tabindex]');
+  if (!el) return;
+  const tag = el.tagName.toLowerCase();
+  if (['a', 'button', 'input', 'select', 'textarea', 'summary'].includes(tag)) return;
+  e.preventDefault();
+  el.click();
+ });
+
  /* ══ Event Delegation Handler (change) ══ */
  document.addEventListener('change', function(e) {
+  if (!e.target || !e.target.closest) return;
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.getAttribute('data-action');

@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from common.constants import PRIORITY_MAP, REPEAT_MAP, RRULE_FREQ_OPTIONS, RRULE_DAY_OPTIONS
 from common.nlp_date import extract_date_from_text
 from common.recurrence import next_occurrence, build_rrule, parse_rrule, rrule_to_korean
-from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str
+from common.utils import clamp_text, clamp_priority, fix_mojibake, validate_date_str, safe_int
 from common.filters import parse_tags
 
 router = APIRouter()
@@ -15,10 +15,11 @@ router = APIRouter()
 
 @router.get("/todos", response_class=HTMLResponse)
 async def todos_page(request: Request, filter: str = "all",
-                     category_id: int = None, assignee: str = None,
+                     category_id: str = None, assignee: str = None,
                      energy: int = None, tag: str = None):
     S = request.app.state
     pid = S.get_profile_id(request)
+    cat_id_int = safe_int(category_id)
     with S.get_db() as conn:
         today_str = date.today().isoformat()
         where = "1=1"
@@ -35,9 +36,9 @@ async def todos_page(request: Request, filter: str = "all",
         where += " AND t.profile_id = ?"
         params.append(pid)
 
-        if category_id:
+        if cat_id_int:
             where += " AND t.category_id = ?"
-            params.append(category_id)
+            params.append(cat_id_int)
 
         if assignee:
             where += " AND t.assignee = ?"
@@ -209,7 +210,7 @@ async def create_todo(request: Request,
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
     if not title:
-        return S.redirect(request, "/todos")
+        return HTMLResponse("할일 제목을 입력해주세요.", status_code=400)
     description = clamp_text(fix_mojibake(description), 2000)
     assignee = clamp_text(fix_mojibake(assignee), 100)
     priority = clamp_priority(priority)
@@ -238,7 +239,7 @@ async def create_todo(request: Request,
             repeat_type = "none"
 
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
 
     with S.get_db() as conn:
         max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
@@ -321,13 +322,17 @@ def _enrich_todo_rrule(td: dict) -> dict:
 async def edit_todo_form(request: Request, todo_id: int):
     S = request.app.state
     pid = S.get_profile_id(request)
+    return _render_todo_edit_form(S, request, todo_id, pid)
+
+
+def _render_todo_edit_form(S, request: Request, todo_id: int, pid: int, todo_edit_error: str = ""):
     with S.get_db() as conn:
         todo = conn.execute("SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not todo:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="할일을 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
     td = _enrich_todo_rrule(dict(todo))
-    return S.render(request, "partials/todo_edit_form.html", {
+    response = S.render(request, "partials/todo_edit_form.html", {
         "todo": td,
         "categories": [dict(c) for c in categories],
         "priority_map": PRIORITY_MAP,
@@ -335,7 +340,11 @@ async def edit_todo_form(request: Request, todo_id: int):
         "rrule_freq_options": RRULE_FREQ_OPTIONS,
         "rrule_day_options": RRULE_DAY_OPTIONS,
         "rrule_to_korean": rrule_to_korean,
+        "todo_edit_error": todo_edit_error,
     })
+    if todo_edit_error:
+        return HTMLResponse(response.body, status_code=400)
+    return response
 
 
 @router.put("/todos/{todo_id}", response_class=HTMLResponse)
@@ -360,7 +369,11 @@ async def update_todo(request: Request, todo_id: int,
                       reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
-    title = clamp_text(fix_mojibake(title), 200)
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    if not title:
+        if request.headers.get("HX-Request"):
+            return _render_todo_edit_form(S, request, todo_id, pid, "제목을 입력해야 저장할 수 있습니다.")
+        raise HTTPException(status_code=400, detail="제목은 필수입니다")
     description = clamp_text(fix_mojibake(description), 2000)
     assignee = clamp_text(fix_mojibake(assignee), 100)
     priority = clamp_priority(priority)
@@ -382,7 +395,7 @@ async def update_todo(request: Request, todo_id: int,
             repeat_type = "none"
 
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
 
     with S.get_db() as conn:
         old = conn.execute("SELECT title, description, due_date, priority FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
@@ -404,6 +417,28 @@ async def update_todo(request: Request, todo_id: int,
         S.audit_log(conn, "todo", todo_id, "update", changes, str(pid))
 
     S.event_bus.emit("todo", {"action": "updated", "id": todo_id, "title": title})
+    if request.headers.get("HX-Request"):
+        with S.get_db() as conn:
+            updated = conn.execute(
+                "SELECT t.*, c.name as category_name, c.color as category_color "
+                "FROM todos t LEFT JOIN categories c ON t.category_id=c.id "
+                "WHERE t.id=? AND t.profile_id=?",
+                (todo_id, pid),
+            ).fetchone()
+            if updated:
+                td = dict(updated)
+                td["subtasks"] = [dict(s) for s in conn.execute(
+                    "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)
+                ).fetchall()]
+                return S.render(request, "partials/todo_item.html", {
+                    "todo": td,
+                    "priority_map": PRIORITY_MAP,
+                    "repeat_map": REPEAT_MAP,
+                    "rrule_to_korean": rrule_to_korean,
+                    "today": date.today(),
+                    "status_message": "변경사항이 저장되었습니다.",
+                })
+        return HTMLResponse("")
     return S.redirect(request, "/todos")
 
 

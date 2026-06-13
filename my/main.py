@@ -97,7 +97,7 @@ async def lifespan(app):
 app = FastAPI(title="MY PLANNER", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
-OPEN_PATHS = {"/setup", "/health", "/sse", "/static", "/cal", "/settings/gcal/callback", "/auth/google/login", "/auth/google/callback", "/privacy", "/.well-known"}
+OPEN_PATHS = {"/setup", "/health", "/sse", "/sw.js", "/static", "/cal", "/settings/gcal/callback", "/auth/google/login", "/auth/google/callback", "/privacy", "/.well-known"}
 
 
 class ProfileCheckMiddleware(BaseHTTPMiddleware):
@@ -233,7 +233,15 @@ def get_bg_setting(profile_id: int) -> dict:
                 (profile_id,),
             ).fetchone()
             if row and row["value"]:
-                return json.loads(row["value"])
+                setting = json.loads(row["value"])
+                image = str(setting.get("image", "") or "")
+                if image and not image.startswith("/backgrounds/"):
+                    filename = Path(image).name
+                    image = f"/backgrounds/{filename}" if filename and (BG_DIR / filename).exists() else ""
+                    setting["image"] = image
+                if setting.get("type") == "upload" and not setting.get("image"):
+                    setting["type"] = "none"
+                return setting
     except Exception:
         pass
     return default
@@ -1102,7 +1110,7 @@ def redirect(request: Request, url: str):
 
 
 # ── Include common routers ──
-from common.routers import memos as _r_memos
+from common.routers import memos as _r_memos, notices as _r_notices
 from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos
 from common.routers import settings as _r_settings, misc as _r_misc
@@ -1146,6 +1154,7 @@ app.state.auth_cookie_max_age = 365 * 24 * 3600
 app.state.ensure_default_categories = ensure_default_categories
 
 app.include_router(_r_memos.router)
+app.include_router(_r_notices.router)
 app.include_router(_r_worklogs.router)
 app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
@@ -1531,6 +1540,23 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
 
         insights = get_productivity_insights(conn, pid)
 
+        onboarding_row = conn.execute(
+            """
+            SELECT step1_done, step2_done, step3_done, step4_done, dismissed
+            FROM onboarding_progress
+            WHERE profile_id=?
+            """,
+            (pid,),
+        ).fetchone()
+        onboarding_steps = {
+            1: bool(onboarding_row and onboarding_row["step1_done"]),
+            2: bool(onboarding_row and onboarding_row["step2_done"]),
+            3: bool(onboarding_row and onboarding_row["step3_done"]),
+            4: bool(onboarding_row and onboarding_row["step4_done"]),
+        }
+        onboarding_done_count = sum(1 for done in onboarding_steps.values() if done)
+        onboarding_dismissed = bool(onboarding_row and onboarding_row["dismissed"])
+
     return render(request, "dashboard.html", {
         "page": "dashboard",
         "stats": stats,
@@ -1555,6 +1581,9 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "earned_count": earned_count,
         "total_achievements": len(ACHIEVEMENT_DEFS),
         "insights": insights,
+        "onboarding_steps": onboarding_steps,
+        "onboarding_done_count": onboarding_done_count,
+        "onboarding_dismissed": onboarding_dismissed,
         **plan_data,
     })
 

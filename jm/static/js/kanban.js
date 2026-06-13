@@ -5,6 +5,7 @@
 
  // Event delegation for drag events
  board.addEventListener('dragstart', function(e) {
+ if (!e.target || !e.target.closest) return;
  var card = e.target.closest('[data-todo-id]');
  if (!card) return;
  _draggedId = card.dataset.todoId;
@@ -14,6 +15,7 @@
  });
 
  board.addEventListener('dragend', function(e) {
+ if (!e.target || !e.target.closest) return;
  var card = e.target.closest('[data-todo-id]');
  if (card) card.style.opacity = '1';
  board.querySelectorAll('.kanban-drop-zone').forEach(function(z) {
@@ -24,6 +26,7 @@
  });
 
  board.addEventListener('dragover', function(e) {
+ if (!e.target || !e.target.closest) return;
  var zone = e.target.closest('.kanban-drop-zone');
  if (!zone) return;
  e.preventDefault();
@@ -33,6 +36,7 @@
  });
 
  board.addEventListener('dragleave', function(e) {
+ if (!e.target || !e.target.closest) return;
  var zone = e.target.closest('.kanban-drop-zone');
  if (zone && !zone.contains(e.relatedTarget)) {
   zone.classList.remove('kanban-drop-active');
@@ -42,6 +46,7 @@
 
  board.addEventListener('drop', function(e) {
  e.preventDefault();
+ if (!e.target || !e.target.closest) return;
  var zone = e.target.closest('.kanban-drop-zone');
  if (!zone || !_draggedId) return;
  var column = zone.dataset.column;

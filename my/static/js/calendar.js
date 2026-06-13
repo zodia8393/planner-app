@@ -3,9 +3,27 @@ function toggleEventRrule() {
  var endPanel = document.getElementById('eventRecurrenceEnd');
  if (sel.value && sel.value !== '') { endPanel.classList.remove('hidden'); } else { endPanel.classList.add('hidden'); }
 }
+function todayIso() {
+ var d = new Date();
+ var y = d.getFullYear();
+ var m = String(d.getMonth() + 1).padStart(2, '0');
+ var day = String(d.getDate()).padStart(2, '0');
+ return y + '-' + m + '-' + day;
+}
 function openEventModal(dateStr) {
- document.getElementById('eventModal').classList.remove('hidden');
- document.getElementById('eventStartTime').value = dateStr + 'T09:00';
+ var modal = document.getElementById('eventModal');
+ if (!modal) return;
+ var dateValue = dateStr || todayIso();
+ modal.classList.remove('hidden');
+ var startInput = document.getElementById('eventStartTime');
+ if (startInput) startInput.value = dateValue + 'T09:00';
+ requestAnimationFrame(function() {
+  var titleInput = document.getElementById('event-title');
+  if (titleInput) {
+   titleInput.scrollIntoView({block: 'center'});
+   titleInput.focus();
+  }
+ });
 }
 function closeEventModal() {
  document.getElementById('eventModal').classList.add('hidden');
@@ -28,7 +46,7 @@ function editGcalEvent(gcalId) {
   htmx.process(container);
  }).catch(function(){});
 }
-if (location.hash === '#new') { var ti = document.querySelector('input[name="title"]'); if (ti) { ti.scrollIntoView({block:'center'}); ti.focus(); } history.replaceState(null, '', location.pathname + location.search); }
+if (location.hash === '#new') { openEventModal(todayIso()); history.replaceState(null, '', location.pathname + location.search); }
 
 // --- New Event Reminder Offsets ---
 (function(){

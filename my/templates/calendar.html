@@ -60,7 +60,7 @@
  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
  </svg>
  </a>
- <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid var(--color-accent-soft);">
+ <a href="/calendar?view=year" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid var(--color-accent-soft);">
  올해
  </a>
  {% else %}
@@ -75,11 +75,24 @@
  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
  </svg>
  </a>
- <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid var(--color-accent-soft);">
+ <a href="/calendar?view={{ cal_view }}" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid var(--color-accent-soft);">
  오늘
  </a>
  {% endif %}
 </div>
+
+{% if cal_view != 'year' and not events_by_date and not todos_by_date %}
+<div id="calendar-empty-cta" class="work-card rounded-xl mb-4 calendar-empty-cta">
+ <div>
+  <p class="empty-state-title">이 기간에 등록된 일정이 없습니다</p>
+  <p class="empty-state-desc">오늘 일정이나 마감 할일을 바로 추가해 흐름을 잡아보세요</p>
+ </div>
+ <div class="empty-state-actions">
+  <button type="button" data-action="open-event-modal" data-date="{{ today_str }}" class="empty-state-primary">오늘 일정 추가</button>
+  <a href="/todos#new" class="empty-state-secondary">할일 추가</a>
+ </div>
+</div>
+{% endif %}
 
 <section aria-label="캘린더">
 {% if cal_view == 'year' %}
@@ -142,6 +155,7 @@
  {% set day_events = wd.events %}
  {% set day_todos = wd.todos %}
  <div class="border-b p-3" style="{% if wd.is_today %}background: var(--color-accent-soft);{% endif %}"
+ role="button" tabindex="0" aria-label="{{ wd.date_str }} 일정 추가"
  data-action="open-event-modal" data-date="{{ wd.date_str }}">
  <div class="flex items-center gap-3 mb-2">
  <div class="flex items-center gap-2 min-w-[80px]">
@@ -150,12 +164,13 @@
  {% elif wd.date.weekday() == 6 %}text-red-400
  {% elif wd.date.weekday() == 5 %}text-blue-400
  {% else %}{% endif %}">{{ wd.date.day }}</span>
- <span class="text-xs font-medium" {% if wd.is_today %}style="color: var(--color-accent);"{% endif %}>{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
+ <span class="text-xs font-medium" {% if wd.is_today %}style="color: var(--color-accent-text);"{% endif %}>{{ ['월','화','수','목','금','토','일'][wd.date.weekday()] }}</span>
  </div>
  <div class="flex-1 flex flex-wrap gap-2">
  {% for ev in day_events %}
  <div class="text-xs truncate px-2 py-1 rounded cursor-pointer hover:opacity-80 max-w-[200px]"
- style="background: {{ ev.color }}20; color: {{ ev.color }}"
+ style="background: color-mix(in srgb, {{ ev.color }} 12%, var(--color-surface)); color: var(--color-text); border-left: 3px solid {{ ev.color }};"
+ role="button" tabindex="0" aria-label="일정 편집: {{ ev.title }}"
  {% if ev.get('is_gcal') %}data-action="edit-gcal-event" data-gcal-id="{{ ev.id }}"
  {% else %}data-action="edit-event" data-event-id="{{ ev.id }}"{% endif %}>
  {% if ev.get('is_gcal') %}<span class="opacity-60">G</span> {% endif %}
@@ -164,7 +179,7 @@
  {% endfor %}
  {% for todo in day_todos %}
  <div class="flex items-center gap-1 px-2 py-1 rounded">
- <button data-action="toggle-cal-todo" data-todo-id="{{ todo.id }}" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
+ <button data-action="toggle-cal-todo" data-todo-id="{{ todo.id }}" aria-label="할일 완료 토글: {{ todo.title }}" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
  style="{% if todo.completed %}background: var(--color-success); border-color: var(--color-success);{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -210,6 +225,7 @@
  {% set holiday_name = holidays_by_date.get(day_str) %}
  <div class="cal-cell cal-cell-active border-b border-r p-1 lg:p-2 relative"
  style="{% if is_today %}background: var(--color-accent-soft);{% endif %}"
+ role="button" tabindex="0" aria-label="{{ day_str }} 일정 추가"
  data-action="open-event-modal" data-date="{{ day_str }}">
  <div class="flex items-center justify-between mb-1">
  <span class="text-xs lg:text-sm font-semibold
@@ -224,7 +240,8 @@
  {% for ev in day_events %}
  {% if ns.shown < 4 %}
  <div class="text-xs truncate px-1 py-0.5 rounded mb-0.5 cursor-pointer hover:opacity-80"
- style="background: {{ ev.color }}20; color: {{ ev.color }}"
+ style="background: color-mix(in srgb, {{ ev.color }} 12%, var(--color-surface)); color: var(--color-text); border-left: 3px solid {{ ev.color }};"
+ role="button" tabindex="0" aria-label="일정 편집: {{ ev.title }}"
  {% if ev.get('is_gcal') %}data-action="edit-gcal-event" data-gcal-id="{{ ev.id }}"
  title="Google: {{ ev.title }}{% if ev.get('location') %} ({{ ev.location }}){% endif %}"
  {% else %}data-action="edit-event" data-event-id="{{ ev.id }}"{% endif %}>
@@ -236,7 +253,7 @@
  {% for todo in day_todos %}
  {% if ns.shown < 4 %}
  <div class="flex items-center gap-1 px-1 mb-0.5">
- <button data-action="toggle-cal-todo" data-todo-id="{{ todo.id }}" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
+ <button data-action="toggle-cal-todo" data-todo-id="{{ todo.id }}" aria-label="할일 완료 토글: {{ todo.title }}" class="w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center"
  style="{% if todo.completed %}background: var(--color-success); border-color: var(--color-success);{% endif %}">
  {% if todo.completed %}
  <svg class="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">

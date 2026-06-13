@@ -1,29 +1,29 @@
-<div id="onboardingChecklist" class="work-card rounded-xl p-4 mb-4"
- style="display:none;">
-<script>if(!localStorage.getItem('onboarding_done'))document.getElementById('onboardingChecklist').style.display='';</script>
+{% set onboarding_steps = onboarding_steps|default({}) %}
+{% set onboarding_done_count = onboarding_done_count|default(0)|int %}
+{% set onboarding_dismissed = onboarding_dismissed|default(false) %}
+{% set guide_steps = [
+ (1, '할 일 추가하기', '첫 번째 할 일을 만들어보세요'),
+ (2, '일정 등록하기', '캘린더에 일정을 추가해보세요'),
+ (3, '집중 모드 사용', '포모도로 타이머로 집중해보세요'),
+ (4, '양식 살펴보기', '13종 업무 양식을 확인해보세요')
+] %}
+<div id="onboardingChecklist" class="work-card rounded-xl p-4 mb-4"{% if onboarding_dismissed %} style="display:none;"{% endif %}>
  <div class="flex items-center justify-between mb-3">
  <h3 class="text-sm font-bold" style="color: var(--color-text);">시작 가이드</h3>
  <button data-action="dismiss-onboarding" class="text-xs" style="color: var(--color-text-faint);">닫기</button>
  </div>
  <div class="h-2 rounded-full overflow-hidden mb-3" style="background: var(--color-border);">
- <div id="onboardingProgress" class="h-full rounded-full transition-all" style="width: 0%; background: var(--color-accent);"></div>
+ <div id="onboardingProgress" class="h-full rounded-full transition-all" style="width: {{ [onboarding_done_count * 25, 100]|min }}%; background: var(--color-accent);"></div>
  </div>
  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
- <div id="ob-step1" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="1">
- <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
- <div><p class="text-sm font-medium" style="color: var(--color-text);">할 일 추가하기</p><p class="text-xs" style="color: var(--color-text-faint);">첫 번째 할 일을 만들어보세요</p></div>
+ {% for step, title, description in guide_steps %}
+ {% set done = onboarding_steps.get(step) %}
+ <div id="ob-step{{ step }}" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors"{% if done %} data-complete="true" style="background: var(--color-border-subtle); opacity: 0.6;"{% else %} style="background: var(--color-border-subtle);"{% endif %} role="button" tabindex="0" aria-label="{{ title }} 단계 확인" data-action="onboarding-step" data-step="{{ step }}">
+ <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="{% if done %}background: var(--color-accent); border-color: var(--color-accent);{% else %}border-color: var(--color-border);{% endif %}">
+ {% if done %}<svg class="w-3 h-3" style="color:var(--color-text-inverse, #fff)" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>{% endif %}
  </div>
- <div id="ob-step2" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="2">
- <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
- <div><p class="text-sm font-medium" style="color: var(--color-text);">일정 등록하기</p><p class="text-xs" style="color: var(--color-text-faint);">캘린더에 일정을 추가해보세요</p></div>
+ <div><p class="text-sm font-medium" style="color: var(--color-text);">{{ title }}</p><p class="text-xs" style="color: var(--color-text-faint);">{{ description }}</p></div>
  </div>
- <div id="ob-step3" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="3">
- <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
- <div><p class="text-sm font-medium" style="color: var(--color-text);">집중 모드 사용</p><p class="text-xs" style="color: var(--color-text-faint);">포모도로 타이머로 집중해보세요</p></div>
- </div>
- <div id="ob-step4" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors" style="background: var(--color-border-subtle);" data-action="onboarding-step" data-step="4">
- <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ob-check" style="border-color: var(--color-border);"></div>
- <div><p class="text-sm font-medium" style="color: var(--color-text);">양식 살펴보기</p><p class="text-xs" style="color: var(--color-text-faint);">13종 업무 양식을 확인해보세요</p></div>
- </div>
+ {% endfor %}
  </div>
 </div>

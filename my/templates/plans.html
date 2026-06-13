@@ -46,6 +46,7 @@
 <!-- Navigation -->
 <div class="flex items-center justify-center gap-3 mb-5">
  <a href="/plans?view={{ view }}&offset={{ offset - 1 }}"
+ aria-label="이전 {{ '월간' if view == 'month' else '주간' }} 플랜"
  class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -53,6 +54,7 @@
  </a>
  <h3 class="text-base font-bold text-center min-w-[200px]" style="color: var(--color-text);">{{ nav_label }}</h3>
  <a href="/plans?view={{ view }}&offset={{ offset + 1 }}"
+ aria-label="다음 {{ '월간' if view == 'month' else '주간' }} 플랜"
  class="p-2.5 rounded-xl transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
  <svg class="w-5 h-5" style="color: var(--color-text);" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -60,7 +62,7 @@
  </a>
  {% if offset != 0 %}
  <a href="/plans?view={{ view }}&offset=0"
- class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">
+ class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent-text);">
  {{ reset_label }}
  </a>
  {% endif %}

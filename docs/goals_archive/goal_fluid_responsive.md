@@ -1,7 +1,7 @@
 # /goal 유동 반응형 UI — 고정 px 제거, 모든 화면 크기 대응
 
 ## 대상
-/workspace/app_planners/ — My Planner (my/) base.html `<style>` 블록 리팩터링, 완료 후 JM·Work 동기화
+/workspace/app/planners/ — My Planner (my/) base.html `<style>` 블록 리팩터링, 완료 후 JM·Work 동기화
 
 ## 문제
 현재 모바일 CSS가 고정 breakpoint(640/480/380px)에 고정 px 값(44px, 52px, 13px 등)을 하드코딩.

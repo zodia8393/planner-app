@@ -156,11 +156,39 @@
 
 /* ── Accent color & font size ── */
 (function initAccentFont() {
+ function applyStoredAppearance() {
+  if (typeof window.applyAppearancePreferences === 'function') {
+   window.applyAppearancePreferences();
+   return;
+  }
+  document.body.dataset.accent = localStorage.getItem('accent_color') || 'amber';
+  document.body.dataset.uiTheme = localStorage.getItem('appearance_theme') || 'classic';
+  document.body.dataset.sidebarStyle = localStorage.getItem('sidebar_style') || 'standard';
+ }
+
  window.setAccentColor = function(color) {
   localStorage.setItem('accent_color', color);
-  document.body.dataset.accent = color;
+  applyStoredAppearance();
   updateAccentUI();
   if (typeof showToast === 'function') showToast('액센트 색상이 변경되었습니다', 'success');
+ };
+
+ window.setAppearanceTheme = function(theme, preferredSidebar) {
+  if (!theme) return;
+  localStorage.setItem('appearance_theme', theme);
+  if (preferredSidebar) localStorage.setItem('sidebar_style', preferredSidebar);
+  applyStoredAppearance();
+  updateAppearanceThemeUI();
+  updateSidebarStyleUI();
+  if (typeof showToast === 'function') showToast('화면 분위기가 변경되었습니다', 'success');
+ };
+
+ window.setSidebarStyle = function(style) {
+  if (!style) return;
+  localStorage.setItem('sidebar_style', style);
+  applyStoredAppearance();
+  updateSidebarStyleUI();
+  if (typeof showToast === 'function') showToast('사이드탭 스타일이 변경되었습니다', 'success');
  };
 
  window.setFontSize = function(size) {
@@ -200,7 +228,24 @@
   });
  }
 
- updateAccentUI();
+ function updateAppearanceThemeUI() {
+  var current = localStorage.getItem('appearance_theme') || 'classic';
+  document.querySelectorAll('#appearanceThemePicker button').forEach(function(btn) {
+   btn.setAttribute('aria-pressed', btn.dataset.theme === current ? 'true' : 'false');
+  });
+ }
+
+ function updateSidebarStyleUI() {
+  var current = localStorage.getItem('sidebar_style') || 'standard';
+  document.querySelectorAll('#sidebarStylePicker button').forEach(function(btn) {
+   btn.setAttribute('aria-pressed', btn.dataset.sidebarStyle === current ? 'true' : 'false');
+  });
+ }
+
+ applyStoredAppearance();
+  updateAccentUI();
+ updateAppearanceThemeUI();
+ updateSidebarStyleUI();
  updateFontSizeUI();
 })();
 

@@ -5,10 +5,11 @@ Uses httpx.AsyncClient + ASGITransport to test each FastAPI app
 without starting a real server. Each app runs against an isolated
 temporary DB so production data is never touched.
 
-Run:  cd /workspace/app_planners && python3 -m pytest tests/smoke_test.py -v
+Run:  cd /workspace/app/planners && python3 -m pytest tests/smoke_test.py -v
 """
 
 import asyncio
+from uuid import uuid4
 
 import httpx
 import pytest
@@ -16,6 +17,47 @@ import pytest
 from conftest import jm_app, my_app, work_app
 
 # Fixtures jm, my, work are provided by conftest.py
+
+
+ORIGIN = {"origin": "http://test", "host": "test"}
+NON_CORE_HTML_ROUTES = [
+    "/calendar",
+    "/today",
+    "/memos",
+    "/worklogs",
+    "/habits",
+    "/timetable",
+    "/ddays",
+    "/links",
+    "/achievements",
+    "/stats",
+    "/review",
+    "/search",
+    "/settings",
+    "/todo-templates",
+    "/automations",
+    "/categories",
+]
+
+
+def assert_common_base_layout(html: str, route: str) -> None:
+    assert "<!DOCTYPE html>" in html, route
+    assert '<aside id="sidebar"' in html, route
+    assert 'role="navigation"' in html, route
+    assert 'role="banner"' in html, route
+    assert '<main class="flex-1 overflow-y-auto lg:ml-0" role="main" hx-history-elt>' in html, route
+    assert 'id="mainContent"' in html, route
+    assert 'id="mobileTabBar"' in html, route
+
+
+async def setup_my_profile(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/setup",
+        data={"name": f"Smoke{uuid4().hex[:8]}"},
+        headers=ORIGIN,
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -43,6 +85,14 @@ class TestJM:
         assert r.status_code == 200
         assert "text/javascript" in r.headers.get("content-type", "") or \
                "application/javascript" in r.headers.get("content-type", "")
+
+    @pytest.mark.asyncio
+    async def test_service_worker_is_public_and_not_browser_cached(self, jm: httpx.AsyncClient):
+        r = await jm.get("/sw.js")
+        assert r.status_code == 200
+        assert "application/javascript" in r.headers.get("content-type", "")
+        assert r.headers.get("cache-control") == "no-store"
+        assert "CLEAR_CACHE" in r.text
 
     @pytest.mark.asyncio
     async def test_sse_streaming(self, jm: httpx.AsyncClient):
@@ -86,6 +136,13 @@ class TestJM:
         r = await jm.get("/todos")
         assert r.status_code == 200
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("route", NON_CORE_HTML_ROUTES)
+    async def test_non_core_routes_render_common_base_layout(self, jm: httpx.AsyncClient, route: str):
+        r = await jm.get(route)
+        assert r.status_code == 200, route
+        assert_common_base_layout(r.text, route)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # My Planner — ProfileCheckMiddleware: no cookie → redirect to /setup
@@ -112,6 +169,14 @@ class TestMy:
     async def test_static_htmx(self, my: httpx.AsyncClient):
         r = await my.get("/static/htmx.min.js")
         assert r.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_service_worker_is_public_and_not_browser_cached(self, my: httpx.AsyncClient):
+        r = await my.get("/sw.js", follow_redirects=False)
+        assert r.status_code == 200
+        assert "application/javascript" in r.headers.get("content-type", "")
+        assert r.headers.get("cache-control") == "no-store"
+        assert "CLEAR_CACHE" in r.text
 
     @pytest.mark.asyncio
     async def test_sse_streaming(self, my: httpx.AsyncClient):
@@ -199,6 +264,14 @@ class TestMy:
         ) as authed:
             r2 = await authed.get("/todos/99999/edit")
             assert r2.status_code == 404
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("route", NON_CORE_HTML_ROUTES)
+    async def test_non_core_routes_render_common_base_layout(self, my: httpx.AsyncClient, route: str):
+        await setup_my_profile(my)
+        r = await my.get(route)
+        assert r.status_code == 200, route
+        assert_common_base_layout(r.text, route)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

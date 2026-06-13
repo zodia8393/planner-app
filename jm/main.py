@@ -159,6 +159,19 @@ app.mount("/worklog-images", StaticFiles(directory=str(WORKLOG_IMG_DIR)), name="
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
+def normalize_bg_image_path(image: str) -> str:
+    """Map legacy stored background paths to the mounted /backgrounds route."""
+    if not image:
+        return ""
+    image = str(image)
+    if image.startswith("/backgrounds/"):
+        return image
+    filename = Path(image).name
+    if filename and (BG_DIR / filename).exists():
+        return f"/backgrounds/{filename}"
+    return ""
+
+
 def render(request: Request, name: str, context: dict = None):
     """TemplateResponse wrapper that injects the single profile."""
     ctx = context or {}
@@ -179,12 +192,15 @@ def render(request: Request, name: str, context: dict = None):
                 "SELECT key, value FROM user_settings WHERE profile_id='1' AND key IN ('bg_type','bg_preset','bg_image','bg_opacity')"
             ).fetchall()
             bg = {r["key"]: r["value"] for r in bg_rows}
+            bg_image = normalize_bg_image_path(bg.get("bg_image", ""))
             ctx["bg_setting"] = {
                 "type": bg.get("bg_type", "none"),
                 "preset": bg.get("bg_preset", ""),
-                "image": bg.get("bg_image", ""),
+                "image": bg_image,
                 "opacity": float(bg.get("bg_opacity", "0.7")),
             }
+            if ctx["bg_setting"]["type"] == "upload" and not bg_image:
+                ctx["bg_setting"]["type"] = "none"
     except Exception:
         ctx["active_profile"] = {"id": 1, "name": "정미", "emoji": "💼", "role": ""}
         ctx["active_profile_id"] = 1
@@ -1131,7 +1147,7 @@ def _run_automation_rules(conn, pid, today_str):
 
 
 # ── Include common routers ──
-from common.routers import memos as _r_memos
+from common.routers import memos as _r_memos, notices as _r_notices
 from common.routers import worklogs as _r_worklogs, events as _r_events
 from common.routers import todos as _r_todos
 from common.routers import settings as _r_settings, misc as _r_misc
@@ -1178,6 +1194,7 @@ app.state.auth_cookie_name = "jm_profile"
 app.state.auth_cookie_max_age = 365 * 24 * 3600
 
 app.include_router(_r_memos.router)
+app.include_router(_r_notices.router)
 app.include_router(_r_worklogs.router)
 app.include_router(_r_events.router)
 app.include_router(_r_todos.router)
@@ -1506,6 +1523,23 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         # Smart insights
         insights = get_productivity_insights(conn, pid)
 
+        onboarding_row = conn.execute(
+            """
+            SELECT step1_done, step2_done, step3_done, step4_done, dismissed
+            FROM onboarding_progress
+            WHERE profile_id=?
+            """,
+            (pid,),
+        ).fetchone()
+        onboarding_steps = {
+            1: bool(onboarding_row and onboarding_row["step1_done"]),
+            2: bool(onboarding_row and onboarding_row["step2_done"]),
+            3: bool(onboarding_row and onboarding_row["step3_done"]),
+            4: bool(onboarding_row and onboarding_row["step4_done"]),
+        }
+        onboarding_done_count = sum(1 for done in onboarding_steps.values() if done)
+        onboarding_dismissed = bool(onboarding_row and onboarding_row["dismissed"])
+
     return render(request, "dashboard.html", {
         "page": "dashboard",
         "stats": stats,
@@ -1530,6 +1564,9 @@ async def dashboard(request: Request, plan_view: str = "week", plan_offset: int 
         "earned_count": earned_count,
         "total_achievements": len(ACHIEVEMENT_DEFS),
         "insights": insights,
+        "onboarding_steps": onboarding_steps,
+        "onboarding_done_count": onboarding_done_count,
+        "onboarding_dismissed": onboarding_dismissed,
         **plan_data,
     })
 

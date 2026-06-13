@@ -400,13 +400,13 @@ async def service_worker(request: Request):
         return Response(
             content=sw_path.read_text(),
             media_type="application/javascript",
-            headers={"Service-Worker-Allowed": "/"},
+            headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-store"},
         )
     # Minimal no-op service worker
     return Response(
         content="// No-op service worker\nself.addEventListener('fetch', () => {});",
         media_type="application/javascript",
-        headers={"Service-Worker-Allowed": "/"},
+        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-store"},
     )
 
 

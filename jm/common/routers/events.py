@@ -268,7 +268,7 @@ async def edit_event_form(request: Request, event_id: int):
     with S.get_db() as conn:
         event = conn.execute("SELECT * FROM events WHERE id=? AND profile_id=?", (event_id, pid)).fetchone()
         if not event:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="일정을 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
     ev_dict = dict(event)
     # Extract year/month from event start_time for return redirect

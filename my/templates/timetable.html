@@ -20,7 +20,7 @@
  </svg>
  </a>
  {% if not is_today %}
- <a href="/timetable" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent); border: 1px solid rgba(217,119,6,0.2);">
+ <a href="/timetable" class="ml-1 btn-sm font-semibold rounded-full px-3.5 py-1.5 transition-all hover:scale-105" style="background: var(--color-accent-soft); color: var(--color-accent-text); border: 1px solid rgba(217,119,6,0.2);">
  오늘
  </a>
  {% endif %}
@@ -32,7 +32,7 @@
  <a href="/timetable?day_type={{ dt_key }}{% if not is_today %}&dt={{ target_date }}{% endif %}"
  class="px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap
  {% if edit_day_type == dt_key %}ring-2{% endif %}"
- style="{% if edit_day_type == dt_key %}background: var(--color-accent); color: #fff; ring-color: var(--color-accent);{% elif dt_key in existing_day_types %}background: var(--color-accent-soft); color: var(--color-accent);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">
+ style="{% if edit_day_type == dt_key %}background: var(--color-accent-hover); color: #fff; ring-color: var(--color-accent-hover);{% elif dt_key in existing_day_types %}background: var(--color-accent-soft); color: var(--color-accent-text);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">
  {{ day_type_labels[dt_key] }}
  {% if dt_key in existing_day_types and edit_day_type != dt_key %}
  <span class="inline-block w-1.5 h-1.5 rounded-full ml-0.5" style="background: var(--color-accent);"></span>
@@ -233,11 +233,11 @@
  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/>
  </svg>
  시간표
- <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ user_blocks|length }}</span>
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ user_blocks|length }}</span>
  </h3>
  {% if edit_day_type != 'today' %}
  <button data-action="toggle-add-form" aria-label="시간 블록 추가" class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
- style="background: var(--color-accent-soft); color: var(--color-accent);"
+ style="background: var(--color-accent-soft); color: var(--color-accent-text);"
  id="addBlockBtn">+ 추가</button>
  {% endif %}
  </div>
@@ -361,7 +361,7 @@
  <h3>
  <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  일정
- <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ schedule_list|length }}</span>
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ schedule_list|length }}</span>
  </h3>
  </div>
  <div class="p-3">
@@ -389,7 +389,7 @@
  <h3>
  <svg class="w-4 h-4 inline -mt-0.5 mr-1" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
  할일
- <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent);">{{ todos|length }}</span>
+ <span class="ml-1 badge-premium" style="background: var(--color-accent-soft); color: var(--color-accent-text);">{{ todos|length }}</span>
  </h3>
  </div>
  <div class="p-3">

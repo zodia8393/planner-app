@@ -1,7 +1,7 @@
 # /goal 모바일 UX 사용성 개선 — 실기기 스크린샷 기반
 
 ## 대상
-/workspace/app_planners/my/ 전체 템플릿 → 완료 후 JM·Work 동기화 + Fly.io 배포
+/workspace/app/planners/my/ 전체 템플릿 → 완료 후 JM·Work 동기화 + Fly.io 배포
 
 ## 배경
 Playwright 8뷰포트(280~500px) × 7페이지 × 인터랙션 상태 = 68장 스크린샷 정밀 검증 결과, 레이아웃 깨짐은 없으나 "보기 힘들다/쓰기 힘들다" 문제가 다수 발견됨. 아래는 깨짐이 아닌 사용성·가시성 문제만 정리한 것.

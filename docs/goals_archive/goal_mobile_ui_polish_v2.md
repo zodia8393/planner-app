@@ -1,7 +1,7 @@
 # /goal 모바일 UI 일괄 정리 — 실제 스크린샷 기반 문제 해결
 
 ## 대상
-/workspace/app_planners/my/templates/ 전체 템플릿, 완료 후 JM·Work 동기화
+/workspace/app/planners/my/templates/ 전체 템플릿, 완료 후 JM·Work 동기화
 
 ## 문제
 모바일 실기기 스크린샷 검수 결과, 버튼·입력·체크박스 크기가 페이지마다 다르고 터치 타겟 미달·세로 늘어남 등 가시성·조작성 문제 다수 발견.

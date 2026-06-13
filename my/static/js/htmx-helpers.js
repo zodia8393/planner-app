@@ -4,10 +4,12 @@
 
  /* ══ Double-submit prevention ══ */
  document.body.addEventListener('htmx:beforeRequest', function(e){
+  if (!e.detail.elt || !e.detail.elt.closest) return;
   const btn = e.detail.elt.closest('button[type="submit"],button[hx-post],button[hx-delete],button[hx-put]');
   if(btn) btn.disabled = true;
  });
  document.body.addEventListener('htmx:afterRequest', function(e){
+  if (!e.detail.elt || !e.detail.elt.closest) return;
   const btn = e.detail.elt.closest('button[type="submit"],button[hx-post],button[hx-delete],button[hx-put]');
   if(btn) setTimeout(function(){ btn.disabled = false; }, 300);
  });
@@ -54,6 +56,10 @@
  const banner = document.getElementById('offlineBanner');
  if(banner){
   function updateOnlineStatus(){
+   if (typeof window.updateSyncStatus === 'function') {
+    if (!navigator.onLine) window.updateSyncStatus('offline');
+    return;
+   }
    if(navigator.onLine){
     banner.classList.add('hidden');
    } else {

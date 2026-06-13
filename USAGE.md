@@ -144,15 +144,15 @@
 
 ```bash
 # JM/My — Fly.io
-cd /workspace/app_planners
+cd /workspace/app/planners
 bash deploy.sh jm   # 또는 my
 
 # Work — 로컬
-cd /workspace/app_planners/work
+cd /workspace/app/planners/work
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8001
 
 # Hub — 로컬
-cd /workspace/app_planners/hub
+cd /workspace/app/planners/hub
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 

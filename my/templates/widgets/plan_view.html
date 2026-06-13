@@ -19,28 +19,28 @@
  <div class="flex flex-wrap items-center justify-center gap-1.5 mb-1.5">
  <a href="/?plan_view=week&plan_offset=0"
  class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'week' %}shadow-sm{% endif %}"
- style="{% if plan_view == 'week' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
+ style="{% if plan_view == 'week' %}background: var(--color-accent-hover); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
  주간
  </a>
  <a href="/?plan_view=month&plan_offset=0"
  class="btn-sm rounded-lg font-semibold transition-colors {% if plan_view == 'month' %}shadow-sm{% endif %}"
- style="{% if plan_view == 'month' %}background: var(--color-accent); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
+ style="{% if plan_view == 'month' %}background: var(--color-accent-hover); color: white;{% else %}background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border);{% endif %}">
  월간
  </a>
  <div class="flex items-center gap-1">
- <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}"
+ <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset - 1 }}" aria-label="이전 {{ '주' if plan_view == 'week' else '월' }}"
  class="p-1.5 rounded-lg transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--color-text);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
  </a>
  <span class="text-sm font-bold px-2 whitespace-nowrap" style="color: var(--color-text);">{{ nav_label }}</span>
- <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}"
+ <a href="/?plan_view={{ plan_view }}&plan_offset={{ plan_offset + 1 }}" aria-label="다음 {{ '주' if plan_view == 'week' else '월' }}"
  class="p-1.5 rounded-lg transition-all hover:scale-105" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--color-text);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
  </a>
  {% if plan_offset != 0 %}
  <a href="/?plan_view={{ plan_view }}&plan_offset=0"
  class="ml-1 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors"
- style="background: var(--color-accent-soft); color: var(--color-accent);">
+ style="background: var(--color-accent-soft); color: var(--color-accent-text);">
  {{ reset_label }}
  </a>
  {% endif %}
@@ -57,7 +57,7 @@
  style="border-bottom: 1px solid var(--color-border-subtle); {% if day.is_today %}background: var(--color-accent-soft);{% elif day.is_weekend %}background: var(--color-border-subtle);{% endif %}">
  <div class="flex items-center gap-2">
  {% if day.is_today %}
- <span class="w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center" style="background: var(--color-accent); color: white;">{{ day.date.day }}</span>
+ <span class="w-6 h-6 text-xs font-bold rounded-full flex items-center justify-center" style="background: var(--color-accent-hover); color: white;">{{ day.date.day }}</span>
  {% else %}
  <span class="text-sm font-bold" style="color: {% if day.is_weekend %}var(--color-danger){% else %}var(--color-text){% endif %};">{{ day.date.day }}</span>
  {% endif %}
@@ -72,7 +72,7 @@
  <div class="{% if day.todos %}p-1.5 space-y-0.5{% else %}p-0.5{% endif %}">
  {% for todo in day.todos %}
  <div class="flex items-start gap-1.5 px-2 py-1 rounded-lg transition-colors" style="{% if not todo.completed %}cursor: pointer;{% endif %}">
- <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors"
+ <button type="button" data-action="toggle-todo" data-id="{{ todo.id }}" aria-label="{{ todo.title }} 완료 상태 토글" class="flex-shrink-0 mt-0.5 w-3.5 h-3.5 rounded border-2 flex items-center justify-center transition-colors"
  style="{% if todo.completed %}background: var(--color-accent); border-color: var(--color-accent);{% else %}border-color: var(--color-border);{% endif %}"
  data-completed="{{ 'true' if todo.completed else 'false' }}">
  {% if todo.completed %}
@@ -113,7 +113,7 @@
  <div class="p-1.5 min-h-0" style="border-bottom: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle); {% if is_today %}background: var(--color-accent-soft);{% endif %}">
  <div class="flex items-center justify-between mb-1">
  <span class="text-xs lg:text-sm font-medium {% if is_today %}w-5 h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center{% endif %}"
- style="{% if is_today %}background: var(--color-accent); color: white;{% elif weekday == 6 %}color: var(--color-danger);{% elif weekday == 5 %}color: var(--color-info);{% else %}color: var(--color-text-muted);{% endif %}">{{ cell_date.day }}</span>
+ style="{% if is_today %}background: var(--color-accent-hover); color: white;{% elif weekday == 6 %}color: var(--color-danger);{% elif weekday == 5 %}color: var(--color-info);{% else %}color: var(--color-text-muted);{% endif %}">{{ cell_date.day }}</span>
  {% if cell_todos|length > 0 %}
  <span class="text-[11px] font-medium px-1 py-0.5 rounded"
  style="{% if cell_todos|selectattr('completed', 'eq', 0)|list|length == 0 %}background: var(--color-success-soft); color: var(--color-success);{% else %}background: var(--color-border-subtle); color: var(--color-text-muted);{% endif %}">{{ cell_todos|length }}</span>

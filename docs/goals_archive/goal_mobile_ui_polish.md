@@ -1,7 +1,7 @@
 # /goal 모바일 UI 일관성 & 가시성 전면 개선
 
 ## 대상
-/workspace/app_planners/ — My Planner (my/), 완료 후 JM·Work 동기화
+/workspace/app/planners/ — My Planner (my/), 완료 후 JM·Work 동기화
 
 ## 문제
 모바일(≤640px)에서 버튼 크기 중구난방, 텍스트 가시성 떨어짐, 터치 타겟 불균일.

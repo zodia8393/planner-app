@@ -4,7 +4,7 @@ Comprehensive tests for Korean NLP date parser.
 Covers: relative dates, day-of-week, absolute dates, shortcuts,
         extract_date_from_text, format_date_display, edge cases.
 
-Run:  cd /workspace/app_planners && python3 -m pytest tests/nlp_date_test.py -v
+Run:  cd /workspace/app/planners && python3 -m pytest tests/nlp_date_test.py -v
 """
 
 from datetime import date

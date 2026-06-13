@@ -84,7 +84,7 @@
         allShortcuts.push({ key: 'J/K', label: '목록 항목 이동' });
         allShortcuts.push({ key: 'X/Space', label: '항목 토글/체크' });
         allShortcuts.push({ key: 'Enter', label: '항목 인라인 편집' });
-        allShortcuts.push({ key: 'Ctrl+Shift+N', label: '새 메모' });
+        allShortcuts.push({ key: 'Ctrl+Shift+M/N', label: '새 메모' });
         allShortcuts.push({ key: 'Ctrl+Shift+E', label: '새 일정' });
 
         const rows = allShortcuts.map(function (s) {
@@ -244,7 +244,91 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', setupModalFocusTraps);
+    const QUICK_ACTION_KEY = 'plannerQuickAction';
+
+    function todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+    }
+
+    function fallbackMemoFocus() {
+        const memoDetails = Array.from(document.querySelectorAll('details')).find(function (details) {
+            return details.querySelector('form[action="/memos"]');
+        });
+        if (memoDetails) memoDetails.open = true;
+        const memoInput = document.getElementById('memo-content');
+        if (memoInput) {
+            memoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(function () { memoInput.focus(); }, 120);
+        }
+    }
+
+    function openMemoQuickEntry() {
+        if (location.pathname !== '/memos') {
+            sessionStorage.setItem(QUICK_ACTION_KEY, 'memo');
+            location.href = '/memos#new';
+            return;
+        }
+        sessionStorage.removeItem(QUICK_ACTION_KEY);
+        if (typeof openMemoForm === 'function') {
+            openMemoForm();
+        } else {
+            fallbackMemoFocus();
+        }
+        if (location.hash === '#new') history.replaceState(null, '', location.pathname + location.search);
+    }
+
+    function openEventQuickEntry() {
+        if (location.pathname !== '/calendar') {
+            sessionStorage.setItem(QUICK_ACTION_KEY, 'event');
+            location.href = '/calendar#new';
+            return;
+        }
+        sessionStorage.removeItem(QUICK_ACTION_KEY);
+        if (typeof openEventModal === 'function') {
+            openEventModal(todayIso());
+        } else {
+            const addEventBtn = document.querySelector('[data-action="open-event-modal"]') ||
+                document.querySelector('button[onclick*="openEventModal"]') ||
+                document.querySelector('.fab');
+            if (addEventBtn) addEventBtn.click();
+        }
+        requestAnimationFrame(function () {
+            const title = document.getElementById('event-title');
+            if (title) title.focus();
+        });
+        if (location.hash === '#new') history.replaceState(null, '', location.pathname + location.search);
+    }
+
+    function runPendingQuickAction() {
+        const pending = sessionStorage.getItem(QUICK_ACTION_KEY);
+        if ((pending === 'memo' || location.hash === '#new') && location.pathname === '/memos') {
+            openMemoQuickEntry();
+            return;
+        }
+        if ((pending === 'event' || location.hash === '#new') && location.pathname === '/calendar') {
+            openEventQuickEntry();
+        }
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target || !e.target.closest) return;
+        const link = e.target.closest('a[data-quick-action]');
+        if (!link) return;
+        const action = link.getAttribute('data-quick-action');
+        if (action === 'memo' || action === 'event') {
+            sessionStorage.setItem(QUICK_ACTION_KEY, action);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupModalFocusTraps();
+        runPendingQuickAction();
+    });
+    document.addEventListener('htmx:afterSettle', runPendingQuickAction);
 
     document.addEventListener('keydown', function (e) {
         // Ctrl+Enter: submit form (works even when typing)
@@ -256,31 +340,17 @@
             return;
         }
 
-        // Ctrl+Shift+N: new memo
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+        // Ctrl+Shift+M/N: new memo
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'N' || e.key === 'n' || e.key === 'M' || e.key === 'm')) {
             e.preventDefault();
-            if (location.pathname === '/memos') {
-                const memoForm = document.querySelector('details:has(form[action="/memos"])');
-                if (memoForm && !memoForm.open) memoForm.open = true;
-                const memoInput = document.getElementById('memo-content');
-                if (memoInput) memoInput.focus();
-            } else {
-                location.href = '/memos';
-            }
+            openMemoQuickEntry();
             return;
         }
 
         // Ctrl+Shift+E: new calendar event
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
             e.preventDefault();
-            if (location.pathname === '/calendar') {
-                const addEventBtn = document.querySelector('[data-action="open-event-modal"]') ||
-                                  document.querySelector('button[onclick*="openEventModal"]') ||
-                                  document.querySelector('.fab');
-                if (addEventBtn) addEventBtn.click();
-            } else {
-                location.href = '/calendar';
-            }
+            openEventQuickEntry();
             return;
         }
 

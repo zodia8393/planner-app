@@ -11,12 +11,12 @@ Categories:
   - API endpoints (5)
 
 Run:
-  cd /workspace/app_planners && python3 -m pytest tests/test_jm.py -v --tb=short
+  cd /workspace/app/planners && python3 -m pytest tests/test_jm.py -v --tb=short
 """
 
 import time
 import sys
-sys.path.insert(0, "/workspace/app_planners/jm")
+sys.path.insert(0, "/workspace/app/planners/jm")
 
 from fastapi.testclient import TestClient
 from conftest import jm_app

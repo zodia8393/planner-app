@@ -329,7 +329,7 @@ async def edit_todo_form(request: Request, todo_id: int):
     with S.get_db() as conn:
         todo = conn.execute("SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not todo:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="할일을 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
         subtasks = [dict(s) for s in conn.execute(
             "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)

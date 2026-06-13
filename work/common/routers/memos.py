@@ -94,7 +94,7 @@ async def edit_memo_form(request: Request, memo_id: int):
             (memo_id, pid),
         ).fetchone()
         if not memo:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="메모를 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
     return S.templates.TemplateResponse(request, "partials/memo_edit_form.html", {
         "memo": dict(memo), "categories": [dict(c) for c in categories],

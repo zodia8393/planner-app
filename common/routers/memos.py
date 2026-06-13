@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from typing import Optional
 from datetime import datetime
-from common.utils import clamp_text, fix_mojibake
+from common.utils import clamp_text, fix_mojibake, safe_int, validate_date_str
 
 router = APIRouter()
 
@@ -45,15 +45,13 @@ async def create_memo(request: Request,
     if not content:
         return S.redirect(request, "/memos")
     author = S.get_profile_name(request)
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     # 날짜가 지정되면 해당 날짜 + 현재 시각, 미지정이면 현재 datetime
     ts = None
-    if created_at.strip():
-        try:
-            now = datetime.now()
-            ts = f"{created_at.strip()} {now.strftime('%H:%M:%S')}"
-        except Exception:
-            ts = None
+    validated_date = validate_date_str(created_at.strip()) if created_at else None
+    if validated_date:
+        now = datetime.now()
+        ts = f"{validated_date} {now.strftime('%H:%M:%S')}"
     with S.get_db() as conn:
         if ts:
             conn.execute(
@@ -95,7 +93,7 @@ async def edit_memo_form(request: Request, memo_id: int):
             (memo_id, pid),
         ).fetchone()
         if not memo:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="메모를 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
     return S.templates.TemplateResponse(request, "partials/memo_edit_form.html", {
         "memo": dict(memo), "categories": [dict(c) for c in categories],
@@ -111,14 +109,12 @@ async def update_memo(request: Request, memo_id: int,
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200)
     content = clamp_text(fix_mojibake(content), 5000)
-    cat_id = int(category_id) if category_id else None
+    cat_id = safe_int(category_id)
     # 날짜가 변경되면 해당 날짜로 created_at 업데이트 (시각은 기존 유지)
     ts = None
-    if created_at.strip():
-        try:
-            ts = f"{created_at.strip()} 00:00:00"
-        except Exception:
-            ts = None
+    validated_date = validate_date_str(created_at.strip()) if created_at else None
+    if validated_date:
+        ts = f"{validated_date} 00:00:00"
     with S.get_db() as conn:
         if ts:
             # 기존 시각 부분 보존: 날짜만 교체
@@ -128,7 +124,7 @@ async def update_memo(request: Request, memo_id: int,
             ).fetchone()
             if existing and existing["created_at"]:
                 old_time = existing["created_at"][11:] if len(existing["created_at"]) > 10 else "00:00:00"
-                ts = f"{created_at.strip()} {old_time}"
+                ts = f"{validated_date} {old_time}"
             conn.execute(
                 "UPDATE memos SET title=?, content=?, category_id=?, created_at=? WHERE id=? AND profile_id=?",
                 (title, content, cat_id, ts, memo_id, pid),

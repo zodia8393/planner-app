@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-planner-v5';
+const CACHE_NAME = 'my-planner-v6';
 const OFFLINE_URL = '/static/offline.html';
 const STATIC_ASSETS = [
     '/static/offline.html',
@@ -219,6 +219,18 @@ function startReminderPoll() {
 
 // ── Message handler: queue forms + schedule notifications ──
 self.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+        return;
+    }
+
+    if (e.data && e.data.type === 'CLEAR_CACHE') {
+        e.waitUntil(
+            caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
+        );
+        return;
+    }
+
     if (e.data && e.data.type === 'QUEUE_FORM') {
         openSyncDB().then(db => {
             const tx = db.transaction('outbox', 'readwrite');

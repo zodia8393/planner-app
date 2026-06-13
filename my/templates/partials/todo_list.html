@@ -2,8 +2,22 @@
  {% for todo in todos %}
  {% include"partials/todo_item.html" %}
  {% else %}
- <div class="py-16 text-center">
- <p>업무가 없습니다</p>
+ <div id="todo-empty-state" class="empty-state" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="todo-empty-title" aria-describedby="todo-empty-desc">
+ <div class="empty-state-icon">
+ <svg class="w-12 h-12 mx-auto" style="color: var(--color-accent);" fill="none" viewBox="0 0 48 48" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+  <rect x="10" y="6" width="28" height="36" rx="4" stroke="currentColor" fill="none"/>
+  <path d="M18 4v6M30 4v6" stroke="currentColor" stroke-linecap="round"/>
+  <path d="M20 22l4 4 8-8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="16" y1="34" x2="32" y2="34" stroke="currentColor" opacity="0.4" stroke-linecap="round"/>
+  <line x1="16" y1="38" x2="26" y2="38" stroke="currentColor" opacity="0.3" stroke-linecap="round"/>
+ </svg>
+ </div>
+ <p id="todo-empty-title" class="empty-state-title">업무가 없습니다</p>
+ <p id="todo-empty-desc" class="empty-state-desc">첫 할일을 추가해보세요</p>
+ <button type="button" data-action="scroll-to-add-form" data-form-id="addForm" aria-label="새 할일 입력 폼으로 이동"
+ class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
+ 할일 추가하기
+ </button>
  </div>
  {% endfor %}
 </div>

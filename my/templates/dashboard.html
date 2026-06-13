@@ -26,6 +26,54 @@
  </details>
 </div>
 
+<section class="dashboard-quick-actions mb-4" aria-label="빠른 작업">
+ <a href="/todos#new" class="quick-command-card" aria-label="할일 추가 화면으로 이동">
+  <span class="quick-command-icon">+</span>
+  <span>
+   <span class="quick-command-title">할일 추가</span>
+   <span class="quick-command-desc">자연어 날짜 인식</span>
+  </span>
+ </a>
+ <a href="/calendar#new" class="quick-command-card" data-quick-action="event">
+  <span class="quick-command-icon">+</span>
+  <span>
+   <span class="quick-command-title">일정 추가</span>
+   <span class="quick-command-desc">오늘 날짜로 바로 시작</span>
+  </span>
+ </a>
+ <a href="/memos#new" class="quick-command-card" data-quick-action="memo">
+  <span class="quick-command-icon">+</span>
+  <span>
+   <span class="quick-command-title">메모 작성</span>
+   <span class="quick-command-desc">Ctrl+Shift+M</span>
+  </span>
+ </a>
+</section>
+
+{% set dashboard_has_data =
+ (today_todos|length > 0) or
+ (week_events|length > 0) or
+ (recent_memos|length > 0) or
+ (today_worklogs|length > 0) or
+ (total_count|default(0) > 0)
+%}
+<div id="dashboard-status-summary" class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+ 대시보드 상태: 오늘 할 일 {{ today_todos|length }}개, 이번 주 일정 {{ week_events|length }}개, 최근 메모 {{ recent_memos|length }}개, 오늘 업무 기록 {{ today_worklogs|length }}개입니다.
+</div>
+{% if not dashboard_has_data %}
+<section id="dashboard-empty-state" class="work-card rounded-xl p-4 mb-4" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="dashboard-empty-title">
+ <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div class="min-w-0">
+   <h2 id="dashboard-empty-title" class="text-sm font-extrabold" style="color: var(--color-text);">아직 표시할 작업이 없습니다</h2>
+   <p class="mt-1 text-sm leading-relaxed" style="color: var(--color-text-muted);">첫 할 일을 추가하면 오늘 진행률과 주간 플랜이 이곳에 채워집니다.</p>
+  </div>
+  <a href="/todos#new" class="empty-state-primary inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-xl shrink-0" aria-label="첫 할일 만들기 화면으로 이동">
+   첫 할일 만들기
+  </a>
+ </div>
+</section>
+{% endif %}
+
 {# ── Dashboard Grid ── #}
 <div id="dashboardGrid">
  {% include"widgets/widget_row.html" %}

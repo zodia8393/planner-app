@@ -16,7 +16,7 @@
  <p><b>백업/복원</b> — 전체 데이터를 ZIP으로 백업하거나 이전 백업에서 복원합니다</p>
  </div>
 </details>
-<div class="max-w-4xl mx-auto space-y-3">
+<div class="settings-page max-w-4xl mx-auto space-y-3">
  <!-- Category management -->
  <details class="work-card rounded-xl" open>
  <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
@@ -57,7 +57,6 @@
  {% else %}
  <p class="text-sm text-center py-4">카테고리가 없습니다</p>
  {% endfor %}
- </div>
  </div>
  </details>
 
@@ -191,7 +190,7 @@
    </div>
    <button id="pushToggleBtn" data-action="toggle-push-subscription" aria-label="푸시 알림 토글"
     class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-    style="background: var(--color-accent); color: #fff;">
+    style="background: var(--color-accent-hover); color: #fff;">
     활성화
    </button>
   </div>
@@ -362,19 +361,59 @@
  </div>
  </details>
 
- <!-- Theme toggle -->
+ <!-- Theme Studio -->
  <details class="work-card rounded-xl">
  <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
- <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">테마</h4>
+ <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">테마 스튜디오</h4>
  </summary>
- <div class="px-4 pb-4">
- <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면 테마를 전환합니다.</p>
+ <div class="px-4 pb-4 space-y-5">
+ <div>
+ <p class="text-xs mb-2 font-semibold" style="color: var(--color-text-faint);">명암</p>
  <button data-action="toggle-dark-mode-settings" aria-label="테마 전환"
- class="w-full py-2.5 font-medium rounded-lg hover-surface transition-colors text-sm">
- <span class="dark:hidden">🌙 다크 모드로 전환</span>
- <span class="hidden dark:inline">☀️ 라이트 모드로 전환</span>
+ class="settings-btn settings-btn-secondary w-full">
+ <span class="dark:hidden">다크 모드로 전환</span>
+ <span class="hidden dark:inline">라이트 모드로 전환</span>
  </button>
+ </div>
+ <div>
+ <p class="text-xs mb-2 font-semibold" style="color: var(--color-text-faint);">분위기 테마</p>
+ <div id="appearanceThemePicker" class="settings-choice-grid">
+ <button type="button" data-action="set-appearance-theme" data-theme="classic" class="settings-choice" aria-pressed="false">
+  <span class="theme-preview-strip"><span style="background:#d97706;"></span><span style="background:#fef3c7;"></span><span style="background:#e7e5e4;"></span></span>
+  <span class="settings-choice-title">클래식</span>
+  <span class="settings-choice-desc">기존 플래너의 따뜻한 기본 화면</span>
+ </button>
+ <button type="button" data-action="set-appearance-theme" data-theme="diary" data-preferred-sidebar="bookmarks" class="settings-choice" aria-pressed="false">
+  <span class="theme-preview-strip"><span style="background:#7c3f1d;"></span><span style="background:#e9f3ef;"></span><span style="background:#eadfce;"></span></span>
+  <span class="settings-choice-title">다이어리</span>
+  <span class="settings-choice-desc">종이 질감과 책갈피 사이드탭</span>
+ </button>
+ <button type="button" data-action="set-appearance-theme" data-theme="focus" class="settings-choice" aria-pressed="false">
+  <span class="theme-preview-strip"><span style="background:#2563eb;"></span><span style="background:#ecfdf5;"></span><span style="background:#d8dee8;"></span></span>
+  <span class="settings-choice-title">포커스</span>
+  <span class="settings-choice-desc">업무용으로 더 밀도 있고 차분한 화면</span>
+ </button>
+ <button type="button" data-action="set-appearance-theme" data-theme="midnight" class="settings-choice" aria-pressed="false">
+  <span class="theme-preview-strip"><span style="background:#38bdf8;"></span><span style="background:#202636;"></span><span style="background:#303847;"></span></span>
+  <span class="settings-choice-title">미드나이트</span>
+  <span class="settings-choice-desc">어두운 환경에서도 선명한 고대비 화면</span>
+ </button>
+ <button type="button" data-action="set-appearance-theme" data-theme="editorial" class="settings-choice" aria-pressed="false">
+  <span class="theme-preview-strip"><span style="background:#16a34a;"></span><span style="background:#fdf3e7;"></span><span style="background:#dce6da;"></span></span>
+  <span class="settings-choice-title">에디토리얼</span>
+  <span class="settings-choice-desc">메모와 리뷰가 읽기 좋은 부드러운 화면</span>
+ </button>
+ </div>
+ </div>
+ <div>
+ <p class="text-xs mb-2 font-semibold" style="color: var(--color-text-faint);">사이드탭 스타일</p>
+ <div id="sidebarStylePicker" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+ <button type="button" data-action="set-sidebar-style" data-sidebar-style="standard" class="settings-btn settings-btn-secondary w-full" aria-pressed="false">기본</button>
+ <button type="button" data-action="set-sidebar-style" data-sidebar-style="bookmarks" class="settings-btn settings-btn-secondary w-full" aria-pressed="false">책갈피</button>
+ <button type="button" data-action="set-sidebar-style" data-sidebar-style="compact" class="settings-btn settings-btn-secondary w-full" aria-pressed="false">컴팩트</button>
+ </div>
+ </div>
  </div>
  </details>
 
@@ -387,11 +426,11 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">앱의 강조 색상을 선택합니다.</p>
  <div class="flex gap-3" id="accentPicker">
- <button data-action="set-accent-color" data-color="indigo" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #6366f1; border: 2px solid rgba(255,255,255,0.15);" aria-label="인디고 색상" title="인디고"></button>
- <button data-action="set-accent-color" data-color="emerald" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #10b981; border: 2px solid rgba(255,255,255,0.15);" aria-label="에메랄드 색상" title="에메랄드"></button>
- <button data-action="set-accent-color" data-color="rose" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #f43f5e; border: 2px solid rgba(255,255,255,0.15);" aria-label="로즈 색상" title="로즈"></button>
- <button data-action="set-accent-color" data-color="amber" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #d97706; border: 2px solid rgba(255,255,255,0.15);" aria-label="앰버 색상" title="앰버"></button>
- <button data-action="set-accent-color" data-color="sky" class="rounded-xl hover:scale-110 transition-all" style="width: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); height: clamp(2.25rem, 1.75rem + 2vw, 2.75rem); background: #0ea5e9; border: 2px solid rgba(255,255,255,0.15);" aria-label="스카이 색상" title="스카이"></button>
+ <button data-action="set-accent-color" data-color="indigo" class="settings-swatch" style="background: #6366f1;" aria-label="인디고 색상" title="인디고"></button>
+ <button data-action="set-accent-color" data-color="emerald" class="settings-swatch" style="background: #10b981;" aria-label="에메랄드 색상" title="에메랄드"></button>
+ <button data-action="set-accent-color" data-color="rose" class="settings-swatch" style="background: #f43f5e;" aria-label="로즈 색상" title="로즈"></button>
+ <button data-action="set-accent-color" data-color="amber" class="settings-swatch" style="background: #d97706;" aria-label="앰버 색상" title="앰버"></button>
+ <button data-action="set-accent-color" data-color="sky" class="settings-swatch" style="background: #0ea5e9;" aria-label="스카이 색상" title="스카이"></button>
  </div>
  </div>
  </details>
@@ -405,13 +444,13 @@
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">화면의 글꼴 크기를 조정합니다.</p>
  <div class="flex gap-2" id="fontSizePicker">
- <button data-action="set-font-size" data-size="small" aria-label="작은 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="small" aria-label="작은 글꼴" class="settings-btn settings-btn-secondary flex-1">
  <span class="text-xs" style="color: var(--color-text-muted);">가</span> 작게
  </button>
- <button data-action="set-font-size" data-size="medium" aria-label="보통 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="medium" aria-label="보통 글꼴" class="settings-btn settings-btn-secondary flex-1">
  <span class="text-sm">가</span> 보통
  </button>
- <button data-action="set-font-size" data-size="large" aria-label="큰 글꼴" class="btn-secondary flex-1 rounded-lg text-sm font-medium border transition-all hover:opacity-80" style="background: var(--color-surface);">
+ <button data-action="set-font-size" data-size="large" aria-label="큰 글꼴" class="settings-btn settings-btn-secondary flex-1">
  <span class="text-base">가</span> 크게
  </button>
  </div>
@@ -464,9 +503,16 @@
 
  <!-- Background Settings -->
  <details class="work-card rounded-xl" style="margin-top: 1.25rem;">
- <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
- <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M2.25 18.75h19.5a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H2.25a.75.75 0 00-.75.75v12c0 .414.336.75.75.75z"/></svg>
- <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">배경 설정</h4>
+ <summary class="settings-summary cursor-pointer select-none">
+ <span class="settings-summary-icon">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M2.25 18.75h19.5a.75.75 0 00.75-.75V6a.75.75 0 00-.75-.75H2.25a.75.75 0 00-.75.75v12c0 .414.336.75.75.75z"/></svg>
+ </span>
+ <span class="settings-summary-copy">
+ <span class="settings-summary-title">배경 설정</span>
+ <span class="settings-summary-desc">기본 배경, 그라데이션, 업로드 이미지와 오버레이를 조절합니다.</span>
+ </span>
+ <span class="settings-summary-meta">시각 테마</span>
+ <svg class="settings-summary-chevron" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
  </summary>
  <div class="px-4 pb-4">
  <p class="text-xs mb-4" style="color: var(--color-text-faint);">배경 이미지 또는 그라데이션을 설정합니다.</p>
@@ -537,7 +583,7 @@
  <!-- File upload -->
  <div id="uploadSection" class="mb-5 {% if current_bg_type != 'upload' %}hidden{% endif %}">
  <label class="text-xs mb-2 block font-medium">이미지 업로드 (최대 5MB, jpg/png/webp)</label>
- <input type="file" name="file" accept=".jpg" aria-label="배경 이미지 선택",.jpeg,.png,.webp"
+ <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp" aria-label="배경 이미지 선택"
  class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium" style="--file-bg: var(--color-surface-elevated); --file-color: var(--color-text-muted);">
  {% if bg_setting and bg_setting.type == 'upload' and bg_setting.image %}
  <p class="mt-2 text-xs" style="color: var(--color-success);">현재 업로드된 이미지: {{ bg_setting.image }}</p>
@@ -570,87 +616,108 @@
  document.getElementById('opacitySection').classList.toggle('hidden', type === 'none');
  }
  </script>
- </div>
  </details>
 
  <!-- Google Account Login -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
- <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
- <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">연동 설정</h4>
+ <summary class="settings-summary cursor-pointer select-none">
+ <span class="settings-summary-icon">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+ </span>
+ <span class="settings-summary-copy">
+ <span class="settings-summary-title">연동 설정</span>
+ <span class="settings-summary-desc">Google 계정, 캘린더, iCal 구독, 모바일 QR 접속을 관리합니다.</span>
+ </span>
+ <span class="settings-summary-meta">5개 항목</span>
+ <svg class="settings-summary-chevron" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
  </summary>
- <div class="px-4 pb-4 space-y-5 max-w-lg">
- <h5 class="font-bold" style="color: var(--color-text);">Google 계정</h5>
- <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
+ <div class="px-4 pb-4 space-y-3">
+ <section class="settings-subpanel">
+ <div class="settings-subpanel-header">
+ <div>
+ <h5 class="settings-subpanel-title">Google 계정</h5>
+ <p class="settings-subpanel-desc">Google 계정을 연결하면 다른 기기에서도 같은 프로필로 로그인할 수 있습니다.</p>
+ </div>
  {% if profile and profile.google_email %}
- <div class="flex items-center gap-2 px-3 py-2 rounded-lg mb-3" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-subtle);">
- <div class="w-2 h-2 rounded-full" style="background: var(--color-success);"></div>
- <span class="text-xs font-medium" style="color: var(--color-success);">연결됨</span>
- <span class="text-xs ml-auto" style="color: var(--color-text-muted);">{{ profile.google_email }}</span>
+ <span class="settings-status-pill" data-state="success">연결됨</span>
+ {% else %}
+ <span class="settings-status-pill">미연결</span>
+ {% endif %}
+ </div>
+ {% if profile and profile.google_email %}
+ <div class="settings-mono-input flex items-center justify-between gap-3">
+ <span class="truncate">{{ profile.google_email }}</span>
  </div>
  {% else %}
- <a href="/auth/google/link" hx-boost="false"
- class="inline-flex items-center gap-2 px-4 py-2.5 border rounded-lg hover-surface transition-colors shadow-sm" style="background: var(--color-surface);">
+ <a href="/auth/google/link" hx-boost="false" class="settings-btn settings-btn-secondary w-full sm:w-auto">
  <svg class="w-5 h-5" viewBox="0 0 24 24">
  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
  </svg>
- <span class="text-sm font-medium">Google 계정 연결</span>
+ Google 계정 연결
  </a>
  {% endif %}
+ </section>
 
-
- <hr class="my-4" style="border-color: var(--color-border-subtle);">
- <h5 class="font-bold mb-2" style="color: var(--color-text);">Google 캘린더 연동</h5>
- <p class="text-xs mb-4" style="color: var(--color-text-muted);">Google 계정의 캘린더 일정을 플래너에 가져와 함께 표시합니다.</p>
- {% if not gcal_configured %}
- <p class="text-xs" style="color: var(--color-text-muted);">현재 사용할 수 없습니다.</p>
- {% elif gcal_connected %}
- <div class="flex items-center gap-2 px-3 py-2 rounded-lg mb-3" style="background: var(--color-surface-elevated); border: 1px solid var(--color-border-subtle);">
- <div class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-success);"></div>
- <span class="text-xs font-medium" style="color: var(--color-success);">연동됨</span>
+ <section class="settings-subpanel">
+ <div class="settings-subpanel-header">
+ <div>
+ <h5 class="settings-subpanel-title">Google 캘린더</h5>
+ <p class="settings-subpanel-desc">Google 계정의 캘린더 일정을 플래너에 가져와 함께 표시합니다.</p>
  </div>
+ {% if not gcal_configured %}
+ <span class="settings-status-pill">사용 불가</span>
+ {% elif gcal_connected %}
+ <span class="settings-status-pill" data-state="success">연동됨</span>
+ {% else %}
+ <span class="settings-status-pill">미연동</span>
+ {% endif %}
+ </div>
+ {% if not gcal_configured %}
+ <p class="text-xs" style="color: var(--color-text-muted);">서버에 Google Calendar OAuth 환경 변수가 없어 현재 사용할 수 없습니다.</p>
+ {% elif gcal_connected %}
  <div class="space-y-3">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">캘린더 선택</label>
- <div class="flex gap-2">
- <select id="gcalSelect" aria-label="Google 캘린더 선택" class="flex-1 px-3 py-2.5 text-sm border rounded-lg">
+ <div class="settings-form-grid">
+ <select id="gcalSelect" aria-label="Google 캘린더 선택" class="px-3 py-2.5 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
  <option value="primary">기본 캘린더</option>
  </select>
- <button data-action="fetch-gcal-calendars"
- class="px-3 py-2 text-xs rounded-lg hover-surface transition-colors">
+ <button type="button" data-action="fetch-gcal-calendars" class="settings-btn settings-btn-secondary">
  목록 불러오기
  </button>
  </div>
- <form action="/settings/gcal/calendar-id" method="POST" class="mt-2">
+ </div>
+ <form action="/settings/gcal/calendar-id" method="POST" class="settings-action-row">
  <input type="hidden" name="calendar_id" id="gcalIdInput" value="{{ gcal_calendar_id }}">
- <button type="submit" data-action="save-gcal-id"
- class="w-full py-2 btn-primary text-sm font-medium rounded-lg transition-colors">
+ <button type="submit" data-action="save-gcal-id" class="settings-btn btn-primary">
  캘린더 저장
  </button>
  </form>
- </div>
  <form action="/settings/gcal/disconnect" method="POST">
- <button type="submit"
- class="w-full py-2 text-sm font-medium rounded-lg hover-danger-bg transition-colors" style="background: var(--color-danger-soft); color: var(--color-danger);">
+ <button type="submit" class="settings-btn w-full hover-danger-bg" style="background: var(--color-danger-soft); color: var(--color-danger); border-color: transparent;">
  연동 해제
  </button>
  </form>
  </div>
  {% else %}
- <a href="/settings/gcal/connect" hx-boost="false"
- class="inline-flex items-center gap-2 px-4 py-2.5 border rounded-lg hover-surface transition-colors shadow-sm" style="background: var(--color-surface);">
- <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
- <span class="text-sm font-medium">Google 계정 연결</span>
+ <a href="/settings/gcal/connect" hx-boost="false" class="settings-btn settings-btn-secondary w-full sm:w-auto">
+ Google 캘린더 연결
  </a>
  {% endif %}
+ </section>
 
- <hr class="my-4" style="border-color: var(--color-border-subtle);">
- <h5 class="font-bold mb-4" style="color: var(--color-text);">모닝 브리핑</h5>
- <p class="text-xs mb-3" style="color: var(--color-text-muted);">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림으로 받으세요.</p>
- <div id="morningBriefForm" class="flex flex-wrap items-end gap-3">
+ <section class="settings-subpanel">
+ <div class="settings-subpanel-header">
+ <div>
+ <h5 class="settings-subpanel-title">모닝 브리핑</h5>
+ <p class="settings-subpanel-desc">매일 설정한 시간에 오늘의 할 일, 일정, 습관 요약을 알림으로 받습니다.</p>
+ </div>
+ </div>
+ <div id="morningBriefForm" class="settings-form-grid">
+ <div class="settings-action-row">
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">활성화</label>
  <label class="relative inline-flex items-center cursor-pointer">
@@ -661,147 +728,110 @@
  </div>
  <div>
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">시간</label>
- <input type="time" id="mbTime" aria-label="모닝 브리프 시간" value="08:00" class="px-3 py-2.5 text-sm border rounded-lg">
+ <input type="time" id="mbTime" aria-label="모닝 브리프 시간" value="08:00" class="px-3 py-2.5 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
  </div>
- <button data-action="save-morning-brief" aria-label="모닝 브리프 저장" class="px-4 py-2 btn-primary text-sm font-medium rounded-lg transition-colors">저장</button>
  </div>
- <script>
- (function(){
- fetch('/api/morning-brief/settings').then(r=>r.json()).then(d=>{
- document.getElementById('mbEnabled').checked=d.enabled;
- document.getElementById('mbTime').value=(d.hour<10?'0':'')+d.hour+':'+(d.minute<10?'0':'')+d.minute;
- }).catch(function(){});
- })();
- function saveMorningBrief(){
- var enabled=document.getElementById('mbEnabled').checked?1:0;
- var time=document.getElementById('mbTime').value.split(':');
- fetch('/api/morning-brief/settings',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
- body:'enabled='+enabled+'&hour='+parseInt(time[0])+'&minute='+parseInt(time[1])
- }).then(function(){showToast('모닝 브리핑 설정 저장됨','success')}).catch(function(){showToast('저장 실패','error')});
- }
- </script>
+ <button type="button" data-action="save-morning-brief" aria-label="모닝 브리프 저장" class="settings-btn btn-primary">저장</button>
+ </div>
+ </section>
 
- <hr class="my-4" style="border-color: var(--color-border-subtle);">
- <h5 class="font-bold mb-2" style="color: var(--color-text);">캘린더 내보내기</h5>
- <p class="text-xs mb-4" style="color: var(--color-text-muted);">아래 URL을 외부 캘린더에 등록하면 플래너 일정이 자동 동기화됩니다.</p>
- <div class="flex gap-2 items-center">
+ <section class="settings-subpanel">
+ <div class="settings-subpanel-header">
+ <div>
+ <h5 class="settings-subpanel-title">캘린더 내보내기</h5>
+ <p class="settings-subpanel-desc">외부 캘린더에 등록할 수 있는 iCal 구독 주소입니다.</p>
+ </div>
+ </div>
+ <div class="settings-copy-row">
  <input type="text" id="icalUrl" readonly aria-label="iCal URL"
  value="{{ request.url.scheme }}://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
- class="flex-1 px-3 py-2.5 text-xs border rounded-lg font-mono">
- <button data-action="copy-ical-url"
- class="px-4 py-2.5 btn-primary font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+ class="settings-mono-input">
+ <button type="button" data-action="copy-ical-url" class="settings-btn btn-primary whitespace-nowrap">
  복사
  </button>
  </div>
- <div class="mt-3 flex flex-wrap gap-2">
+ <div class="settings-action-row mt-3">
  <a href="https://calendar.google.com/calendar/r?cid=webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
  target="_blank"
- class="inline-flex items-center gap-1.5 btn-sm font-medium rounded-lg transition-colors hover:opacity-80" style="background: var(--color-info-soft); color: var(--color-info);">
+ class="settings-btn settings-btn-secondary">
  Google Calendar에 추가
  </a>
  <a href="webcal://{{ request.headers.get('host', 'localhost:8002') }}/cal/{{ active_profile.id }}.ics"
- class="inline-flex items-center gap-1.5 btn-sm font-medium rounded-lg hover-surface transition-colors">
+ class="settings-btn settings-btn-secondary">
  Apple Calendar에 추가
  </a>
  </div>
+ </section>
 
- <hr class="my-4" style="border-color: var(--color-border-subtle);">
- <h5 class="font-bold mb-4" style="color: var(--color-text);">모바일 접속</h5>
- <p class="text-xs mb-4" style="color: var(--color-text-muted);">같은 네트워크의 스마트폰으로 QR코드를 스캔하면 바로 접속됩니다.</p>
- <div id="qrSection" class="flex flex-col items-center gap-3">
- <div id="qrLoading" class="text-xs">QR 코드 생성 중...</div>
- <img id="qrImg" class="hidden rounded-lg border" width="200" height="200" alt="QR">
- <p id="qrUrl" class="hidden text-sm font-mono" style="color: var(--color-accent);"></p>
+ <section class="settings-subpanel">
+ <div class="settings-subpanel-header">
+ <div>
+ <h5 class="settings-subpanel-title">모바일 접속</h5>
+ <p class="settings-subpanel-desc">같은 네트워크의 스마트폰으로 QR 코드를 스캔하면 바로 접속됩니다.</p>
  </div>
- <script>
- fetch('/api/qr-code').then(r=>r.json()).then(d=>{
- document.getElementById('qrLoading').classList.add('hidden');
- var img=document.getElementById('qrImg');
- img.src='data:image/png;base64,'+d.qr_base64;
- img.classList.remove('hidden');
- var u=document.getElementById('qrUrl');
- u.textContent=d.url;
- u.classList.remove('hidden');
- }).catch(function(){ document.getElementById('qrLoading').textContent='QR 생성 실패'; });
- </script>
+ </div>
+ <div id="qrSection" class="flex flex-col items-center gap-3 rounded-lg p-4" style="background: var(--color-surface-elevated);">
+ <div id="qrLoading" class="text-xs" style="color: var(--color-text-muted);">QR 코드 생성 중...</div>
+ <img id="qrImg" class="hidden rounded-lg border" width="200" height="200" alt="QR">
+ <p id="qrUrl" class="hidden text-sm font-mono break-all text-center" style="color: var(--color-accent);"></p>
+ </div>
+ </section>
  </div>
  </details>
 
  <!-- Data Import/Export -->
  <details class="work-card rounded-xl">
- <summary class="flex items-center gap-3 p-4 cursor-pointer select-none">
-  <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-accent);" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-  <h4 class="font-extrabold flex-1" style="color: var(--color-text); letter-spacing: -0.01em;">데이터 가져오기 / 내보내기</h4>
+ <summary class="settings-summary cursor-pointer select-none">
+  <span class="settings-summary-icon">
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+  </span>
+  <span class="settings-summary-copy">
+  <span class="settings-summary-title">데이터 가져오기 / 내보내기</span>
+  <span class="settings-summary-desc">Todoist·CSV 가져오기와 할 일, 습관, 업무일지 CSV 백업을 처리합니다.</span>
+  </span>
+  <span class="settings-summary-meta">CSV 백업</span>
+  <svg class="settings-summary-chevron" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
  </summary>
- <div class="px-4 pb-4 space-y-4">
-  <!-- Import -->
-  <div>
-   <h5 class="font-bold mb-2" style="color: var(--color-text);">다른 앱에서 가져오기</h5>
-   <p class="text-xs mb-3" style="color: var(--color-text-muted);">Todoist, Google Tasks 등의 CSV 파일을 가져올 수 있습니다.</p>
-   <form id="importForm" onsubmit="return handleImport(event)">
-    <div class="flex items-center gap-2 mb-2">
-     <select id="importSource" aria-label="가져오기 소스" class="flex-1 px-3 py-2 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
-      <option value="todoist">Todoist (CSV)</option>
-      <option value="csv">일반 CSV (제목, 마감일, 우선순위)</option>
-     </select>
+ <div class="px-4 pb-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+  <section class="settings-subpanel">
+   <div class="settings-subpanel-header">
+    <div>
+     <h5 class="settings-subpanel-title">다른 앱에서 가져오기</h5>
+     <p class="settings-subpanel-desc">Todoist, Google Tasks 등의 CSV 파일을 플래너 할 일로 가져옵니다.</p>
     </div>
-    <div class="flex items-center gap-2">
-     <input type="file" id="importFile" aria-label="가져올 파일 선택" accept=".csv,.json" class="flex-1 text-sm" style="color: var(--color-text-muted);">
-     <button type="submit" class="px-4 py-2 text-sm font-medium btn-primary rounded-lg">가져오기</button>
+   </div>
+   <form id="importForm" onsubmit="return handleImport(event)" class="space-y-3">
+    <select id="importSource" aria-label="가져오기 소스" class="w-full px-3 py-2.5 text-sm border rounded-lg" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text);">
+     <option value="todoist">Todoist (CSV)</option>
+     <option value="csv">일반 CSV (제목, 마감일, 우선순위)</option>
+    </select>
+    <div class="settings-form-grid">
+     <input type="file" id="importFile" aria-label="가져올 파일 선택" accept=".csv,.json" class="settings-file-input">
+     <button type="submit" class="settings-btn btn-primary">가져오기</button>
     </div>
    </form>
-   <p id="importResult" class="text-xs mt-2 hidden"></p>
-  </div>
+   <p id="importResult" class="text-xs mt-3 hidden"></p>
+  </section>
 
-  <hr style="border-color: var(--color-border-subtle);">
-
-  <!-- Export -->
-  <div>
-   <h5 class="font-bold mb-2" style="color: var(--color-text);">데이터 내보내기</h5>
-   <p class="text-xs mb-3" style="color: var(--color-text-muted);">할일, 습관 기록, 업무일지를 CSV로 다운로드합니다.</p>
-   <div class="flex flex-wrap gap-2">
-    <a href="/api/export/todos" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
-     할일 CSV
-    </a>
-    <a href="/api/export/habits" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
-     습관 CSV
-    </a>
-    <a href="/api/export/worklogs" class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-     style="background: var(--color-accent-soft); color: var(--color-accent-text);">
-     업무일지 CSV
-    </a>
+  <section class="settings-subpanel">
+   <div class="settings-subpanel-header">
+    <div>
+     <h5 class="settings-subpanel-title">데이터 내보내기</h5>
+     <p class="settings-subpanel-desc">할 일, 습관 기록, 업무일지를 CSV로 다운로드합니다.</p>
+    </div>
    </div>
-  </div>
+   <div class="settings-export-grid">
+    <a href="/api/export/todos" class="settings-btn settings-btn-secondary">할일 CSV</a>
+    <a href="/api/export/habits" class="settings-btn settings-btn-secondary">습관 CSV</a>
+    <a href="/api/export/worklogs" class="settings-btn settings-btn-secondary">업무일지 CSV</a>
+   </div>
+  </section>
  </div>
 
- <script>
- function handleImport(e){
-  e.preventDefault();
-  var file = document.getElementById('importFile').files[0];
-  if(!file){ showToast('파일을 선택하세요', 'error'); return false; }
-  var source = document.getElementById('importSource').value;
-  var formData = new FormData();
-  formData.append('file', file);
-  formData.append('source', source);
-  fetch('/api/import/todos', { method: 'POST', body: formData })
-   .then(function(r){return r.json()})
-   .then(function(data){
-    var el = document.getElementById('importResult');
-    el.classList.remove('hidden');
-    if(data.ok){
-     el.style.color = 'var(--color-success)';
-     el.textContent = data.count + '건 가져오기 완료';
-     showToast(data.count + '건 가져옴', 'success');
-    } else {
-     el.style.color = 'var(--color-danger)';
-     el.textContent = data.error || '오류 발생';
-    }
-   });
-  return false;
- }
- </script>
  </details>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/settings.js?v={{ asset_hash('js/settings.js') }}" defer></script>
 {% endblock %}

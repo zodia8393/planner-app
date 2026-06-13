@@ -1,5 +1,6 @@
 import json
 import math
+import sqlite3
 from collections import OrderedDict
 from datetime import date, datetime
 
@@ -16,85 +17,147 @@ PER_PAGE_DEFAULT = 20
 router = APIRouter()
 
 
+def _todo_error_context(
+    *,
+    filter: str,
+    category_id: int | None,
+    assignee: str | None,
+    energy: int | None,
+    tag: str | None,
+    page: int,
+    per_page: int,
+    todo_create_error: str,
+    retry_url: str,
+) -> dict:
+    return {
+        "page": "todos",
+        "todo_groups": OrderedDict(),
+        "todo_count": 0,
+        "categories": [],
+        "current_filter": filter,
+        "current_category_id": category_id,
+        "current_assignee": assignee,
+        "current_energy": energy,
+        "current_tag": tag,
+        "priority_map": PRIORITY_MAP,
+        "repeat_map": REPEAT_MAP,
+        "rrule_freq_options": RRULE_FREQ_OPTIONS,
+        "rrule_day_options": RRULE_DAY_OPTIONS,
+        "rrule_to_korean": rrule_to_korean,
+        "pg_page": page,
+        "pg_per_page": per_page,
+        "pg_total": 0,
+        "pg_total_pages": 1,
+        "pg_has_next": False,
+        "pg_has_prev": False,
+        "pg_filter_qs": "",
+        "todo_feedback": "",
+        "todo_create_error": todo_create_error,
+        "todo_list_error": True,
+        "todo_list_error_message": "할일 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+        "todo_list_retry_url": retry_url,
+    }
+
+
 @router.get("/todos", response_class=HTMLResponse)
 async def todos_page(request: Request, filter: str = "all",
                      category_id: str = None, assignee: str = None,
                      energy: int = None, tag: str = None,
                      page: int = Query(1, ge=1),
-                     per_page: int = Query(PER_PAGE_DEFAULT, ge=1, le=100)):
+                     per_page: int = Query(PER_PAGE_DEFAULT, ge=1, le=100),
+                     todo_create_error: str = ""):
     S = request.app.state
     pid = S.get_profile_id(request)
     cat_id_int = safe_int(category_id)
-    with S.get_db() as conn:
-        today_str = date.today().isoformat()
-        where = "1=1"
-        params: list = []
+    try:
+        with S.get_db() as conn:
+            today_str = date.today().isoformat()
+            where = "1=1"
+            params: list = []
 
-        if filter == "completed":
-            where = "t.completed = 1"
-        elif filter == "active":
-            where = "t.completed = 0"
-        elif filter == "overdue":
-            where = "t.completed = 0 AND t.due_date < ? AND t.due_date IS NOT NULL"
-            params.append(today_str)
+            if filter == "completed":
+                where = "t.completed = 1"
+            elif filter == "active":
+                where = "t.completed = 0"
+            elif filter == "overdue":
+                where = "t.completed = 0 AND t.due_date < ? AND t.due_date IS NOT NULL"
+                params.append(today_str)
 
-        where += " AND t.profile_id = ?"
-        params.append(pid)
+            where += " AND t.profile_id = ?"
+            params.append(pid)
 
-        if cat_id_int:
-            where += " AND t.category_id = ?"
-            params.append(cat_id_int)
+            if cat_id_int:
+                where += " AND t.category_id = ?"
+                params.append(cat_id_int)
 
-        if assignee:
-            where += " AND t.assignee = ?"
-            params.append(assignee)
+            if assignee:
+                where += " AND t.assignee = ?"
+                params.append(assignee)
 
-        if energy in (1, 2, 3):
-            where += " AND t.energy_level = ?"
-            params.append(energy)
+            if energy in (1, 2, 3):
+                where += " AND t.energy_level = ?"
+                params.append(energy)
 
-        # Item 18: Tag filter
-        if tag:
-            where += " AND t.tags LIKE ?"
-            params.append(f'%"{tag}"%')
+            # Item 18: Tag filter
+            if tag:
+                where += " AND t.tags LIKE ?"
+                params.append(f'%"{tag}"%')
 
-        # Total count for pagination
-        total = conn.execute(f"""
-            SELECT COUNT(*) FROM todos t WHERE {where}
-        """, params).fetchone()[0]
+            # Total count for pagination
+            total = conn.execute(f"""
+                SELECT COUNT(*) FROM todos t WHERE {where}
+            """, params).fetchone()[0]
 
-        total_pages = max(1, math.ceil(total / per_page))
-        if page > total_pages:
-            page = total_pages
-        offset = (page - 1) * per_page
+            total_pages = max(1, math.ceil(total / per_page))
+            if page > total_pages:
+                page = total_pages
+            offset = (page - 1) * per_page
 
-        todos = conn.execute(f"""
-            SELECT t.*, c.name as category_name, c.color as category_color
-            FROM todos t LEFT JOIN categories c ON t.category_id = c.id
-            WHERE {where}
-            ORDER BY t.completed ASC,
-                     CASE WHEN t.due_date IS NULL THEN 1 ELSE 0 END,
-                     t.due_date ASC, t.priority ASC, t.sort_order ASC
-            LIMIT ? OFFSET ?
-        """, params + [per_page, offset]).fetchall()
+            todos = conn.execute(f"""
+                SELECT t.*, c.name as category_name, c.color as category_color
+                FROM todos t LEFT JOIN categories c ON t.category_id = c.id
+                WHERE {where}
+                ORDER BY t.completed ASC,
+                         CASE WHEN t.due_date IS NULL THEN 1 ELSE 0 END,
+                         t.due_date ASC, t.priority ASC, t.sort_order ASC
+                LIMIT ? OFFSET ?
+            """, params + [per_page, offset]).fetchall()
 
-        categories = S.get_categories(conn, pid)
+            categories = S.get_categories(conn, pid)
 
-        grouped: OrderedDict[str, list] = OrderedDict()
-        todo_list = [dict(t) for t in todos]
-        todo_ids = [t["id"] for t in todo_list]
-        subs_by_todo: dict[int, list] = {}
-        if todo_ids:
-            ph = ",".join("?" * len(todo_ids))
-            all_subs = conn.execute(
-                f"SELECT * FROM subtasks WHERE todo_id IN ({ph}) ORDER BY sort_order, id", todo_ids
-            ).fetchall()
-            for s in all_subs:
-                subs_by_todo.setdefault(s["todo_id"], []).append(dict(s))
-        for td in todo_list:
-            td["subtasks"] = subs_by_todo.get(td["id"], [])
-            key = td.get("due_date") or ""
-            grouped.setdefault(key, []).append(td)
+            grouped: OrderedDict[str, list] = OrderedDict()
+            todo_list = [dict(t) for t in todos]
+            todo_ids = [t["id"] for t in todo_list]
+            subs_by_todo: dict[int, list] = {}
+            if todo_ids:
+                ph = ",".join("?" * len(todo_ids))
+                all_subs = conn.execute(
+                    f"SELECT * FROM subtasks WHERE todo_id IN ({ph}) ORDER BY sort_order, id", todo_ids
+                ).fetchall()
+                for s in all_subs:
+                    subs_by_todo.setdefault(s["todo_id"], []).append(dict(s))
+            for td in todo_list:
+                td["subtasks"] = subs_by_todo.get(td["id"], [])
+                key = td.get("due_date") or ""
+                grouped.setdefault(key, []).append(td)
+    except sqlite3.Error:
+        response = S.render(
+            request,
+            "todos.html",
+            _todo_error_context(
+                filter=filter,
+                category_id=cat_id_int,
+                assignee=assignee,
+                energy=energy,
+                tag=tag,
+                page=page,
+                per_page=per_page,
+                todo_create_error=todo_create_error,
+                retry_url=str(request.url),
+            ),
+        )
+        response.status_code = 503
+        return response
 
     # Build query string preserving existing filters for pagination links
     qs_parts = []
@@ -112,7 +175,8 @@ async def todos_page(request: Request, filter: str = "all",
         qs_parts.append(f"per_page={per_page}")
     filter_qs = "&".join(qs_parts)
 
-    return S.render(request, "todos.html", {
+    todo_feedback = "할일이 추가되었습니다." if request.cookies.get("todo_flash") == "created" else ""
+    response = S.render(request, "todos.html", {
         "page": "todos",
         "todo_groups": grouped,
         "todo_count": total,
@@ -134,7 +198,15 @@ async def todos_page(request: Request, filter: str = "all",
         "pg_has_next": page < total_pages,
         "pg_has_prev": page > 1,
         "pg_filter_qs": filter_qs,
+        "todo_feedback": todo_feedback,
+        "todo_create_error": todo_create_error,
+        "todo_list_error": False,
+        "todo_list_error_message": "",
+        "todo_list_retry_url": str(request.url),
     })
+    if todo_feedback:
+        response.delete_cookie("todo_flash")
+    return response
 
 
 def _classify_kanban_column(todo: dict) -> str:
@@ -265,7 +337,14 @@ async def create_todo(request: Request,
     pid = S.get_profile_id(request)
     title = clamp_text(fix_mojibake(title), 200).strip()
     if not title:
-        return S.redirect(request, "/todos")
+        response = await todos_page(
+            request,
+            page=1,
+            per_page=PER_PAGE_DEFAULT,
+            todo_create_error="할일 제목을 입력해주세요.",
+        )
+        response.status_code = 400
+        return response
     description = clamp_text(fix_mojibake(description), 2000)
     assignee = clamp_text(fix_mojibake(assignee), 100)
     priority = clamp_priority(priority)
@@ -307,16 +386,28 @@ async def create_todo(request: Request,
     tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
     cat_id = safe_int(category_id)
 
-    with S.get_db() as conn:
-        max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
-        cur = conn.execute("""
-            INSERT INTO todos (title, description, due_date, priority, category_id, tags, repeat_type, recurrence_end, assignee, sort_order, profile_id, energy_level, reminder_offsets)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, max_order + 1, pid, energy_level, ro))
-        S.audit_log(conn, "todo", cur.lastrowid, "create", {"title": title}, str(pid))
+    try:
+        with S.get_db() as conn:
+            max_order = conn.execute("SELECT COALESCE(MAX(sort_order),0) FROM todos WHERE profile_id=?", (pid,)).fetchone()[0]
+            cur = conn.execute("""
+                INSERT INTO todos (title, description, due_date, priority, category_id, tags, repeat_type, recurrence_end, assignee, sort_order, profile_id, energy_level, reminder_offsets)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, max_order + 1, pid, energy_level, ro))
+            S.audit_log(conn, "todo", cur.lastrowid, "create", {"title": title}, str(pid))
+    except sqlite3.Error:
+        response = await todos_page(
+            request,
+            page=1,
+            per_page=PER_PAGE_DEFAULT,
+            todo_create_error="할일을 저장하지 못했습니다. 입력 내용을 확인하고 다시 시도해주세요.",
+        )
+        response.status_code = 503
+        return response
 
     S.event_bus.emit("todo", {"action": "created", "title": title})
-    return S.redirect(request, "/todos")
+    response = S.redirect(request, "/todos")
+    response.set_cookie("todo_flash", "created", max_age=30, httponly=True, samesite="lax")
+    return response
 
 
 @router.post("/todos/{todo_id}/toggle", response_class=HTMLResponse)
@@ -391,17 +482,21 @@ def _enrich_todo_rrule(td: dict) -> dict:
 async def edit_todo_form(request: Request, todo_id: int):
     S = request.app.state
     pid = S.get_profile_id(request)
+    return _render_todo_edit_form(S, request, todo_id, pid)
+
+
+def _render_todo_edit_form(S, request: Request, todo_id: int, pid: int, todo_edit_error: str = "", status_code: int = 400):
     with S.get_db() as conn:
         todo = conn.execute("SELECT * FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
         if not todo:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="할일을 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
         subtasks = [dict(s) for s in conn.execute(
             "SELECT * FROM subtasks WHERE todo_id=? ORDER BY sort_order, id", (todo_id,)
         ).fetchall()]
     td = _enrich_todo_rrule(dict(todo))
     td["subtasks"] = subtasks
-    return S.render(request, "partials/todo_edit_form.html", {
+    response = S.render(request, "partials/todo_edit_form.html", {
         "todo": td,
         "categories": [dict(c) for c in categories],
         "priority_map": PRIORITY_MAP,
@@ -409,7 +504,83 @@ async def edit_todo_form(request: Request, todo_id: int):
         "rrule_freq_options": RRULE_FREQ_OPTIONS,
         "rrule_day_options": RRULE_DAY_OPTIONS,
         "rrule_to_korean": rrule_to_korean,
+        "todo_edit_error": todo_edit_error,
     })
+    if todo_edit_error:
+        return HTMLResponse(response.body, status_code=status_code)
+    return response
+
+
+def _apply_todo_update(
+    conn,
+    S,
+    todo_id: int,
+    pid: int,
+    *,
+    title: str = "",
+    description: str = "",
+    due_date: str = "",
+    priority: int = 2,
+    category_id: str = "",
+    tags: str = "",
+    repeat_type: str = "none",
+    recurrence_end: str = "",
+    assignee: str = "",
+    energy_level: int = 2,
+    rrule_freq: str = "",
+    rrule_interval: int = 1,
+    rrule_byday: str = "",
+    rrule_bymonthday: str = "",
+    rrule_end_type: str = "never",
+    rrule_count: int = 0,
+    rrule_until: str = "",
+    reminder_offsets: str = "",
+) -> dict:
+    title = clamp_text(fix_mojibake(title), 200).strip()
+    if not title:
+        raise ValueError("제목은 필수입니다")
+    description = clamp_text(fix_mojibake(description), 2000)
+    assignee = clamp_text(fix_mojibake(assignee), 100)
+    priority = clamp_priority(priority)
+    due_date = validate_date_str(due_date)
+    recurrence_end = validate_date_str(recurrence_end) or ""
+    energy_level = max(1, min(3, energy_level))
+    ro = reminder_offsets.strip() if reminder_offsets else None
+    if ro in ("", "[]"):
+        ro = None
+
+    if repeat_type == "custom" and rrule_freq:
+        byday = [d.strip() for d in rrule_byday.split(",") if d.strip()] if rrule_byday else []
+        bymonthday_list = [int(d.strip()) for d in rrule_bymonthday.split(",") if d.strip().isdigit()] if rrule_bymonthday else []
+        count_val = rrule_count if rrule_end_type == "count" and rrule_count > 0 else None
+        until_val = validate_date_str(rrule_until) if rrule_end_type == "until" else None
+        repeat_type = build_rrule(rrule_freq, rrule_interval, byday, bymonthday_list, count_val, until_val)
+        if not repeat_type:
+            repeat_type = "none"
+
+    tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
+    cat_id = safe_int(category_id)
+    old = conn.execute(
+        "SELECT title, description, due_date, priority FROM todos WHERE id=? AND profile_id=?",
+        (todo_id, pid),
+    ).fetchone()
+    cur = conn.execute("""
+        UPDATE todos SET title=?, description=?, due_date=?, priority=?, category_id=?,
+               tags=?, repeat_type=?, recurrence_end=?, assignee=?, energy_level=?, reminder_offsets=?, updated_at=datetime('now','localtime')
+        WHERE id=? AND profile_id=?
+    """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, energy_level, ro, todo_id, pid))
+    changes = {}
+    if old:
+        if old["title"] != title:
+            changes["title"] = {"old": old["title"], "new": title}
+        if old["description"] != description:
+            changes["description"] = {"old": old["description"][:50], "new": description[:50]}
+        if old["due_date"] != due_date:
+            changes["due_date"] = {"old": old["due_date"], "new": due_date}
+        if old["priority"] != priority:
+            changes["priority"] = {"old": old["priority"], "new": priority}
+    S.audit_log(conn, "todo", todo_id, "update", changes, str(pid))
+    return {"title": title, "changes": changes, "updated": cur.rowcount}
 
 
 @router.put("/todos/{todo_id}", response_class=HTMLResponse)
@@ -434,52 +605,52 @@ async def update_todo(request: Request, todo_id: int,
                       reminder_offsets: str = Form("")):
     S = request.app.state
     pid = S.get_profile_id(request)
-    title = clamp_text(fix_mojibake(title), 200).strip()
-    if not title:
+    try:
+        with S.get_db() as conn:
+            result = _apply_todo_update(
+                conn,
+                S,
+                todo_id,
+                pid,
+                title=title,
+                description=description,
+                due_date=due_date,
+                priority=priority,
+                category_id=category_id,
+                tags=tags,
+                repeat_type=repeat_type,
+                recurrence_end=recurrence_end,
+                assignee=assignee,
+                energy_level=energy_level,
+                rrule_freq=rrule_freq,
+                rrule_interval=rrule_interval,
+                rrule_byday=rrule_byday,
+                rrule_bymonthday=rrule_bymonthday,
+                rrule_end_type=rrule_end_type,
+                rrule_count=rrule_count,
+                rrule_until=rrule_until,
+                reminder_offsets=reminder_offsets,
+            )
+    except ValueError:
+        if request.headers.get("HX-Request"):
+            return _render_todo_edit_form(S, request, todo_id, pid, "제목을 입력해야 저장할 수 있습니다.")
         raise HTTPException(status_code=400, detail="제목은 필수입니다")
-    description = clamp_text(fix_mojibake(description), 2000)
-    assignee = clamp_text(fix_mojibake(assignee), 100)
-    priority = clamp_priority(priority)
-    due_date = validate_date_str(due_date)
-    recurrence_end = validate_date_str(recurrence_end) or ""
-    energy_level = max(1, min(3, energy_level))
-    ro = reminder_offsets.strip() if reminder_offsets else None
-    if ro in ("", "[]"):
-        ro = None
+    except sqlite3.Error:
+        if request.headers.get("HX-Request"):
+            return _render_todo_edit_form(
+                S,
+                request,
+                todo_id,
+                pid,
+                "변경사항을 저장하지 못했습니다. 입력 내용을 확인하고 다시 시도해주세요.",
+                status_code=503,
+            )
+        raise HTTPException(status_code=503, detail="변경사항을 저장하지 못했습니다")
 
-    # Build RRULE from custom fields if repeat_type is 'custom'
-    if repeat_type == "custom" and rrule_freq:
-        byday = [d.strip() for d in rrule_byday.split(",") if d.strip()] if rrule_byday else []
-        bymonthday_list = [int(d.strip()) for d in rrule_bymonthday.split(",") if d.strip().isdigit()] if rrule_bymonthday else []
-        count_val = rrule_count if rrule_end_type == "count" and rrule_count > 0 else None
-        until_val = validate_date_str(rrule_until) if rrule_end_type == "until" else None
-        repeat_type = build_rrule(rrule_freq, rrule_interval, byday, bymonthday_list, count_val, until_val)
-        if not repeat_type:
-            repeat_type = "none"
-
-    tag_list = [t.strip() for t in fix_mojibake(tags).split(",") if t.strip()] if tags else []
-    cat_id = safe_int(category_id)
-
-    with S.get_db() as conn:
-        old = conn.execute("SELECT title, description, due_date, priority FROM todos WHERE id=? AND profile_id=?", (todo_id, pid)).fetchone()
-        conn.execute("""
-            UPDATE todos SET title=?, description=?, due_date=?, priority=?, category_id=?,
-                   tags=?, repeat_type=?, recurrence_end=?, assignee=?, energy_level=?, reminder_offsets=?, updated_at=datetime('now','localtime')
-            WHERE id=? AND profile_id=?
-        """, (title, description, due_date, priority, cat_id, json.dumps(tag_list), repeat_type, recurrence_end, assignee, energy_level, ro, todo_id, pid))
-        changes = {}
-        if old:
-            if old["title"] != title:
-                changes["title"] = {"old": old["title"], "new": title}
-            if old["description"] != description:
-                changes["description"] = {"old": old["description"][:50], "new": description[:50]}
-            if old["due_date"] != due_date:
-                changes["due_date"] = {"old": old["due_date"], "new": due_date}
-            if old["priority"] != priority:
-                changes["priority"] = {"old": old["priority"], "new": priority}
-        S.audit_log(conn, "todo", todo_id, "update", changes, str(pid))
-
-    S.event_bus.emit("todo", {"action": "updated", "id": todo_id, "title": title})
+    S.event_bus.emit("todo", {"action": "updated", "id": todo_id, "title": result["title"]})
+    if request.headers.get("HX-Request"):
+        with S.get_db() as conn:
+            return _render_todo_item(S, request, conn, todo_id, pid, "변경사항이 저장되었습니다.")
     return S.redirect(request, "/todos")
 
 
@@ -532,7 +703,7 @@ async def bulk_todo_action(request: Request):
 
 # ── Subtasks ──
 
-def _render_todo_item(S, request, conn, todo_id: int, pid: int):
+def _render_todo_item(S, request, conn, todo_id: int, pid: int, status_message: str = ""):
     """Helper: fetch a single todo with subtasks and render todo_item partial."""
     updated = conn.execute(
         "SELECT t.*, c.name as category_name, c.color as category_color "
@@ -550,6 +721,7 @@ def _render_todo_item(S, request, conn, todo_id: int, pid: int):
         "todo": td, "priority_map": PRIORITY_MAP,
         "repeat_map": REPEAT_MAP, "rrule_to_korean": rrule_to_korean,
         "today": date.today(),
+        "status_message": status_message,
     })
 
 

@@ -8,7 +8,10 @@
 
     /* ── Event Delegation ── */
     function initEventDelegation() {
+        if (window.__plannerDashboardDelegationReady) return;
+        window.__plannerDashboardDelegationReady = true;
         document.addEventListener('click', function(e) {
+            if (!e.target || !e.target.closest) return;
             const target = e.target.closest('[data-action]');
             if (!target) return;
             const action = target.dataset.action;
@@ -17,7 +20,6 @@
                 case 'dismiss-onboarding': {
                     const ob = document.getElementById('onboardingChecklist');
                     if (ob) ob.style.display = 'none';
-                    localStorage.setItem('onboarding_done', '1');
                     fetch('/api/onboarding/dismiss', {method: 'POST'}).catch(function(){});
                     break;
                 }
@@ -64,31 +66,28 @@
         fetch('/api/onboarding/step/' + step, {method: 'POST'}).then(function() {
             markOnboardingDone(step);
             const prog = document.getElementById('onboardingProgress');
+            if (!prog) return;
             const w = parseInt(prog.style.width) || 0;
             prog.style.width = Math.min(100, w + 25) + '%';
-            if (parseInt(prog.style.width) >= 100) { localStorage.setItem('onboarding_done', '1'); setTimeout(function() { document.getElementById('onboardingChecklist').style.display = 'none'; }, 1000); }
         }).catch(function(){});
         if (links[step]) window.location.href = links[step];
     }
 
     function initOnboarding() {
-        if (localStorage.getItem('onboarding_done')) return;
         fetch('/api/onboarding').then(function(r) { return r.json(); }).then(function(d) {
-            if (d.dismissed) { localStorage.setItem('onboarding_done', '1'); return; }
+            const checklist = document.getElementById('onboardingChecklist');
+            if (!checklist) return;
+            if (d.dismissed) {
+                checklist.style.display = 'none';
+                return;
+            }
             let done = 0;
             for (let i = 1; i <= 4; i++) {
                 if (d['step' + i]) { done++; markOnboardingDone(i); }
             }
-            if (done >= 4) {
-                localStorage.setItem('onboarding_done', '1');
-                return;
-            }
-            const checklist = document.getElementById('onboardingChecklist');
-            if (checklist) {
-                checklist.style.display = '';
-                const prog = document.getElementById('onboardingProgress');
-                if (prog) prog.style.width = (done / 4 * 100) + '%';
-            }
+            checklist.style.display = '';
+            const prog = document.getElementById('onboardingProgress');
+            if (prog) prog.style.width = (done / 4 * 100) + '%';
         }).catch(function(){});
     }
 
@@ -229,7 +228,8 @@
         initOnboarding();
         initTimetableNeedle();
         /* Update timetable needle every minute */
-        setInterval(initTimetableNeedle, 60000);
+        if (window.__plannerDashboardNeedleTimer) clearInterval(window.__plannerDashboardNeedleTimer);
+        window.__plannerDashboardNeedleTimer = setInterval(initTimetableNeedle, 60000);
     }
 
     document.addEventListener('DOMContentLoaded', init);

@@ -1,5 +1,5 @@
 {% extends"base.html" %}
-{% block head_extra %}<script src="/static/chart.umd.min.js" defer></script>{% endblock %}
+{% block head_extra %}<script src="/static/chart.umd.min.js?v={{ asset_hash('chart.umd.min.js') }}" defer></script>{% endblock %}
 {% block title %}리뷰{% endblock %}
 {% block page_title %}{{ label }} 리뷰{% endblock %}
 
@@ -103,8 +103,8 @@
  <p class="empty-state-title">이 기간에 분석할 데이터가 없습니다</p>
  <p class="empty-state-desc">할일을 완료하거나 업무일지를 작성하면 리뷰 데이터가 표시됩니다</p>
  <div class="flex gap-2 justify-center mt-4">
- <a href="/todos" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">할일 보기</a>
- <a href="/worklogs" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent);">업무일지</a>
+ <a href="/todos" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent-text);">할일 보기</a>
+ <a href="/worklogs" class="px-3 py-1.5 text-xs font-medium rounded-lg hover-accent-bg transition-colors" style="background: var(--color-accent-soft); color: var(--color-accent-text);">업무일지</a>
  </div>
 </div>
 {% endif %}

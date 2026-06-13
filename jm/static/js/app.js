@@ -72,12 +72,39 @@
  }
  }
 
- function toggleSidebar() {
+ function syncSidebarAccessibility() {
  const sb = document.getElementById('sidebar');
  const ov = document.getElementById('sidebarOverlay');
- sb.classList.toggle('-translate-x-full');
- ov.classList.toggle('hidden');
+ const btn = document.querySelector('[data-action="toggle-sidebar"][aria-controls="sidebar"]');
+ if (!sb) return;
+ const isMobile = window.matchMedia('(max-width: 1023px)').matches;
+ const isOpen = !sb.classList.contains('-translate-x-full');
+ if (isMobile && !isOpen) {
+ sb.setAttribute('inert', '');
+ sb.setAttribute('aria-hidden', 'true');
+ } else {
+ sb.removeAttribute('inert');
+ sb.removeAttribute('aria-hidden');
  }
+ if (btn) {
+ btn.setAttribute('aria-expanded', isMobile && isOpen ? 'true' : 'false');
+ btn.setAttribute('aria-label', isMobile && isOpen ? '사이드바 닫기' : '사이드바 열기');
+ }
+ if (ov) ov.classList.toggle('hidden', !(isMobile && isOpen));
+ }
+ function toggleSidebar() {
+ const sb = document.getElementById('sidebar');
+ if (!sb) return;
+ const willOpen = sb.classList.contains('-translate-x-full');
+ sb.classList.toggle('-translate-x-full');
+ syncSidebarAccessibility();
+ if (willOpen) {
+ const first = sb.querySelector('a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])');
+ if (first) first.focus();
+ }
+ }
+ syncSidebarAccessibility();
+ window.addEventListener('resize', syncSidebarAccessibility);
 
  // Toast notification system
  function showToast(message, type) {
@@ -142,18 +169,61 @@
  }, 5000);
  }
 
+ const SYNC_MESSAGES = {
+ offline: '오프라인 상태입니다. 연결되면 다시 동기화됩니다',
+ reconnecting: '실시간 연결을 다시 시도하는 중입니다',
+ restored: '실시간 연결이 복구되었습니다',
+ online: '실시간 동기화 연결됨'
+ };
+ let _syncRestoreTimer = null;
+ let _syncHadIssue = false;
+ function updateSyncStatus(state, message) {
+ const banner = document.getElementById('offlineBanner');
+ if (!banner) return;
+ const nextState = state || 'online';
+ const text = document.getElementById('offlineBannerText');
+ clearTimeout(_syncRestoreTimer);
+ banner.setAttribute('data-state', nextState);
+ if (text) text.textContent = message || SYNC_MESSAGES[nextState] || SYNC_MESSAGES.online;
+ if (nextState === 'online') {
+ banner.classList.add('hidden');
+ return;
+ }
+ banner.classList.remove('hidden');
+ if (nextState === 'restored') {
+ _syncRestoreTimer = setTimeout(function() {
+ banner.setAttribute('data-state', 'online');
+ banner.classList.add('hidden');
+ if (text) text.textContent = SYNC_MESSAGES.online;
+ }, 2600);
+ }
+ }
+ window.updateSyncStatus = updateSyncStatus;
+
  // WebSocket with exponential backoff reconnection
  let _wsReconnectDelay = 1000;
  let _wsPingInterval = null;
  let _ws = null;
  function connectWS() {
+ if (_ws && (_ws.readyState === WebSocket.CONNECTING || _ws.readyState === WebSocket.OPEN)) return;
+ if (!navigator.onLine) {
+ _syncHadIssue = true;
+ updateSyncStatus('offline');
+ return;
+ }
+ if (_syncHadIssue) updateSyncStatus('reconnecting');
  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
- _ws = new WebSocket(proto + '//' + location.host + '/ws');
+ const ws = new WebSocket(proto + '//' + location.host + '/ws');
+ _ws = ws;
 
- _ws.onopen = function() {
+ ws.onopen = function() {
  _wsReconnectDelay = 1000;
- const ob = document.getElementById('offlineBanner');
- if (ob) ob.classList.add('hidden');
+ if (_syncHadIssue) {
+ updateSyncStatus('restored');
+ } else {
+ updateSyncStatus('online');
+ }
+ _syncHadIssue = false;
  // Client-side ping every 25s to keep NAT/proxy alive
  clearInterval(_wsPingInterval);
  _wsPingInterval = setInterval(function() {
@@ -163,7 +233,7 @@
  }, 25000);
  };
 
- _ws.onmessage = function(e) {
+ ws.onmessage = function(e) {
  let data;
  try { data = JSON.parse(e.data); } catch(ex) { return; }
  if (data.type === 'ping' || data.type === 'pong') return;
@@ -184,21 +254,37 @@
  }
  };
 
- _ws.onclose = function() {
+ ws.onclose = function() {
  clearInterval(_wsPingInterval);
- const ob = document.getElementById('offlineBanner');
- if (ob) ob.classList.remove('hidden');
+ if (_ws === ws) _ws = null;
+ _syncHadIssue = true;
+ updateSyncStatus(navigator.onLine ? 'reconnecting' : 'offline');
  setTimeout(function() {
  _wsReconnectDelay = Math.min(_wsReconnectDelay * 2, 30000);
+ if (!navigator.onLine) return;
  connectWS();
  }, _wsReconnectDelay);
  };
 
- _ws.onerror = function() {
- if (_ws) _ws.close();
+ ws.onerror = function() {
+ _syncHadIssue = true;
+ updateSyncStatus(navigator.onLine ? 'reconnecting' : 'offline');
+ ws.close();
  };
  }
  connectWS();
+
+ window.addEventListener('offline', function() {
+ _syncHadIssue = true;
+ updateSyncStatus('offline');
+ if (_ws) _ws.close();
+ });
+ window.addEventListener('online', function() {
+ _syncHadIssue = true;
+ _wsReconnectDelay = 1000;
+ updateSyncStatus('reconnecting');
+ connectWS();
+ });
 
  // Reconnect on tab visibility change
  document.addEventListener('visibilitychange', function() {
@@ -333,10 +419,9 @@
  document.addEventListener('htmx:beforeRequest', function(e) {
  if (window.innerWidth < 1024) {
  const sb = document.getElementById('sidebar');
- const ov = document.getElementById('sidebarOverlay');
- if (!sb.classList.contains('-translate-x-full')) {
+ if (sb && !sb.classList.contains('-translate-x-full')) {
  sb.classList.add('-translate-x-full');
- ov.classList.add('hidden');
+ syncSidebarAccessibility();
  }
  }
  const verb = (e.detail.requestConfig || {}).verb;
@@ -423,33 +508,77 @@
  });
  })();
 
- // Render memo markdown on page load (marked + DOMPurify loaded on demand)
- let _memoLibsLoading = false;
+ // Render memo markdown locally. Raw HTML is escaped before limited markdown rules.
+ function escapeHtml(text) {
+ return String(text)
+ .replace(/&/g, '&amp;')
+ .replace(/</g, '&lt;')
+ .replace(/>/g, '&gt;')
+ .replace(/"/g, '&quot;')
+ .replace(/'/g, '&#39;');
+ }
+ function renderInlineMarkdown(text) {
+ return escapeHtml(text)
+ .replace(/`([^`]+)`/g, '<code>$1</code>')
+ .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+ .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+ }
+ function renderBasicMarkdown(text) {
+ const lines = String(text || '').split(/\r?\n/);
+ const html = [];
+ let listType = '';
+ function closeList() {
+ if (listType) {
+ html.push('</' + listType + '>');
+ listType = '';
+ }
+ }
+ lines.forEach(function(line) {
+ const trimmed = line.trim();
+ if (!trimmed) {
+ closeList();
+ return;
+ }
+ const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+ const ordered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+ const quote = trimmed.match(/^>\s+(.+)$/);
+ if (bullet) {
+ if (listType !== 'ul') { closeList(); html.push('<ul>'); listType = 'ul'; }
+ html.push('<li>' + renderInlineMarkdown(bullet[1]) + '</li>');
+ return;
+ }
+ if (ordered) {
+ if (listType !== 'ol') { closeList(); html.push('<ol>'); listType = 'ol'; }
+ html.push('<li>' + renderInlineMarkdown(ordered[1]) + '</li>');
+ return;
+ }
+ closeList();
+ if (quote) {
+ html.push('<blockquote>' + renderInlineMarkdown(quote[1]) + '</blockquote>');
+ } else {
+ html.push('<p>' + renderInlineMarkdown(trimmed) + '</p>');
+ }
+ });
+ closeList();
+ return html.join('');
+ }
  function _doMemoRender() {
- marked.setOptions({ breaks: true, gfm: true });
  document.querySelectorAll('.memo-content').forEach(function(el) {
  if (el.dataset.rendered) return;
+ const source = el.textContent;
+ if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+ marked.setOptions({ breaks: true, gfm: true });
  // SAFE: sanitized by DOMPurify — no raw user data
- el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
+ el.innerHTML = DOMPurify.sanitize(marked.parse(source));
+ } else {
+ el.innerHTML = renderBasicMarkdown(source);
+ }
  el.dataset.rendered = '1';
  });
  }
  function renderMemoMarkdown() {
  if (!document.querySelector('.memo-content:not([data-rendered])')) return;
- if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
  _doMemoRender();
- } else if (!_memoLibsLoading) {
- _memoLibsLoading = true;
- const s1 = document.createElement('script');
- s1.src = 'https://cdn.jsdelivr.net/npm/marked@12/marked.min.js';
- s1.onload = function() {
- const s2 = document.createElement('script');
- s2.src = 'https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js';
- s2.onload = function() { _memoLibsLoading = false; _doMemoRender(); };
- document.head.appendChild(s2);
- };
- document.head.appendChild(s1);
- }
  }
  renderMemoMarkdown();
  document.addEventListener('htmx:afterSettle', function() { renderMemoMarkdown(); });
@@ -465,6 +594,7 @@
  // Close panel on outside click
  document.addEventListener('click', function(e) {
  const panel = document.getElementById('notifPanel');
+ if (!e.target || !e.target.closest) return;
  if (panel && !panel.classList.contains('hidden') && !e.target.closest('#notifPanel') && !e.target.closest('[onclick*="toggleNotifPanel"]')) {
  panel.classList.add('hidden');
  }
@@ -542,7 +672,10 @@
 
  // PWA Service Worker registration
  if ('serviceWorker' in navigator) {
- navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function() {});
+ navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).then(function(reg) {
+ if (reg && reg.waiting) reg.waiting.postMessage({type: 'SKIP_WAITING'});
+ if (reg && reg.update) reg.update().catch(function() {});
+ }).catch(function() {});
  }
 
 let _focusTimer=null,_focusTotalSec=0,_focusRemain=0,_focusSaving=false;
@@ -615,9 +748,16 @@ _focusRestore();
 document.addEventListener('htmx:afterSettle',_focusRestore);
 
 (function() {
- // Accent color: apply saved preference
+ function applyAppearancePreferences() {
  const accent = localStorage.getItem('accent_color') || 'amber';
+ const appearanceTheme = localStorage.getItem('appearance_theme') || 'classic';
+ const sidebarStyle = localStorage.getItem('sidebar_style') || 'standard';
  document.body.dataset.accent = accent;
+ document.body.dataset.uiTheme = appearanceTheme;
+ document.body.dataset.sidebarStyle = sidebarStyle;
+ }
+ window.applyAppearancePreferences = applyAppearancePreferences;
+ applyAppearancePreferences();
 
  // Font size: apply saved preference
  const fontSize = localStorage.getItem('font_size') || 'medium';
@@ -763,6 +903,7 @@ function openBottomSheet(contentEl) {
  // Swipe-down to dismiss
  let startY = 0, currentY = 0;
  sheet.addEventListener('touchstart', function(e) {
+ if (!e.target || !e.target.closest) return;
  if (e.target.closest('input, textarea, select, button, a')) return;
  startY = e.touches[0].clientY;
  }, { passive: true });
@@ -862,18 +1003,43 @@ document.addEventListener('htmx:afterSettle', function() {
  if (document.querySelector('[data-long-press]:not([data-lp-init])')) initLongPress();
 });
 
-/* ── M: Skeleton Loading for HTMX (hx-boost page transitions) ── */
+/* ── HTMX navigation stability ── */
 document.body.addEventListener('htmx:beforeRequest', function(e) {
- // Show skeleton page when hx-boost navigates (full page swap into #mainContent)
- if (e.detail.elt.closest('[hx-boost]') && e.detail.target && e.detail.target.id === 'mainContent') {
- e.detail.target.innerHTML = '<div class="skeleton-page"><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div></div>';
+ if (e.detail.elt && e.detail.elt.closest && e.detail.elt.closest('[hx-boost]') && e.detail.target && e.detail.target.id === 'mainContent') {
+ e.detail.target.setAttribute('aria-busy', 'true');
  }
 });
+function clearMainContentBusyState() {
+ const target = document.getElementById('mainContent');
+ if (target) target.removeAttribute('aria-busy');
+}
+function recoverStaleMainContent() {
+ const target = document.getElementById('mainContent');
+ clearMainContentBusyState();
+ if (!target || !target.querySelector('.skeleton-page')) return;
+ if (target.querySelector('.dashboard-widget, .quick-command-card, form, table, [data-stable-content]')) return;
+ if (typeof _partialRefresh === 'function') {
+ _partialRefresh(location.pathname + location.search);
+ setTimeout(clearMainContentBusyState, 0);
+ } else {
+ location.reload();
+ }
+}
+function restoreStableMainContent() {
+ clearMainContentBusyState();
+ recoverStaleMainContent();
+}
+document.body.addEventListener('htmx:afterSwap', clearMainContentBusyState);
+document.body.addEventListener('htmx:afterRequest', clearMainContentBusyState);
+document.body.addEventListener('htmx:responseError', clearMainContentBusyState);
+document.body.addEventListener('htmx:historyRestore', function() { setTimeout(restoreStableMainContent, 0); });
+window.addEventListener('pageshow', function() { setTimeout(restoreStableMainContent, 0); });
 
 /* ── Prefetch: load page on link hover ── */
 (function() {
  const _prefetched = {};
  document.addEventListener('pointerenter', function(e) {
+  if (!e.target || !e.target.closest) return;
   const link = e.target.closest('a[href^="/"]');
   if (!link || _prefetched[link.href]) return;
   _prefetched[link.href] = true;

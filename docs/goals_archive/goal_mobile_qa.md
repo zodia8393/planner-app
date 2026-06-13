@@ -2,7 +2,7 @@
 
 ## 대상
 - JM: https://hj-jm-planner.fly.dev (인증 없이 접근 가능)
-- 소스: /workspace/app_planners/my/templates/ (기준 코드)
+- 소스: /workspace/app/planners/my/templates/ (기준 코드)
 
 ## 목적
 1단계: 배포 페이지를 모바일 UA로 fetch → HTML 분석 → 잔존 문제 검출·수정

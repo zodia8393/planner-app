@@ -20,7 +20,7 @@
 <details class="work-card rounded-xl p-4 mb-4">
  <summary class="flex items-center justify-between cursor-pointer select-none">
  <span class="text-sm font-semibold" style="color: var(--color-text);">새 메모 작성</span>
- <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent);">+</span>
+ <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background: var(--color-accent-soft); color: var(--color-accent-text);">+</span>
  </summary>
  <form action="/memos" method="POST" class="mt-3">
  <div class="space-y-2">
@@ -95,6 +95,10 @@
  </div>
  <p class="empty-state-title">메모가 없습니다</p>
  <p class="empty-state-desc">위에서 새 메모를 작성해보세요</p>
+ <div class="empty-state-actions">
+  <button type="button" data-action="open-memo-form" class="empty-state-primary">새 메모 작성</button>
+  <a href="/search" class="empty-state-secondary">기존 기록 검색</a>
+ </div>
  </div>
 {% endfor %}
 {% if memos|length > 0 %}</div>{% endif %}

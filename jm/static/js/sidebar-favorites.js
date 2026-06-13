@@ -32,12 +32,12 @@
 
  // Update star states in the more section
  function updateStarStates(){
-  const favs = getFavorites();
-  const stars = document.querySelectorAll('#sidebarMoreContent .fav-star');
-  stars.forEach(function(btn){
-   const link = btn.closest('a[data-sidebar-href]');
-   if(!link) return;
-   const href = link.getAttribute('data-sidebar-href');
+ const favs = getFavorites();
+ const stars = document.querySelectorAll('#sidebarMoreContent .fav-star');
+ stars.forEach(function(btn){
+   const row = btn.closest('[data-sidebar-href]');
+   if(!row) return;
+   const href = row.getAttribute('data-sidebar-href');
    const svg = btn.querySelector('svg');
    if(favs.indexOf(href) > -1){
     btn.classList.add('active');
@@ -66,9 +66,9 @@
 
   container.classList.remove('hidden');
 
-  // For each favorite, clone the link from the more section
+  // For each favorite, clone the row from the more section
   favs.forEach(function(href){
-   const original = document.querySelector('#sidebarMoreContent a[data-sidebar-href="'+href+'"]');
+   const original = document.querySelector('#sidebarMoreContent [data-sidebar-href="'+href+'"]');
    if(!original) return;
 
    const clone = original.cloneNode(true);
@@ -85,10 +85,11 @@
    }
 
    // Ensure nav-active is correct
+   const cloneLink = clone.querySelector('a[href]');
    if(currentPath === href){
-    clone.classList.add('nav-active');
+    if(cloneLink) cloneLink.classList.add('nav-active');
    } else {
-    clone.classList.remove('nav-active');
+    if(cloneLink) cloneLink.classList.remove('nav-active');
    }
 
    container.appendChild(clone);

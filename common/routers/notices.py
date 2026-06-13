@@ -61,7 +61,7 @@ async def edit_notice_form(request: Request, notice_id: int):
             (notice_id, pid),
         ).fetchone()
         if not notice:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="공지를 찾을 수 없습니다")
     return S.templates.TemplateResponse(request, "partials/notice_edit_form.html", {
         "notice": dict(notice),
     })

@@ -1,10 +1,11 @@
 {% extends"base.html" %}
-{% block head_extra %}<script src="/static/sortable.min.js"></script>{% endblock %}
+{% block head_extra %}<script src="/static/sortable.min.js?v={{ asset_hash('sortable.min.js') }}"></script>{% endblock %}
 {% block title %}업무 - MY PLANNER{% endblock %}
 {% block page_title %}업무 관리{% endblock %}
 {% block page_subtitle %}{{ todo_count }}개 항목{% endblock %}
 
 {% block content %}
+<div id="todoPage" hx-indicator="#todo-list-loading">
 <details class="mb-4 group usage-hint">
  <summary class="inline-flex items-center gap-1.5 text-xs hover-accent cursor-pointer transition-colors select-none" style="color: var(--color-text-faint);">
  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
@@ -109,13 +110,47 @@
 
 <!-- Add form -->
 <div class="work-card rounded-xl p-4 mb-4" id="addForm">
- <form action="/todos" method="POST">
+ {% if todo_feedback %}
+ <div id="todo-create-feedback" role="status" aria-live="polite" aria-atomic="true" aria-label="할일 추가 성공"
+ class="todo-create-feedback mb-3 rounded-lg border px-3 py-2 text-sm font-medium">
+ {{ todo_feedback }}
+ </div>
+ {% endif %}
+ {% if todo_create_error %}
+ <div id="todo-create-error" role="alert" aria-live="assertive" aria-atomic="true" aria-label="할일 추가 오류"
+ class="todo-create-error mb-3 rounded-lg border px-3 py-2 text-sm font-medium">
+ <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+  <span class="flex-1 min-w-0">{{ todo_create_error }}</span>
+  <button type="submit" form="addTodoForm" class="inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold focus-accent" aria-label="할일 추가 다시 저장"
+  style="background: var(--color-danger); color: #fff;">다시 저장</button>
+ </div>
+ </div>
+ {% endif %}
+ <div class="mb-3">
+ <label for="newTodoTitle" id="newTodoTitleLabel" class="block text-sm font-semibold" style="color: var(--color-text);">새 업무 제목</label>
+ <p id="newTodoHelp" class="mt-1 text-xs leading-relaxed" style="color: var(--color-text-muted);">제목을 입력한 뒤 추가를 누르세요. 옵션 더보기에서 마감일, 우선순위, 반복, 태그를 조정할 수 있습니다.</p>
+ </div>
+ <form id="addTodoForm" action="/todos" method="POST" hx-post="/todos" hx-indicator="#todo-create-loading">
  <div class="flex gap-2">
- <input type="text" name="title" placeholder="할 일 입력 (/오늘, /높음 등 슬래시 명령 지원)" required aria-label="새 업무 제목"
+ <input id="newTodoTitle" type="text" name="title" placeholder="할 일 입력 (/오늘, /높음 등 슬래시 명령 지원)" required aria-label="새 업무 제목"
+ aria-describedby="newTodoHelp {% if todo_create_error %}todo-create-error {% endif %}todo-create-validation"
+ {% if todo_create_error %}aria-invalid="true"{% endif %}
  class="input-premium flex-1 px-3.5 py-2.5 text-sm" style="background: var(--color-bg);">
- <button type="submit" class="btn-accent px-5 py-2.5 rounded-lg text-sm">
+ <p id="todo-create-validation" class="sr-only" role="status" aria-live="polite" aria-atomic="true">새 업무 제목은 필수입니다.</p>
+ <button type="submit" class="todo-create-submit btn-accent px-5 py-2.5 rounded-lg text-sm" aria-describedby="todo-create-loading">
  추가
  </button>
+ <button type="reset" class="todo-create-cancel px-4 py-2.5 rounded-lg border text-sm font-semibold hover-surface" aria-label="할일 추가 취소"
+ style="background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border);">
+ 취소
+ </button>
+ </div>
+ <div id="todo-create-loading" class="todo-create-loading htmx-indicator mt-2 rounded-lg border px-3 py-2 text-sm font-medium"
+ role="status" aria-live="polite" aria-atomic="true" aria-label="할일 추가 중">
+  <span class="inline-flex items-center gap-2">
+   <span class="inline-block h-2 w-2 rounded-full" style="background: var(--color-info);"></span>
+   할일을 추가하는 중입니다
+  </span>
  </div>
  <!-- Collapsible options -->
  <details id="addFormOptions">
@@ -162,10 +197,10 @@
  <!-- Reminder offsets for new todo -->
  <div class="mt-2">
  <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">🔔 알림</label>
- <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="">
+ <input type="hidden" name="reminder_offsets" id="newTodoReminderOffsets" value="" aria-label="알림 오프셋">
  <div class="flex flex-wrap gap-1 mb-1.5" id="newTodoOffsetChips"></div>
  <div class="flex gap-1.5">
- <select id="newTodoOffsetSel" aria-label="알림 시간 선택" class="flex-1 px-2 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ <select id="newTodoOffsetSel" aria-label="알림 시간 선택" class="flex-1 px-2 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  <option value='{"value":0,"unit":"minute"}'>당일 오전 9시</option>
  <option value='{"value":5,"unit":"minute"}'>5분 전</option>
  <option value='{"value":10,"unit":"minute"}'>10분 전</option>
@@ -182,7 +217,7 @@
  <button type="button" data-action="add-new-todo-offset" aria-label="알림 추가" class="px-2.5 py-1 text-xs btn-primary rounded-lg">+</button>
  </div>
  <label class="flex items-center gap-1.5 mt-1.5 cursor-pointer">
- <input type="checkbox" id="newTodoUseDefault" aria-label="기본 알림 사용" checked data-action="toggle-new-todo-default" class="w-3.5 h-3.5 rounded" style="accent-color: var(--color-accent);">
+ <input type="checkbox" id="newTodoUseDefault" aria-label="기본 알림 사용" checked data-action="toggle-new-todo-default" class="w-3.5 h-3.5 rounded focus-accent" style="accent-color: var(--color-accent);">
  <span class="text-xs" style="color: var(--color-text-muted);">기본값 사용</span>
  </label>
  </div>
@@ -191,9 +226,9 @@
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">매</span>
  <input type="number" name="rrule_interval" value="1" aria-label="반복 간격" min="1" max="99"
- class="w-16 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="w-16 px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  <select name="rrule_freq" id="addRruleFreq" aria-label="반복 단위" data-action="toggle-add-rrule-extra"
- class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  <option value="DAILY">일</option>
  <option value="WEEKLY" selected>주</option>
  <option value="MONTHLY">개월</option>
@@ -203,30 +238,30 @@
  <div id="addBydayRow" class="flex flex-wrap gap-1">
  {% for code, label in rrule_day_options %}
  <label class="flex items-center gap-1 px-2.5 py-1.5 text-xs border rounded-lg cursor-pointer hover-accent-bg" style="background: var(--color-surface);">
- <input type="checkbox" class="rrule-byday-add" aria-label="반복 요일" value="{{ code }}"> {{ label }}
+ <input type="checkbox" class="rrule-byday-add focus-accent" aria-label="반복 요일" value="{{ code }}"> {{ label }}
  </label>
  {% endfor %}
  </div>
  <div id="addBymonthdayRow" class="hidden">
  <input type="text" name="rrule_bymonthday" aria-label="월 반복 날짜" placeholder="날짜 (쉼표구분, 예: 1,15)"
- class="w-full px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="w-full px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  </div>
  <div class="flex items-center gap-2">
  <span class="text-xs whitespace-nowrap" style="color: var(--color-text-muted);">종료:</span>
  <select name="rrule_end_type" id="addRruleEndType" aria-label="반복 종료 방식" data-action="toggle-add-end-fields"
- class="px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  <option value="never">무제한</option>
  <option value="count">횟수</option>
  <option value="until">날짜</option>
  </select>
  <input type="number" name="rrule_count" id="addRruleCount" aria-label="반복 횟수" min="1" max="999" value="10" placeholder="횟수"
- class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="hidden w-20 px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  <input type="date" name="rrule_until" id="addRruleUntil" aria-label="반복 종료일"
- class="hidden px-2.5 py-1.5 text-xs border rounded-lg" style="background: var(--color-surface);">
+ class="hidden px-2.5 py-1.5 text-xs border rounded-lg focus-accent" style="background: var(--color-surface);">
  </div>
  <div id="addRrulePreview" class="text-[11px]" style="color: var(--color-accent);"></div>
  </div>
- <input type="hidden" name="rrule_byday" id="addRruleByday" value="">
+ <input type="hidden" name="rrule_byday" id="addRruleByday" value="" aria-label="반복 요일 값">
  <textarea name="description" placeholder="설명 (선택)" aria-label="설명" rows="2"
  class="w-full mt-2 px-3 py-2 text-sm border rounded-lg focus-accent hidden" id="descField"></textarea>
  </details>
@@ -234,24 +269,53 @@
 </div>
 
 <!-- Bulk action bar -->
-<div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex items-center gap-3 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
+<div id="bulkBar" class="hidden mb-3 p-3 rounded-xl flex flex-wrap items-center gap-2 text-sm" style="background: var(--color-accent-soft); border-color: var(--color-accent-soft);">
  <span class="font-medium" style="color: var(--color-accent-text);"><span id="bulkCount">0</span>개 선택</span>
  <button data-action="bulk-select-all" aria-label="전체 선택" class="btn-sm border rounded-lg hover-surface" style="background: var(--color-surface);">전체 선택</button>
- <div class="flex-1"></div>
+ <div class="flex-1 min-w-0"></div>
  <button data-action="bulk-action" data-bulk-type="complete" aria-label="선택 항목 완료 처리" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-success); color: #fff;">완료 처리</button>
  <button data-action="bulk-action" data-bulk-type="delete" aria-label="선택 항목 삭제" class="btn-sm rounded-lg hover:opacity-90" style="background: var(--color-danger); color: #fff;">삭제</button>
  <button data-action="bulk-mode-off" aria-label="일괄 처리 취소" class="px-2 py-1.5 text-xs hover-text">취소</button>
 </div>
 
 <!-- Todo list grouped by date -->
-<section aria-label="할일 목록">
+<section aria-label="할일 목록" aria-describedby="todo-list-status">
+<div id="todo-list-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+ 할일 목록 상태: {{ todo_count }}개 항목이 있습니다.
+</div>
+<div id="todo-list-loading" class="todo-list-loading htmx-indicator mb-3 rounded-lg border px-3 py-2 text-sm font-medium"
+ role="status" aria-live="polite" aria-atomic="true" aria-label="할일 목록 불러오는 중"
+ style="background: var(--color-info-soft); border-color: var(--color-info); color: var(--color-info);">
+ <span class="inline-flex items-center gap-2">
+  <span class="inline-block h-2 w-2 rounded-full" style="background: var(--color-info);"></span>
+  할일 목록을 불러오는 중입니다
+ </span>
+</div>
+{% if todo_list_error %}
+<div id="todo-list-error" class="work-card rounded-xl p-4 mb-3 border"
+ role="alert" aria-live="assertive" aria-atomic="true" aria-labelledby="todo-list-error-title" aria-describedby="todo-list-error-desc"
+ style="background: var(--color-danger-soft); border-color: var(--color-danger);">
+ <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+  <div class="flex-1 min-w-0">
+   <p id="todo-list-error-title" class="text-sm font-bold" style="color: var(--color-danger);">할일 목록을 불러올 수 없습니다</p>
+   <p id="todo-list-error-desc" class="mt-1 text-sm" style="color: var(--color-text-muted);">{{ todo_list_error_message }}</p>
+  </div>
+  <a id="todo-list-retry" href="{{ todo_list_retry_url }}" hx-get="{{ todo_list_retry_url }}" hx-target="#todoPage" hx-swap="outerHTML"
+   class="inline-flex min-h-10 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold focus-accent"
+   aria-label="할일 목록 다시 시도"
+   style="background: var(--color-danger); color: #fff;">
+   다시 시도
+  </a>
+ </div>
+</div>
+{% endif %}
 <div id="todoList" class="space-y-4">
  {% for date_key, todos in todo_groups.items() %}
  <div>
  <div class="sticky top-0 z-10 flex items-center gap-2 py-2 mb-1.5">
  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm
  {% if date_key == today.isoformat() %}text-white{% endif %}"
- style="{% if date_key == today.isoformat() %}background: var(--gradient-accent); box-shadow: var(--shadow-btn-accent);{% elif date_key and date_key < today.isoformat() %}background: var(--color-danger-soft); color: var(--color-danger);{% elif date_key %}background: var(--color-surface); border: 1px solid var(--color-border);{% else %}background: var(--color-bg); border: 1px solid var(--color-border-subtle);{% endif %}">
+ style="{% if date_key == today.isoformat() %}background-color: var(--color-accent-hover); background-image: var(--gradient-accent); box-shadow: var(--shadow-btn-accent);{% elif date_key and date_key < today.isoformat() %}background: var(--color-danger-soft); color: var(--color-danger);{% elif date_key %}background: var(--color-surface); border: 1px solid var(--color-border);{% else %}background: var(--color-bg); border: 1px solid var(--color-border-subtle);{% endif %}">
  {% if date_key == today.isoformat() %}
  오늘 <span class="font-normal ml-1 opacity-80">{{ date_key|format_date }}</span>
  {% elif date_key %}
@@ -270,7 +334,7 @@
  </div>
  </div>
  {% else %}
- <div class="empty-state">
+ <div id="todo-empty-state" class="empty-state" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="todo-empty-title" aria-describedby="todo-empty-desc">
  <div class="empty-state-icon">
  <svg class="w-12 h-12 mx-auto" style="color: var(--color-accent);" fill="none" viewBox="0 0 48 48" stroke-width="1.5" stroke="currentColor">
   <rect x="10" y="6" width="28" height="36" rx="4" stroke="currentColor" fill="none"/>
@@ -280,9 +344,9 @@
   <line x1="16" y1="38" x2="26" y2="38" stroke="currentColor" opacity="0.3" stroke-linecap="round"/>
  </svg>
  </div>
- <p class="empty-state-title">업무가 없습니다</p>
- <p class="empty-state-desc">첫 할일을 추가해보세요</p>
- <button type="button" data-action="scroll-to-add-form" data-form-id="addForm"
+ <p id="todo-empty-title" class="empty-state-title">업무가 없습니다</p>
+ <p id="todo-empty-desc" class="empty-state-desc">첫 할일을 추가해보세요</p>
+ <button type="button" data-action="scroll-to-add-form" data-form-id="addForm" aria-label="새 할일 입력 폼으로 이동"
  class="mt-4 px-4 py-2 text-sm font-medium btn-primary rounded-lg transition-colors">
  할일 추가하기
  </button>
@@ -314,6 +378,7 @@
 </nav>
 {% endif %}
 
+</div>
 {% endblock %}
 
 {% block scripts %}

@@ -199,7 +199,7 @@ async def edit_worklog_form(request: Request, log_id: int):
             "SELECT * FROM work_logs WHERE id=? AND profile_id=?", (log_id, pid)
         ).fetchone()
         if not log:
-            return HTMLResponse("")
+            raise HTTPException(status_code=404, detail="업무일지를 찾을 수 없습니다")
         categories = S.get_categories(conn, pid)
     return S.templates.TemplateResponse(request, "partials/worklog_edit_form.html", {
         "log": dict(log),

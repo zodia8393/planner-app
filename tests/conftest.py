@@ -4,17 +4,44 @@ Shared fixtures for all planner tests.
 Each app is imported once with an isolated temp DB.
 """
 
-import sys
 import importlib
 import atexit
+import asyncio
 import tempfile
 import shutil
+import sys
 from pathlib import Path
+from functools import partial
+from threading import Thread
+from typing import Any
 
 import httpx
 import pytest_asyncio
 
 _cleanup_dirs: list[Path] = []
+
+
+def run_async(coro):
+    """Run async test helpers from sync Playwright tests even under pytest-asyncio."""
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+    result: dict[str, Any] = {}
+
+    def runner():
+        try:
+            result["value"] = asyncio.run(coro)
+        except BaseException as exc:
+            result["error"] = exc
+
+    thread = Thread(target=runner, daemon=True)
+    thread.start()
+    thread.join()
+    if "error" in result:
+        raise result["error"]
+    return result.get("value")
 
 
 @atexit.register
@@ -38,6 +65,9 @@ def _import_app(path: str, alias: str):
     tmp = Path(tempfile.mkdtemp(prefix=f"test_{alias}_"))
     _cleanup_dirs.append(tmp)
     mod.DB_PATH = tmp / "test.db"
+    if hasattr(mod, "_common_get_db"):
+        mod.get_db = partial(mod._common_get_db, mod.DB_PATH)
+        mod.app.state.get_db = mod.get_db
 
     if hasattr(mod, "UPLOAD_DIR"):
         mod.UPLOAD_DIR = tmp / "uploads"
@@ -50,9 +80,9 @@ def _import_app(path: str, alias: str):
     return mod.app, mod
 
 
-jm_app, jm_mod = _import_app("/workspace/app_planners/jm", "jm_main")
-my_app, my_mod = _import_app("/workspace/app_planners/my", "my_main")
-work_app, work_mod = _import_app("/workspace/app_planners/work", "work_main")
+jm_app, jm_mod = _import_app("/workspace/app/planners/jm", "jm_main")
+my_app, my_mod = _import_app("/workspace/app/planners/my", "my_main")
+work_app, work_mod = _import_app("/workspace/app/planners/work", "work_main")
 
 
 # ---------------------------------------------------------------------------

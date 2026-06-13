@@ -30,6 +30,7 @@ function updateAddRrulePreview() {
 }
 /* Collect byday before form submit */
 document.addEventListener('submit', function(e) {
+ if (!e.target || !e.target.closest) return;
  if (e.target.closest('#addForm')) {
  var checks = document.querySelectorAll('.rrule-byday-add:checked');
  var vals = Array.from(checks).map(function(c) { return c.value; });
@@ -83,6 +84,7 @@ function bulkModeOff() {
  });
 }
 function _bulkToggleItem(e) {
+ if (!e.target || !e.target.closest) return;
  if (e.target.closest('button, a, input, form')) return;
  var id = this.dataset.todoId;
  if (_bulkSelected.has(id)) {

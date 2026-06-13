@@ -6,7 +6,6 @@
     <title>시작하기 - MY PLANNER</title>
     <meta name="theme-color" content="#b45309">
     <link rel="stylesheet" href="/static/tailwind.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <style>
         .setup-bg {
             background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #fef3c7 100%);
@@ -73,8 +72,8 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700 p-6">
             <form action="/setup" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">{% if profiles %}새 프로필 만들기{% else %}이름{% endif %}</label>
-                    <input type="text" name="name" placeholder="사용할 이름을 입력하세요" required {% if not profiles %}autofocus{% endif %}
+                    <label for="profileName" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">{% if profiles %}새 프로필 만들기{% else %}이름{% endif %}</label>
+                    <input type="text" id="profileName" name="name" placeholder="사용할 이름을 입력하세요" required {% if not profiles %}autofocus{% endif %}
                            maxlength="50"
                            class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
                 </div>
